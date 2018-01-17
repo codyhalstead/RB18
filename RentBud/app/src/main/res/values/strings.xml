@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">RentBud</string>
+
+    <!-- login/signup -->
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="create_account_link">No account yet? Create one</string>
+    <string name="create_account">Create Account</string>
+    <string name="already_a_member_link">Already a member? Login</string>
+    <string name="enter_valid_email">Please enter a valid Email address ex: user@provider.com</string>
+    <string name="email_empty">Please enter a valid Email address</string>
+    <string name="password_requirements">Password must be between 4 and 15 alphanumeric characters</string>
+    <string name="password_empty">Please enter a password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="name">Name</string>
+    <string name="name_empty">Please enter your name</string>
+    <string name="password_doesnt_match">Password does not match</string>
+    <string name="password_confirmation_empty">Please confirm password</string>
+    <string name="email_used">Email already used</string>
+    <string name="account_creation_failed">Account creation failed</string>
+    <string name="account_creation_success">Account creation success</string>
+    <string name="login_failed">Login failed</string>
+
+</resources>

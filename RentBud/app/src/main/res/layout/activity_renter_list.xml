@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:orientation="vertical">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/renterSearchToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="?attr/colorPrimary"
+            android:orientation="vertical"
+            >
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:background="?attr/colorPrimary"
+                android:paddingRight="15dp"
+                >
+
+                <EditText
+                    android:id="@+id/editMobileNo"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_margin="5dp"
+                    android:background="@color/white"
+                    android:ems="10"
+                    android:hint="Search"
+                    android:drawableLeft="@drawable/ic_search_black_24dp"
+                    android:gravity="left|center" >
+                </EditText>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </android.support.v7.widget.Toolbar>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="28dp"
+        android:text="No current renters"
+        android:gravity="center"
+        android:layout_marginTop="200dp"
+        />
+
+
+    <ListView
+    android:id="@+id/mainRenterListView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+
+</ListView>
+
+
+</LinearLayout>
