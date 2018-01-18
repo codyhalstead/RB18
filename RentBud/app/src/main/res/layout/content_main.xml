@@ -6,7 +6,7 @@ xmlns:tools="http://schemas.android.com/tools"
 android:layout_width="match_parent"
 android:layout_height="match_parent"
 android:layout_marginTop="?android:attr/actionBarSize"
-tools:context="com.example.cody.rentbud.com.rentbud.activities.MainActivity">
+tools:context="com.rentbud.activities.MainActivity">
 
 <FrameLayout
     android:layout_width="match_parent"

@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -30,6 +31,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     SharedPreferences preferences;
     private User user;
     public int fragCode;
+    Fragment fragment;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -61,13 +63,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (user.getEmail().equals("")) {
             Intent intent = new Intent(this, LoginActivity.class);
             startActivityForResult(intent, REQUEST_SIGNIN);
-            this.setTitle("Initial View");
+
         } else {
             if (savedInstanceState != null) {
                 if(savedInstanceState.getInt("fragCode") == 1){
-                    fragCode = 2;
+                    fragCode = 1;
                     displaySelectedScreen(R.id.nav_calendar);
                 }
+                else if(savedInstanceState.getInt("fragCode") == 2){
+                    fragCode = 2;
+                    displaySelectedScreen(R.id.nav_rental);
+                }
+                else if(savedInstanceState.getInt("fragCode") == 3){
+                    fragCode = 3;
+                    displaySelectedScreen(R.id.nav_renter);
+                }
+                else {
+                    fragCode = 0;
+                    displaySelectedScreen(R.id.nav_home);
+                }
+
             } else {
                 fragCode = 0;
                 displaySelectedScreen(R.id.nav_home);
@@ -78,6 +93,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onResume() {
         super.onResume();
+        String name = preferences.getString("last_user_name", "");
+        String email = preferences.getString("last_user_email", "");
+        String password = preferences.getString("last_user_password", "");
+        this.user = new User(name, email, password);
+
     }
 
     @Override
@@ -102,6 +122,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 editor.putString("last_user_email", user.getEmail());
                 editor.putString("last_user_password", user.getPassword());
                 editor.commit();
+                android.support.v4.app.FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                displaySelectedScreen(R.id.nav_home);
             }
         }
     }
@@ -112,6 +134,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         editor.putString("last_user_email", "");
         editor.putString("last_user_password", "");
         editor.commit();
+        fragCode = 0;
+        user = null;
         Intent intent = new Intent(this, LoginActivity.class);
         startActivityForResult(intent, REQUEST_SIGNIN);
     }
@@ -153,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void displaySelectedScreen(int id) {
-        android.support.v4.app.Fragment fragment = null;
+        fragment = null;
         switch (id) {
 
             case R.id.nav_home:

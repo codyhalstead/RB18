@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
 
-    tools:context="com.example.cody.rentbud.com.rentbud.activities.MainActivity">
+    tools:context="com.rentbud.activities.MainActivity">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -67,30 +67,13 @@
             android:text="@string/email" />
 
 
-        <Button
-            android:id="@+id/oSBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/email"
-            android:onClick="newScreenPreview"
-            android:text="rental screen preview" />
-
-        <Button
-            android:id="@+id/oS2Btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/oSBtn"
-            android:onClick="newScreenPreview2"
-            android:text="renter screen preview" />
 
         <Button
             android:id="@+id/colorbtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/oS2Btn"
+            android:layout_below="@+id/email"
             android:text="Color changer"
-            android:onClick="cpicker"
             />
     </RelativeLayout>
 </ScrollView>
-
