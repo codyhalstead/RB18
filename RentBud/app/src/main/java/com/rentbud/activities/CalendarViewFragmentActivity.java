@@ -24,7 +24,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 @SuppressLint("SimpleDateFormat")
-public class CalendarViewActivity extends FragmentActivity {
+public class CalendarViewFragmentActivity extends FragmentActivity {
     private boolean undo = false;
     private CaldroidFragment caldroidFragment;
     private CaldroidFragment dialogCaldroidFragment;

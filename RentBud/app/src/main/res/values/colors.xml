@@ -3,9 +3,39 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
-    <color name="blue">#29B6F6</color>
-    <color name="purple">#4c008e</color>
-    <color name="darkPurple">#360066</color>
     <color name="white">#FFFFFF</color>
     <color name="red">#FF0000</color>
+    <color name="purple">#4c008e</color>
+    <color name="darkPurple">#360066</color>
+
+    <color name="red_colorPrimary">#ff0000</color>
+    <color name="red_colorPrimaryDark">#DF0000</color>
+    <color name="red_accent">#b9a313</color>
+
+    <color name="pink_colorPrimary">#e91e63</color>
+    <color name="pink_colorPrimaryDark">#CB1755</color>
+    <color name="pink_accent">#dd99ea</color>
+
+    <color name="purple_colorPrimary">#4c008e</color>
+    <color name="purple_colorPrimaryDark">#360066</color>
+    <color name="purple_colorAccent">#9677e7</color>
+
+    <color name="green_colorPrimary">#4CAF50</color>
+    <color name="green_colorPrimaryDark">#419744</color>
+    <color name="green_accent">#261901</color>
+
+    <color name="blue_colorPrimary">#253ece</color>
+    <color name="blue_colorPrimaryDark">#0421bf</color>
+    <color name="blue_colorAccent">#e81d62</color>
+
+    <color name="orange_colorPrimary">#f47303</color>
+    <color name="orange_colorPrimaryDark">#d74800</color>
+    <color name="orange_accent">#da6e30</color>
+
+    <color name="brown_colorPrimary">#795548</color>
+    <color name="brown_colorPrimaryDark">#63453B</color>
+    <color name="brown_colorAccent">#e81d62</color>
+
+    <color name="greybackground">#4d4c4b</color>
+    <color name="lightblue">#29B6F6</color>
 </resources>

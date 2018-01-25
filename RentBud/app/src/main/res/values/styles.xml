@@ -6,10 +6,10 @@
 
         <item name="colorPrimary">@color/purple</item>
         <item name="colorPrimaryDark">@color/darkPurple</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorAccent">@color/purple_colorAccent</item>
         <item name="android:textColor">#000000</item>
         <item name="android:editTextColor">#000000</item>
-        <item name="android:colorBackground">@color/blue</item>
+        <item name="android:colorBackground">@color/white</item>
     </style>
 
 
@@ -26,4 +26,68 @@
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="AppTheme_red" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/red_colorPrimary</item>
+        <item name="colorPrimaryDark">@color/red_colorPrimaryDark</item>
+        <item name="colorAccent">@color/red_accent</item>
+        <item name="android:colorBackground">@color/white</item>
+    </style>
+
+    <style name="AppTheme_pink_blue" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/pink_colorPrimary</item>
+        <item name="colorPrimaryDark">@color/pink_colorPrimaryDark</item>
+        <item name="colorAccent">@color/pink_accent</item>
+        <item name="android:colorBackground">@color/lightblue</item>
+    </style>
+
+    <style name="AppTheme_purple_blue" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/purple_colorPrimary</item>
+        <item name="colorPrimaryDark">@color/purple_colorPrimaryDark</item>
+        <item name="colorAccent">@color/purple_colorAccent</item>
+        <item name="android:colorBackground">@color/lightblue</item>
+    </style>
+
+    <style name="AppTheme_blue" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/blue_colorPrimary</item>
+        <item name="colorPrimaryDark">@color/blue_colorPrimaryDark</item>
+        <item name="colorAccent">@color/blue_colorAccent</item>
+        <item name="android:colorBackground">@color/white</item>
+    </style>
+
+    <style name="AppTheme_green" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/green_colorPrimary</item>
+        <item name="colorPrimaryDark">@color/green_colorPrimaryDark</item>
+        <item name="colorAccent">@color/green_accent</item>
+        <item name="android:colorBackground">@color/white</item>
+    </style>
+
+    <style name="AppTheme_brown" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/brown_colorPrimary</item>
+        <item name="colorPrimaryDark">@color/brown_colorPrimaryDark</item>
+        <item name="colorAccent">@color/brown_colorAccent</item>
+        <item name="android:colorBackground">@color/white</item>
+    </style>
+
+    <style name="AppTheme_orange_grey" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/orange_colorPrimary</item>
+        <item name="colorPrimaryDark">@color/orange_colorPrimaryDark</item>
+        <item name="colorAccent">@color/orange_accent</item>
+        <item name="android:colorBackground">@color/greybackground</item>
+    </style>
+
+    <style name="AppTheme_pink" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/pink_colorPrimary</item>
+        <item name="colorPrimaryDark">@color/pink_colorPrimaryDark</item>
+        <item name="colorAccent">@color/pink_accent</item>
+        <item name="android:colorBackground">@color/white</item>
+    </style>
+
+    <style name="AppTheme_orange" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/orange_colorPrimary</item>
+        <item name="colorPrimaryDark">@color/orange_colorPrimaryDark</item>
+        <item name="colorAccent">@color/orange_accent</item>
+        <item name="android:colorBackground">@color/white</item>
+    </style>
+
 </resources>

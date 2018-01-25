@@ -29,10 +29,15 @@
         <activity android:name="com.rentbud.activities.EmailVerificationActivity">
 
         </activity>
-        <activity android:name="com.rentbud.activities.CalendarViewActivity"
+        <activity android:name="com.rentbud.activities.CalendarViewFragmentActivity"
             >
         </activity>
         <activity android:name="com.rentbud.activities.SingleDateView"
+            android:theme="@style/AppTheme.NoActionBar"
+            >
+        </activity>
+        <activity android:name="com.rentbud.activities.SettingsActivity"
+            android:theme="@style/AppTheme.NoActionBar"
             >
         </activity>
     </application>

@@ -332,7 +332,7 @@ public class CalendarFragment extends android.support.v4.app.Fragment {
     public void showPopup(View v) {
         PopupWindow popupWindow;
         LayoutInflater layoutInflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        final View popupView = layoutInflater.inflate(R.layout.calendar_key_popup2, null);
+        final View popupView = layoutInflater.inflate(R.layout.popup_calendar_key, null);
 
         popupWindow = new PopupWindow(
                 popupView,

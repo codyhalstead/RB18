@@ -1,7 +1,11 @@
 package com.rentbud.activities;
 
+import android.app.ActionBar;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.TypedArray;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
@@ -13,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,40 +30,45 @@ import com.rentbud.fragments.RenterListFragment;
 import com.rentbud.model.User;
 import com.rentbud.sqlite.DatabaseHandler;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
     public static final int REQUEST_SIGNIN = 77;
     public static DatabaseHandler dbHandler;
     SharedPreferences preferences;
     private User user;
     public int fragCode;
     Fragment fragment;
+    NavigationView navigationView;
+    int curThemeChoice;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.account_creation_success, R.string.account_creation_failed);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
-
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-        navigationView.getMenu().getItem(0).setChecked(true);
-
-        dbHandler = new DatabaseHandler(this);
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         String name = preferences.getString("last_user_name", "");
         String email = preferences.getString("last_user_email", "");
         String password = preferences.getString("last_user_password", "");
         this.user = new User(name, email, password);
+        curThemeChoice = preferences.getInt(email, 0);
+        super.setupUserAppTheme(curThemeChoice);
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        if (Build.VERSION.SDK_INT > 15) {
+            toolbar.setBackground(new ColorDrawable(fetchPrimaryColor()));
+        }
+        setSupportActionBar(toolbar);
+
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.account_creation_success, R.string.account_creation_failed);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+        navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+        navigationView.getMenu().getItem(0).setChecked(true);
+
+        dbHandler = new DatabaseHandler(this);
 
         if (user.getEmail().equals("")) {
             Intent intent = new Intent(this, LoginActivity.class);
@@ -66,19 +76,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         } else {
             if (savedInstanceState != null) {
-                if(savedInstanceState.getInt("fragCode") == 1){
+                if (savedInstanceState.getInt("fragCode") == 1) {
                     fragCode = 1;
                     displaySelectedScreen(R.id.nav_calendar);
-                }
-                else if(savedInstanceState.getInt("fragCode") == 2){
+                } else if (savedInstanceState.getInt("fragCode") == 2) {
                     fragCode = 2;
                     displaySelectedScreen(R.id.nav_rental);
-                }
-                else if(savedInstanceState.getInt("fragCode") == 3){
+                } else if (savedInstanceState.getInt("fragCode") == 3) {
                     fragCode = 3;
                     displaySelectedScreen(R.id.nav_renter);
-                }
-                else {
+                } else {
                     fragCode = 0;
                     displaySelectedScreen(R.id.nav_home);
                 }
@@ -97,7 +104,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         String email = preferences.getString("last_user_email", "");
         String password = preferences.getString("last_user_password", "");
         this.user = new User(name, email, password);
-
+        if(preferences.getInt(user.getEmail(), 0) != curThemeChoice){
+            this.recreate();
+        }
     }
 
     @Override
@@ -122,8 +131,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 editor.putString("last_user_email", user.getEmail());
                 editor.putString("last_user_password", user.getPassword());
                 editor.commit();
+                this.recreate();
                 android.support.v4.app.FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                 displaySelectedScreen(R.id.nav_home);
+                ft.commit();
             }
         }
     }
@@ -133,9 +144,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         editor.putString("last_user_name", "");
         editor.putString("last_user_email", "");
         editor.putString("last_user_password", "");
-        editor.commit();
+        editor.apply();
         fragCode = 0;
         user = null;
+        navigationView.getMenu().getItem(0).setChecked(true);
         Intent intent = new Intent(this, LoginActivity.class);
         startActivityForResult(intent, REQUEST_SIGNIN);
     }
@@ -151,7 +163,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.moreOptions:
-
+                Intent intent = new Intent(this, SettingsActivity.class);
+                startActivity(intent);
                 return true;
 
             case R.id.changeProfilePic:
@@ -192,6 +205,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.nav_calendar:
                 fragment = new CalendarFragment();
                 fragCode = 1;
+                overridePendingTransition(R.anim.pull_in_right, R.anim.push_out_left);
                 break;
 
             case R.id.nav_rental:
@@ -222,18 +236,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         displaySelectedScreen(id);
         return true;
-    }
-
-
-    public void newScreenPreview(View view) {
-        Intent intent = new Intent(this, CalendarViewActivity.class);
-        this.setTitle("Calendar View");
-        startActivity(intent);
-    }
-
-
-    public void newScreenPreview2(View view) {
-        setContentView(R.layout.activity_renter_view);
     }
 
     @Override
