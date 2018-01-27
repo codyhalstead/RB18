@@ -1,10 +1,12 @@
 package com.rentbud.sqlite;
 
+import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Build;
 
 import com.rentbud.helpers.RandomNumberGenerator;
 import com.rentbud.model.User;
@@ -13,16 +15,116 @@ import com.rentbud.model.User;
  * Created by Cody on 12/12/2017.
  */
 
-public class DatabaseHandler extends SQLiteOpenHelper{
+public class DatabaseHandler extends SQLiteOpenHelper {
     public static int DATABASE_VERSION = 1;
     public static String DB_FILE_NAME = "allData.db";
+
     public static final String USER_INFO_TABLE = "user_info_table";
-    public static final String USER_INFO_ID_COLUMN = "_id";
+    public static final String USER_INFO_ID_COLUMN_PK = "_id";
     public static final String USER_INFO_NAME_COLUMN = "user_info_name";
     public static final String USER_INFO_EMAIL_COLUMN = "user_info_email";
     public static final String USER_INFO_PASSWORD_COLUMN = "user_info_password";
     public static final String USER_INFO_IS_VERIFIED_COLUMN = "user_info_is_verified";
-    public static final String USER_INFO_VERIFICATION_NUMBER_COLUMN = "user_info_verification_number";
+    public static final String USER_INFO_PROFILE_PIC = "user_info_profile_pic";
+    public static final String USER_INFO_DATE_CREATED_COLUMN = "user_info_date_created";
+    public static final String USER_INFO_LAST_UPDATE_COLUMN = "user_info_last_update";
+    public static final String USER_INFO_IS_ACTIVE_COLUMN = "user_info_is_active";
+
+    public static final String TENANT_INFO_TABLE = "tenant_info_table";
+    public static final String TENANT_INFO_ID_COLUMN_PK = "_id";
+    public static final String TENANT_INFO_USER_ID_COLUMN_FK = "tenant_info_user_id";
+    public static final String TENANT_INFO_FIRST_NAME_COLUMN = "tenant_info_first_name";
+    public static final String TENANT_INFO_LAST_NAME_COLUMN = "tenant_info_last_name";
+    public static final String TENANT_INFO_PHONE_COLUMN = "tenant_info_phone";
+    public static final String TENANT_INFO_APARTMENT_ID_COLUMN_FK = "tenant_info_apartment_id";
+    public static final String TENANT_INFO_PAYMENT_DAY_COLUMN = "tenant_info_payment_day";
+    public static final String TENANT_INFO_NOTES_COLUMN = "tenant_info_notes";
+    public static final String TENANT_INFO_LEASE_START_COLUMN = "tenant_info_lease_start";
+    public static final String TENANT_INFO_LEASE_END_COLUMN = "tenant_info_lease_end";
+    public static final String TENANT_INFO_DATE_CREATED_COLUMN = "tenant_info_date_created";
+    public static final String TENANT_INFO_LAST_UPDATE_COLUMN = "tenant_info_last_update";
+    public static final String TENANT_INFO_IS_ACTIVE_COLUMN = "tenant_info_is_active";
+
+    public static final String APARTMENT_INFO_TABLE = "apartment_info_table";
+    public static final String APARTMENT_INFO_ID_COLUMN_PK = "_id";
+    public static final String APARTMENT_INFO_USER_ID_COLUMN_FK = "apartment_info_user_id";
+    public static final String APARTMENT_INFO_STREET1_COLUMN = "apartment_info_street1";
+    public static final String APARTMENT_INFO_STREET2_COLUMN = "apartment_info_street2";
+    public static final String APARTMENT_INFO_CITY_COLUMN = "apartment_info_city";
+    public static final String APARTMENT_INFO_STATE_COLUMN_FK = "apartment_info_state";
+    public static final String APARTMENT_INFO_ZIP_COLUMN = "apartment_info_zip";
+    public static final String APARTMENT_INFO_NOTES_COLUMN = "apartment_info_notes";
+    public static final String APARTMENT_INFO_MAIN_PIC_COLUMN = "apartment_info_main_pic";
+    public static final String APARTMENT_INFO_DATE_CREATED_COLUMN = "apartment_info_date_created";
+    public static final String APARTMENT_INFO_LAST_UPDATE_COLUMN = "apartment_info_last_update";
+    public static final String APARTMENT_INFO_IS_ACTIVE_COLUMN = "apartment_info_is_active";
+
+    public static final String PAYMENT_LOG_TABLE = "payment_log_table";
+    public static final String PAYMENT_LOG_ID_COLUMN_PK = "_id";
+    public static final String PAYMENT_LOG_USER_ID_COLUMN_FK = "payment_log_user_id";
+    public static final String PAYMENT_LOG_PAYMENT_DATE_COLUMN = "payment_log_payment_date";
+    public static final String PAYMENT_LOG_TYPE_ID_COLUMN_FK = "payment_log_type_id";
+    public static final String PAYMENT_LOG_TENANT_ID_COLUMN_FK = "payment_log_tenant_id";
+    public static final String PAYMENT_LOG_AMOUNT_COLUMN = "payment_log_amount";
+    public static final String PAYMENT_LOG_DATE_CREATED_COLUMN = "payment_log_date_created";
+    public static final String PAYMENT_LOG_LAST_UPDATE_COLUMN = "payment_log_last_update";
+    public static final String PAYMENT_LOG_IS_ACTIVE_COLUMN = "payment_log_is_active";
+
+    public static final String EXPENSE_LOG_TABLE = "expense_log_table";
+    public static final String EXPENSE_LOG_ID_COLUMN_PK = "_id";
+    public static final String EXPENSE_LOG_USER_ID_COLUMN_FK = "expense_log_user_id";
+    public static final String EXPENSE_LOG_EXPENSE_DATE_COLUMN = "expense_log_expense_date";
+    public static final String EXPENSE_LOG_AMOUNT_COLUMN = "expense_log_amount";
+    public static final String EXPENSE_LOG_APARTMENT_ID_COLUMN_FK = "expense_log_apartment_id";
+    public static final String EXPENSE_LOG_DESCRIPTION_COLUMN = "expense_log_description";
+    public static final String EXPENSE_LOG_TYPE_ID_COLUMN_FK = "expense_log_type_id";
+    public static final String EXPENSE_LOG_RECIPT_PIC = "expense_log_recipt_pic";
+    public static final String EXPENSE_LOG_DATE_CREATED_COLUMN = "expense_log_date_created";
+    public static final String EXPENSE_LOG_LAST_UPDATE_COLUMN = "expense_log_last_update";
+    public static final String EXPENSE_LOG_IS_ACTIVE_COLUMN = "expense_log_is_active";
+
+    public static final String EVENT_LOG_TABLE = "event_log_table";
+    public static final String EVENT_LOG_ID_COLUMN_PK = "_id";
+    public static final String EVENT_LOG_USER_ID_COLUMN_FK = "event_log_user_id";
+    public static final String EVENT_LOG_EVENT_TIME_COLUMN = "event_log_event_time";
+    public static final String EVENT_LOG_TYPE_ID_COLUMN_FK = "event_log_type_id";
+    public static final String EVENT_LOG_DESCRIPTION_COLUMN = "event_log_description";
+    public static final String EVENT_LOG_APARTMENT_ID_COLUMN_FK = "event_log_apartment_id";
+    public static final String EVENT_LOG_TENANT_ID_COLUMN_FK = "event_log_tenant_id";
+    public static final String EVENT_LOG_DATE_CREATED_COLUMN = "event_log_date_created";
+    public static final String EVENT_LOG_LAST_UPDATE_COLUMN = "event_log_last_update";
+    public static final String EVENT_LOG_IS_ACTIVE_COLUMN = "event_log_is_active";
+
+    public static final String TYPES_TABLE = "types_table";
+    public static final String TYPES_ID_COLUMN_PK = "_id";
+    public static final String TYPES_TYPE_COLUMN = "types_type";
+    public static final String TYPES_DATE_CREATED_COLUMN = "types_date_created";
+    public static final String TYPES_LAST_UPDATE_COLUMN = "types_last_update";
+    public static final String TYPES_IS_ACTIVE_COLUMN = "types_is_active";
+
+    public static final String TYPE_LOOKUP_TABLE = "type_lookup_table";
+    public static final String TYPE_LOOKUP_ID_COLUMN_PK = "_id";
+    public static final String TYPE_LOOKUP_TYPE_ID_COLUMN_FK = "type_lookup_type_id";
+    public static final String TYPE_LOOKUP_LABEL_COLUMN = "type_lookup_label";
+    public static final String TYPE_LOOKUP_DATE_CREATED_COLUMN = "type_lookup_date_created";
+    public static final String TYPE_LOOKUP_LAST_UPDATE_COLUMN = "type_lookup_last_update";
+    public static final String TYPE_LOOKUP_IS_ACTIVE_COLUMN = "type_lookup_is_active";
+
+    public static final String STATE_TABLE = "state_table";
+    public static final String STATE_ID_COLUMN_PK = "_id";
+    public static final String STATE_STATE_ABR_COLUMN = "state_state_abr";
+    public static final String STATE_DATE_CREATED_COLUMN = "state_date_created";
+    public static final String STATE_LAST_UPDATE_COLUMN = "state_last_update";
+    public static final String STATE_IS_ACTIVE_COLUMN = "state_is_active";
+
+    public static final String APARTMENT_PICS_TABLE = "apartment_pics_table";
+    public static final String APARTMENT_PICS_ID_COLUMN_PK = "_id";
+    public static final String APARTMENT_PICS_USER_ID_COLUMN_FK = "apartment_pics_user_id";
+    public static final String APARTMENT_PICS_APARTMENT_ID_COLUMN_FK = "apartment_pics_apartment_id";
+    public static final String APARTMENT_PICS_PIC_COLUMN = "apartment_pics_pic";
+    public static final String APARTMENT_PICS_DATE_CREATED_COLUMN = "apartment_pics_date_created";
+    public static final String APARTMENT_PICS_LAST_UPDATED_COLUMN = "apartment_pics_last_update";
+    public static final String APARTMENT_PICS_IS_ACTIVE_COLUMN = "appartment_pics_is_active";
 
     RandomNumberGenerator verificationGenerator;
 
@@ -37,7 +139,7 @@ public class DatabaseHandler extends SQLiteOpenHelper{
         contentValues.put(USER_INFO_NAME_COLUMN, user.getName());
         contentValues.put(USER_INFO_EMAIL_COLUMN, user.getEmail());
         contentValues.put(USER_INFO_PASSWORD_COLUMN, user.getPassword());
-        contentValues.put(USER_INFO_VERIFICATION_NUMBER_COLUMN, verificationGenerator.gererateVerificationNumber(5));
+        //contentValues.put(USER_INFO_VERIFICATION_NUMBER_COLUMN, verificationGenerator.gererateVerificationNumber(5));
         db.insert(USER_INFO_TABLE, null, contentValues);
         db.close();
     }
@@ -45,7 +147,7 @@ public class DatabaseHandler extends SQLiteOpenHelper{
     public void changeVerificationNumber(String email) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put(USER_INFO_VERIFICATION_NUMBER_COLUMN, verificationGenerator.gererateVerificationNumber(5));
+        //contentValues.put(USER_INFO_VERIFICATION_NUMBER_COLUMN, verificationGenerator.gererateVerificationNumber(5));
         db.update(USER_INFO_TABLE, contentValues, USER_INFO_EMAIL_COLUMN + " = " + email, null);
         db.close();
     }
@@ -60,14 +162,14 @@ public class DatabaseHandler extends SQLiteOpenHelper{
         values.put(USER_INFO_PASSWORD_COLUMN, user.getPassword());
 
         // updating row
-        db.update(USER_INFO_TABLE, values, USER_INFO_ID_COLUMN + " = ?", new String[]{String.valueOf(user.getId())});
+        db.update(USER_INFO_TABLE, values, USER_INFO_ID_COLUMN_PK + " = ?", new String[]{String.valueOf(user.getId())});
         db.close();
     }
 
-    public void deleteUser(User user){
+    public void deleteUser(User user) {
         SQLiteDatabase db = this.getWritableDatabase();
         // delete user record by id
-        db.delete(USER_INFO_TABLE, USER_INFO_ID_COLUMN + " = ?",
+        db.delete(USER_INFO_TABLE, USER_INFO_ID_COLUMN_PK + " = ?",
                 new String[]{String.valueOf(user.getId())});
         db.close();
     }
@@ -76,7 +178,7 @@ public class DatabaseHandler extends SQLiteOpenHelper{
 
         // array of columns to fetch
         String[] columns = {
-                USER_INFO_ID_COLUMN
+                USER_INFO_ID_COLUMN_PK
         };
         SQLiteDatabase db = this.getReadableDatabase();
 
@@ -104,7 +206,7 @@ public class DatabaseHandler extends SQLiteOpenHelper{
 
         // array of columns to fetch
         String[] columns = {
-                USER_INFO_ID_COLUMN
+                USER_INFO_ID_COLUMN_PK
         };
         SQLiteDatabase db = this.getReadableDatabase();
         // selection criteria
@@ -113,15 +215,15 @@ public class DatabaseHandler extends SQLiteOpenHelper{
         // selection arguments
         String[] selectionArgs = {email, password};
 
-        Cursor cursor = db.query(USER_INFO_TABLE, columns, selection, selectionArgs, null, null,null);
+        Cursor cursor = db.query(USER_INFO_TABLE, columns, selection, selectionArgs, null, null, null);
         int cursorCount = cursor.getCount();
 
         cursor.close();
         db.close();
-        return  (cursorCount > 0);
+        return (cursorCount > 0);
     }
 
-    public String getUserName(String email){
+    public String getUserName(String email) {
         SQLiteDatabase db = this.getReadableDatabase();
         String Query = "Select * from " + USER_INFO_TABLE + " where " + USER_INFO_EMAIL_COLUMN + " like '%" + email + "%' LIMIT 1";
         Cursor cursor = db.rawQuery(Query, null);
@@ -140,18 +242,203 @@ public class DatabaseHandler extends SQLiteOpenHelper{
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String sqlTable = "CREATE TABLE IF NOT EXISTS " + USER_INFO_TABLE + " ( " +
-                USER_INFO_ID_COLUMN + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                USER_INFO_NAME_COLUMN + " VARCHAR, " +
-                USER_INFO_EMAIL_COLUMN + " VARCHAR(25), " +
-                USER_INFO_PASSWORD_COLUMN + " VARCHAR(15), " +
-                USER_INFO_IS_VERIFIED_COLUMN + " BOOLEAN NOT NULL DEFAULT 0, " +
-                USER_INFO_VERIFICATION_NUMBER_COLUMN + " VARCHAR(5) )";
-        db.execSQL(sqlTable);
+        createUserInfoTable(db);
+        createStateTable(db);
+        createTypesTable(db); //lookuptype
+        createTypeLookupTable(db); //lookup
+        createApartmentInfoTable(db);
+        createApartmentPicsTable(db);
+        createTenantInfoTable(db);
+        createEventLogTable(db);
+        createExpenseLogTable(db);
+        createPaymentLogTable(db);
+        populateStateTable(db);
+    }
+
+    @Override
+    public void onOpen(SQLiteDatabase db) {
+        super.onOpen(db);
+        if (!db.isReadOnly()) {
+            setForeignKeyConstraintsEnabled(db);
+        }
+    }
+
+    private void setForeignKeyConstraintsEnabled(SQLiteDatabase db) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+            setForeignKeyConstraintsEnabledPreJellyBean(db);
+        } else {
+            setForeignKeyConstraintsEnabledPostJellyBean(db);
+        }
+    }
+
+    private void setForeignKeyConstraintsEnabledPreJellyBean(SQLiteDatabase db) {
+        db.execSQL("PRAGMA foreign_keys=1;");
+    }
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    private void setForeignKeyConstraintsEnabledPostJellyBean(SQLiteDatabase db) {
+        db.setForeignKeyConstraintsEnabled(true);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
+    }
+
+    private void createUserInfoTable(SQLiteDatabase db) {
+        String userTable = "CREATE TABLE IF NOT EXISTS " + USER_INFO_TABLE + " ( " +
+                USER_INFO_ID_COLUMN_PK + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                USER_INFO_NAME_COLUMN + " VARCHAR(10), " +
+                USER_INFO_EMAIL_COLUMN + " VARCHAR(25), " +
+                USER_INFO_PASSWORD_COLUMN + " VARCHAR(15), " +
+                USER_INFO_IS_VERIFIED_COLUMN + " BOOLEAN NOT NULL DEFAULT 0, " +
+                USER_INFO_PROFILE_PIC + " BLOB, " +
+                USER_INFO_DATE_CREATED_COLUMN + " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
+                USER_INFO_LAST_UPDATE_COLUMN + " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
+                USER_INFO_IS_ACTIVE_COLUMN + " BOOLEAN NOT NULL DEFAULT 1 " +
+                ");";
+        db.execSQL(userTable);
+    }
+
+    private void createTenantInfoTable(SQLiteDatabase db) {
+        String tenantTable = "CREATE TABLE IF NOT EXISTS " + TENANT_INFO_TABLE + " ( " +
+                TENANT_INFO_ID_COLUMN_PK + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                TENANT_INFO_USER_ID_COLUMN_FK + " INTEGER REFERENCES " + USER_INFO_TABLE + "(" + USER_INFO_ID_COLUMN_PK + "), " +
+                TENANT_INFO_FIRST_NAME_COLUMN + " VARCHAR(10), " +
+                TENANT_INFO_LAST_NAME_COLUMN + " VARCHAR(15), " +
+                TENANT_INFO_PHONE_COLUMN + " VARCHAR(12), " +
+                TENANT_INFO_APARTMENT_ID_COLUMN_FK + " INTEGER REFERENCES " + APARTMENT_INFO_TABLE + "(" + APARTMENT_INFO_ID_COLUMN_PK + "), " +
+                TENANT_INFO_PAYMENT_DAY_COLUMN + " INTEGER, " +
+                TENANT_INFO_NOTES_COLUMN + " VARCHAR(150), " +
+                TENANT_INFO_LEASE_START_COLUMN + " DATETIME, " +
+                TENANT_INFO_LEASE_END_COLUMN + " DATETIME, " +
+                TENANT_INFO_DATE_CREATED_COLUMN + " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
+                TENANT_INFO_LAST_UPDATE_COLUMN + " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
+                TENANT_INFO_IS_ACTIVE_COLUMN + " BOOLEAN NOT NULL DEFAULT 1 " +
+                ");";
+        db.execSQL(tenantTable);
+    }
+
+    private void createApartmentInfoTable(SQLiteDatabase db) {
+        String apartmentTable = "CREATE TABLE IF NOT EXISTS " + APARTMENT_INFO_TABLE + " ( " +
+                APARTMENT_INFO_ID_COLUMN_PK + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                APARTMENT_INFO_USER_ID_COLUMN_FK + " INTEGER REFERENCES " + USER_INFO_TABLE + "(" + USER_INFO_ID_COLUMN_PK + "), " +
+                APARTMENT_INFO_STREET1_COLUMN + " VARCHAR(20), " +
+                APARTMENT_INFO_STREET2_COLUMN + " VARCHAR(20), " +
+                APARTMENT_INFO_CITY_COLUMN + " VARCHAR(15), " +
+                APARTMENT_INFO_STATE_COLUMN_FK + " INTEGER REFERENCES " + STATE_TABLE + "(" + STATE_ID_COLUMN_PK + "), " +
+                APARTMENT_INFO_ZIP_COLUMN + " INTEGER, " +
+                APARTMENT_INFO_NOTES_COLUMN + " VARCHAR(150), " +
+                APARTMENT_INFO_MAIN_PIC_COLUMN + " BLOB, " +
+                APARTMENT_INFO_DATE_CREATED_COLUMN + " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
+                APARTMENT_INFO_LAST_UPDATE_COLUMN + " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
+                APARTMENT_INFO_IS_ACTIVE_COLUMN + " BOOLEAN NOT NULL DEFAULT 1 " +
+                ");";
+        db.execSQL(apartmentTable);
+    }
+
+    private void createPaymentLogTable(SQLiteDatabase db) {
+        String paymentTable = "CREATE TABLE IF NOT EXISTS " + PAYMENT_LOG_TABLE + " ( " +
+                PAYMENT_LOG_ID_COLUMN_PK + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                PAYMENT_LOG_USER_ID_COLUMN_FK + " INTEGER REFERENCES " + USER_INFO_TABLE + "(" + USER_INFO_ID_COLUMN_PK + "), " +
+                PAYMENT_LOG_PAYMENT_DATE_COLUMN + " DATETIME, " +
+                PAYMENT_LOG_TYPE_ID_COLUMN_FK + " INTEGER REFERENCES " + TYPES_TABLE + "(" + TYPES_ID_COLUMN_PK+ "), " +
+                PAYMENT_LOG_TENANT_ID_COLUMN_FK + " INTEGER REFERENCES " + TENANT_INFO_TABLE + "(" + TENANT_INFO_ID_COLUMN_PK + "), " +
+                PAYMENT_LOG_AMOUNT_COLUMN + " INTEGER, " +
+                PAYMENT_LOG_DATE_CREATED_COLUMN + " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
+                PAYMENT_LOG_LAST_UPDATE_COLUMN + " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
+                PAYMENT_LOG_IS_ACTIVE_COLUMN + " BOOLEAN NOT NULL DEFAULT 1 " +
+                ");";
+        db.execSQL(paymentTable);
+    }
+
+    private void createExpenseLogTable(SQLiteDatabase db) {
+        String expenseTable = "CREATE TABLE IF NOT EXISTS " + EXPENSE_LOG_TABLE + " ( " +
+                EXPENSE_LOG_ID_COLUMN_PK + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                EXPENSE_LOG_USER_ID_COLUMN_FK + " INTEGER REFERENCES " + USER_INFO_TABLE + "(" + USER_INFO_ID_COLUMN_PK + "), " +
+                EXPENSE_LOG_EXPENSE_DATE_COLUMN + " DATETIME, " +
+                EXPENSE_LOG_AMOUNT_COLUMN + " INTEGER, " +
+                EXPENSE_LOG_APARTMENT_ID_COLUMN_FK + " INTEGER REFERENCES " + APARTMENT_INFO_TABLE + "(" + APARTMENT_INFO_ID_COLUMN_PK + "), " +
+                EXPENSE_LOG_DESCRIPTION_COLUMN + " VARCHAR(150), " +
+                EXPENSE_LOG_TYPE_ID_COLUMN_FK + " INTEGER REFERENCES " + TYPES_TABLE + "(" + TYPES_ID_COLUMN_PK + "), " +
+                EXPENSE_LOG_RECIPT_PIC + " BLOB, " +
+                EXPENSE_LOG_DATE_CREATED_COLUMN + " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
+                EXPENSE_LOG_LAST_UPDATE_COLUMN + " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
+                EXPENSE_LOG_IS_ACTIVE_COLUMN + " BOOLEAN NOT NULL DEFAULT 1 " +
+                ");";
+        db.execSQL(expenseTable);
+    }
+
+    private void createEventLogTable(SQLiteDatabase db) {
+        String eventTable = "CREATE TABLE IF NOT EXISTS " + EVENT_LOG_TABLE + " ( " +
+                EVENT_LOG_ID_COLUMN_PK + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                EVENT_LOG_USER_ID_COLUMN_FK + " INTEGER REFERENCES " + USER_INFO_TABLE + "(" + USER_INFO_ID_COLUMN_PK + "), " +
+                EVENT_LOG_EVENT_TIME_COLUMN + " DATETIME, " +
+                EVENT_LOG_TYPE_ID_COLUMN_FK + " INTEGER REFERENCES " + TYPES_TABLE + "(" + TYPES_ID_COLUMN_PK + "), " +
+                EVENT_LOG_DESCRIPTION_COLUMN + " VARCHAR(150), " +
+                EVENT_LOG_APARTMENT_ID_COLUMN_FK + " INTEGER REFERENCES " + APARTMENT_INFO_TABLE + "(" + APARTMENT_INFO_ID_COLUMN_PK + "), " +
+                EVENT_LOG_TENANT_ID_COLUMN_FK + " INTEGER REFERENCES " + TENANT_INFO_TABLE + "(" + TENANT_INFO_ID_COLUMN_PK + "), " +
+                EVENT_LOG_DATE_CREATED_COLUMN + " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
+                EVENT_LOG_LAST_UPDATE_COLUMN + " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
+                EVENT_LOG_IS_ACTIVE_COLUMN + " BOOLEAN NOT NULL DEFAULT 1 " +
+                ");";
+        db.execSQL(eventTable);
+    }
+
+    private void createTypesTable(SQLiteDatabase db) {
+        String typeTable = "CREATE TABLE IF NOT EXISTS " + TYPES_TABLE + " ( " +
+                TYPES_ID_COLUMN_PK + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                TYPES_TYPE_COLUMN + " VARCHAR(10), " +
+                TYPES_DATE_CREATED_COLUMN + " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
+                TYPES_LAST_UPDATE_COLUMN + " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
+                TYPES_IS_ACTIVE_COLUMN + " BOOLEAN NOT NULL DEFAULT 1 " +
+                ");";
+        db.execSQL(typeTable);
+    }
+
+    private void createTypeLookupTable(SQLiteDatabase db) {
+        String typeLookupTable = "CREATE TABLE IF NOT EXISTS " + TYPE_LOOKUP_TABLE + " ( " +
+                TYPE_LOOKUP_ID_COLUMN_PK + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                TYPE_LOOKUP_TYPE_ID_COLUMN_FK + " INTEGER REFERENCES " + TYPES_TABLE + "(" + TYPES_ID_COLUMN_PK + "), " +
+                TYPE_LOOKUP_LABEL_COLUMN + " VARCHAR(15), " +
+                TYPE_LOOKUP_DATE_CREATED_COLUMN + " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
+                TYPE_LOOKUP_LAST_UPDATE_COLUMN + " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
+                TYPE_LOOKUP_IS_ACTIVE_COLUMN + " BOOLEAN NOT NULL DEFAULT 1 " +
+                ");";
+        db.execSQL(typeLookupTable);
+    }
+
+    private void createStateTable(SQLiteDatabase db) {
+        String stateTable = "CREATE TABLE IF NOT EXISTS " + STATE_TABLE + " ( " +
+                STATE_ID_COLUMN_PK + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                STATE_STATE_ABR_COLUMN + " VARCHAR(2), " +
+                STATE_DATE_CREATED_COLUMN + " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
+                STATE_LAST_UPDATE_COLUMN + " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
+                STATE_IS_ACTIVE_COLUMN + " BOOLEAN NOT NULL DEFAULT 1 " +
+                ");";
+        db.execSQL(stateTable);
+    }
+
+    private void createApartmentPicsTable(SQLiteDatabase db) {
+        String apartmentPicsTable = "CREATE TABLE IF NOT EXISTS " + APARTMENT_PICS_TABLE + " ( " +
+                APARTMENT_PICS_ID_COLUMN_PK + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                APARTMENT_PICS_USER_ID_COLUMN_FK + " INTEGER REFERENCES " + USER_INFO_TABLE + "(" + USER_INFO_ID_COLUMN_PK + "), " +
+                APARTMENT_PICS_APARTMENT_ID_COLUMN_FK + " INTEGER REFERENCES " + APARTMENT_INFO_TABLE + "(" + APARTMENT_INFO_ID_COLUMN_PK + "), " +
+                APARTMENT_PICS_PIC_COLUMN + " VARCHAR(150), " +
+                APARTMENT_PICS_DATE_CREATED_COLUMN + " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
+                APARTMENT_PICS_LAST_UPDATED_COLUMN + " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
+                APARTMENT_PICS_IS_ACTIVE_COLUMN + " BOOLEAN NOT NULL DEFAULT 1 " +
+                ");";
+        db.execSQL(apartmentPicsTable);
+    }
+
+    private void populateStateTable(SQLiteDatabase db){
+        String insert = "INSERT INTO '" + STATE_TABLE + "' ('" + STATE_STATE_ABR_COLUMN + "') VALUES" +
+                "(\"AL\"),(\"AK\"),(\"AZ\"),(\"AR\"),(\"CA\"),(\"CO\"),(\"CT\"),(\"DE\"),(\"FL\"),(\"GA\"),(\"HI\"),(\"ID\"),(\"IL\"),(\"IN\")," +
+                "(\"IA\"),(\"KS\"),(\"KY\"),(\"LA\"),(\"ME\"),(\"MD\"),(\"MA\"),(\"MI\"),(\"MN\"),(\"MS\"),(\"MO\"),(\"MT\"),(\"NE\"),(\"NV\")," +
+                "(\"NH\"),(\"NJ\"),(\"NM\"),(\"NY\"),(\"NC\"),(\"ND\"),(\"OH\"),(\"OK\"),(\"OR\"),(\"PA\"),(\"RI\"),(\"SC\"),(\"SD\"),(\"TN\")," +
+                "(\"TX\"),(\"UT\"),(\"VT\"),(\"VA\"),(\"WA\"),(\"WV\"),(\"WI\"),(\"WY\"),(\"AS\"),(\"DC\"),(\"FM\"),(\"GU\"),(\"MH\"),(\"MP\")," +
+                "(\"PW\"),(\"PR\"),(\"VI\")";
+        db.execSQL(insert);
     }
 }
