@@ -7,9 +7,22 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Build;
+import android.util.Log;
 
 import com.rentbud.helpers.RandomNumberGenerator;
+import com.rentbud.model.Apartment;
+import com.rentbud.model.EventLogEntry;
+import com.rentbud.model.ExpenseLogEntry;
+import com.rentbud.model.PaymentLogEntry;
+import com.rentbud.model.Tenant;
 import com.rentbud.model.User;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
+
+import static android.content.ContentValues.TAG;
 
 /**
  * Created by Cody on 12/12/2017.
@@ -175,11 +188,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     public boolean checkUser(String email) {
-
         // array of columns to fetch
-        String[] columns = {
-                USER_INFO_ID_COLUMN_PK
-        };
+        String[] columns = {USER_INFO_ID_COLUMN_PK};
         SQLiteDatabase db = this.getReadableDatabase();
 
         // selection criteria
@@ -203,11 +213,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     public boolean checkUser(String email, String password) {
-
         // array of columns to fetch
-        String[] columns = {
-                USER_INFO_ID_COLUMN_PK
-        };
+        String[] columns = {USER_INFO_ID_COLUMN_PK};
         SQLiteDatabase db = this.getReadableDatabase();
         // selection criteria
         String selection = USER_INFO_EMAIL_COLUMN + " = ?" + " AND " + USER_INFO_PASSWORD_COLUMN + " = ?";
@@ -237,6 +244,159 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             cursor.close();
             db.close();
             return answer;
+        }
+    }
+
+    public TreeMap<String, Integer> getStateTreemap(){
+        TreeMap<String, Integer> stateMap = new TreeMap<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        String Query = "Select * from " + STATE_TABLE + " WHERE " + STATE_IS_ACTIVE_COLUMN + " = 1";
+        Cursor cursor = db.rawQuery(Query, null);
+        if(cursor.moveToFirst()){
+            while (!cursor.isAfterLast()) {
+                int id = cursor.getInt(cursor.getColumnIndex(STATE_ID_COLUMN_PK));
+                String abr = cursor.getString(cursor.getColumnIndex(STATE_STATE_ABR_COLUMN));
+                stateMap.put(abr, id);
+                cursor.moveToNext();
+            }
+            cursor.close();
+            db.close();
+            return stateMap;
+        } else {
+            cursor.close();
+            db.close();
+            return stateMap;
+        }
+    }
+
+    public void addNewTenant(Tenant tenant, int userID){
+        ContentValues values = new ContentValues();
+        SQLiteDatabase db = this.getReadableDatabase();
+        values.put(TENANT_INFO_USER_ID_COLUMN_FK, userID);
+        values.put(TENANT_INFO_FIRST_NAME_COLUMN, tenant.getFirstName());
+        values.put(TENANT_INFO_LAST_NAME_COLUMN, tenant.getLastName());
+        values.put(TENANT_INFO_PHONE_COLUMN, tenant.getPhone());
+        values.put(TENANT_INFO_APARTMENT_ID_COLUMN_FK, tenant.getApartmentID());
+        values.put(TENANT_INFO_PAYMENT_DAY_COLUMN, tenant.getPaymentDay());
+        values.put(TENANT_INFO_NOTES_COLUMN, tenant.getNotes());
+        values.put(TENANT_INFO_LEASE_START_COLUMN, tenant.getLeaseStart());
+        values.put(TENANT_INFO_LEASE_END_COLUMN, tenant.getLeaseEnd());
+        db.insert(TENANT_INFO_TABLE, null, values);
+        db.close();
+    }
+
+    public void addNewApartment(Apartment apartment, int userID){
+        ContentValues values = new ContentValues();
+        SQLiteDatabase db = this.getReadableDatabase();
+        values.put(APARTMENT_INFO_USER_ID_COLUMN_FK, userID);
+        values.put(APARTMENT_INFO_STREET1_COLUMN, apartment.getStreet1());
+        values.put(APARTMENT_INFO_STREET2_COLUMN, apartment.getStreet2());
+        values.put(APARTMENT_INFO_CITY_COLUMN, apartment.getCity());
+        values.put(APARTMENT_INFO_STATE_COLUMN_FK, apartment.getStateID());
+        values.put(APARTMENT_INFO_ZIP_COLUMN, apartment.getState());
+        values.put(APARTMENT_INFO_NOTES_COLUMN, apartment.getNotes());
+        values.put(APARTMENT_INFO_MAIN_PIC_COLUMN, apartment.getMainPic());
+        db.insert(APARTMENT_INFO_TABLE, null, values);
+        db.close();
+    }
+
+    public void addPaymentLogEntry(PaymentLogEntry ple, int userID){
+        ContentValues values = new ContentValues();
+        SQLiteDatabase db = this.getReadableDatabase();
+        values.put(PAYMENT_LOG_USER_ID_COLUMN_FK, userID);
+        values.put(PAYMENT_LOG_PAYMENT_DATE_COLUMN, ple.getPaymentDate());
+        values.put(PAYMENT_LOG_TYPE_ID_COLUMN_FK, ple.getTypeID()); //TODO
+        values.put(PAYMENT_LOG_TENANT_ID_COLUMN_FK, ple.getTenantID()); //TODO
+        values.put(PAYMENT_LOG_AMOUNT_COLUMN, ple.getAmount());
+        db.insert(PAYMENT_LOG_TABLE, null, values);
+        db.close();
+    }
+    //TODO
+    public void addExpenseLogEntry(ExpenseLogEntry ele, int userID){
+        ContentValues values = new ContentValues();
+        SQLiteDatabase db = this.getReadableDatabase();
+        values.put(EXPENSE_LOG_USER_ID_COLUMN_FK, userID);
+        values.put(EXPENSE_LOG_EXPENSE_DATE_COLUMN, ele.getExpenseDate());
+        values.put(EXPENSE_LOG_AMOUNT_COLUMN, ele.getAmount());
+        values.put(EXPENSE_LOG_APARTMENT_ID_COLUMN_FK, ele.getApartmentID()); //TODO
+        values.put(EXPENSE_LOG_DESCRIPTION_COLUMN, ele.getDescription());
+        values.put(EXPENSE_LOG_TYPE_ID_COLUMN_FK, ele.getTypeID()); //TODO
+        values.put(EXPENSE_LOG_RECIPT_PIC, ele.getReceiptPic());
+        db.insert(EXPENSE_LOG_TABLE, null, values);
+        db.close();
+    }
+    //TODO
+    public void addEventLogEntry(EventLogEntry ele, int userID){
+        ContentValues values = new ContentValues();
+        SQLiteDatabase db = this.getReadableDatabase();
+        values.put(EVENT_LOG_USER_ID_COLUMN_FK, userID);
+        values.put(EVENT_LOG_EVENT_TIME_COLUMN, ele.getEventTime());
+        values.put(EVENT_LOG_TYPE_ID_COLUMN_FK, ele.getTypeID()); //TODO
+        values.put(EVENT_LOG_DESCRIPTION_COLUMN, ele.getDescription());
+        values.put(EVENT_LOG_APARTMENT_ID_COLUMN_FK, ele.getApartmentID()); //TODO
+        values.put(EVENT_LOG_TENANT_ID_COLUMN_FK, ele.getTenantID()); //TODO
+        db.insert(EVENT_LOG_TABLE, null, values);
+        db.close();
+    }
+
+    public ArrayList<Tenant> getUsersTenants(User user){
+        SQLiteDatabase db = this.getReadableDatabase();
+        ArrayList<Tenant> tenants = new ArrayList<>();
+        String Query = "Select * from " + TENANT_INFO_TABLE + " WHERE " + TENANT_INFO_USER_ID_COLUMN_FK + " = " + user.getId() + " AND " +
+                TENANT_INFO_IS_ACTIVE_COLUMN + " = 1";
+        Cursor cursor = db.rawQuery(Query, null);
+        if(cursor.moveToFirst()){
+            while (!cursor.isAfterLast()) {
+                int id = cursor.getInt(cursor.getColumnIndex(TENANT_INFO_ID_COLUMN_PK));
+                String firstName = cursor.getString(cursor.getColumnIndex(TENANT_INFO_FIRST_NAME_COLUMN));
+                String lastname = cursor.getString(cursor.getColumnIndex(TENANT_INFO_LAST_NAME_COLUMN));
+                String phone = cursor.getString(cursor.getColumnIndex(TENANT_INFO_PHONE_COLUMN));
+                int aptID = cursor.getInt(cursor.getColumnIndex(TENANT_INFO_APARTMENT_ID_COLUMN_FK));
+                String paymentDay = cursor.getString(cursor.getColumnIndex(TENANT_INFO_PAYMENT_DAY_COLUMN)); //TODO
+                String notes = cursor.getString(cursor.getColumnIndex(TENANT_INFO_NOTES_COLUMN));
+                String leaseStart = cursor.getString(cursor.getColumnIndex(TENANT_INFO_LEASE_START_COLUMN)); //TODO
+                String leaseEnd = cursor.getString(cursor.getColumnIndex(TENANT_INFO_LEASE_END_COLUMN)); //TODO
+                tenants.add(new Tenant(id, firstName, lastname, phone, aptID, paymentDay, notes, leaseStart, leaseEnd));
+                cursor.moveToNext();
+            }
+            cursor.close();
+            db.close();
+            return tenants;
+        } else {
+            cursor.close();
+            db.close();
+            return tenants;
+        }
+    }
+
+    public ArrayList<Apartment> getUsersApartments(User user){
+        SQLiteDatabase db = this.getReadableDatabase();
+        ArrayList<Apartment> apartments = new ArrayList<>();
+        String Query = "Select * from " + APARTMENT_INFO_TABLE + " WHERE " + APARTMENT_INFO_USER_ID_COLUMN_FK + " = " + user.getId() + " AND " +
+                APARTMENT_INFO_IS_ACTIVE_COLUMN + " = 1";
+        Cursor cursor = db.rawQuery(Query, null);
+        if(cursor.moveToFirst()){
+            while (!cursor.isAfterLast()) {
+                int id = cursor.getInt(cursor.getColumnIndex(APARTMENT_INFO_ID_COLUMN_PK));
+                String street1 = cursor.getString(cursor.getColumnIndex(APARTMENT_INFO_STREET1_COLUMN));
+                String street2 = cursor.getString(cursor.getColumnIndex(APARTMENT_INFO_STREET2_COLUMN));
+                String city = cursor.getString(cursor.getColumnIndex(APARTMENT_INFO_CITY_COLUMN));
+                int stateID = 0; //TODO
+                String state = "IA"; //cursor.getString(cursor.getColumnIndex(APARTMENT_INFO_STATE_COLUMN_FK)); //TODO
+                int zip = cursor.getInt(cursor.getColumnIndex(APARTMENT_INFO_ZIP_COLUMN));
+                String notes = cursor.getString(cursor.getColumnIndex(APARTMENT_INFO_NOTES_COLUMN));
+                String mainPic = cursor.getString(cursor.getColumnIndex(APARTMENT_INFO_MAIN_PIC_COLUMN));
+                ArrayList<String> otherPics = new ArrayList<>(); //TODO
+                apartments.add(new Apartment(id, street1, street2, city, stateID, state, zip, notes, mainPic, otherPics));
+                cursor.moveToNext();
+            }
+            cursor.close();
+            db.close();
+            return apartments;
+        } else {
+            cursor.close();
+            db.close();
+            return apartments;
         }
     }
 
@@ -433,7 +593,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     private void populateStateTable(SQLiteDatabase db){
-        String insert = "INSERT INTO '" + STATE_TABLE + "' ('" + STATE_STATE_ABR_COLUMN + "') VALUES" +
+        String insert = "INSERT INTO '" + STATE_TABLE + "' ('" + STATE_STATE_ABR_COLUMN + "') VALUES " +
                 "(\"AL\"),(\"AK\"),(\"AZ\"),(\"AR\"),(\"CA\"),(\"CO\"),(\"CT\"),(\"DE\"),(\"FL\"),(\"GA\"),(\"HI\"),(\"ID\"),(\"IL\"),(\"IN\")," +
                 "(\"IA\"),(\"KS\"),(\"KY\"),(\"LA\"),(\"ME\"),(\"MD\"),(\"MA\"),(\"MI\"),(\"MN\"),(\"MS\"),(\"MO\"),(\"MT\"),(\"NE\"),(\"NV\")," +
                 "(\"NH\"),(\"NJ\"),(\"NM\"),(\"NY\"),(\"NC\"),(\"ND\"),(\"OH\"),(\"OK\"),(\"OR\"),(\"PA\"),(\"RI\"),(\"SC\"),(\"SD\"),(\"TN\")," +

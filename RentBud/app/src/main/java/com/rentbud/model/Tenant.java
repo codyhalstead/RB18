@@ -8,14 +8,27 @@ import android.os.Parcelable;
  */
 
 public class Tenant implements Parcelable{
+    private int id;
     private String firstName;
     private String lastName;
     private String phone;
+    private int apartmentID;
+    private String paymentDay;
+    private String notes;
+    private String leaseStart;
+    private String leaseEnd;
 
-    public Tenant(String firstName, String lastName, String phone) {
+    public Tenant(int id, String firstName, String lastName, String phone, int apartmentID, String paymentDay,
+                  String notes, String leaseStart, String leaseEnd) {
+        this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.phone = phone;
+        this.apartmentID = apartmentID;
+        this.paymentDay = paymentDay;
+        this.notes = notes;
+        this.leaseStart = leaseStart;
+        this.leaseEnd = leaseEnd;
     }
 
     @Override
@@ -25,13 +38,27 @@ public class Tenant implements Parcelable{
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
-
+        parcel.writeInt(this.id);
+        parcel.writeString(this.firstName);
+        parcel.writeString(this.lastName);
+        parcel.writeString(this.phone);
+        parcel.writeInt(this.apartmentID);
+        parcel.writeString(this.paymentDay);
+        parcel.writeString(this.notes);
+        parcel.writeString(this.leaseStart);
+        parcel.writeString(this.leaseEnd);
     }
 
     private Tenant(Parcel in) {
+        this.id = in.readInt();
         this.firstName = in.readString();
         this.lastName = in.readString();
         this.phone = in.readString();
+        this.apartmentID = in.readInt();
+        this.paymentDay = in.readString();
+        this.notes = in.readString();
+        this.leaseStart = in.readString();
+        this.leaseEnd = in.readString();
     }
 
 
@@ -73,5 +100,53 @@ public class Tenant implements Parcelable{
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getApartmentID() {
+        return apartmentID;
+    }
+
+    public void setApartmentID(int apartmentID) {
+        this.apartmentID = apartmentID;
+    }
+
+    public String getPaymentDay() {
+        return paymentDay;
+    }
+
+    public void setPaymentDay(String paymentDay) {
+        this.paymentDay = paymentDay;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
+    public String getLeaseStart() {
+        return leaseStart;
+    }
+
+    public void setLeaseStart(String leaseStart) {
+        this.leaseStart = leaseStart;
+    }
+
+    public String getLeaseEnd() {
+        return leaseEnd;
+    }
+
+    public void setLeaseEnd(String leaseEnd) {
+        this.leaseEnd = leaseEnd;
     }
 }

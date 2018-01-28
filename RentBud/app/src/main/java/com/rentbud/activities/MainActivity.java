@@ -27,8 +27,16 @@ import com.rentbud.fragments.CalendarFragment;
 import com.rentbud.fragments.HomeFragment;
 import com.rentbud.fragments.RentalListFragment;
 import com.rentbud.fragments.RenterListFragment;
+import com.rentbud.model.Apartment;
+import com.rentbud.model.Tenant;
 import com.rentbud.model.User;
 import com.rentbud.sqlite.DatabaseHandler;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
     public static final int REQUEST_SIGNIN = 77;
@@ -39,6 +47,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     Fragment fragment;
     NavigationView navigationView;
     int curThemeChoice;
+    TreeMap<String, Integer> stateMap;
+    ArrayList<Tenant> tenantList;
+    ArrayList<Apartment> apartmentList;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -95,6 +106,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 displaySelectedScreen(R.id.nav_home);
             }
         }
+        stateMap = dbHandler.getStateTreemap();
     }
 
     @Override
@@ -104,7 +116,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         String email = preferences.getString("last_user_email", "");
         String password = preferences.getString("last_user_password", "");
         this.user = new User(name, email, password);
-        if(preferences.getInt(user.getEmail(), 0) != curThemeChoice){
+        if (preferences.getInt(user.getEmail(), 0) != curThemeChoice) {
             this.recreate();
         }
     }
