@@ -247,6 +247,22 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
     }
 
+    public int getUserID(String email){
+        SQLiteDatabase db = this.getReadableDatabase();
+        String Query = "Select * from " + USER_INFO_TABLE + " where " + USER_INFO_EMAIL_COLUMN + " like '%" + email + "%' LIMIT 1";
+        Cursor cursor = db.rawQuery(Query, null);
+        if (cursor.moveToFirst()) {
+            int id = cursor.getInt(cursor.getColumnIndex(USER_INFO_ID_COLUMN_PK));
+            cursor.close();
+            db.close();
+            return id;
+        } else {
+            cursor.close();
+            db.close();
+            return -1;
+        }
+    }
+
     public TreeMap<String, Integer> getStateTreemap(){
         TreeMap<String, Integer> stateMap = new TreeMap<>();
         SQLiteDatabase db = this.getReadableDatabase();
@@ -293,7 +309,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(APARTMENT_INFO_STREET2_COLUMN, apartment.getStreet2());
         values.put(APARTMENT_INFO_CITY_COLUMN, apartment.getCity());
         values.put(APARTMENT_INFO_STATE_COLUMN_FK, apartment.getStateID());
-        values.put(APARTMENT_INFO_ZIP_COLUMN, apartment.getState());
+        values.put(APARTMENT_INFO_ZIP_COLUMN, apartment.getZip());
         values.put(APARTMENT_INFO_NOTES_COLUMN, apartment.getNotes());
         values.put(APARTMENT_INFO_MAIN_PIC_COLUMN, apartment.getMainPic());
         db.insert(APARTMENT_INFO_TABLE, null, values);
@@ -383,7 +399,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 String city = cursor.getString(cursor.getColumnIndex(APARTMENT_INFO_CITY_COLUMN));
                 int stateID = 0; //TODO
                 String state = "IA"; //cursor.getString(cursor.getColumnIndex(APARTMENT_INFO_STATE_COLUMN_FK)); //TODO
-                int zip = cursor.getInt(cursor.getColumnIndex(APARTMENT_INFO_ZIP_COLUMN));
+                String zip = cursor.getString(cursor.getColumnIndex(APARTMENT_INFO_ZIP_COLUMN));
                 String notes = cursor.getString(cursor.getColumnIndex(APARTMENT_INFO_NOTES_COLUMN));
                 String mainPic = cursor.getString(cursor.getColumnIndex(APARTMENT_INFO_MAIN_PIC_COLUMN));
                 ArrayList<String> otherPics = new ArrayList<>(); //TODO
@@ -487,7 +503,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 APARTMENT_INFO_STREET2_COLUMN + " VARCHAR(20), " +
                 APARTMENT_INFO_CITY_COLUMN + " VARCHAR(15), " +
                 APARTMENT_INFO_STATE_COLUMN_FK + " INTEGER REFERENCES " + STATE_TABLE + "(" + STATE_ID_COLUMN_PK + "), " +
-                APARTMENT_INFO_ZIP_COLUMN + " INTEGER, " +
+                APARTMENT_INFO_ZIP_COLUMN + " VARCHAR(5), " +
                 APARTMENT_INFO_NOTES_COLUMN + " VARCHAR(150), " +
                 APARTMENT_INFO_MAIN_PIC_COLUMN + " BLOB, " +
                 APARTMENT_INFO_DATE_CREATED_COLUMN + " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
@@ -600,5 +616,17 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 "(\"TX\"),(\"UT\"),(\"VT\"),(\"VA\"),(\"WA\"),(\"WV\"),(\"WI\"),(\"WY\"),(\"AS\"),(\"DC\"),(\"FM\"),(\"GU\"),(\"MH\"),(\"MP\")," +
                 "(\"PW\"),(\"PR\"),(\"VI\")";
         db.execSQL(insert);
+    }
+
+    public void addTestData(User user){
+        Apartment apartment1 = new Apartment(0, "2390 Burlington Rd", "", "Letts", 1, "IA", "52754", "", "", new ArrayList<String>());
+        Apartment apartment2 = new Apartment(1, "2495 McNair Farms Dr", "Apt 555", "Herndon", 2, "VA", "78978", "", "", new ArrayList<String>());
+        Tenant tenant1 = new Tenant(0, "Cody", "Halstead", "563-299-9577", 1, "", "", "", "");
+        Tenant tenant2 = new Tenant(1, "Monet", "Tomioka", "345-554-2323", 2, "", "", "", "");
+
+        this.addNewApartment(apartment1, user.getId());
+        this.addNewApartment(apartment2, user.getId());
+        this.addNewTenant(tenant1, user.getId());
+        this.addNewTenant(tenant2, user.getId());
     }
 }

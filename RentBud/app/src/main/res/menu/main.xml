@@ -16,9 +16,6 @@
                 android:id="@+id/changeProfilePic"
                 android:title="Change profile picture" />
             <item
-                android:id="@+id/changeAppColors"
-                android:title="Change app colors" />
-            <item
                 android:id="@+id/verifyEmail"
                 android:title="Verify Email" />
             <item

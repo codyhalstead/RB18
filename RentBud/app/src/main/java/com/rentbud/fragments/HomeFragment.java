@@ -36,6 +36,7 @@ public class HomeFragment extends android.support.v4.app.Fragment {
         this.passbox = (TextView) view.findViewById(R.id.password);
         this.emailbox = (TextView) view.findViewById(R.id.email);
         Bundle bundle = this.getArguments();
+        getActivity().setTitle("Home");
         if (bundle != null) {
             User user = bundle.getParcelable("UserInfo");
             setTextBoxes(user.getName(), user.getEmail(), user.getPassword());

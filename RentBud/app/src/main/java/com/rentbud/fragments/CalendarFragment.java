@@ -51,7 +51,7 @@ public class CalendarFragment extends android.support.v4.app.Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+        getActivity().setTitle("Calendar View");
         final SimpleDateFormat formatter = new SimpleDateFormat("dd MMM yyyy");
 
         // Setup caldroid fragment

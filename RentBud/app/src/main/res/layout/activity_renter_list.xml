@@ -27,7 +27,7 @@
                 android:paddingRight="15dp">
 
                 <EditText
-                    android:id="@+id/editMobileNo"
+                    android:id="@+id/renterListSearchET"
                     android:layout_width="match_parent"
                     android:layout_height="40dp"
                     android:layout_margin="5dp"
@@ -43,6 +43,14 @@
 
     </android.support.v7.widget.Toolbar>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:background="@color/caldroid_black"
+        android:layout_below="@+id/renterSearchToolbar"
+        android:id="@+id/rentalListBarBorder"
+        />
+
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"
@@ -53,7 +61,9 @@
         android:layout_marginBottom="40dp"
         android:layout_marginRight="30dp"
         fab:elevation="6dp"
-        app:srcCompat="@drawable/ic_add_white_24dp" />
+        app:srcCompat="@drawable/ic_add_white_24dp"
+        android:onClick="tell"
+        />
 
     <TextView
         android:layout_width="match_parent"
@@ -61,7 +71,10 @@
         android:layout_marginTop="250dp"
         android:gravity="center"
         android:text="No current renters"
-        android:textSize="28sp" />
+        android:textSize="28sp"
+        android:id="@+id/noRenterEmptyListTV"
+        android:visibility="invisible"
+        />
 
 
     <ListView

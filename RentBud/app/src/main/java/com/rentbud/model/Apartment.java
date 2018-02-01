@@ -16,13 +16,13 @@ public class Apartment implements Parcelable {
     private String city;
     private int stateID;
     private String state;
-    private int zip;
+    private String zip;
     private String notes;
     private String mainPic;
     private ArrayList<String> otherPics;
 
     public Apartment(int id, String street1, String street2, String city, int stateID,
-                     String state, int zip, String notes, String mainPic, ArrayList<String> otherPics){
+                     String state, String zip, String notes, String mainPic, ArrayList<String> otherPics){
         this.id = id;
         this.street1 = street1;
         this.street2 = street2;
@@ -48,7 +48,7 @@ public class Apartment implements Parcelable {
         parcel.writeString(this.city);
         parcel.writeInt(this.stateID);
         parcel.writeString(this.state);
-        parcel.writeInt(this.zip);
+        parcel.writeString(this.zip);
         parcel.writeString(this.notes);
         parcel.writeString(this.mainPic);
         parcel.writeStringList(this.otherPics);
@@ -61,7 +61,7 @@ public class Apartment implements Parcelable {
         this.city = in.readString();
         this.stateID = in.readInt();
         this.state = in.readString();
-        this.zip = in.readInt();
+        this.zip = in.readString();
         this.notes = in.readString();
         this.mainPic = in.readString();
         in.readStringList(this.otherPics);
@@ -116,11 +116,11 @@ public class Apartment implements Parcelable {
         this.state = state;
     }
 
-    public int getZip() {
+    public String getZip() {
         return zip;
     }
 
-    public void setZip(int zip) {
+    public void setZip(String zip) {
         this.zip = zip;
     }
 

@@ -1,24 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:fab="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:orientation="vertical">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/rentalSearchToolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        >
+        android:background="?attr/colorPrimary">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="?attr/colorPrimary"
-            android:orientation="vertical"
-            >
+            android:orientation="vertical">
 
 
             <LinearLayout
@@ -26,26 +24,32 @@
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:background="?attr/colorPrimary"
-                android:paddingRight="15dp"
-                >
+                android:paddingRight="15dp">
 
                 <EditText
-                    android:id="@+id/editMobileNo"
+                    android:id="@+id/rentalListSearchET"
                     android:layout_width="match_parent"
                     android:layout_height="40dp"
                     android:layout_margin="5dp"
                     android:background="@color/white"
-                    android:ems="10"
-                    android:hint="Search"
                     android:drawableLeft="@drawable/ic_search_black_24dp"
-                    android:gravity="left|center" >
-                </EditText>
+                    android:ems="10"
+                    android:gravity="left|center"
+                    android:hint="Search"/>
 
             </LinearLayout>
 
         </LinearLayout>
 
     </android.support.v7.widget.Toolbar>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:background="@color/caldroid_black"
+        android:layout_below="@+id/rentalSearchToolbar"
+        android:id="@+id/rentalListBarBorder"
+        />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
@@ -57,23 +61,26 @@
         android:layout_marginBottom="40dp"
         android:layout_marginRight="30dp"
         fab:elevation="6dp"
-        app:srcCompat="@drawable/ic_add_white_24dp" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="28sp"
-        android:text="No current rentals"
-        android:gravity="center"
-        android:layout_marginTop="250dp"
+        app:srcCompat="@drawable/ic_add_white_24dp"
+        android:onClick="tell"
         />
 
+    <TextView
+        android:id="@+id/noRentalEmptyListTV"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="250dp"
+        android:gravity="center"
+        android:text="No current rentals"
+        android:textSize="28sp"
+        android:visibility="invisible" />
+
+
     <ListView
-        android:layout_below="@+id/rentalSearchToolbar"
         android:id="@+id/mainRentalListView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        >
+        android:layout_below="@+id/rentalListBarBorder">
 
     </ListView>
 

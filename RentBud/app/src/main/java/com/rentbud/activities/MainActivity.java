@@ -21,6 +21,7 @@ import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.example.cody.rentbud.R;
 import com.rentbud.fragments.CalendarFragment;
@@ -105,8 +106,16 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 fragCode = 0;
                 displaySelectedScreen(R.id.nav_home);
             }
+            int userId = dbHandler.getUserID(email);
+            user.setId(userId);
+
+            //One time use per install
+            //dbHandler.addTestData(user);
+
+            stateMap = dbHandler.getStateTreemap();
+            tenantList = dbHandler.getUsersTenants(user);
+            apartmentList = dbHandler.getUsersApartments(user);
         }
-        stateMap = dbHandler.getStateTreemap();
     }
 
     @Override
@@ -183,10 +192,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
                 return true;
 
-            case R.id.changeAppColors:
-
-                return true;
-
             case R.id.verifyEmail:
 
                 return true;
@@ -203,11 +208,11 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     private void displaySelectedScreen(int id) {
         fragment = null;
+        Bundle bundle = new Bundle();
         switch (id) {
 
             case R.id.nav_home:
                 fragment = new HomeFragment();
-                Bundle bundle = new Bundle();
                 bundle.putParcelable("UserInfo", user);
                 fragment.setArguments(bundle);
                 fragCode = 0;
@@ -217,16 +222,23 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             case R.id.nav_calendar:
                 fragment = new CalendarFragment();
                 fragCode = 1;
-                overridePendingTransition(R.anim.pull_in_right, R.anim.push_out_left);
                 break;
 
             case R.id.nav_rental:
                 fragment = new RentalListFragment();
+                if(apartmentList != null) {
+                    bundle.putParcelableArrayList("RentalList", apartmentList);
+                    fragment.setArguments(bundle);
+                }
                 fragCode = 2;
                 break;
 
             case R.id.nav_renter:
                 fragment = new RenterListFragment();
+                if(tenantList != null) {
+                    bundle.putParcelableArrayList("RenterList", tenantList);
+                    fragment.setArguments(bundle);
+                }
                 fragCode = 3;
                 break;
 
@@ -255,5 +267,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         //Save the fragment's instance
         outState.putInt("fragCode", fragCode);
         super.onSaveInstanceState(outState);
+    }
+
+    public void tell(View view) {
+        Toast.makeText(this, "Weeeeee", Toast.LENGTH_SHORT).show();
     }
 }

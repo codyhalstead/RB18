@@ -2,38 +2,80 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/custom_row_border">
+    >
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:id="@+id/rentalRowLL"
+        android:layout_marginTop="4dp"
+        >
 
         <ImageView
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:src="@drawable/blank_home_pic"
-            />
+            android:src="@drawable/blank_home_pic" />
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_marginLeft="8dp"
+            >
 
             <TextView
+                android:id="@+id/rentalRowStreet1TV"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="2390 Burlington Rd"
-                android:textSize="18sp"
-                android:id="@+id/rentalRowAddress"
-                />
+                android:textSize="18sp" />
 
             <TextView
+                android:id="@+id/rentalRowStreet2TV"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Vacant"
-                android:layout_below="@+id/rentalRowAddress"
-                />
+                android:layout_below="@+id/rentalRowStreet1TV"
+                android:text="Apt. 2356" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/rentalRowStreet2TV"
+                android:orientation="horizontal"
+                >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Letts,"
+                    android:id="@+id/rentalRowCityTV"
+                     />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="IA"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginRight="8dp"
+                    android:id="@+id/rentalRowStateTV"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="52754"
+                    android:id="@+id/rentalRowZipTV"
+                    />
+
+            </LinearLayout>
 
         </RelativeLayout>
 
     </LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:background="@color/caldroid_black"
+        android:layout_below="@+id/rentalRowLL"
+        android:id="@+id/rentalListBarBorder"
+        />
 </RelativeLayout>

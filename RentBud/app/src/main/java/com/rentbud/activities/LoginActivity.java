@@ -106,6 +106,7 @@ public class LoginActivity extends AppCompatActivity {
                 this.user = (User) data.getExtras().get("newUserInfo");
                 passwordText.setText(user.getPassword());
                 emailText.setText(user.getEmail());
+                Toast.makeText(this, getString(R.string.account_creation_success), Toast.LENGTH_LONG).show();
                 //Intent intent = new Intent(this, EmailVerificationActivity.class);
                 //intent.putExtra("userInfo", this.user);
                 //startActivityForResult(intent, RESULT_FIRST_USER);

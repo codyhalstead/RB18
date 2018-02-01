@@ -88,7 +88,6 @@ public class SignupActivity extends AppCompatActivity {
             user.setEmail(email);
             user.setPassword(password);
             databaseHandler.addUser(user);
-            Toast.makeText(this, getString(R.string.account_creation_success), Toast.LENGTH_LONG).show();
             onSignupSuccess();
         }else{
             emailText.setError(getString(R.string.email_used));
