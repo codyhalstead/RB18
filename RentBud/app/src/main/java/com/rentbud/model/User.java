@@ -12,9 +12,14 @@ public class User implements Parcelable {
     private String name;
     private String email;
     private String password;
+    private String profilePic;
 
     public User() {
-
+        this.id = -1;
+        this.name = "";
+        this.email = "";
+        this.password = "";
+        this.profilePic = "";
     }
 
     public User(int id, String name, String email, String password) {
@@ -22,12 +27,22 @@ public class User implements Parcelable {
         this.name = name;
         this.email = email;
         this.password = password;
+        this.profilePic = "";
     }
 
     public User(String name, String email, String password) {
         this.name = name;
         this.email = email;
         this.password = password;
+        this.profilePic = "";
+    }
+
+    public User(int id, String name, String email, String password, String profilePic) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.profilePic = profilePic;
     }
 
     @Override
@@ -41,6 +56,7 @@ public class User implements Parcelable {
         dest.writeString(name);
         dest.writeString(email);
         dest.writeString(password);
+        dest.writeString(profilePic);
     }
 
     private User(Parcel in) {
@@ -48,6 +64,7 @@ public class User implements Parcelable {
         this.name = in.readString();
         this.email = in.readString();
         this.password = in.readString();
+        this.profilePic = in.readString();
     }
 
     public static final Parcelable.Creator<User> CREATOR
@@ -94,5 +111,13 @@ public class User implements Parcelable {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getProfilePic() {
+        return profilePic;
+    }
+
+    public void setProfilePic(String profilePic) {
+        this.profilePic = profilePic;
     }
 }

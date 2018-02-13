@@ -39,7 +39,7 @@ public class LoginActivity extends AppCompatActivity {
         this.loginButton = (Button) findViewById(R.id.btn_login);
         this.signupLink = (TextView) findViewById(R.id.link_signup);
         this.validation = new UserInputValidation(this);
-        this.user = new User();
+       // this.user = new User();
         this.databaseHandler = new DatabaseHandler(this);
 
         loginButton.setOnClickListener(new View.OnClickListener() {
@@ -78,7 +78,7 @@ public class LoginActivity extends AppCompatActivity {
         String password = passwordText.getText().toString();
 
         if (databaseHandler.checkUser(email, password)) {
-            this.user = new User(databaseHandler.getUserName(email), email, password);
+            this.user = databaseHandler.getUser(email, password);
             onLoginSuccess();
         } else {
             onLoginFailed();

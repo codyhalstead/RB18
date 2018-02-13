@@ -2,6 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.cody.rentbud">
 
+    <uses-permission android:name="android.permission.MANAGE_DOCUMENTS" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -9,7 +14,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name="com.rentbud.activities.MainActivity"
+        <activity
+            android:name="com.rentbud.activities.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -17,28 +23,47 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.rentbud.activities.LoginActivity"
-            android:windowSoftInputMode="stateHidden"
-            >
+        <activity
+            android:name="com.rentbud.activities.LoginActivity"
+            android:windowSoftInputMode="stateHidden">
+
         </activity>
-        <activity android:name="com.rentbud.activities.SignupActivity"
-            android:windowSoftInputMode="stateHidden"
-            >
+        <activity
+            android:name="com.rentbud.activities.SignupActivity"
+            android:windowSoftInputMode="stateHidden">
 
         </activity>
         <activity android:name="com.rentbud.activities.EmailVerificationActivity">
 
         </activity>
-        <activity android:name="com.rentbud.activities.CalendarViewFragmentActivity"
-            >
+        <activity android:name="com.rentbud.activities.CalendarViewFragmentActivity">
+
         </activity>
-        <activity android:name="com.rentbud.activities.SingleDateView"
-            android:theme="@style/AppTheme.NoActionBar"
-            >
+        <activity
+            android:name="com.rentbud.activities.SingleDateView"
+            android:theme="@style/AppTheme.NoActionBar">
+
         </activity>
-        <activity android:name="com.rentbud.activities.SettingsActivity"
-            android:theme="@style/AppTheme.NoActionBar"
-            >
+        <activity
+            android:name="com.rentbud.activities.SettingsActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+
+        </activity>
+        <activity android:name="com.rentbud.activities.RenterViewActivity">
+
+        </activity>
+        <activity android:name="com.rentbud.activities.RentalViewActivity">
+
+        </activity>
+        <activity
+            android:name="com.rentbud.activities.NewRentalFormActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+
+        </activity>
+        <activity
+            android:name="com.rentbud.activities.NewRenterFormActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+
         </activity>
     </application>
 

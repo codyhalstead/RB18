@@ -13,6 +13,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +33,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
+import static android.content.ContentValues.TAG;
+
 public class CalendarFragment extends android.support.v4.app.Fragment {
     private boolean undo = false;
     private CustomCaldroidFragment caldroidFragment;
@@ -50,6 +53,7 @@ public class CalendarFragment extends android.support.v4.app.Fragment {
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        Log.d(TAG, "onViewCreated: Start");
         super.onViewCreated(view, savedInstanceState);
         getActivity().setTitle("Calendar View");
         final SimpleDateFormat formatter = new SimpleDateFormat("dd MMM yyyy");
@@ -67,8 +71,16 @@ public class CalendarFragment extends android.support.v4.app.Fragment {
 
         // If Activity is created after rotation
         if (savedInstanceState != null) {
+            Log.d(TAG, "onViewCreated: not null");
             caldroidFragment.restoreStatesFromKey(savedInstanceState,
                     "CALDROID_SAVED_STATE");
+            Long longDate = savedInstanceState.getLong("selected_Date");
+            if (longDate != null) {
+                Date date = new Date(savedInstanceState.getLong("selected_Date"));
+                Log.d(TAG, "onViewCreated: " + date.getDay());
+                currentSelectedDate = date;
+
+            }
         }
         // If activity is created from fresh
         else {
@@ -84,11 +96,11 @@ public class CalendarFragment extends android.support.v4.app.Fragment {
             // CaldroidFragment.TUESDAY); // Tuesday
 
             // Uncomment this line to use Caldroid in compact mode
-            // args.putBoolean(CaldroidFragment.SQUARE_TEXT_VIEW_CELL, false);
+             args.putBoolean(CaldroidFragment.SQUARE_TEXT_VIEW_CELL, false);
 
             // Uncomment this line to use dark theme
             //args.putInt(CaldroidFragment.THEME_RESOURCE, com.caldroid.R.style.CaldroidDefaultDark);
-            caldroidFragment.setArguments(args);
+            //caldroidFragment.setArguments(args);
         }
 
         setCustomResourceForDates();
@@ -98,12 +110,18 @@ public class CalendarFragment extends android.support.v4.app.Fragment {
         t.replace(R.id.calendar1, caldroidFragment);
         t.commit();
 
+        if(currentSelectedDate != null) {
+            Log.d(TAG, "onViewCreated: " + currentSelectedDate.getYear() + " " + currentSelectedDate.getMonth() + " " + currentSelectedDate.getDay());
+            highlightDateCell(currentSelectedDate);
+//            caldroidFragment.moveToDate(currentSelectedDate); TODO
+            caldroidFragment.refreshView();
+        }
         // Setup listener
         final CaldroidListener listener = new CaldroidListener() {
 
             @Override
             public void onSelectDate(Date date, View view) {
-                Intent intent = new Intent(getActivity() ,SingleDateView.class);
+                Intent intent = new Intent(getActivity(), SingleDateView.class);
                 intent.putExtra("date", date);
                 startActivity(intent);
             }
@@ -136,9 +154,9 @@ public class CalendarFragment extends android.support.v4.app.Fragment {
         calendarKeyBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-              //  PopupMenu popup = new PopupMenu(getActivity(), calendarKeyBtn);
-              //  popup.getMenuInflater().inflate(R.menu.popup_calendar_key, popup.getMenu());
-              //  popup.show();
+                //  PopupMenu popup = new PopupMenu(getActivity(), calendarKeyBtn);
+                //  popup.getMenuInflater().inflate(R.menu.popup_calendar_key, popup.getMenu());
+                //  popup.show();
                 showPopup(view);
             }
         });
@@ -281,6 +299,7 @@ public class CalendarFragment extends android.support.v4.app.Fragment {
                 year = year - 1900;
                 Date date = new Date(year, month, day);
                 highlightDateCell(date);
+                Log.d(TAG, "onDateSet: " + date.getDay() +" " + date.getMonth() + " "+date.getYear());
                 caldroidFragment.moveToDate(date);
                 caldroidFragment.refreshView();
             }
@@ -291,7 +310,7 @@ public class CalendarFragment extends android.support.v4.app.Fragment {
         Calendar cal = Calendar.getInstance();
 
         // Min date is last 7 days
-       //cal.add(Calendar.DATE, -7);
+        //cal.add(Calendar.DATE, -7);
         //Date blueDate = cal.getTime();
 
         // Max date is next 7 days
@@ -319,8 +338,8 @@ public class CalendarFragment extends android.support.v4.app.Fragment {
             caldroidFragment.saveStatesToKey(outState, "CALDROID_SAVED_STATE");
         }
 
-        if (currentSelectedDate != null){
-            outState.putSerializable("selected_Date", currentSelectedDate);
+        if (currentSelectedDate != null) {
+            outState.putLong("selected_Date", currentSelectedDate.getTime());
         }
 
         if (dialogCaldroidFragment != null) {
@@ -351,8 +370,8 @@ public class CalendarFragment extends android.support.v4.app.Fragment {
         popupWindow.showAsDropDown(v);
     }
 
-    public void highlightDateCell(Date newDateToHighlight){
-        if(currentSelectedDate != null){
+    public void highlightDateCell(Date newDateToHighlight) {
+        if (currentSelectedDate != null || currentSelectedDate != newDateToHighlight) {
             caldroidFragment.setTextColorForDate(R.color.caldroid_black, currentSelectedDate);
         }
         caldroidFragment.setTextColorForDate(R.color.red, newDateToHighlight);

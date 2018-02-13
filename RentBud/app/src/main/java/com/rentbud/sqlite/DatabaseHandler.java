@@ -146,15 +146,35 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         verificationGenerator = new RandomNumberGenerator();
     }
 
-    public void addUser(User user) {
+    public void addUser(String name, String email, String password) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put(USER_INFO_NAME_COLUMN, user.getName());
-        contentValues.put(USER_INFO_EMAIL_COLUMN, user.getEmail());
-        contentValues.put(USER_INFO_PASSWORD_COLUMN, user.getPassword());
+        contentValues.put(USER_INFO_NAME_COLUMN, name);
+        contentValues.put(USER_INFO_EMAIL_COLUMN, email);
+        contentValues.put(USER_INFO_PASSWORD_COLUMN, password);
         //contentValues.put(USER_INFO_VERIFICATION_NUMBER_COLUMN, verificationGenerator.gererateVerificationNumber(5));
         db.insert(USER_INFO_TABLE, null, contentValues);
         db.close();
+    }
+
+    public User getUser(String email, String password){
+        SQLiteDatabase db = this.getWritableDatabase();
+        String Query = "Select * from " + USER_INFO_TABLE + " where " + USER_INFO_EMAIL_COLUMN + " like '%" + email + "%' AND "
+                + USER_INFO_PASSWORD_COLUMN + " like '%" + password + "%' AND " + USER_INFO_IS_ACTIVE_COLUMN + " = 1 LIMIT 1";
+        Cursor cursor = db.rawQuery(Query, null);
+        if (cursor.moveToFirst()) {
+            int id = cursor.getInt(cursor.getColumnIndex(USER_INFO_ID_COLUMN_PK));
+            String name = cursor.getString(cursor.getColumnIndex(USER_INFO_NAME_COLUMN));
+            String profilePic = cursor.getString(cursor.getColumnIndex(USER_INFO_PROFILE_PIC));
+            User user = new User(id, name, email, password, profilePic);
+            cursor.close();
+            db.close();
+            return user;
+        } else {
+            cursor.close();
+            db.close();
+            return null;
+        }
     }
 
     public void changeVerificationNumber(String email) {
@@ -414,6 +434,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             db.close();
             return apartments;
         }
+    }
+
+    public void changeProfilePic(User user, String pic){
+        SQLiteDatabase db = this.getReadableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(USER_INFO_PROFILE_PIC, pic);
+        db.update(USER_INFO_TABLE, values, USER_INFO_ID_COLUMN_PK + " = ?", new String[]{String.valueOf(user.getId())});
+        db.close();
     }
 
     @Override

@@ -1,13 +1,16 @@
 package com.rentbud.fragments;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.cody.rentbud.R;
+import com.rentbud.activities.MainActivity;
 import com.rentbud.model.User;
 
 /**
@@ -16,8 +19,9 @@ import com.rentbud.model.User;
 
 public class HomeFragment extends android.support.v4.app.Fragment {
 
-
+    ImageView profilePic;
     TextView usernameTV, emailbox, passbox;
+    User user;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -35,11 +39,15 @@ public class HomeFragment extends android.support.v4.app.Fragment {
         this.usernameTV = (TextView) view.findViewById(R.id.usernameTextView);
         this.passbox = (TextView) view.findViewById(R.id.password);
         this.emailbox = (TextView) view.findViewById(R.id.email);
+        this.profilePic = view.findViewById(R.id.homeProfilePic);
         Bundle bundle = this.getArguments();
         getActivity().setTitle("Home");
-        if (bundle != null) {
+      // if (bundle != null) {
             User user = bundle.getParcelable("UserInfo");
             setTextBoxes(user.getName(), user.getEmail(), user.getPassword());
+       // }
+        if(user.getProfilePic() != null && !user.getProfilePic().isEmpty()){
+            profilePic.setImageURI(Uri.parse(user.getProfilePic()));
         }
     }
 

@@ -138,4 +138,8 @@ public class RenterListAdapter extends BaseAdapter implements Filterable {
             textView.setText(theTextToSet);
         }
     }
+
+    public ArrayList<Tenant> getFilteredResults(){
+        return filteredResults;
+    }
 }

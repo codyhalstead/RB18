@@ -154,4 +154,8 @@ public class RentalListAdapter extends BaseAdapter implements Filterable {
             textView.setText(theTextToSet);
         }
     }
+
+    public ArrayList<Apartment> getFilteredResults(){
+        return this.filteredResults;
+    }
 }

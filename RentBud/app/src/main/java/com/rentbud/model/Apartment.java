@@ -32,7 +32,7 @@ public class Apartment implements Parcelable {
         this.zip = zip;
         this.notes = notes;
         this.mainPic = mainPic;
-        this.otherPics = otherPics;
+        //this.otherPics = otherPics;
     }
 
     @Override
@@ -51,7 +51,7 @@ public class Apartment implements Parcelable {
         parcel.writeString(this.zip);
         parcel.writeString(this.notes);
         parcel.writeString(this.mainPic);
-        parcel.writeStringList(this.otherPics);
+       // parcel.writeStringList(this.otherPics);
     }
 
     private Apartment(Parcel in) {
@@ -64,7 +64,7 @@ public class Apartment implements Parcelable {
         this.zip = in.readString();
         this.notes = in.readString();
         this.mainPic = in.readString();
-        in.readStringList(this.otherPics);
+      //  in.readStringList(this.otherPics);
     }
 
 

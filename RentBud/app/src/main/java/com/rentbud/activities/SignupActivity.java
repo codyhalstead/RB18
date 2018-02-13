@@ -31,7 +31,9 @@ public class SignupActivity extends AppCompatActivity {
     TextView loginLink;
     UserInputValidation validation;
     DatabaseHandler databaseHandler;
-    private User user;
+    private String name;
+    private String email;
+    private String password;
     private boolean successfulAccountCreation;
     RandomNumberGenerator rng;
 
@@ -48,7 +50,6 @@ public class SignupActivity extends AppCompatActivity {
         this.validation = new UserInputValidation(this);
         this.databaseHandler = new DatabaseHandler(this);
         this.successfulAccountCreation = false;
-        user = new User();
         signupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -56,7 +57,9 @@ public class SignupActivity extends AppCompatActivity {
             }
         });
         rng = new RandomNumberGenerator();
-
+        name = "";
+        email = "";
+        password = "";
         loginLink.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -79,15 +82,12 @@ public class SignupActivity extends AppCompatActivity {
         progressDialog.setMessage("Creating Account...");
         progressDialog.show();
 
-        String name = nameText.getText().toString().trim();
-        String email = emailText.getText().toString().trim();
-        String password = passwordText.getText().toString().trim();
+        this.name = nameText.getText().toString().trim();
+        this.email = emailText.getText().toString().trim();
+        this.password = passwordText.getText().toString().trim();
 
         if(!databaseHandler.checkUser(email)){
-            user.setName(name);
-            user.setEmail(email);
-            user.setPassword(password);
-            databaseHandler.addUser(user);
+            databaseHandler.addUser(name, email, password);
             onSignupSuccess();
         }else{
             emailText.setError(getString(R.string.email_used));
@@ -113,6 +113,7 @@ public class SignupActivity extends AppCompatActivity {
 
     public void onSignupSuccess() {
         signupButton.setEnabled(true);
+        User user = databaseHandler.getUser(email, password);
         Intent data = new Intent();
         data.putExtra("newUserInfo", user);
         setResult(RESULT_OK, data);

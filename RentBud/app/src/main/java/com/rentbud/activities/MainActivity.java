@@ -5,11 +5,15 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -41,16 +45,23 @@ import java.util.TreeMap;
 
 public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
     public static final int REQUEST_SIGNIN = 77;
-    public static DatabaseHandler dbHandler;
+    public static final int REQUEST_GALLERY = 20;
+    public static final int REQUEST_NEW_APARTMENT_FORM = 36;
+    public static final int REQUEST_NEW_TENANT_FORM = 37;
+    public DatabaseHandler dbHandler;
     SharedPreferences preferences;
     private User user;
     public int fragCode;
     Fragment fragment;
     NavigationView navigationView;
     int curThemeChoice;
-    TreeMap<String, Integer> stateMap;
-    ArrayList<Tenant> tenantList;
-    ArrayList<Apartment> apartmentList;
+    public static TreeMap<String, Integer> stateMap;
+    public static ArrayList<Tenant> tenantList;
+    public static ArrayList<Apartment> apartmentList;
+
+    //FragmentManager mFragmentManager;
+
+    public Uri profilePic;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -63,6 +74,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         super.setupUserAppTheme(curThemeChoice);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         if (Build.VERSION.SDK_INT > 15) {
@@ -82,33 +94,50 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
         dbHandler = new DatabaseHandler(this);
 
-        if (user.getEmail().equals("")) {
+        if (email.equals("")) {
             Intent intent = new Intent(this, LoginActivity.class);
             startActivityForResult(intent, REQUEST_SIGNIN);
 
         } else {
+            this.user = dbHandler.getUser(email, password);
+            if (user.getProfilePic() != null) {
+                profilePic = Uri.parse(user.getProfilePic());
+            }
             if (savedInstanceState != null) {
-                if (savedInstanceState.getInt("fragCode") == 1) {
-                    fragCode = 1;
-                    displaySelectedScreen(R.id.nav_calendar);
-                } else if (savedInstanceState.getInt("fragCode") == 2) {
-                    fragCode = 2;
-                    displaySelectedScreen(R.id.nav_rental);
-                } else if (savedInstanceState.getInt("fragCode") == 3) {
-                    fragCode = 3;
-                    displaySelectedScreen(R.id.nav_renter);
-                } else {
-                    fragCode = 0;
-                    displaySelectedScreen(R.id.nav_home);
-                }
+                //if (savedInstanceState.getInt("fragCode") == 1) {
+                //fragCode = 1;
+                //        displaySelectedScreen(R.id.nav_calendar);
+                //} else if (savedInstanceState.getInt("fragCode") == 2) {
+                //fragCode = 2;
+                //        displaySelectedScreen(R.id.nav_rental);
+                //} else if (savedInstanceState.getInt("fragCode") == 3) {
+                //fragCode = 3;
+                //        displaySelectedScreen(R.id.nav_renter);
+                //} else {
+                //fragCode = 0;
+                //        displaySelectedScreen(R.id.nav_home);
+                //}
+                fragCode = savedInstanceState.getInt("fragCode");
 
             } else {
-                fragCode = 0;
-                displaySelectedScreen(R.id.nav_home);
-            }
-            int userId = dbHandler.getUserID(email);
-            user.setId(userId);
+                // only create fragment if activity is started for the first time
+                //mFragmentManager = getSupportFragmentManager();
+                //FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
 
+                //fragment = new HomeFragment();
+                //Bundle bundle = new Bundle();
+                //bundle.putParcelable("UserInfo", user);
+                //fragment.setArguments(bundle);
+                //fragCode = 0;
+
+                //fragmentTransaction.add(R.id.screen_area, fragment);
+                //fragmentTransaction.commit();
+
+                displaySelectedScreen(R.id.nav_home);
+
+                //    fragCode = 0;
+                //    displaySelectedScreen(R.id.nav_home);
+            }
             //One time use per install
             //dbHandler.addTestData(user);
 
@@ -121,10 +150,13 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     @Override
     protected void onResume() {
         super.onResume();
-        String name = preferences.getString("last_user_name", "");
+        //String name = preferences.getString("last_user_name", "");
         String email = preferences.getString("last_user_email", "");
         String password = preferences.getString("last_user_password", "");
-        this.user = new User(name, email, password);
+        if (email != user.getEmail()) {
+            user = dbHandler.getUser(email, password);
+        }
+        // this.user = new User(name, email, password);
         if (preferences.getInt(user.getEmail(), 0) != curThemeChoice) {
             this.recreate();
         }
@@ -136,7 +168,11 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            if (fragCode != 0) {
+                displaySelectedScreen(R.id.nav_home);
+            } else {
+                super.onBackPressed();
+            }
         }
     }
 
@@ -156,6 +192,27 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 android.support.v4.app.FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                 displaySelectedScreen(R.id.nav_home);
                 ft.commit();
+            }
+        }
+        if (requestCode == REQUEST_GALLERY) {
+            if (resultCode == RESULT_OK) {
+                // profilePic = data.getData();
+                if (data.getData() != null) {
+                    user.setProfilePic(data.getData().toString());
+                    dbHandler.changeProfilePic(user, user.getProfilePic());
+                    this.recreate();
+                }
+            }
+        }
+        if (requestCode == REQUEST_NEW_APARTMENT_FORM){
+            if (resultCode == RESULT_OK){
+                MainActivity.apartmentList = dbHandler.getUsersApartments(user);
+            }
+        }
+
+        if (requestCode == REQUEST_NEW_TENANT_FORM){
+            if (resultCode == RESULT_OK){
+                MainActivity.tenantList = dbHandler.getUsersTenants(user);
             }
         }
     }
@@ -189,7 +246,22 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 return true;
 
             case R.id.changeProfilePic:
+                Intent intent2;
 
+                if (Build.VERSION.SDK_INT < 19) {
+                    intent2 = new Intent();
+                    intent2.setAction(Intent.ACTION_GET_CONTENT);
+                    intent2.setType("*/*");
+                    startActivityForResult(intent2, REQUEST_GALLERY);
+                } else {
+                    intent2 = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                    intent2.addCategory(Intent.CATEGORY_OPENABLE);
+                    intent2.setType("*/*");
+                    startActivityForResult(intent2, REQUEST_GALLERY);
+                }
+
+                //  intent2.setType("image/*");
+                //  startActivityForResult(intent2, REQUEST_GALLERY);
                 return true;
 
             case R.id.verifyEmail:
@@ -226,7 +298,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
             case R.id.nav_rental:
                 fragment = new RentalListFragment();
-                if(apartmentList != null) {
+                if (apartmentList != null) {
                     bundle.putParcelableArrayList("RentalList", apartmentList);
                     fragment.setArguments(bundle);
                 }
@@ -235,7 +307,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
             case R.id.nav_renter:
                 fragment = new RenterListFragment();
-                if(tenantList != null) {
+                if (tenantList != null) {
                     bundle.putParcelableArrayList("RenterList", tenantList);
                     fragment.setArguments(bundle);
                 }
@@ -269,7 +341,16 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         super.onSaveInstanceState(outState);
     }
 
-    public void tell(View view) {
-        Toast.makeText(this, "Weeeeee", Toast.LENGTH_SHORT).show();
+    public void rentalFABClick(View view) {
+        Intent intent = new Intent(this, NewRentalFormActivity.class);
+        intent.putExtra("user", this.user);
+        startActivityForResult(intent, REQUEST_NEW_APARTMENT_FORM);
     }
+
+    public void renterFABClick(View view) {
+        Intent intent = new Intent(this, NewRenterFormActivity.class);
+        intent.putExtra("user", this.user);
+        startActivityForResult(intent, REQUEST_NEW_TENANT_FORM);
+    }
+
 }
