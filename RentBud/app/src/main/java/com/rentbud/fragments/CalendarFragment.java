@@ -13,7 +13,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,26 +20,20 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.ImageButton;
 import android.widget.PopupWindow;
-import android.widget.TextView;
 
 import com.example.cody.rentbud.R;
-import com.rentbud.activities.SingleDateView;
-import com.roomorama.caldroid.CaldroidFragment;
+import com.rentbud.activities.SingleDateViewActivity;
 import com.roomorama.caldroid.CaldroidListener;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
-import static android.content.ContentValues.TAG;
-
 public class CalendarFragment extends android.support.v4.app.Fragment {
-    private boolean undo = false;
     private CustomCaldroidFragment caldroidFragment;
-    private CaldroidFragment dialogCaldroidFragment;
     private DatePickerDialog.OnDateSetListener dateSetListener;
     private Date currentSelectedDate;
+    Button findDateBtn;
+    ImageButton calendarKeyBtn;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -48,80 +41,107 @@ public class CalendarFragment extends android.support.v4.app.Fragment {
         // Inflate the layout for this fragment
         caldroidFragment = new CustomCaldroidFragment();
         return inflater.inflate(R.layout.main_calendar_view, container, false);
-
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        Log.d(TAG, "onViewCreated: Start");
         super.onViewCreated(view, savedInstanceState);
         getActivity().setTitle("Calendar View");
-        final SimpleDateFormat formatter = new SimpleDateFormat("dd MMM yyyy");
-
+        calendarKeyBtn = getActivity().findViewById(R.id.calendarKeyImageButton);
+        findDateBtn = getActivity().findViewById(R.id.findDateBtn);
         // Setup caldroid fragment
-        // **** If you want normal CaldroidFragment, use below line ****
         caldroidFragment = new CustomCaldroidFragment();
-
-        // //////////////////////////////////////////////////////////////////////
-        // **** This is to show customized fragment. If you want customized
-        // version, uncomment below line ****
-//		 caldroidFragment = new CaldroidSampleCustomFragment();
-
-        // Setup arguments
-
-        // If Activity is created after rotation
+        // If Activity is created after rotation, get previous state and date selected
         if (savedInstanceState != null) {
-            Log.d(TAG, "onViewCreated: not null");
-            caldroidFragment.restoreStatesFromKey(savedInstanceState,
-                    "CALDROID_SAVED_STATE");
-            Long longDate = savedInstanceState.getLong("selected_Date");
-            if (longDate != null) {
-                Date date = new Date(savedInstanceState.getLong("selected_Date"));
-                Log.d(TAG, "onViewCreated: " + date.getDay());
-                currentSelectedDate = date;
-
-            }
+            caldroidFragment.restoreStatesFromKey(savedInstanceState,"CALDROID_SAVED_STATE");
+            currentSelectedDate = new Date(savedInstanceState.getLong("selected_Date"));
         }
+        //TODO May need later
         // If activity is created from fresh
-        else {
-            Bundle args = new Bundle();
-            Calendar cal = Calendar.getInstance();
-            args.putInt(CaldroidFragment.MONTH, cal.get(Calendar.MONTH) + 1);
-            args.putInt(CaldroidFragment.YEAR, cal.get(Calendar.YEAR));
-            args.putBoolean(CaldroidFragment.ENABLE_SWIPE, true);
-            args.putBoolean(CaldroidFragment.SIX_WEEKS_IN_CALENDAR, true);
-
-            // Uncomment this to customize startDayOfWeek
-            // args.putInt(CaldroidFragment.START_DAY_OF_WEEK,
-            // CaldroidFragment.TUESDAY); // Tuesday
-
-            // Uncomment this line to use Caldroid in compact mode
-             args.putBoolean(CaldroidFragment.SQUARE_TEXT_VIEW_CELL, false);
-
-            // Uncomment this line to use dark theme
-            //args.putInt(CaldroidFragment.THEME_RESOURCE, com.caldroid.R.style.CaldroidDefaultDark);
-            //caldroidFragment.setArguments(args);
-        }
-
-        setCustomResourceForDates();
-
+        //else {
+            //Bundle args = new Bundle();
+            //Calendar cal = Calendar.getInstance();
+            //args.putInt(CaldroidFragment.MONTH, cal.get(Calendar.MONTH) + 1);
+            //args.putInt(CaldroidFragment.YEAR, cal.get(Calendar.YEAR));
+            //args.putBoolean(CaldroidFragment.ENABLE_SWIPE, true);
+            //args.putBoolean(CaldroidFragment.SIX_WEEKS_IN_CALENDAR, true);
+        //}
         // Attach to the activity
         FragmentTransaction t = getActivity().getSupportFragmentManager().beginTransaction();
         t.replace(R.id.calendar1, caldroidFragment);
         t.commit();
-
-        if(currentSelectedDate != null) {
-            Log.d(TAG, "onViewCreated: " + currentSelectedDate.getYear() + " " + currentSelectedDate.getMonth() + " " + currentSelectedDate.getDay());
+        //If there was a selected date, go to and highlight date
+        if (currentSelectedDate != null) {
             highlightDateCell(currentSelectedDate);
-//            caldroidFragment.moveToDate(currentSelectedDate); TODO
             caldroidFragment.refreshView();
         }
-        // Setup listener
-        final CaldroidListener listener = new CaldroidListener() {
+        setUpCaldroidListener();
+        setUpCalendarKeyListener();
+        setUpdateSelectedDateListener();
+        setUpFindDateBtnListener();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        //Save state
+        if (caldroidFragment != null) {
+            caldroidFragment.saveStatesToKey(outState, "CALDROID_SAVED_STATE");
+        }
+        //Save selected date
+        if (currentSelectedDate != null) {
+            outState.putLong("selected_Date", currentSelectedDate.getTime());
+        }
+    }
+
+    public void showCalendarKeyPopup(View v) {
+        //Display key pop-up
+        PopupWindow popupWindow;
+        LayoutInflater layoutInflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        final View popupView = layoutInflater.inflate(R.layout.popup_calendar_key, null);
+        popupWindow = new PopupWindow(
+                popupView,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        popupWindow.setBackgroundDrawable(new BitmapDrawable());
+        popupWindow.setOutsideTouchable(true);
+        popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+            //Nothing, just close
+            }
+        });
+        popupWindow.showAsDropDown(v);
+    }
+
+    public void highlightDateCell(Date newDateToHighlight) {
+        //If previous date selected, revert its text color to black
+        if (currentSelectedDate != null && currentSelectedDate != newDateToHighlight) {
+            caldroidFragment.setTextColorForDate(R.color.caldroid_black, currentSelectedDate);
+        }
+        //Set selected dates text color to red
+        caldroidFragment.setTextColorForDate(R.color.red, newDateToHighlight);
+        currentSelectedDate = newDateToHighlight;
+    }
+
+    private void setUpCalendarKeyListener() {
+        //Calendar key button listener
+        calendarKeyBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showCalendarKeyPopup(view);
+            }
+        });
+    }
+
+    private void setUpCaldroidListener(){
+        //Caldroid listener()
+        caldroidFragment.setCaldroidListener(new CaldroidListener() {
 
             @Override
             public void onSelectDate(Date date, View view) {
-                Intent intent = new Intent(getActivity(), SingleDateView.class);
+                //Launch SingleDateViewActivity and pass the dates information
+                Intent intent = new Intent(getActivity(), SingleDateViewActivity.class);
                 intent.putExtra("date", date);
                 startActivity(intent);
             }
@@ -138,243 +158,38 @@ public class CalendarFragment extends android.support.v4.app.Fragment {
 
             @Override
             public void onCaldroidViewCreated() {
-                if (caldroidFragment.getLeftArrowButton() != null) {
 
-                }
-            }
-
-        };
-        caldroidFragment.setCaldroidListener(listener);
-        // Setup Caldroid
-
-        final TextView textView = (TextView) getActivity().findViewById(R.id.textview);
-        final ImageButton calendarKeyBtn = (ImageButton) getActivity().findViewById(R.id.calendarKeyImageButton);
-        final Button customizeButton = (Button) getActivity().findViewById(R.id.customize_button);
-
-        calendarKeyBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //  PopupMenu popup = new PopupMenu(getActivity(), calendarKeyBtn);
-                //  popup.getMenuInflater().inflate(R.menu.popup_calendar_key, popup.getMenu());
-                //  popup.show();
-                showPopup(view);
             }
         });
+    }
 
-        // Customize the calendar
-        customizeButton.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                if (undo) {
-                    customizeButton.setText("Customize");
-                    textView.setText("");
-
-                    // Reset calendar
-                    caldroidFragment.clearDisableDates();
-                    caldroidFragment.clearSelectedDates();
-                    caldroidFragment.setMinDate(null);
-                    caldroidFragment.setMaxDate(null);
-                    caldroidFragment.setShowNavigationArrows(true);
-                    caldroidFragment.setEnableSwipe(true);
-                    caldroidFragment.refreshView();
-                    undo = false;
-                    return;
-                }
-
-                // Else
-                undo = true;
-                customizeButton.setText("Undo");
-                Calendar cal = Calendar.getInstance();
-
-                // Min date is last 7 days
-                cal.add(Calendar.DATE, -7);
-                Date minDate = cal.getTime();
-
-                // Max date is next 7 days
-                cal = Calendar.getInstance();
-                cal.add(Calendar.DATE, 14);
-                Date maxDate = cal.getTime();
-
-                // Set selected dates
-                // From Date
-                cal = Calendar.getInstance();
-                cal.add(Calendar.DATE, 2);
-                Date fromDate = cal.getTime();
-
-                // To Date
-                cal = Calendar.getInstance();
-                cal.add(Calendar.DATE, 3);
-                Date toDate = cal.getTime();
-
-                // Set disabled dates
-                ArrayList<Date> disabledDates = new ArrayList<Date>();
-                for (int i = 5; i < 8; i++) {
-                    cal = Calendar.getInstance();
-                    cal.add(Calendar.DATE, i);
-                    disabledDates.add(cal.getTime());
-                }
-
-                // Customize
-                caldroidFragment.setMinDate(minDate);
-                caldroidFragment.setMaxDate(maxDate);
-                caldroidFragment.setDisableDates(disabledDates);
-                caldroidFragment.setSelectedDates(fromDate, toDate);
-                caldroidFragment.setShowNavigationArrows(false);
-                caldroidFragment.setEnableSwipe(false);
-
-                caldroidFragment.refreshView();
-
-                // Move to date
-                // cal = Calendar.getInstance();
-                // cal.add(Calendar.MONTH, 12);
-                // caldroidFragment.moveToDate(cal.getTime());
-
-                String text = "Today: " + formatter.format(new Date()) + "\n";
-                text += "Min Date: " + formatter.format(minDate) + "\n";
-                text += "Max Date: " + formatter.format(maxDate) + "\n";
-                text += "Select From Date: " + formatter.format(fromDate)
-                        + "\n";
-                text += "Select To Date: " + formatter.format(toDate) + "\n";
-                for (Date date : disabledDates) {
-                    text += "Disabled Date: " + formatter.format(date) + "\n";
-                }
-
-                textView.setText(text);
-            }
-        });
-
-        Button showDialogButton = (Button) getActivity().findViewById(R.id.show_dialog_button);
-
-        final Bundle state = savedInstanceState;
-        showDialogButton.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                // Setup caldroid to use as dialog
-                dialogCaldroidFragment = new CaldroidFragment();
-                dialogCaldroidFragment.setCaldroidListener(listener);
-
-                // If activity is recovered from rotation
-                final String dialogTag = "CALDROID_DIALOG_FRAGMENT";
-                if (state != null) {
-                    dialogCaldroidFragment.restoreDialogStatesFromKey(
-                            getActivity().getSupportFragmentManager(), state,
-                            "DIALOG_CALDROID_SAVED_STATE", dialogTag);
-                    Bundle args = dialogCaldroidFragment.getArguments();
-                    if (args == null) {
-                        args = new Bundle();
-                        dialogCaldroidFragment.setArguments(args);
-                    }
-                } else {
-                    // Setup arguments
-                    Bundle bundle = new Bundle();
-                    // Setup dialogTitle
-                    dialogCaldroidFragment.setArguments(bundle);
-                }
-
-                dialogCaldroidFragment.show(getActivity().getSupportFragmentManager(),
-                        dialogTag);
-            }
-        });
-
-        final Button findDateBtn = (Button) getActivity().findViewById(R.id.findDateBtn);
-
+    private void setUpFindDateBtnListener(){
         findDateBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //Show date picker pop-up
                 Calendar cal = Calendar.getInstance();
                 int year = cal.get(Calendar.YEAR);
                 int month = cal.get(Calendar.MONTH);
                 int day = cal.get(Calendar.DAY_OF_MONTH);
-
                 DatePickerDialog dialog = new DatePickerDialog(getContext(), android.R.style.Theme_Holo_Light_Dialog_MinWidth, dateSetListener, year, month, day);
                 dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                 dialog.show();
             }
         });
+    }
+
+    private void setUpdateSelectedDateListener(){
         dateSetListener = new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+                //Once user selects date from date picker pop-up, highlight and go to date
                 year = year - 1900;
                 Date date = new Date(year, month, day);
                 highlightDateCell(date);
-                Log.d(TAG, "onDateSet: " + date.getDay() +" " + date.getMonth() + " "+date.getYear());
                 caldroidFragment.moveToDate(date);
                 caldroidFragment.refreshView();
             }
         };
-    }
-
-    private void setCustomResourceForDates() {
-        Calendar cal = Calendar.getInstance();
-
-        // Min date is last 7 days
-        //cal.add(Calendar.DATE, -7);
-        //Date blueDate = cal.getTime();
-
-        // Max date is next 7 days
-        //cal = Calendar.getInstance();
-        //cal.add(Calendar.DATE, 7);
-        //Date greenDate = cal.getTime();
-
-        if (caldroidFragment != null) {
-            ColorDrawable blue = new ColorDrawable(getResources().getColor(R.color.caldroid_gray));
-            ColorDrawable green = new ColorDrawable(Color.GREEN);
-
-            //color
-            //caldroidFragment.setBackgroundDrawableForDate(green, greenDate);
-            //caldroidFragment.setTextColorForDate(R.color.caldroid_white, blueDate);
-            //caldroidFragment.setTextColorForDate(R.color.caldroid_white, greenDate);
-        }
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        // TODO Auto-generated method stub
-        super.onSaveInstanceState(outState);
-
-        if (caldroidFragment != null) {
-            caldroidFragment.saveStatesToKey(outState, "CALDROID_SAVED_STATE");
-        }
-
-        if (currentSelectedDate != null) {
-            outState.putLong("selected_Date", currentSelectedDate.getTime());
-        }
-
-        if (dialogCaldroidFragment != null) {
-            dialogCaldroidFragment.saveStatesToKey(outState,
-                    "DIALOG_CALDROID_SAVED_STATE");
-        }
-    }
-
-    public void showPopup(View v) {
-        PopupWindow popupWindow;
-        LayoutInflater layoutInflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        final View popupView = layoutInflater.inflate(R.layout.popup_calendar_key, null);
-
-        popupWindow = new PopupWindow(
-                popupView,
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-
-        popupWindow.setBackgroundDrawable(new BitmapDrawable());
-        popupWindow.setOutsideTouchable(true);
-        popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
-            @Override
-            public void onDismiss() {
-                //TODO do sth here on dismiss
-            }
-        });
-
-        popupWindow.showAsDropDown(v);
-    }
-
-    public void highlightDateCell(Date newDateToHighlight) {
-        if (currentSelectedDate != null || currentSelectedDate != newDateToHighlight) {
-            caldroidFragment.setTextColorForDate(R.color.caldroid_black, currentSelectedDate);
-        }
-        caldroidFragment.setTextColorForDate(R.color.red, newDateToHighlight);
-        currentSelectedDate = newDateToHighlight;
     }
 }

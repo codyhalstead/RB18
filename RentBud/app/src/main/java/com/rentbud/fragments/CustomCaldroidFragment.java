@@ -9,10 +9,9 @@ import com.roomorama.caldroid.CaldroidGridAdapter;
  */
 
 public class CustomCaldroidFragment extends CaldroidFragment {
-
+//Class may be used to further customize calendar
     @Override
     public CaldroidGridAdapter getNewDatesGridAdapter(int month, int year) {
-        // TODO Auto-generated method stub
         return new CustomCalendarAdapter(getActivity(), month, year,
                 getCaldroidData(), extraData);
     }

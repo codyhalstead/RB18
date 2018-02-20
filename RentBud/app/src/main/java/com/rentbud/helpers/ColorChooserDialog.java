@@ -41,7 +41,8 @@ public class ColorChooserDialog extends Dialog {
     private ArrayList<Integer> themePrimaryColors;
     private ArrayList<Integer> themeBackgroundColors;
     private ArrayList<ImageButton> buttons;
-    private ColorListener myColorListener;
+    private ColorListener colorListener;
+    private View.OnClickListener listener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +52,7 @@ public class ColorChooserDialog extends Dialog {
         buttons = new ArrayList<>();
         themePrimaryColors = new ArrayList<>();
         themeBackgroundColors = new ArrayList<>();
-
+        //Initialize ImageButtons
         one = findViewById(R.id.b1);
         two = findViewById(R.id.b2);
         three = findViewById(R.id.b3);
@@ -62,7 +63,7 @@ public class ColorChooserDialog extends Dialog {
         eight = findViewById(R.id.b8);
         nine = findViewById(R.id.b9);
         ten = findViewById(R.id.b10);
-
+        //Add image buttons to button array
         buttons.add(one);
         buttons.add(two);
         buttons.add(three);
@@ -73,22 +74,26 @@ public class ColorChooserDialog extends Dialog {
         buttons.add(eight);
         buttons.add(nine);
         buttons.add(ten);
-
+        setOnClickListener();
         loadThemeArrays();
         colorize();
         setListeners();
     }
 
-    private View.OnClickListener listener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            if (myColorListener != null)
-                myColorListener.OnColorClick(v, (int) v.getTag());
-            dismiss();
-        }
-    };
+    private void setOnClickListener(){
+        //Sets onClick listener
+        this.listener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (colorListener != null)
+                    colorListener.OnColorClick(v, (int) v.getTag());
+                dismiss();
+            }
+        };
+    }
 
     private void colorize() {
+        //Sets button colors to match the themes they represent
         for (int i = 0; i < buttons.size(); i++) {
             int[] colors = new int[2];
             colors[0] = themeBackgroundColors.get(i);
@@ -107,6 +112,7 @@ public class ColorChooserDialog extends Dialog {
         }
     }
 
+    //Loads theme colors into array
     private void loadThemeArrays() {
         //Purple white
         themePrimaryColors.add(purple);
@@ -152,6 +158,7 @@ public class ColorChooserDialog extends Dialog {
 
 
     private void setListeners() {
+        //Set listeners and tags for all buttons
         for (int i = 0; i < buttons.size(); i++) {
             buttons.get(i).setTag(i);
             buttons.get(i).setOnClickListener(listener);
@@ -159,7 +166,8 @@ public class ColorChooserDialog extends Dialog {
     }
 
     public void setColorListener(ColorListener listener) {
-        this.myColorListener = listener;
+        //Sets color listener
+        this.colorListener = listener;
     }
 
     //Theme primary colors

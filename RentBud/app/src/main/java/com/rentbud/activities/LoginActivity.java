@@ -18,10 +18,10 @@ import com.rentbud.sqlite.DatabaseHandler;
  * Created by Cody on 12/8/2017.
  */
 
+//Activity used for log-in
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
     private static final int REQUEST_SIGNUP = 0;
-
     TextInputEditText emailText;
     TextInputEditText passwordText;
     Button loginButton;
@@ -30,100 +30,58 @@ public class LoginActivity extends AppCompatActivity {
     User user;
     DatabaseHandler databaseHandler;
 
+    //onCreate with app default theme
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        this.emailText = (TextInputEditText) findViewById(R.id.input_email);
-        this.passwordText = (TextInputEditText) findViewById(R.id.input_password);
-        this.loginButton = (Button) findViewById(R.id.btn_login);
-        this.signupLink = (TextView) findViewById(R.id.link_signup);
-        this.validation = new UserInputValidation(this);
-       // this.user = new User();
-        this.databaseHandler = new DatabaseHandler(this);
-
-        loginButton.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                login();
-            }
-        });
-
-        signupLink.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                // Start the Signup activity
-                Intent intent = new Intent(getApplicationContext(), SignupActivity.class);
-                startActivityForResult(intent, REQUEST_SIGNUP);
-            }
-        });
+        initializeVariables();
+        setUpOnClickListeners();
     }
 
+    //Log in method
     public void login() {
+        //Check text input validation first
         if (!validate()) {
             onLoginFailed();
             return;
         }
-
         loginButton.setEnabled(false);
-
-       // final ProgressDialog progressDialog = new ProgressDialog(LoginActivity.this);
-        //progressDialog.setIndeterminate(true);
-        //progressDialog.setMessage("Authenticating...");
-        //progressDialog.show();
-
         String email = emailText.getText().toString();
         String password = passwordText.getText().toString();
-
+        //Check if user exists within database
         if (databaseHandler.checkUser(email, password)) {
+            //Get full user info if exists
             this.user = databaseHandler.getUser(email, password);
             onLoginSuccess();
         } else {
             onLoginFailed();
         }
-
-
-        // TODO: Implement your own authentication logic here.
-
-        //new android.os.Handler().postDelayed(
-        //        new Runnable() {
-        // public void run() {
-        //               // On complete call either onLoginSuccess or onLoginFailed
-        //onLoginSuccess();
-        //onLoginFailed();
-        //              progressDialog.dismiss();
-        //          }
-        //     }, 3000);
     }
 
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        //Result from sign up activity
         if (requestCode == REQUEST_SIGNUP) {
+            //If sign up successful, fill log in text boxes with new user data for easy log in
             if (resultCode == RESULT_OK) {
                 this.user = (User) data.getExtras().get("newUserInfo");
                 passwordText.setText(user.getPassword());
                 emailText.setText(user.getEmail());
+                //Creation success toast
                 Toast.makeText(this, getString(R.string.account_creation_success), Toast.LENGTH_LONG).show();
-                //Intent intent = new Intent(this, EmailVerificationActivity.class);
-                //intent.putExtra("userInfo", this.user);
-                //startActivityForResult(intent, RESULT_FIRST_USER);
-                //onLoginSuccess();
             }
-        }
-        if (requestCode == RESULT_FIRST_USER) {
-
         }
     }
 
     @Override
     public void onBackPressed() {
-        // disable going back to the MainActivity
+        //Disable going back to the MainActivity
         moveTaskToBack(true);
     }
 
+    //End sign up activity on log in success, pass user info to MainActivity
     public void onLoginSuccess() {
         loginButton.setEnabled(true);
         Intent data = new Intent();
@@ -132,23 +90,50 @@ public class LoginActivity extends AppCompatActivity {
         finish();
     }
 
+    //Show toast and clear edit text boxes on log in failed (User does not exist)
     public void onLoginFailed() {
         Toast.makeText(getBaseContext(), getString(R.string.login_failed), Toast.LENGTH_LONG).show();
         passwordText.setText(null);
         loginButton.setEnabled(true);
     }
 
+    //Method used to validate all of this activities edit text entries
     public boolean validate() {
         boolean valid = true;
-
         if (!validation.isInputEditTextEmail(this.emailText, getString(R.string.enter_valid_email))) {
             valid = false;
         }
-
         if (!validation.isInputEditTextPassword(this.passwordText, getString(R.string.password_requirements))) {
             valid = false;
         }
-
         return valid;
+    }
+
+    private void initializeVariables(){
+        this.emailText = (TextInputEditText) findViewById(R.id.input_email);
+        this.passwordText = (TextInputEditText) findViewById(R.id.input_password);
+        this.loginButton = (Button) findViewById(R.id.btn_login);
+        this.signupLink = (TextView) findViewById(R.id.link_signup);
+        this.validation = new UserInputValidation(this);
+        this.databaseHandler = new DatabaseHandler(this);
+    }
+
+    private void setUpOnClickListeners(){
+        //Log in button and listener
+        loginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                login();
+            }
+        });
+        //Sign up link and listener
+        signupLink.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Start the Signup activity
+                Intent intent = new Intent(getApplicationContext(), SignupActivity.class);
+                startActivityForResult(intent, REQUEST_SIGNUP);
+            }
+        });
     }
 }

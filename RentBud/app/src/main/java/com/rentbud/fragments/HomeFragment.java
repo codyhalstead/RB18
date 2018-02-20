@@ -21,13 +21,11 @@ public class HomeFragment extends android.support.v4.app.Fragment {
 
     ImageView profilePic;
     TextView usernameTV, emailbox, passbox;
-    User user;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-
         return inflater.inflate(R.layout.content_initial, container, false);
     }
 
@@ -35,23 +33,20 @@ public class HomeFragment extends android.support.v4.app.Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         super.onCreate(savedInstanceState);
-
-        this.usernameTV = (TextView) view.findViewById(R.id.usernameTextView);
-        this.passbox = (TextView) view.findViewById(R.id.password);
-        this.emailbox = (TextView) view.findViewById(R.id.email);
+        this.usernameTV = view.findViewById(R.id.usernameTextView);
+        this.passbox = view.findViewById(R.id.password);
+        this.emailbox = view.findViewById(R.id.email);
         this.profilePic = view.findViewById(R.id.homeProfilePic);
-        Bundle bundle = this.getArguments();
         getActivity().setTitle("Home");
-      // if (bundle != null) {
-            User user = bundle.getParcelable("UserInfo");
-            setTextBoxes(user.getName(), user.getEmail(), user.getPassword());
-       // }
-        if(user.getProfilePic() != null && !user.getProfilePic().isEmpty()){
-            profilePic.setImageURI(Uri.parse(user.getProfilePic()));
+        setTextBoxes(MainActivity.user.getName(), MainActivity.user.getEmail(), MainActivity.user.getPassword());
+        //If user has a profile pic, set that pic
+        if (MainActivity.user.getProfilePic() != null && !MainActivity.user.getProfilePic().isEmpty()) {
+            profilePic.setImageURI(Uri.parse(MainActivity.user.getProfilePic()));
         }
     }
 
-    public void setTextBoxes(String name, String email, String password){
+    public void setTextBoxes(String name, String email, String password) {
+        //Sets user info to text boxes, TEMPORARY
         this.usernameTV.setText(name);
         this.emailbox.setText(email);
         this.passbox.setText(password);

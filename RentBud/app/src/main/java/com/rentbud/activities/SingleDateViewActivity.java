@@ -18,20 +18,15 @@ import java.util.Date;
  * Created by Cody on 1/12/2018.
  */
 
-public class SingleDateView extends BaseActivity {
+public class SingleDateViewActivity extends BaseActivity {
     TextView dateTV;
     Date date;
-    SharedPreferences preferences;
-    String email;
-    int theme;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        email = preferences.getString("last_user_email", "");
-        theme = preferences.getInt(email, 0);
-        setupUserAppTheme(theme);
+
+        setupUserAppTheme(MainActivity.curThemeChoice);
         setContentView(R.layout.activity_single_date_view);
         Bundle bundle = getIntent().getExtras();
         date = (Date)bundle.get("date");

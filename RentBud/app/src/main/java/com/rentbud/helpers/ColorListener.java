@@ -7,5 +7,6 @@ import android.view.View;
  */
 
 public interface ColorListener {
-    public void OnColorClick(View v, int color);
+    //Interface, to customize OnColorClick
+    void OnColorClick(View v, int color);
 }

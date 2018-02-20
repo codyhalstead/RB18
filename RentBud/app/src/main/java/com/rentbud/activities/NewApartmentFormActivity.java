@@ -24,25 +24,38 @@ import java.util.Map;
  * Created by Cody on 2/8/2018.
  */
 
-public class NewRentalFormActivity extends BaseActivity {
-SharedPreferences preferences;
+public class NewApartmentFormActivity extends BaseActivity {
 EditText address1ET, address2ET, cityET, zipET, descriptionET, notesET;
 Spinner stateSpinner;
 Button saveBtn, cancelBtn;
 DatabaseHandler databaseHandler;
-User user;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        String email = preferences.getString("last_user_email", "");
-        int theme = preferences.getInt(email, 0);
-        setupUserAppTheme(theme);
+        setupUserAppTheme(MainActivity.curThemeChoice);
         setContentView(R.layout.activity_new_apartment_form);
         setupBasicToolbar();
-        Bundle bundle = getIntent().getExtras();
-        this.user = (User)bundle.get("user");
+        initializeVariables();
+        populateStateSpinner();
+        setOnClickListeners();
+    }
+
+    private void populateStateSpinner(){
+        //Create state array from MainActivity.stateMap
+        List<String> spinnerArray =  new ArrayList<>();
+        for (Map.Entry<String, Integer> entry : MainActivity.stateMap.entrySet()){
+            spinnerArray.add(entry.getKey());
+        }
+        //Create ArrayAdapter with state array
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this, android.R.layout.simple_spinner_item, spinnerArray);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        //Set ArrayAdapter to stateSpinner
+        this.stateSpinner.setAdapter(adapter);
+    }
+
+    private void initializeVariables(){
         this.databaseHandler = new DatabaseHandler(this);
         this.address1ET = findViewById(R.id.apartmentFormAddress1ET);
         this.address2ET = findViewById(R.id.apartmentFormAddress2ET);
@@ -53,10 +66,13 @@ User user;
         this.stateSpinner = findViewById(R.id.apartmentStateSpinner);
         this.saveBtn = findViewById(R.id.apartmentFormSaveBtn);
         this.cancelBtn = findViewById(R.id.apartmentFormCancelBtn);
-        populateStateSpinner();
+    }
+
+    private void setOnClickListeners(){
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //Get users input data
                 String address1 = address1ET.getText().toString();
                 String address2 = address2ET.getText().toString();
                 String city = cityET.getText().toString();
@@ -65,35 +81,23 @@ User user;
                 String notes = notesET.getText().toString();
                 String state = stateSpinner.getSelectedItem().toString();
                 //TODO will need to update once apartment type is reworked
+                //Create new Apartment object with input data and add it to the database
                 Apartment apartment = new Apartment(-1 ,address1, address2, city, 1, "IA", zip, notes, "", new ArrayList<String>());
-                databaseHandler.addNewApartment(apartment, user.getId());
-              //  Intent data = new Intent();
-              // data.putExtra("newApartment", apartment);
-              //  setResult(RESULT_OK, data);
+                databaseHandler.addNewApartment(apartment, MainActivity.user.getId());
+                //Set result success, close this activity
                 setResult(RESULT_OK);
                 finish();
             }
         });
+        //Sets onClickListener to cancelBtn
         cancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //Set result to cancelled and close this activity
                 Intent data = new Intent();
                 setResult(RESULT_CANCELED, data);
                 finish();
             }
         });
-    }
-
-    public void populateStateSpinner(){
-        List<String> spinnerArray =  new ArrayList<String>();
-        for (Map.Entry<String, Integer> entry : MainActivity.stateMap.entrySet()){
-            spinnerArray.add(entry.getKey());
-        }
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-                this, android.R.layout.simple_spinner_item, spinnerArray);
-
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        this.stateSpinner.setAdapter(adapter);
     }
 }

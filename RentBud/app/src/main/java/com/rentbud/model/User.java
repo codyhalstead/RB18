@@ -14,22 +14,7 @@ public class User implements Parcelable {
     private String password;
     private String profilePic;
 
-    public User() {
-        this.id = -1;
-        this.name = "";
-        this.email = "";
-        this.password = "";
-        this.profilePic = "";
-    }
-
-    public User(int id, String name, String email, String password) {
-        this.id = id;
-        this.name = name;
-        this.email = email;
-        this.password = password;
-        this.profilePic = "";
-    }
-
+    //Partial user object creation allowed, but should be completed when available
     public User(String name, String email, String password) {
         this.name = name;
         this.email = email;

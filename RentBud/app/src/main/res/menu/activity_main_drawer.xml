@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
+    <!--Main fragment selection -->
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_home"
@@ -15,27 +16,14 @@
             android:title="View Calendar" />
 
         <item
-            android:id="@+id/nav_rental"
+            android:id="@+id/nav_apartment"
             android:icon="@drawable/ic_business_black_24dp"
-            android:title="View Rental List" />
+            android:title="View Apartment List" />
 
         <item
-            android:id="@+id/nav_renter"
+            android:id="@+id/nav_tenant"
             android:icon="@drawable/ic_person_black_24dp"
-            android:title="View Renter List" />
+            android:title="View Tenant List" />
     </group>
-
-    <item android:title="Communicate">
-        <menu>
-            <item
-                android:id="@+id/nav_share"
-                android:icon="@drawable/ic_settings_white_24dp"
-                android:title="Share" />
-            <item
-                android:id="@+id/nav_send"
-                android:icon="@drawable/ic_settings_white_24dp"
-                android:title="Send" />
-        </menu>
-    </item>
 
 </menu>

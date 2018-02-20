@@ -1,177 +1,115 @@
 package com.rentbud.activities;
 
-import android.app.ActionBar;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.TypedArray;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import com.example.cody.rentbud.R;
 import com.rentbud.fragments.CalendarFragment;
 import com.rentbud.fragments.HomeFragment;
-import com.rentbud.fragments.RentalListFragment;
-import com.rentbud.fragments.RenterListFragment;
+import com.rentbud.fragments.ApartmentListFragment;
+import com.rentbud.fragments.TenantListFragment;
 import com.rentbud.model.Apartment;
 import com.rentbud.model.Tenant;
 import com.rentbud.model.User;
 import com.rentbud.sqlite.DatabaseHandler;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.TreeMap;
 
 public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
+    //Request codes
     public static final int REQUEST_SIGNIN = 77;
     public static final int REQUEST_GALLERY = 20;
     public static final int REQUEST_NEW_APARTMENT_FORM = 36;
     public static final int REQUEST_NEW_TENANT_FORM = 37;
+    //Fragment tag
+    public static final String CURRENT_FRAG_TAG = "current_frag_tag";
+    //initialized with initializeVariables()
     public DatabaseHandler dbHandler;
     SharedPreferences preferences;
-    private User user;
-    public int fragCode;
-    Fragment fragment;
+    public static int curThemeChoice;
+    public static User user;
+    Boolean isHomeFragDisplayed;
+    //initialized with setUpDrawer
+    DrawerLayout drawer;
+    //initialized with setUpNavView()
     NavigationView navigationView;
-    int curThemeChoice;
+    //initialized with setUpUser()
+    public Uri profilePic;
+    //initialized with cacheUserDB()
     public static TreeMap<String, Integer> stateMap;
     public static ArrayList<Tenant> tenantList;
     public static ArrayList<Apartment> apartmentList;
 
-    //FragmentManager mFragmentManager;
-
-    public Uri profilePic;
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        String name = preferences.getString("last_user_name", "");
-        String email = preferences.getString("last_user_email", "");
-        String password = preferences.getString("last_user_password", "");
-        this.user = new User(name, email, password);
-        curThemeChoice = preferences.getInt(email, 0);
+        initializeVariables();
         super.setupUserAppTheme(curThemeChoice);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        if (Build.VERSION.SDK_INT > 15) {
-            toolbar.setBackground(new ColorDrawable(fetchPrimaryColor()));
-        }
-        setSupportActionBar(toolbar);
-
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.account_creation_success, R.string.account_creation_failed);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
-
-        navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-        navigationView.getMenu().getItem(0).setChecked(true);
-
-        dbHandler = new DatabaseHandler(this);
-
-        if (email.equals("")) {
+        setUpToolbar();
+        setUpDrawer();
+        setUpNavView();
+        //If user is empty (Last user logged out or fist time loading app), begin log in activity
+        if (userIsEmpty()) {
             Intent intent = new Intent(this, LoginActivity.class);
             startActivityForResult(intent, REQUEST_SIGNIN);
-
+            //User is still logged in, get full user data
         } else {
-            this.user = dbHandler.getUser(email, password);
-            if (user.getProfilePic() != null) {
-                profilePic = Uri.parse(user.getProfilePic());
-            }
+            setUpUser();
+            //Keeps track if on home fragment (For back button modifier)
             if (savedInstanceState != null) {
-                //if (savedInstanceState.getInt("fragCode") == 1) {
-                //fragCode = 1;
-                //        displaySelectedScreen(R.id.nav_calendar);
-                //} else if (savedInstanceState.getInt("fragCode") == 2) {
-                //fragCode = 2;
-                //        displaySelectedScreen(R.id.nav_rental);
-                //} else if (savedInstanceState.getInt("fragCode") == 3) {
-                //fragCode = 3;
-                //        displaySelectedScreen(R.id.nav_renter);
-                //} else {
-                //fragCode = 0;
-                //        displaySelectedScreen(R.id.nav_home);
-                //}
-                fragCode = savedInstanceState.getInt("fragCode");
-
+                this.isHomeFragDisplayed = savedInstanceState.getBoolean("isHome");
             } else {
-                // only create fragment if activity is started for the first time
-                //mFragmentManager = getSupportFragmentManager();
-                //FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-
-                //fragment = new HomeFragment();
-                //Bundle bundle = new Bundle();
-                //bundle.putParcelable("UserInfo", user);
-                //fragment.setArguments(bundle);
-                //fragCode = 0;
-
-                //fragmentTransaction.add(R.id.screen_area, fragment);
-                //fragmentTransaction.commit();
-
+                //Display home if initial load and user is logged in
                 displaySelectedScreen(R.id.nav_home);
-
-                //    fragCode = 0;
-                //    displaySelectedScreen(R.id.nav_home);
             }
-            //One time use per install
+
+            //Easy data loading for testing
             //dbHandler.addTestData(user);
 
-            stateMap = dbHandler.getStateTreemap();
-            tenantList = dbHandler.getUsersTenants(user);
-            apartmentList = dbHandler.getUsersApartments(user);
+            //Cache users data into arrayLists
+            cacheUsersDB();
+            //TODO change caching so it doesn't re-cache on phone flip
         }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        //String name = preferences.getString("last_user_name", "");
-        String email = preferences.getString("last_user_email", "");
-        String password = preferences.getString("last_user_password", "");
-        if (email != user.getEmail()) {
-            user = dbHandler.getUser(email, password);
-        }
-        // this.user = new User(name, email, password);
-        if (preferences.getInt(user.getEmail(), 0) != curThemeChoice) {
+        //If theme choice has changed, reload for new theme
+        if (preferences.getInt(MainActivity.user.getEmail(), 0) != curThemeChoice) {
             this.recreate();
         }
     }
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
+            //If drawer is open, pressing back will close it
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            if (fragCode != 0) {
-                displaySelectedScreen(R.id.nav_home);
-            } else {
+            if (isHomeFragDisplayed) {
+                //If on home fragment, app will minimize(super)
                 super.onBackPressed();
+            } else {
+                //If not on home fragment, will go to home fragment
+                displaySelectedScreen(R.id.nav_home);
             }
         }
     }
@@ -179,75 +117,103 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        //LoginActivity result
         if (requestCode == REQUEST_SIGNIN) {
+            //If log-in successful
             if (resultCode == RESULT_OK) {
-                this.user = (User) data.getExtras().get("newUserInfo");
-
+                //Log-in user data passed to MainActivity
+                MainActivity.user = (User) data.getExtras().get("newUserInfo");
+                //Save user info to shared preferences to stay logged in until user manually logs out
                 SharedPreferences.Editor editor = preferences.edit();
                 editor.putString("last_user_name", user.getName());
                 editor.putString("last_user_email", user.getEmail());
                 editor.putString("last_user_password", user.getPassword());
                 editor.commit();
-                this.recreate();
+                //Cache newly logged users data into arrayLists
+                stateMap = dbHandler.getStateTreemap();
+                tenantList = dbHandler.getUsersTenants(user);
+                apartmentList = dbHandler.getUsersApartments(user);
+                //Replace current frag with home frag
+                navigationView.getMenu().getItem(0).setChecked(true);
                 android.support.v4.app.FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                 displaySelectedScreen(R.id.nav_home);
                 ft.commit();
             }
         }
+        //Get picture from gallery result
+        //TODO unfinished
         if (requestCode == REQUEST_GALLERY) {
+            //If picture selection  successfully completed
             if (resultCode == RESULT_OK) {
                 // profilePic = data.getData();
+                //If picture not null
                 if (data.getData() != null) {
+                    //Save pic to database and refresh fragment to display new profile pic
                     user.setProfilePic(data.getData().toString());
                     dbHandler.changeProfilePic(user, user.getProfilePic());
-                    this.recreate();
+                    refreshFragView();
                 }
             }
         }
-        if (requestCode == REQUEST_NEW_APARTMENT_FORM){
-            if (resultCode == RESULT_OK){
+        //NewApartmentFormActivity result
+        if (requestCode == REQUEST_NEW_APARTMENT_FORM) {
+            //If successful(not cancelled, passed validation)
+            if (resultCode == RESULT_OK) {
+                //Re-query cached apartment array to update cache and refresh current fragment to display new data
                 MainActivity.apartmentList = dbHandler.getUsersApartments(user);
+                refreshFragView();
             }
         }
-
-        if (requestCode == REQUEST_NEW_TENANT_FORM){
-            if (resultCode == RESULT_OK){
+        //NewTenantFormActivity result
+        if (requestCode == REQUEST_NEW_TENANT_FORM) {
+            //If successful(not cancelled, passed validation)
+            if (resultCode == RESULT_OK) {
+                //Re-query cached tenant array to update cache and refresh current fragment to display new data
                 MainActivity.tenantList = dbHandler.getUsersTenants(user);
+                refreshFragView();
             }
         }
     }
 
     public void logout() {
+        //Clear cached user information and reset shared preference data so user won't still be considered logged in on log out
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString("last_user_name", "");
         editor.putString("last_user_email", "");
         editor.putString("last_user_password", "");
         editor.apply();
-        fragCode = 0;
-        user = null;
-        navigationView.getMenu().getItem(0).setChecked(true);
+        MainActivity.user = null;
+        MainActivity.apartmentList.clear();
+        MainActivity.tenantList.clear();
+        //TODO maybe not clear stateMap
+        MainActivity.stateMap.clear();
+        //Launch LoginActivity for result
         Intent intent = new Intent(this, LoginActivity.class);
         startActivityForResult(intent, REQUEST_SIGNIN);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        //Get options menu
         getMenuInflater().inflate(R.menu.main, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
-    // handle button activities (collapse  button)
     @Override
+    //Handle option menu actions
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.moreOptions:
+                //More options, launches SettingsActivity
                 Intent intent = new Intent(this, SettingsActivity.class);
                 startActivity(intent);
                 return true;
 
             case R.id.changeProfilePic:
+                //Change profile picture, handles changing users profile picture
+                //TODO unfinished
                 Intent intent2;
-
+                //Launch gallery for result, so user can select a pic
                 if (Build.VERSION.SDK_INT < 19) {
                     intent2 = new Intent();
                     intent2.setAction(Intent.ACTION_GET_CONTENT);
@@ -259,77 +225,70 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                     intent2.setType("*/*");
                     startActivityForResult(intent2, REQUEST_GALLERY);
                 }
-
                 //  intent2.setType("image/*");
                 //  startActivityForResult(intent2, REQUEST_GALLERY);
                 return true;
 
             case R.id.verifyEmail:
-
+                //Handles Email verification
+                //TODO not started
                 return true;
 
             case R.id.logout:
+                //Log out option, logs user out of app
                 logout();
                 return true;
 
             default:
                 return super.onOptionsItemSelected(item);
-
         }
     }
 
     private void displaySelectedScreen(int id) {
-        fragment = null;
+        //Method to swap display fragments
+        Fragment fragment = null;
         Bundle bundle = new Bundle();
         switch (id) {
 
             case R.id.nav_home:
+                //Home fragment
                 fragment = new HomeFragment();
-                bundle.putParcelable("UserInfo", user);
                 fragment.setArguments(bundle);
-                fragCode = 0;
+                isHomeFragDisplayed = true;
                 break;
-
 
             case R.id.nav_calendar:
+                //Calendar fragment
                 fragment = new CalendarFragment();
-                fragCode = 1;
+                isHomeFragDisplayed = false;
                 break;
 
-            case R.id.nav_rental:
-                fragment = new RentalListFragment();
-                if (apartmentList != null) {
-                    bundle.putParcelableArrayList("RentalList", apartmentList);
-                    fragment.setArguments(bundle);
-                }
-                fragCode = 2;
+            case R.id.nav_apartment:
+                //Apartment list fragment
+                fragment = new ApartmentListFragment();
+                isHomeFragDisplayed = false;
                 break;
 
-            case R.id.nav_renter:
-                fragment = new RenterListFragment();
-                if (tenantList != null) {
-                    bundle.putParcelableArrayList("RenterList", tenantList);
-                    fragment.setArguments(bundle);
-                }
-                fragCode = 3;
+            case R.id.nav_tenant:
+                //Tenant list fragment
+                fragment = new TenantListFragment();
+                isHomeFragDisplayed = false;
                 break;
-
         }
         if (fragment != null) {
+            //Replace previous frag with selection
             android.support.v4.app.FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.replace(R.id.screen_area, fragment);
+            ft.replace(R.id.screen_area, fragment, CURRENT_FRAG_TAG);
             ft.commit();
         }
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
+        //Close nav drawer on selection
+        this.drawer.closeDrawer(GravityCompat.START);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
+        //Handles navigation view item clicks
         int id = item.getItemId();
-
         displaySelectedScreen(id);
         return true;
     }
@@ -337,20 +296,89 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         //Save the fragment's instance
-        outState.putInt("fragCode", fragCode);
         super.onSaveInstanceState(outState);
+        outState.putBoolean("isHome", isHomeFragDisplayed);
     }
 
     public void rentalFABClick(View view) {
-        Intent intent = new Intent(this, NewRentalFormActivity.class);
-        intent.putExtra("user", this.user);
+        //Launch NewApartmentFormActivity for result
+        //onClick set in xml (ApartmentList fragment FAB)
+        Intent intent = new Intent(this, NewApartmentFormActivity.class);
         startActivityForResult(intent, REQUEST_NEW_APARTMENT_FORM);
     }
 
     public void renterFABClick(View view) {
-        Intent intent = new Intent(this, NewRenterFormActivity.class);
-        intent.putExtra("user", this.user);
+        //Launch NewTenantFormActivity for result
+        //onClick set in xml (TenantList fragment FAB)
+        Intent intent = new Intent(this, NewTenantFormActivity.class);
         startActivityForResult(intent, REQUEST_NEW_TENANT_FORM);
     }
 
+    private void refreshFragView() {
+        //Refreshes current frag by detaching then re-attaching
+        Fragment frg = getSupportFragmentManager().findFragmentByTag(CURRENT_FRAG_TAG);
+        final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.detach(frg);
+        ft.attach(frg);
+        ft.commit();
+    }
+
+    private void initializeVariables() {
+        //Initialises variables, used in onCreate
+        this.preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String name = preferences.getString("last_user_name", "");
+        String email = preferences.getString("last_user_email", "");
+        String password = preferences.getString("last_user_password", "");
+        MainActivity.user = new User(name, email, password);
+        MainActivity.curThemeChoice = preferences.getInt(email, 0);
+        this.dbHandler = new DatabaseHandler(this);
+        this.isHomeFragDisplayed = true;
+    }
+
+    private void setUpToolbar() {
+        //Set up MainActivity toolbar
+        setupBasicToolbar();
+        if (Build.VERSION.SDK_INT > 15) {
+            //Set toolbar color to match users theme
+            //SDK_INT 15 will keep bar black
+            getToolbar().setBackground(new ColorDrawable(fetchPrimaryColor()));
+        }
+    }
+
+    private void setUpDrawer() {
+        //Set up drawer, used in onCreate
+        this.drawer = findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, this.drawer, getToolbar(), R.string.account_creation_success, R.string.account_creation_failed);
+        //TODO change drawer description                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+    }
+
+    private void setUpNavView() {
+        //Set up Nav View, used in onCreate
+        this.navigationView = findViewById(R.id.nav_view);
+        this.navigationView.setNavigationItemSelectedListener(this);
+        this.navigationView.getMenu().getItem(0).setChecked(true);
+    }
+
+    //Checks if no user currently logged in
+    private Boolean userIsEmpty() {
+        return (MainActivity.user.getEmail().equals(""));
+    }
+
+    private void setUpUser() {
+        //Replaces partial user information with full user information, and sets profilePic variable. Used in onCreate
+        MainActivity.user = dbHandler.getUser(MainActivity.user.getEmail(), MainActivity.user.getPassword());
+        if (MainActivity.user.getProfilePic() != null) {
+            profilePic = Uri.parse(MainActivity.user.getProfilePic());
+        }
+    }
+
+    private void cacheUsersDB() {
+        //Querys database and caches users data into array lists
+        MainActivity.stateMap = dbHandler.getStateTreemap();
+        MainActivity.tenantList = dbHandler.getUsersTenants(MainActivity.user);
+        MainActivity.apartmentList = dbHandler.getUsersApartments(MainActivity.user);
+    }
 }

@@ -5,9 +5,9 @@
     <string name="email">Email</string>
     <string name="password">Password</string>
     <string name="login">Login</string>
-    <string name="create_account_link">No account yet? Create one</string>
+    <string name="create_account_link"><u>No account yet? Create one</u></string>
     <string name="create_account">Create Account</string>
-    <string name="already_a_member_link">Already a member? Login</string>
+    <string name="already_a_member_link"><u>Already a member? Login</u></string>
     <string name="enter_valid_email">Please enter a valid Email address ex: user@provider.com</string>
     <string name="email_empty">Please enter a valid Email address</string>
     <string name="password_requirements">Password must be between 4 and 15 alphanumeric characters</string>

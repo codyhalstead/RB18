@@ -8,6 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+        <!--Toolbar -->
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
@@ -18,17 +19,16 @@
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
             app:titleTextColor="@color/white" />
 
-
+        <!--Name layout -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="80dp"
-            android:background="?attr/colorPrimary"
-            android:gravity="center"
             android:layout_below="@+id/toolbar"
-            >
+            android:background="?attr/colorPrimary"
+            android:gravity="center">
 
             <TextView
-                android:id="@+id/renterViewTenantNameTextView"
+                android:id="@+id/tenantViewTenantNameTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"

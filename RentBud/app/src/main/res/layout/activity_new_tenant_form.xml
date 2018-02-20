@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="wrap_content">
 
-
+    <!--Toolbar -->
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
@@ -15,13 +15,12 @@
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         app:titleTextColor="@color/white" />
 
-    <ScrollView
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+    <ScrollView xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/toolbar"
-        >
+        android:layout_below="@+id/toolbar">
 
+        <!--Form layout -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -30,7 +29,7 @@
             android:paddingLeft="15dp"
             android:paddingRight="15dp">
 
-
+            <!--First name -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -42,13 +41,13 @@
                     android:text="First Name : " />
 
                 <EditText
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
                     android:id="@+id/tenantFormFirstNameET"
-                    />
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
 
             </LinearLayout>
 
+            <!--Last name -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -60,13 +59,13 @@
                     android:text="Last Name : " />
 
                 <EditText
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
                     android:id="@+id/tenantFormLastNameET"
-                    />
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
 
             </LinearLayout>
 
+            <!--Phone -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -78,21 +77,21 @@
                     android:text="Phone : " />
 
                 <EditText
+                    android:id="@+id/tenantFormPhoneET"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="phone"
-                    android:id="@+id/tenantFormPhoneET"
-                    />
+                    android:inputType="phone" />
 
             </LinearLayout>
 
+            <!--Notes -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15dp">
 
-
                 <EditText
+                    android:id="@+id/tenantFormNotesET"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@drawable/rect_edit_text"
@@ -102,21 +101,17 @@
                     android:isScrollContainer="true"
                     android:maxLength="500"
                     android:minHeight="120dp"
-                    android:padding="10dp"
-                    android:id="@+id/tenantFormNotesET"
-                    />
+                    android:padding="10dp" />
             </LinearLayout>
 
             <View
                 android:layout_width="match_parent"
-                android:layout_height="100dp"
-                />
+                android:layout_height="100dp" />
 
         </LinearLayout>
-
-
     </ScrollView>
 
+    <!--Footer with save and cancel buttons -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -126,20 +121,18 @@
         android:weightSum="2">
 
         <Button
+            android:id="@+id/tenantFormCancelBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Cancel"
-            android:id="@+id/tenantFormCancelBtn"
-            />
+            android:text="Cancel" />
 
         <Button
+            android:id="@+id/tenantFormSaveBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Save"
-            android:id="@+id/tenantFormSaveBtn"
-            />
+            android:text="Save" />
     </LinearLayout>
 </RelativeLayout>
 

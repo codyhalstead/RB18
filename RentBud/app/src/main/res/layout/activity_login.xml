@@ -15,7 +15,7 @@
         android:gravity="center"
         >
 
-        <!-- Email Label -->
+        <!-- Email box -->
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -29,7 +29,7 @@
                 />
         </android.support.design.widget.TextInputLayout>
 
-        <!-- Password Label -->
+        <!-- Password box -->
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -42,6 +42,7 @@
                 android:hint="@string/password"/>
         </android.support.design.widget.TextInputLayout>
 
+        <!--Log-in button -->
         <android.support.v7.widget.AppCompatButton
             android:id="@+id/btn_login"
             android:layout_width="fill_parent"
@@ -51,13 +52,16 @@
             android:padding="12dp"
             android:text="@string/login"/>
 
+        <!--Sign-up link -->
         <TextView android:id="@+id/link_signup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
             android:text="@string/create_account_link"
             android:gravity="center"
-            android:textSize="16sp"/>
+            android:textSize="16sp"
+            android:textColor="@color/colorPrimary"
+            />
 
     </LinearLayout>
 </ScrollView>

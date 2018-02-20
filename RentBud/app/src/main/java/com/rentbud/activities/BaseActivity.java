@@ -1,9 +1,7 @@
 package com.rentbud.activities;
 
-import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -15,8 +13,9 @@ import com.example.cody.rentbud.R;
  * Created by Cody on 1/25/2018.
  */
 
+//Base activity with theme and toolbar set-ups
 public class BaseActivity extends AppCompatActivity {
-    //SharedPreferences preferences;
+    //Theme constants
     public final static int THEME_PURPLE = 0;
     public final static int THEME_PURPLE_BLUE = 1;
     public final static int THEME_PINK = 2;
@@ -28,15 +27,16 @@ public class BaseActivity extends AppCompatActivity {
     public final static int THEME_BROWN = 8;
     public final static int THEME_BLUE = 9;
 
+    public Toolbar toolbar;
+
+    //onCreate
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        //String email = preferences.getString("last_user_email", "");
-        //int theme = preferences.getInt(email, 0);
-        //setupUserAppTheme(theme);
+        this.toolbar = null;
     }
 
+    //gets current primary theme color
     public int fetchPrimaryColor() {
         TypedValue typedValue = new TypedValue();
         TypedArray a = obtainStyledAttributes(typedValue.data, new int[]{R.attr.colorPrimary});
@@ -45,12 +45,14 @@ public class BaseActivity extends AppCompatActivity {
         return color;
     }
 
+    //gets current background theme color
     public int fetchBackgroundColor() {
         TypedValue a = new TypedValue();
         getTheme().resolveAttribute(android.R.attr.windowBackground, a, true);
         return a.data;
     }
 
+    //Sets theme choice, use before setContentView
     public void setupUserAppTheme(int theme) {
         switch (theme) {
             case THEME_PURPLE:
@@ -98,9 +100,14 @@ public class BaseActivity extends AppCompatActivity {
         }
     }
 
+    //sets up a basic toolbar, layout xml must include R.id.toolbar
     public void setupBasicToolbar(){
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        this.toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+    }
+
+    public Toolbar getToolbar(){
+        return this.toolbar;
     }
 
 }

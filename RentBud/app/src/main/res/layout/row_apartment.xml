@@ -4,13 +4,15 @@
     android:layout_height="match_parent"
     >
 
+    <!--Row -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/rentalRowLL"
+        android:id="@+id/apartmentRowLL"
         android:layout_marginTop="4dp"
         >
 
+        <!--Apartment pic -->
         <ImageView
             android:layout_width="100dp"
             android:layout_height="100dp"
@@ -22,24 +24,27 @@
             android:layout_marginLeft="8dp"
             >
 
+            <!--Address 1 -->
             <TextView
-                android:id="@+id/rentalRowStreet1TV"
+                android:id="@+id/apartmentRowStreet1TV"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="2390 Burlington Rd"
                 android:textSize="18sp" />
 
+            <!--Address 2 -->
             <TextView
-                android:id="@+id/rentalRowStreet2TV"
+                android:id="@+id/apartmentRowStreet2TV"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/rentalRowStreet1TV"
+                android:layout_below="@+id/apartmentRowStreet1TV"
                 android:text="Apt. 2356" />
 
+            <!--City, state and ZIP -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/rentalRowStreet2TV"
+                android:layout_below="@+id/apartmentRowStreet2TV"
                 android:orientation="horizontal"
                 >
 
@@ -47,7 +52,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Letts,"
-                    android:id="@+id/rentalRowCityTV"
+                    android:id="@+id/apartmentRowCityTV"
                      />
 
                 <TextView
@@ -56,14 +61,14 @@
                     android:text="IA"
                     android:layout_marginLeft="8dp"
                     android:layout_marginRight="8dp"
-                    android:id="@+id/rentalRowStateTV"
+                    android:id="@+id/apartmentRowStateTV"
                     />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="52754"
-                    android:id="@+id/rentalRowZipTV"
+                    android:id="@+id/apartmentRowZipTV"
                     />
 
             </LinearLayout>
@@ -71,11 +76,13 @@
         </RelativeLayout>
 
     </LinearLayout>
+
+    <!--Border -->
     <View
         android:layout_width="match_parent"
         android:layout_height="3dp"
         android:background="@color/caldroid_black"
-        android:layout_below="@+id/rentalRowLL"
-        android:id="@+id/rentalListBarBorder"
+        android:layout_below="@+id/apartmentRowLL"
+        android:id="@+id/apartmentListBarBorder"
         />
 </RelativeLayout>

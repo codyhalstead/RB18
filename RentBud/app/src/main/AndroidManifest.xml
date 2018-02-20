@@ -14,6 +14,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <!--MainActivity -->
         <activity
             android:name="com.rentbud.activities.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
@@ -23,48 +24,50 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <!--LoginActivity -->
         <activity
             android:name="com.rentbud.activities.LoginActivity"
             android:windowSoftInputMode="stateHidden">
 
         </activity>
+        <!--SignupActivity -->
         <activity
             android:name="com.rentbud.activities.SignupActivity"
             android:windowSoftInputMode="stateHidden">
-
         </activity>
+        <!--EmailVerificationActivity -->
         <activity android:name="com.rentbud.activities.EmailVerificationActivity">
 
         </activity>
-        <activity android:name="com.rentbud.activities.CalendarViewFragmentActivity">
-
-        </activity>
+        <!--SingleDateViewActivity -->
         <activity
-            android:name="com.rentbud.activities.SingleDateView"
+            android:name="com.rentbud.activities.SingleDateViewActivity"
             android:theme="@style/AppTheme.NoActionBar">
-
         </activity>
+        <!--SettingsActivity -->
         <activity
             android:name="com.rentbud.activities.SettingsActivity"
             android:theme="@style/AppTheme.NoActionBar">
-
         </activity>
-        <activity android:name="com.rentbud.activities.RenterViewActivity">
-
+        <!--TenantViewActivity -->
+        <activity android:name="com.rentbud.activities.TenantViewActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            >
         </activity>
-        <activity android:name="com.rentbud.activities.RentalViewActivity">
-
+        <!--ApartmentViewActivity -->
+        <activity android:name="com.rentbud.activities.ApartmentViewActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            >
         </activity>
+        <!--NewApartmentFormActivity -->
         <activity
-            android:name="com.rentbud.activities.NewRentalFormActivity"
+            android:name="com.rentbud.activities.NewApartmentFormActivity"
             android:theme="@style/AppTheme.NoActionBar">
-
         </activity>
+        <!--NewTenantFormActivity -->
         <activity
-            android:name="com.rentbud.activities.NewRenterFormActivity"
+            android:name="com.rentbud.activities.NewTenantFormActivity"
             android:theme="@style/AppTheme.NoActionBar">
-
         </activity>
     </application>
-
 </manifest>

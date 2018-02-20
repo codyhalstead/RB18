@@ -10,6 +10,7 @@ import com.example.cody.rentbud.R;
  * Created by Cody on 12/13/2017.
  */
 
+//Activity to verify users Email
 public class EmailVerificationActivity extends AppCompatActivity {
 
     @Override

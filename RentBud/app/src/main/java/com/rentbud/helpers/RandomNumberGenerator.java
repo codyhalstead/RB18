@@ -7,12 +7,13 @@ import java.util.Random;
  */
 
 public class RandomNumberGenerator {
-    Random random;
+    private Random random;
 
     public RandomNumberGenerator(){
         random = new Random();
     }
 
+    //Generate random number with digits you specify
     public String gererateVerificationNumber(int numberOfDigits){
         String theNumber = "";
         for (int i = 0; i < numberOfDigits; i++){

@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:fab="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <!--Search bar -->
     <android.support.v7.widget.Toolbar
-        android:id="@+id/renterSearchToolbar"
+        android:id="@+id/apartmentSearchToolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/colorPrimary">
@@ -27,7 +28,7 @@
                 android:paddingRight="15dp">
 
                 <EditText
-                    android:id="@+id/renterListSearchET"
+                    android:id="@+id/apartmentListSearchET"
                     android:layout_width="match_parent"
                     android:layout_height="40dp"
                     android:layout_margin="5dp"
@@ -35,7 +36,7 @@
                     android:drawableLeft="@drawable/ic_search_black_24dp"
                     android:ems="10"
                     android:gravity="left|center"
-                    android:hint="Search"/>
+                    android:hint="Search" />
 
             </LinearLayout>
 
@@ -43,47 +44,46 @@
 
     </android.support.v7.widget.Toolbar>
 
+    <!--Border -->
     <View
+        android:id="@+id/apartmentListBarBorder"
         android:layout_width="match_parent"
         android:layout_height="3dp"
-        android:background="@color/caldroid_black"
-        android:layout_below="@+id/renterSearchToolbar"
-        android:id="@+id/rentalListBarBorder"
-        />
+        android:layout_below="@+id/apartmentSearchToolbar"
+        android:background="@color/caldroid_black" />
 
+    <!--FAB -->
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/renterFab"
+        android:id="@+id/apartmentFab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
         android:layout_marginBottom="40dp"
         android:layout_marginRight="30dp"
-        fab:elevation="6dp"
+        android:onClick="apartmentFABClick"
         app:srcCompat="@drawable/ic_add_white_24dp"
-        android:onClick="renterFABClick"
-        />
+        fab:elevation="6dp" />
 
+    <!--Text view if list empty -->
     <TextView
+        android:id="@+id/noapartmentEmptyListTV"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="250dp"
         android:gravity="center"
-        android:text="No current renters"
+        android:text="No current apartments"
         android:textSize="28sp"
-        android:id="@+id/noRenterEmptyListTV"
-        android:visibility="invisible"
-        />
+        android:visibility="invisible" />
 
-
+    <!--Apartment list view -->
     <ListView
-        android:id="@+id/mainRenterListView"
+        android:id="@+id/mainapartmentListView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/renterSearchToolbar">
+        android:layout_below="@+id/apartmentListBarBorder">
 
     </ListView>
-
 
 </RelativeLayout>

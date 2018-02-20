@@ -146,6 +146,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         verificationGenerator = new RandomNumberGenerator();
     }
 
+    //Add new user
     public void addUser(String name, String email, String password) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
@@ -157,6 +158,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close();
     }
 
+    //Get user (Can be used to complete partial user object)
     public User getUser(String email, String password){
         SQLiteDatabase db = this.getWritableDatabase();
         String Query = "Select * from " + USER_INFO_TABLE + " where " + USER_INFO_EMAIL_COLUMN + " like '%" + email + "%' AND "
@@ -177,15 +179,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
     }
 
-    public void changeVerificationNumber(String email) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        //contentValues.put(USER_INFO_VERIFICATION_NUMBER_COLUMN, verificationGenerator.gererateVerificationNumber(5));
-        db.update(USER_INFO_TABLE, contentValues, USER_INFO_EMAIL_COLUMN + " = " + email, null);
-        db.close();
-    }
-
-
+    //Used to change user name, email, and/or password
     public void updateUser(User user) {
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -199,6 +193,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close();
     }
 
+    //Delete user
     public void deleteUser(User user) {
         SQLiteDatabase db = this.getWritableDatabase();
         // delete user record by id
@@ -207,49 +202,40 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close();
     }
 
+    //check if user exists (By Email)
     public boolean checkUser(String email) {
-        // array of columns to fetch
+        //Array of columns to fetch
         String[] columns = {USER_INFO_ID_COLUMN_PK};
         SQLiteDatabase db = this.getReadableDatabase();
-
-        // selection criteria
+        //Selection criteria
         String selection = USER_INFO_EMAIL_COLUMN + " = ?";
-
-        // selection argument
+        //Selection argument
         String[] selectionArgs = {email};
-
-        // query user table with condition
-        /**
-         * Here query function is used to fetch records from user table this function works like we use sql query.
-         * SQL query equivalent to this query function is
-         * SELECT user_id FROM user WHERE user_email = 'jack@androidtutorialshub.com';
-         */
+        //Query user table with condition
         Cursor cursor = db.query(USER_INFO_TABLE, columns, selection, selectionArgs, null, null, null);
         int cursorCount = cursor.getCount();
         cursor.close();
         db.close();
-
         return (cursorCount > 0);
     }
 
+    //check if user exists (By Email and password)
     public boolean checkUser(String email, String password) {
-        // array of columns to fetch
+        //Array of columns to fetch
         String[] columns = {USER_INFO_ID_COLUMN_PK};
         SQLiteDatabase db = this.getReadableDatabase();
-        // selection criteria
+        //Selection criteria
         String selection = USER_INFO_EMAIL_COLUMN + " = ?" + " AND " + USER_INFO_PASSWORD_COLUMN + " = ?";
-
-        // selection arguments
+        //Selection arguments
         String[] selectionArgs = {email, password};
-
         Cursor cursor = db.query(USER_INFO_TABLE, columns, selection, selectionArgs, null, null, null);
         int cursorCount = cursor.getCount();
-
         cursor.close();
         db.close();
         return (cursorCount > 0);
     }
 
+    //Get user name
     public String getUserName(String email) {
         SQLiteDatabase db = this.getReadableDatabase();
         String Query = "Select * from " + USER_INFO_TABLE + " where " + USER_INFO_EMAIL_COLUMN + " like '%" + email + "%' LIMIT 1";
@@ -267,6 +253,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
     }
 
+    //Get user ID, returns -1 if user doesn't exist
     public int getUserID(String email){
         SQLiteDatabase db = this.getReadableDatabase();
         String Query = "Select * from " + USER_INFO_TABLE + " where " + USER_INFO_EMAIL_COLUMN + " like '%" + email + "%' LIMIT 1";
@@ -283,6 +270,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
     }
 
+    //Get state tree map, sorted alphabetically. State = key, ID = value
     public TreeMap<String, Integer> getStateTreemap(){
         TreeMap<String, Integer> stateMap = new TreeMap<>();
         SQLiteDatabase db = this.getReadableDatabase();
@@ -305,6 +293,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
     }
 
+    //Add tenant
     public void addNewTenant(Tenant tenant, int userID){
         ContentValues values = new ContentValues();
         SQLiteDatabase db = this.getReadableDatabase();
@@ -321,6 +310,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close();
     }
 
+    //Add apartment
     public void addNewApartment(Apartment apartment, int userID){
         ContentValues values = new ContentValues();
         SQLiteDatabase db = this.getReadableDatabase();
@@ -336,6 +326,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close();
     }
 
+    //Add payment log entry
     public void addPaymentLogEntry(PaymentLogEntry ple, int userID){
         ContentValues values = new ContentValues();
         SQLiteDatabase db = this.getReadableDatabase();
@@ -347,7 +338,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.insert(PAYMENT_LOG_TABLE, null, values);
         db.close();
     }
+
     //TODO
+    //Add expense log entry
     public void addExpenseLogEntry(ExpenseLogEntry ele, int userID){
         ContentValues values = new ContentValues();
         SQLiteDatabase db = this.getReadableDatabase();
@@ -361,7 +354,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.insert(EXPENSE_LOG_TABLE, null, values);
         db.close();
     }
+
     //TODO
+    //Add event log entry
     public void addEventLogEntry(EventLogEntry ele, int userID){
         ContentValues values = new ContentValues();
         SQLiteDatabase db = this.getReadableDatabase();
@@ -375,6 +370,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close();
     }
 
+    //Gets a users active tenants
     public ArrayList<Tenant> getUsersTenants(User user){
         SQLiteDatabase db = this.getReadableDatabase();
         ArrayList<Tenant> tenants = new ArrayList<>();
@@ -405,6 +401,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
     }
 
+    //Gets a users active apartments
     public ArrayList<Apartment> getUsersApartments(User user){
         SQLiteDatabase db = this.getReadableDatabase();
         ArrayList<Apartment> apartments = new ArrayList<>();
@@ -436,6 +433,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
     }
 
+    //Change users profile pic string
     public void changeProfilePic(User user, String pic){
         SQLiteDatabase db = this.getReadableDatabase();
         ContentValues values = new ContentValues();
@@ -448,7 +446,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         createUserInfoTable(db);
         createStateTable(db);
-        createTypesTable(db); //lookuptype
+        createTypesTable(db); //lookuptype //TODO
         createTypeLookupTable(db); //lookup
         createApartmentInfoTable(db);
         createApartmentPicsTable(db);
@@ -467,21 +465,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
     }
 
+    //Allows foreign key use
     private void setForeignKeyConstraintsEnabled(SQLiteDatabase db) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-            setForeignKeyConstraintsEnabledPreJellyBean(db);
+            db.execSQL("PRAGMA foreign_keys=1;");
         } else {
-            setForeignKeyConstraintsEnabledPostJellyBean(db);
+            db.setForeignKeyConstraintsEnabled(true);
         }
-    }
-
-    private void setForeignKeyConstraintsEnabledPreJellyBean(SQLiteDatabase db) {
-        db.execSQL("PRAGMA foreign_keys=1;");
-    }
-
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    private void setForeignKeyConstraintsEnabledPostJellyBean(SQLiteDatabase db) {
-        db.setForeignKeyConstraintsEnabled(true);
     }
 
     @Override
@@ -647,6 +637,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     public void addTestData(User user){
+        //Temporary method
         Apartment apartment1 = new Apartment(0, "2390 Burlington Rd", "", "Letts", 1, "IA", "52754", "", "", new ArrayList<String>());
         Apartment apartment2 = new Apartment(1, "2495 McNair Farms Dr", "Apt 555", "Herndon", 2, "VA", "78978", "", "", new ArrayList<String>());
         Tenant tenant1 = new Tenant(0, "Cody", "Halstead", "563-299-9577", 1, "", "", "", "");

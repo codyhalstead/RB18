@@ -22,24 +22,22 @@ import java.util.ArrayList;
  * Created by Cody on 2/9/2018.
  */
 
-public class NewRenterFormActivity extends BaseActivity {
-    SharedPreferences preferences;
+public class NewTenantFormActivity extends BaseActivity {
     EditText firstNameET, lastNameET, phoneET, notesET;
     Button saveBtn, cancelBtn;
     DatabaseHandler databaseHandler;
-    User user;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        String email = preferences.getString("last_user_email", "");
-        int theme = preferences.getInt(email, 0);
-        setupUserAppTheme(theme);
+        setupUserAppTheme(MainActivity.curThemeChoice);
         setContentView(R.layout.activity_new_tenant_form);
         setupBasicToolbar();
-        Bundle bundle = getIntent().getExtras();
-        this.user = (User)bundle.get("user");
+        initializeVariables();
+        setOnClickListeners();
+    }
+
+    private void initializeVariables() {
         this.databaseHandler = new DatabaseHandler(this);
         this.firstNameET = findViewById(R.id.tenantFormFirstNameET);
         this.lastNameET = findViewById(R.id.tenantFormLastNameET);
@@ -47,26 +45,32 @@ public class NewRenterFormActivity extends BaseActivity {
         this.notesET = findViewById(R.id.tenantFormNotesET);
         this.saveBtn = findViewById(R.id.tenantFormSaveBtn);
         this.cancelBtn = findViewById(R.id.tenantFormCancelBtn);
+    }
+
+    private void setOnClickListeners() {
+        //Sets onClickListener to saveBtn
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //Get users input data
                 String firstName = firstNameET.getText().toString();
                 String lastName = lastNameET.getText().toString();
                 String phone = phoneET.getText().toString();
                 String notes = notesET.getText().toString();
                 //TODO will need to update once tenant type is reworked
+                //Create new Tenant object with input data and add it to the database
                 Tenant tenant = new Tenant(-1, firstName, lastName, phone, 1, " ", notes, " ", " ");
-                databaseHandler.addNewTenant(tenant, user.getId());
-                //  Intent data = new Intent();
-                // data.putExtra("newTenant", tenant);
-                //  setResult(RESULT_OK, data);
+                databaseHandler.addNewTenant(tenant, MainActivity.user.getId());
+                //Set result success, close this activity
                 setResult(RESULT_OK);
                 finish();
             }
         });
+        //Sets onClickListener to cancelBtn
         cancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //Set result to cancelled and close this activity
                 Intent data = new Intent();
                 setResult(RESULT_CANCELED, data);
                 finish();
