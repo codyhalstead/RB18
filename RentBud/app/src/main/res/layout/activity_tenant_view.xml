@@ -4,9 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
         <!--Toolbar -->
         <android.support.v7.widget.Toolbar
@@ -20,24 +21,121 @@
             app:titleTextColor="@color/white" />
 
         <!--Name layout -->
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="80dp"
-            android:layout_below="@+id/toolbar"
+            android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            android:gravity="center">
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
 
             <TextView
-                android:id="@+id/tenantViewTenantNameTextView"
-                android:layout_width="match_parent"
+                android:id="@+id/tenantViewFirstNameTextView"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="Cody Halstead"
+                android:text="Cody"
                 android:textColor="@color/white"
                 android:textSize="20sp" />
 
-        </RelativeLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="  " />
 
-    </RelativeLayout>
+            <TextView
+                android:id="@+id/tenantViewLastNameTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Halstead"
+                android:textColor="@color/white"
+                android:textSize="20sp" />
+
+        </LinearLayout>
+
+        <!--Phone -->
+        <TextView
+            android:id="@+id/tenantViewPhoneTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="1-555-4444"
+            android:textSize="20sp" />
+
+        <!--Renting status -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+
+            <TextView
+                android:id="@+id/tenantViewRentingStatusTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Currently renting" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="  " />
+
+            <TextView
+                android:id="@+id/tenantViewRentingAddressTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="2390 Burlington Rd" />
+
+        </LinearLayout>
+
+        <!--Lease start/end -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="left"
+                android:text="Lease started on 1/2/17"
+                android:id="@+id/tenantViewLeaseStartTextView"
+                />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="right"
+                android:text="Lease ending on 1/2/18"
+                android:id="@+id/tenantViewLeaseEndTextView"
+                />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp">
+
+            <TextView
+                android:id="@+id/tenantViewNotesTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/rect_edit_text"
+                android:gravity="top"
+                android:hint="No notes"
+                android:isScrollContainer="true"
+                android:maxLength="500"
+                android:minHeight="120dp"
+                android:padding="10dp" />
+        </LinearLayout>
+
+    </LinearLayout>
 
 </ScrollView>

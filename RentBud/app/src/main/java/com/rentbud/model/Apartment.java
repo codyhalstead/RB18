@@ -17,12 +17,13 @@ public class Apartment implements Parcelable {
     private int stateID;
     private String state;
     private String zip;
+    private String description;
     private String notes;
     private String mainPic;
     private ArrayList<String> otherPics;
 
     public Apartment(int id, String street1, String street2, String city, int stateID,
-                     String state, String zip, String notes, String mainPic, ArrayList<String> otherPics){
+                     String state, String zip, String description, String notes, String mainPic, ArrayList<String> otherPics){
         this.id = id;
         this.street1 = street1;
         this.street2 = street2;
@@ -30,6 +31,7 @@ public class Apartment implements Parcelable {
         this.stateID = stateID;
         this.state = state;
         this.zip = zip;
+        this.description = description;
         this.notes = notes;
         this.mainPic = mainPic;
         //this.otherPics = otherPics;
@@ -49,6 +51,7 @@ public class Apartment implements Parcelable {
         parcel.writeInt(this.stateID);
         parcel.writeString(this.state);
         parcel.writeString(this.zip);
+        parcel.writeString(this.description);
         parcel.writeString(this.notes);
         parcel.writeString(this.mainPic);
        // parcel.writeStringList(this.otherPics);
@@ -62,6 +65,7 @@ public class Apartment implements Parcelable {
         this.stateID = in.readInt();
         this.state = in.readString();
         this.zip = in.readString();
+        this.description = in.readString();
         this.notes = in.readString();
         this.mainPic = in.readString();
       //  in.readStringList(this.otherPics);
@@ -162,5 +166,13 @@ public class Apartment implements Parcelable {
 
     public void setOtherPics(ArrayList<String> otherPics) {
         this.otherPics = otherPics;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

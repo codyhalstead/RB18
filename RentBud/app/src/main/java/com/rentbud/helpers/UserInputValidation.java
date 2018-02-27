@@ -46,9 +46,9 @@ public class UserInputValidation {
     }
 
     //Used to check if edit text input is not empty and fits password criteria (Between 4 and 15 characters) with custom message error
-    public boolean isInputEditTextPassword(TextInputEditText editText, String message){
+    public boolean isInputEditTextPassword(TextInputEditText editText, String message) {
         String value = editText.getText().toString().trim();
-        if (value.isEmpty() || value.length() < 4 || value.length() > 15 ){
+        if (value.isEmpty() || value.length() < 4 || value.length() > 15) {
             editText.setError(message);
             hideKeyboardFrom(editText);
             return false;
@@ -73,13 +73,13 @@ public class UserInputValidation {
     }
 
     //Used to check if edit text fits name criteria (Not empty) with custom message error
-    public boolean isInputEditTextName(TextInputEditText editText, String message){
+    public boolean isInputEditTextName(TextInputEditText editText, String message) {
         String value = editText.getText().toString().trim();
-        if(value.isEmpty()){
+        if (value.isEmpty()) {
             editText.setError(message);
             hideKeyboardFrom(editText);
             return false;
-        }else{
+        } else {
             editText.setError(null);
         }
         return true;
@@ -89,5 +89,37 @@ public class UserInputValidation {
         //Hide keyboard
         InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(view.getWindowToken(), WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+    }
+
+    //Used to check if edit text input is not empty with custom message error
+    //For regular edit text box
+    public boolean isInputEditTextFilled(EditText editText, String message) {
+        String value = editText.getText().toString().trim();
+        if (value.isEmpty()) {
+            editText.setError(message);
+            hideKeyboardFrom(editText);
+            return false;
+        } else {
+            editText.setError(null);
+        }
+        return true;
+    }
+
+    //Checks if input is a 10 digit number or is empty
+    public boolean isInputEditText10DigitPhoneOrEmpty(EditText editText, String message) {
+        String value = editText.getText().toString().trim();
+        if (value.isEmpty()) {
+            editText.setError(null);
+            return true;
+        } else {
+            if (value.length() != 12) {
+                editText.setError(message);
+                hideKeyboardFrom(editText);
+                return false;
+            } else {
+                editText.setError(null);
+                return true;
+            }
+        }
     }
 }

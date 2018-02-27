@@ -42,7 +42,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Address Line 1 : " />
+                    android:text="*Address Line 1 : " />
 
                 <EditText
                     android:id="@+id/apartmentFormAddress1ET"
@@ -78,7 +78,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="City : " />
+                    android:text="*City : " />
 
                 <EditText
                     android:id="@+id/apartmentFormCityET"
@@ -102,7 +102,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="State:" />
+                        android:text="*State:" />
 
                     <Spinner
                         android:id="@+id/apartmentStateSpinner"
@@ -120,7 +120,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="ZIP: " />
+                        android:text="*ZIP: " />
 
                     <EditText
                         android:id="@+id/apartmentFormZIPET"

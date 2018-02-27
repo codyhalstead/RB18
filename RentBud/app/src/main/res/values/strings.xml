@@ -22,6 +22,7 @@
     <string name="account_creation_success">Account creation success</string>
     <string name="login_failed">Login failed</string>
 
-
+    <string name="field_required">Field required</string>
+    <string name="please_use_10_digit_phone">Please use a 10 digit phone number</string>
 
 </resources>

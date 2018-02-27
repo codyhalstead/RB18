@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+    <item
+        android:id="@+id/action_refresh_info"
+        android:icon="@drawable/ic_edit_white_24dp"
+        android:title=""
+        app:showAsAction="always">
+
+        <!--Options list -->
+        <menu>
+            <item
+                android:id="@+id/editApartment"
+                android:title="Edit apartment" />
+
+            <item
+                android:id="@+id/editTenant"
+                android:title="Edit tenants" />
+
+            <item
+                android:id="@+id/editMainPic"
+                android:title="Edit main picture" />
+
+            <item
+                android:id="@+id/editotherPics"
+                android:title="Edit side pictures" />
+
+            <item
+                android:id="@+id/editDescription"
+                android:title="Edit description" />
+
+            <item
+                android:id="@+id/editNotes"
+                android:title="Edit notes" />
+
+        </menu>
+
+    </item>
+</menu>

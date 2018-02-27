@@ -32,6 +32,7 @@ public class TenantListFragment extends Fragment implements AdapterView.OnItemCl
     TenantListAdapter tenantListAdapter;
     ColorStateList accentColor;
     ListView listView;
+    public static boolean tenantListAdapterNeedsRefreshed;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -47,11 +48,22 @@ public class TenantListFragment extends Fragment implements AdapterView.OnItemCl
         this.searchBarET = view.findViewById(R.id.tenantListSearchET);
         this.listView = view.findViewById(R.id.maintenantListView);
         getActivity().setTitle("Tenant View");
+        TenantListFragment.tenantListAdapterNeedsRefreshed = false;
         //Get current theme accent color, which is passed into the list adapter for search highlighting
         TypedValue colorValue = new TypedValue();
         getActivity().getTheme().resolveAttribute(R.attr.colorAccent, colorValue, true);
         accentColor = getActivity().getResources().getColorStateList(colorValue.resourceId);
+        setUpListAdapter();
         setUpSearchBar();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(TenantListFragment.tenantListAdapterNeedsRefreshed){
+            searchBarET.setText("");
+            setUpListAdapter();
+        }
     }
 
     @Override
@@ -65,20 +77,6 @@ public class TenantListFragment extends Fragment implements AdapterView.OnItemCl
     }
 
     private void setUpSearchBar() {
-        if (MainActivity.tenantList != null) {
-            if (!MainActivity.tenantList.isEmpty()) {
-                //If MainActivity.tenantList is not null or empty, set apartment list adapter
-                tenantListAdapter = new TenantListAdapter(getActivity(), MainActivity.tenantList, accentColor);
-                listView.setAdapter(tenantListAdapter);
-                listView.setOnItemClickListener(this);
-            } else {
-                //If MainActivity.tenantList is not null but is empty, show empty list text
-                noTenantsTV.setVisibility(View.VISIBLE);
-            }
-        } else {
-            //If MainActivity.tenantList is null show empty list text
-            noTenantsTV.setVisibility(View.VISIBLE);
-        }
         searchBarET.addTextChangedListener(new TextWatcher() {
             //For updating search results as user types
             @Override
@@ -102,5 +100,22 @@ public class TenantListFragment extends Fragment implements AdapterView.OnItemCl
 
             }
         });
+    }
+
+    private void setUpListAdapter(){
+        if (MainActivity.tenantList != null) {
+            if (!MainActivity.tenantList.isEmpty()) {
+                //If MainActivity.tenantList is not null or empty, set apartment list adapter
+                tenantListAdapter = new TenantListAdapter(getActivity(), MainActivity.tenantList, accentColor);
+                listView.setAdapter(tenantListAdapter);
+                listView.setOnItemClickListener(this);
+            } else {
+                //If MainActivity.tenantList is not null but is empty, show empty list text
+                noTenantsTV.setVisibility(View.VISIBLE);
+            }
+        } else {
+            //If MainActivity.tenantList is null show empty list text
+            noTenantsTV.setVisibility(View.VISIBLE);
+        }
     }
 }

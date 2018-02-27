@@ -300,14 +300,14 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         outState.putBoolean("isHome", isHomeFragDisplayed);
     }
 
-    public void rentalFABClick(View view) {
+    public void apartmentFABClick(View view) {
         //Launch NewApartmentFormActivity for result
         //onClick set in xml (ApartmentList fragment FAB)
         Intent intent = new Intent(this, NewApartmentFormActivity.class);
         startActivityForResult(intent, REQUEST_NEW_APARTMENT_FORM);
     }
 
-    public void renterFABClick(View view) {
+    public void tenantFABClick(View view) {
         //Launch NewTenantFormActivity for result
         //onClick set in xml (TenantList fragment FAB)
         Intent intent = new Intent(this, NewTenantFormActivity.class);
@@ -380,5 +380,12 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         MainActivity.stateMap = dbHandler.getStateTreemap();
         MainActivity.tenantList = dbHandler.getUsersTenants(MainActivity.user);
         MainActivity.apartmentList = dbHandler.getUsersApartments(MainActivity.user);
+    }
+
+    public static void updateApartmentList(ArrayList<Apartment> apartmentList){
+        MainActivity.apartmentList.clear();
+        for(int i = 0; i < apartmentList.size(); i++){
+            MainActivity.apartmentList.add(apartmentList.get(i));
+        }
     }
 }

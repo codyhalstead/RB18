@@ -17,6 +17,7 @@ import android.widget.Filterable;
 import android.widget.TextView;
 
 import com.example.cody.rentbud.R;
+import com.rentbud.activities.MainActivity;
 import com.rentbud.model.Apartment;
 
 import java.util.ArrayList;
@@ -77,8 +78,8 @@ public class ApartmentListAdapter extends BaseAdapter implements Filterable {
                 street2TV.setVisibility(View.GONE);
             } else {
                 street2TV.setVisibility(View.VISIBLE);
+                setTextHighlightSearch(street2TV, apartment.getStreet2());
             }
-            setTextHighlightSearch(street2TV, apartment.getStreet2());
             String city = apartment.getCity();
             //If city not empty, add comma
             if(!apartment.getCity().equals("")){

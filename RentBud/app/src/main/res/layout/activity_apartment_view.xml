@@ -4,9 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
         <!--Toolbar -->
         <android.support.v7.widget.Toolbar
@@ -29,7 +30,7 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="80dp"
+                android:layout_height="?attr/actionBarSize"
                 android:background="?attr/colorPrimary">
 
             </RelativeLayout>
@@ -48,24 +49,103 @@
 
         </FrameLayout>
 
-        <!--Text views -->
+        <!--Street 1 -->
         <TextView
-            android:id="@+id/addressLine1"
-            android:layout_width="wrap_content"
+            android:id="@+id/apartmentViewStreet1TextView"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/topFrame"
-            android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
+            android:gravity="center"
             android:text="2390 Burlington Rd" />
 
+        <!--Street 2 -->
         <TextView
-            android:id="@+id/addressLine2"
+            android:id="@+id/apartmentViewStreet2TextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Apt. 231" />
+
+        <!--City, state, and ZIP -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/apartmentViewCityTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Letts," />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="  " />
+
+            <TextView
+                android:id="@+id/apartmentViewStateTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="IA" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="  " />
+
+            <TextView
+                android:id="@+id/apartmentViewZipTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="52754" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/apartmentViewTenantStatusTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Vacant" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:background="@drawable/rect_edit_text" />
+
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/addressLine1"
-            android:layout_centerHorizontal="true"
-            android:text="Letts, IA 52754" />
+            android:text="Pictures?" />
 
-    </RelativeLayout>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Description"
+            android:id="@+id/apartmentViewDescriptionTextView"
+            />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp">
+
+            <TextView
+                android:id="@+id/apartmentViewNotesTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/rect_edit_text"
+                android:gravity="top"
+                android:hint="No notes"
+                android:isScrollContainer="true"
+                android:maxLength="500"
+                android:minHeight="120dp"
+                android:padding="10dp" />
+        </LinearLayout>
+
+    </LinearLayout>
 
 </ScrollView>

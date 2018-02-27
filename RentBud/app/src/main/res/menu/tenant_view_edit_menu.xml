@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+    <item
+        android:id="@+id/action_refresh_info"
+        android:icon="@drawable/ic_edit_white_24dp"
+        android:title=""
+        app:showAsAction="always">
+
+        <!--Options list -->
+        <menu>
+            <item
+                android:id="@+id/editTenant"
+                android:title="Edit tenant" />
+
+            <item
+                android:id="@+id/editStatus"
+                android:title="Edit renting status" />
+
+            <item
+                android:id="@+id/editLease"
+                android:title="Edit lease" />
+
+            <item
+                android:id="@+id/editNotes"
+                android:title="Edit notes" />
+
+        </menu>
+
+    </item>
+</menu>
