@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.cody.rentbud.R;
@@ -17,14 +18,24 @@ import com.rentbud.model.Tenant;
 import com.rentbud.model.User;
 import com.rentbud.sqlite.DatabaseHandler;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+
 /**
  * Created by Cody on 2/6/2018.
  */
 
 public class ApartmentViewActivity extends BaseActivity {
     Apartment apartment;
-    TextView street1TV, street2TV, cityTV, stateTV, zipTV, tenantStatusTV, descriptionTV, notesTV;
+    TextView street1TV, street2TV, cityTV, stateTV, zipTV, tenantStatusTV, descriptionTV, notesTV, primaryTenantFirstNameTV, primaryTennantLastNAmeTV, primaryTenantDisplayTV;
+    TextView secondaryTenantsTV, leaseStatusTV, leaseStartTV, leaseEndTV, leaseHyphenTV;
+    LinearLayout primaryTenantLL, secondaryTenantsLL;
     DatabaseHandler databaseHandler;
+    Tenant primaryTenant;
+    ArrayList<Tenant> secondaryTenants;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -41,10 +52,22 @@ public class ApartmentViewActivity extends BaseActivity {
         cityTV = findViewById(R.id.apartmentViewCityTextView);
         stateTV = findViewById(R.id.apartmentViewStateTextView);
         zipTV = findViewById(R.id.apartmentViewZipTextView);
-        tenantStatusTV = findViewById(R.id.apartmentViewTenantStatusTextView);
+        //tenantStatusTV = findViewById(R.id.apartmentViewTenantStatusTextView);
         descriptionTV = findViewById(R.id.apartmentViewDescriptionTextView);
         notesTV = findViewById(R.id.apartmentViewNotesTextView);
+        primaryTenantFirstNameTV = findViewById(R.id.apartmentViewPrimaryTenantFirstNameTV);
+        primaryTennantLastNAmeTV = findViewById(R.id.apartmentViewPrimaryTenantLastNameTV);
+        primaryTenantDisplayTV = findViewById(R.id.apartmentViewPrimaryTenantDisplayTV);
+        secondaryTenantsTV = findViewById(R.id.apartmentViewSecondaryTenantsTV);
+        leaseStatusTV = findViewById(R.id.apartmentViewRentalLeaseTV);
+        leaseStartTV = findViewById(R.id.apartmentViewLeaseStartTextView);
+        leaseEndTV = findViewById(R.id.apartmentViewLeaseEndTextView);
+        leaseHyphenTV = findViewById(R.id.apartmentViewLeaseHyphenTV);
 
+        primaryTenantLL = findViewById(R.id.apartmentViewPrimaryTenantLL);
+        secondaryTenantsLL = findViewById(R.id.apartmentViewSecondaryTenantsLL);
+        secondaryTenants = new ArrayList<>();
+        getTenants();
         fillTextViews();
 
         setupBasicToolbar();
@@ -87,7 +110,7 @@ public class ApartmentViewActivity extends BaseActivity {
         }
     }
 
-    private void fillTextViews(){
+    private void fillTextViews() {
         street1TV.setText(apartment.getStreet1());
         if (apartment.getStreet2().equals("")) {
             street2TV.setVisibility(View.GONE);
@@ -100,5 +123,50 @@ public class ApartmentViewActivity extends BaseActivity {
         //tenantStatusTV.setText();
         descriptionTV.setText(apartment.getDescription());
         notesTV.setText(apartment.getNotes());
+        if(primaryTenant != null){
+            primaryTenantFirstNameTV.setText(primaryTenant.getFirstName());
+            primaryTennantLastNAmeTV.setText(primaryTenant.getLastName());
+            SimpleDateFormat formatTo = new SimpleDateFormat("MM-dd-yyyy");
+            DateFormat formatFrom = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy");
+            try {
+                Date startDate = formatFrom.parse(primaryTenant.getLeaseStart());
+                Date endDate = formatFrom.parse(primaryTenant.getLeaseEnd());
+                leaseStartTV.setText(formatTo.format(startDate));
+                leaseEndTV.setText(formatTo.format(endDate));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            if(!secondaryTenants.isEmpty()){
+                for(int i = 0; i < secondaryTenants.size(); i++){
+                    secondaryTenantsTV.append(secondaryTenants.get(i).getFirstName());
+                    secondaryTenantsTV.append(" ");
+                    secondaryTenantsTV.append(secondaryTenants.get(i).getLastName());
+                    if(i != secondaryTenants.size() - 1){
+                        secondaryTenantsTV.append("\n");
+                    }
+                }
+            } else {
+                secondaryTenantsLL.setVisibility(View.GONE);
+            }
+        } else {
+            leaseStatusTV.setText("Vacant");
+            leaseStartTV.setText("");
+            leaseEndTV.setText("");
+            leaseHyphenTV.setText("");
+            primaryTenantLL.setVisibility(View.GONE);
+            secondaryTenantsLL.setVisibility(View.GONE);
+        }
+    }
+
+    private void getTenants() {
+        for (int i = 0; i < MainActivity.tenantList.size(); i++) {
+            if (MainActivity.tenantList.get(i).getApartmentID() == apartment.getId()) {
+                if (MainActivity.tenantList.get(i).getIsPrimary()) {
+                    primaryTenant = MainActivity.tenantList.get(i);
+                } else {
+                    secondaryTenants.add(MainActivity.tenantList.get(i));
+                }
+            }
+        }
     }
 }

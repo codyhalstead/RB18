@@ -3,16 +3,23 @@ package com.rentbud.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.cody.rentbud.R;
-import com.rentbud.fragments.ApartmentListFragment;
 import com.rentbud.fragments.TenantListFragment;
-import com.rentbud.model.Apartment;
 import com.rentbud.model.Tenant;
 import com.rentbud.sqlite.DatabaseHandler;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Created by Cody on 2/6/2018.
@@ -20,7 +27,9 @@ import com.rentbud.sqlite.DatabaseHandler;
 
 public class TenantViewActivity extends BaseActivity {
     Tenant tenant;
-    TextView firstNameTV, lastNameTV, renterStatusTV, phoneTV, leaseStartTV, leaseEndTV, notesTV;
+    TextView firstNameTV, lastNameTV, renterStatusTV, phoneTV, leaseStartTV, leaseEndTV, notesTV, apartmentAddressTV, apartmentAddress2TV, leaseHolderTypeTV;
+    Button editLeaseBtn;
+    LinearLayout leaseLL;
     DatabaseHandler databaseHandler;
 
     @Override
@@ -39,9 +48,14 @@ public class TenantViewActivity extends BaseActivity {
         leaseStartTV = findViewById(R.id.tenantViewLeaseStartTextView);
         leaseEndTV = findViewById(R.id.tenantViewLeaseEndTextView);
         notesTV = findViewById(R.id.tenantViewNotesTextView);
+        apartmentAddressTV = findViewById(R.id.tenantViewRentingAddressTextView);
+        apartmentAddress2TV = findViewById(R.id.tenantViewRentingAddress2TextView);
+        leaseHolderTypeTV = findViewById(R.id.tenantViewLeaseHolderType);
+        editLeaseBtn = findViewById(R.id.tenantViewEditLeaseBtn);
+        leaseLL = findViewById(R.id.tenantViewLeaseLL);
 
         fillTextViews();
-
+        setOnClickListeners();
         setupBasicToolbar();
     }
 
@@ -85,10 +99,58 @@ public class TenantViewActivity extends BaseActivity {
     public void fillTextViews() {
         firstNameTV.setText(tenant.getFirstName());
         lastNameTV.setText(tenant.getLastName());
-        //renterStatusTV.setText();
         phoneTV.setText(tenant.getPhone());
-        leaseStartTV.setText(tenant.getLeaseStart());
-        leaseEndTV.setText(tenant.getLeaseEnd());
+        if (tenant.getApartmentID() == 0) {
+            renterStatusTV.setText("Not Currently Renting");
+            apartmentAddressTV.setText("");
+            apartmentAddress2TV.setVisibility(View.GONE);
+        } else {
+            renterStatusTV.setText("Renting");
+            for (int i = 0; i < MainActivity.apartmentList.size(); i++) {
+                if (MainActivity.apartmentList.get(i).getId() == tenant.getApartmentID()) {
+                    apartmentAddressTV.setText(MainActivity.apartmentList.get(i).getStreet1());
+                    if (MainActivity.apartmentList.get(i).getStreet2().equals("")) {
+                        apartmentAddress2TV.setVisibility(View.GONE);
+                    } else {
+                        apartmentAddress2TV.setText(MainActivity.apartmentList.get(i).getStreet2());
+                    }
+                    break;
+                }
+            }
+        }
+        if (!tenant.getLeaseStart().equals(" ")) {
+            SimpleDateFormat formatTo = new SimpleDateFormat("MM-dd-yyyy");
+            DateFormat formatFrom = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy");
+            try {
+                Date startDate = formatFrom.parse(tenant.getLeaseStart());
+                Date endDate = formatFrom.parse(tenant.getLeaseEnd());
+                leaseStartTV.setText(formatTo.format(startDate));
+                leaseEndTV.setText(formatTo.format(endDate));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            if(tenant.getIsPrimary()){
+                leaseHolderTypeTV.setText("Primary Tenant");
+            }else {
+                leaseHolderTypeTV.setText("Secondary Tenant");
+            }
+        } else {
+            leaseLL.setVisibility(View.GONE);
+            leaseHolderTypeTV.setVisibility(View.GONE);
+        }
         notesTV.setText(tenant.getNotes());
+    }
+
+
+    private void setOnClickListeners() {
+        this.editLeaseBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(TenantViewActivity.this, NewLeaseFormActivity.class);
+                //Uses filtered results to match what is on screen
+                intent.putExtra("tenant", tenant);
+                startActivity(intent);
+            }
+        });
     }
 }

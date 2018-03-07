@@ -50,6 +50,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public static final String TENANT_INFO_LAST_NAME_COLUMN = "tenant_info_last_name";
     public static final String TENANT_INFO_PHONE_COLUMN = "tenant_info_phone";
     public static final String TENANT_INFO_APARTMENT_ID_COLUMN_FK = "tenant_info_apartment_id";
+    public static final String TENANT_INFO_IS_PRIMARY_TENANT_COLUMN = "tenant_info_is_primary";
     public static final String TENANT_INFO_PAYMENT_DAY_COLUMN = "tenant_info_payment_day";
     public static final String TENANT_INFO_NOTES_COLUMN = "tenant_info_notes";
     public static final String TENANT_INFO_LEASE_START_COLUMN = "tenant_info_lease_start";
@@ -190,7 +191,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     //Get user (Can be used to complete partial user object)
-    public User getUser(String email, String password){
+    public User getUser(String email, String password) {
         SQLiteDatabase db = this.getWritableDatabase();
         String Query = "Select * from " + USER_INFO_TABLE + " where " + USER_INFO_EMAIL_COLUMN + " like '%" + email + "%' AND "
                 + USER_INFO_PASSWORD_COLUMN + " like '%" + password + "%' AND " + USER_INFO_IS_ACTIVE_COLUMN + " = 1 LIMIT 1";
@@ -285,7 +286,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     //Get user ID, returns -1 if user doesn't exist
-    public int getUserID(String email){
+    public int getUserID(String email) {
         SQLiteDatabase db = this.getReadableDatabase();
         String Query = "Select * from " + USER_INFO_TABLE + " where " + USER_INFO_EMAIL_COLUMN + " like '%" + email + "%' LIMIT 1";
         Cursor cursor = db.rawQuery(Query, null);
@@ -302,12 +303,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     //Get state tree map, sorted alphabetically. State = key, ID = value
-    public TreeMap<String, Integer> getStateTreemap(){
+    public TreeMap<String, Integer> getStateTreemap() {
         TreeMap<String, Integer> stateMap = new TreeMap<>();
         SQLiteDatabase db = this.getReadableDatabase();
         String Query = "Select * from " + STATE_TABLE + " WHERE " + STATE_IS_ACTIVE_COLUMN + " = 1";
         Cursor cursor = db.rawQuery(Query, null);
-        if(cursor.moveToFirst()){
+        if (cursor.moveToFirst()) {
             while (!cursor.isAfterLast()) {
                 int id = cursor.getInt(cursor.getColumnIndex(STATE_ID_COLUMN_PK));
                 String abr = cursor.getString(cursor.getColumnIndex(STATE_STATE_ABR_COLUMN));
@@ -325,14 +326,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     //Add tenant
-    public void addNewTenant(Tenant tenant, int userID){
+    public void addNewTenant(Tenant tenant, int userID) {
         ContentValues values = new ContentValues();
         SQLiteDatabase db = this.getReadableDatabase();
         values.put(TENANT_INFO_USER_ID_COLUMN_FK, userID);
         values.put(TENANT_INFO_FIRST_NAME_COLUMN, tenant.getFirstName());
         values.put(TENANT_INFO_LAST_NAME_COLUMN, tenant.getLastName());
         values.put(TENANT_INFO_PHONE_COLUMN, tenant.getPhone());
-        values.put(TENANT_INFO_APARTMENT_ID_COLUMN_FK, tenant.getApartmentID());
+        values.putNull(TENANT_INFO_APARTMENT_ID_COLUMN_FK);
         values.put(TENANT_INFO_PAYMENT_DAY_COLUMN, tenant.getPaymentDay());
         values.put(TENANT_INFO_NOTES_COLUMN, tenant.getNotes());
         values.put(TENANT_INFO_LEASE_START_COLUMN, tenant.getLeaseStart());
@@ -342,7 +343,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     //Update tenant
-    public void editTenant(Tenant tenant, int userID){
+    public void editTenant(Tenant tenant) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -350,13 +351,23 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(TENANT_INFO_LAST_NAME_COLUMN, tenant.getLastName());
         values.put(TENANT_INFO_PHONE_COLUMN, tenant.getPhone());
         values.put(TENANT_INFO_NOTES_COLUMN, tenant.getNotes());
+        if (tenant.getApartmentID() != 0) {
+            values.put(TENANT_INFO_APARTMENT_ID_COLUMN_FK, tenant.getApartmentID());
+        } else {
+            values.putNull(TENANT_INFO_APARTMENT_ID_COLUMN_FK);
+        }
+        values.put(TENANT_INFO_IS_PRIMARY_TENANT_COLUMN, tenant.getIsPrimary());
+        values.put(TENANT_INFO_PAYMENT_DAY_COLUMN, tenant.getPaymentDay());
+        values.put(TENANT_INFO_LEASE_START_COLUMN, tenant.getLeaseStart());
+        values.put(TENANT_INFO_LEASE_END_COLUMN, tenant.getLeaseEnd());
         // updating row
         db.update(TENANT_INFO_TABLE, values, TENANT_INFO_ID_COLUMN_PK + " = ?", new String[]{String.valueOf(tenant.getId())});
         db.close();
     }
 
     //Add apartment
-    public void addNewApartment(Apartment apartment, int userID){
+
+    public void addNewApartment(Apartment apartment, int userID) {
         ContentValues values = new ContentValues();
         SQLiteDatabase db = this.getReadableDatabase();
         values.put(APARTMENT_INFO_USER_ID_COLUMN_FK, userID);
@@ -373,7 +384,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     //Update apartment
-    public void editApartment(Apartment apartment, int userID){
+    public void editApartment(Apartment apartment, int userID) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -391,7 +402,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     //Add payment log entry
-    public void addPaymentLogEntry(PaymentLogEntry ple, int userID){
+    public void addPaymentLogEntry(PaymentLogEntry ple, int userID) {
         ContentValues values = new ContentValues();
         SQLiteDatabase db = this.getReadableDatabase();
         values.put(PAYMENT_LOG_USER_ID_COLUMN_FK, userID);
@@ -405,7 +416,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     //TODO
     //Add expense log entry
-    public void addExpenseLogEntry(ExpenseLogEntry ele, int userID){
+    public void addExpenseLogEntry(ExpenseLogEntry ele, int userID) {
         ContentValues values = new ContentValues();
         SQLiteDatabase db = this.getReadableDatabase();
         values.put(EXPENSE_LOG_USER_ID_COLUMN_FK, userID);
@@ -421,7 +432,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     //TODO
     //Add event log entry
-    public void addEventLogEntry(EventLogEntry ele, int userID){
+    public void addEventLogEntry(EventLogEntry ele, int userID) {
         ContentValues values = new ContentValues();
         SQLiteDatabase db = this.getReadableDatabase();
         values.put(EVENT_LOG_USER_ID_COLUMN_FK, userID);
@@ -434,25 +445,49 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close();
     }
 
+    public void createNewLease(Apartment apartment, Tenant primaryTenant, ArrayList<Tenant> secondaryTenants) {
+        //SQLiteDatabase db = this.getReadableDatabase();
+        //storeApartmentLease(apartment);
+        //storeTenantLease(primaryTenant, apartment, db);
+        //storeSecondaryTenantLease();
+        editTenant(primaryTenant);
+        for (int i = 0; i < secondaryTenants.size(); i++) {
+            editTenant(secondaryTenants.get(i));
+        }
+    }
+
+    private void storeApartmentLease(Apartment apartment) {
+
+    }
+
+    private void storeTenantLease(Tenant primaryTenant, Apartment apartment, SQLiteDatabase db) {
+
+    }
+
+    private void storeSecondaryTenantLease() {
+
+    }
+
     //Gets a users active tenants
-    public ArrayList<Tenant> getUsersTenants(User user){
+    public ArrayList<Tenant> getUsersTenants(User user) {
         SQLiteDatabase db = this.getReadableDatabase();
         ArrayList<Tenant> tenants = new ArrayList<>();
         String Query = "Select * from " + TENANT_INFO_TABLE + " WHERE " + TENANT_INFO_USER_ID_COLUMN_FK + " = " + user.getId() + " AND " +
                 TENANT_INFO_IS_ACTIVE_COLUMN + " = 1";
         Cursor cursor = db.rawQuery(Query, null);
-        if(cursor.moveToFirst()){
+        if (cursor.moveToFirst()) {
             while (!cursor.isAfterLast()) {
                 int id = cursor.getInt(cursor.getColumnIndex(TENANT_INFO_ID_COLUMN_PK));
                 String firstName = cursor.getString(cursor.getColumnIndex(TENANT_INFO_FIRST_NAME_COLUMN));
                 String lastname = cursor.getString(cursor.getColumnIndex(TENANT_INFO_LAST_NAME_COLUMN));
                 String phone = cursor.getString(cursor.getColumnIndex(TENANT_INFO_PHONE_COLUMN));
                 int aptID = cursor.getInt(cursor.getColumnIndex(TENANT_INFO_APARTMENT_ID_COLUMN_FK));
+                Boolean isPrimary = cursor.getInt(cursor.getColumnIndex(TENANT_INFO_IS_PRIMARY_TENANT_COLUMN)) > 0;
                 String paymentDay = cursor.getString(cursor.getColumnIndex(TENANT_INFO_PAYMENT_DAY_COLUMN)); //TODO
                 String notes = cursor.getString(cursor.getColumnIndex(TENANT_INFO_NOTES_COLUMN));
                 String leaseStart = cursor.getString(cursor.getColumnIndex(TENANT_INFO_LEASE_START_COLUMN)); //TODO
                 String leaseEnd = cursor.getString(cursor.getColumnIndex(TENANT_INFO_LEASE_END_COLUMN)); //TODO
-                tenants.add(new Tenant(id, firstName, lastname, phone, aptID, paymentDay, notes, leaseStart, leaseEnd));
+                tenants.add(new Tenant(id, firstName, lastname, phone, aptID, isPrimary, paymentDay, notes, leaseStart, leaseEnd));
                 cursor.moveToNext();
             }
             cursor.close();
@@ -466,13 +501,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     //Gets a users active apartments
-    public ArrayList<Apartment> getUsersApartments(User user){
+    public ArrayList<Apartment> getUsersApartments(User user) {
         SQLiteDatabase db = this.getReadableDatabase();
         ArrayList<Apartment> apartments = new ArrayList<>();
         String Query = "Select * from " + APARTMENTS_VIEW + " WHERE " + APARTMENTS_VIEW_USER_ID + " = " + user.getId() + " AND " +
                 APARTMENTS_VIEW_IS_ACTIVE + " = 1";
         Cursor cursor = db.rawQuery(Query, null);
-        if(cursor.moveToFirst()){
+        if (cursor.moveToFirst()) {
             while (!cursor.isAfterLast()) {
                 int id = cursor.getInt(cursor.getColumnIndex(APARTMENTS_VIEW_APARTMENT_ID));
                 String street1 = cursor.getString(cursor.getColumnIndex(APARTMENTS_VIEW_STREET_1));
@@ -499,7 +534,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     //Change users profile pic string
-    public void changeProfilePic(User user, String pic){
+    public void changeProfilePic(User user, String pic) {
         SQLiteDatabase db = this.getReadableDatabase();
         ContentValues values = new ContentValues();
         values.put(USER_INFO_PROFILE_PIC, pic);
@@ -569,6 +604,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 TENANT_INFO_LAST_NAME_COLUMN + " VARCHAR(15), " +
                 TENANT_INFO_PHONE_COLUMN + " VARCHAR(12), " +
                 TENANT_INFO_APARTMENT_ID_COLUMN_FK + " INTEGER REFERENCES " + APARTMENT_INFO_TABLE + "(" + APARTMENT_INFO_ID_COLUMN_PK + "), " +
+                TENANT_INFO_IS_PRIMARY_TENANT_COLUMN + " BOOLEAN NOT NULL DEFAULT 0, " +
                 TENANT_INFO_PAYMENT_DAY_COLUMN + " INTEGER, " +
                 TENANT_INFO_NOTES_COLUMN + " VARCHAR(150), " +
                 TENANT_INFO_LEASE_START_COLUMN + " DATETIME, " +
@@ -604,7 +640,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 PAYMENT_LOG_ID_COLUMN_PK + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 PAYMENT_LOG_USER_ID_COLUMN_FK + " INTEGER REFERENCES " + USER_INFO_TABLE + "(" + USER_INFO_ID_COLUMN_PK + "), " +
                 PAYMENT_LOG_PAYMENT_DATE_COLUMN + " DATETIME, " +
-                PAYMENT_LOG_TYPE_ID_COLUMN_FK + " INTEGER REFERENCES " + TYPES_TABLE + "(" + TYPES_ID_COLUMN_PK+ "), " +
+                PAYMENT_LOG_TYPE_ID_COLUMN_FK + " INTEGER REFERENCES " + TYPES_TABLE + "(" + TYPES_ID_COLUMN_PK + "), " +
                 PAYMENT_LOG_TENANT_ID_COLUMN_FK + " INTEGER REFERENCES " + TENANT_INFO_TABLE + "(" + TENANT_INFO_ID_COLUMN_PK + "), " +
                 PAYMENT_LOG_AMOUNT_COLUMN + " INTEGER, " +
                 PAYMENT_LOG_DATE_CREATED_COLUMN + " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
@@ -694,7 +730,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.execSQL(apartmentPicsTable);
     }
 
-    private void populateStateTable(SQLiteDatabase db){
+    private void populateStateTable(SQLiteDatabase db) {
         String insert = "INSERT INTO '" + STATE_TABLE + "' ('" + STATE_STATE_ABR_COLUMN + "') VALUES " +
                 "(\"AL\"),(\"AK\"),(\"AZ\"),(\"AR\"),(\"CA\"),(\"CO\"),(\"CT\"),(\"DE\"),(\"FL\"),(\"GA\"),(\"HI\"),(\"ID\"),(\"IL\"),(\"IN\")," +
                 "(\"IA\"),(\"KS\"),(\"KY\"),(\"LA\"),(\"ME\"),(\"MD\"),(\"MA\"),(\"MI\"),(\"MN\"),(\"MS\"),(\"MO\"),(\"MT\"),(\"NE\"),(\"NV\")," +
@@ -704,7 +740,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.execSQL(insert);
     }
 
-    private void createApartmentView(SQLiteDatabase db){
+    private void createApartmentView(SQLiteDatabase db) {
         String insert = "CREATE VIEW IF NOT EXISTS " + APARTMENTS_VIEW + " AS" +
                 " SELECT " +
                 APARTMENT_INFO_TABLE + "." + APARTMENT_INFO_USER_ID_COLUMN_FK + " AS " + APARTMENTS_VIEW_USER_ID + ", " +
@@ -727,7 +763,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.execSQL(insert);
     }
 
-    private void createTenantView(SQLiteDatabase db){
+    private void createTenantView(SQLiteDatabase db) {
         String insert = "CREATE VIEW IF NOT EXISTS " + TENANTS_VIEW + " AS" +
                 " SELECT " +
                 TENANT_INFO_TABLE + "." + TENANT_INFO_USER_ID_COLUMN_FK + " AS " + TENANTS_VIEW_USER_ID + ", " +
@@ -749,12 +785,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.execSQL(insert);
     }
 
-    public void addTestData(User user){
+    public void addTestData(User user) {
         //Temporary method
-        Apartment apartment1 = new Apartment(0, "2390 Burlington Rd", "", "Letts", 1, "IA", "52754", "","", "", new ArrayList<String>());
+        Apartment apartment1 = new Apartment(0, "2390 Burlington Rd", "", "Letts", 1, "IA", "52754", "", "", "", new ArrayList<String>());
         Apartment apartment2 = new Apartment(1, "2495 McNair Farms Dr", "Apt 555", "Herndon", 2, "VA", "78978", "", "", "", new ArrayList<String>());
-        Tenant tenant1 = new Tenant(0, "Cody", "Halstead", "563-299-9577", 1, "", "", "", "");
-        Tenant tenant2 = new Tenant(1, "Monet", "Tomioka", "345-554-2323", 2, "", "", "", "");
+        Tenant tenant1 = new Tenant(0, "Cody", "Halstead", "563-299-9577", 1, false, "", "", "", "");
+        Tenant tenant2 = new Tenant(1, "Monet", "Tomioka", "345-554-2323", 2, true, "", "", "", "");
 
         this.addNewApartment(apartment1, user.getId());
         this.addNewApartment(apartment2, user.getId());

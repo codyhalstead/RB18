@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +22,8 @@ import com.rentbud.activities.MainActivity;
 import com.rentbud.activities.TenantViewActivity;
 import com.rentbud.adapters.TenantListAdapter;
 import com.rentbud.model.Tenant;
+
+import static android.content.ContentValues.TAG;
 
 /**
  * Created by Cody on 1/11/2018.
@@ -96,7 +99,6 @@ public class TenantListFragment extends Fragment implements AdapterView.OnItemCl
             @Override
             public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,
                                           int arg3) {
-                // TODO Auto-generated method stub
 
             }
         });

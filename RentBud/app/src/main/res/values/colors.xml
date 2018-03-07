@@ -7,6 +7,7 @@
     <color name="red">#FF0000</color>
     <color name="purple">#4c008e</color>
     <color name="darkPurple">#360066</color>
+    <color name="lightGrey">#d6d2d2</color>
 
     <color name="red_colorPrimary">#ff0000</color>
     <color name="red_colorPrimaryDark">#DF0000</color>

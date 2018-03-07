@@ -1,80 +1,120 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--Row -->
+<?xml version="1.0" encoding="utf-8"?><!--Row -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     >
 
-    <!--First name, last name, and phone -->
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
         android:layout_height="wrap_content"
-        android:weightSum="4"
         android:id="@+id/tenantRowLL1"
         >
 
-        <RelativeLayout
+        <!--First name, last name, and phone -->
+        <LinearLayout
+            android:id="@+id/tenantRowLL2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:weightSum="4">
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="3">
+
+                <TextView
+                    android:id="@+id/firstNameTV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Monet"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/lastNameTV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:layout_toRightOf="@+id/firstNameTV"
+                    android:text="Tomioka"
+                    android:textSize="18sp" />
+
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/phoneNumberTV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="right|bottom"
+                android:text="563-299-9577" />
+
+        </LinearLayout>
+
+        <!--Renting status -->
+        <TextView
+            android:id="@+id/tenantRowRentStatusTV"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="3"
-            >
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Monet"
-                android:textSize="18sp"
-                android:id="@+id/firstNameTV"
-                />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Tomioka"
-                android:textSize="18sp"
-                android:layout_toRightOf="@+id/firstNameTV"
-                android:layout_marginLeft="8dp"
-                android:id="@+id/lastNameTV"
-                />
-
-        </RelativeLayout>
+            android:layout_below="@id/tenantRowLL2"
+            android:text="Currently Renting " />
 
         <TextView
+            android:id="@+id/tenantRowApartmentStreet1TV"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="563-299-9577"
-            android:gravity="right|bottom"
-            android:layout_weight="1"
-            android:id="@+id/phoneNumberTV"
+            android:layout_below="@id/tenantRowLL2"
+            android:text="2390 Burlington Rd."
+            android:layout_toRightOf="@+id/tenantRowRentStatusTV"
             />
 
-    </LinearLayout>
+        <TextView
+            android:id="@+id/tenantRowApartmentStreet2TV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tenantRowLL2"
+            android:layout_marginLeft="3dp"
+            android:text="Apt.2345"
+            android:layout_toRightOf="@+id/tenantRowApartmentStreet1TV"
+            />
 
-    <!--Renting status -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Renting 2390 Burlington Rd"
-        android:layout_below="@id/tenantRowLL1"
-        android:id="@+id/tenantRowRentStatusTV"
-        />
+        <TextView
+            android:id="@+id/tenantRowLeaseEndDisplayTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tenantRowRentStatusTV"
+            android:text="Lease ends on: "
+            />
 
-    <!--Lease status -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/tenantRowRentStatusTV"
-        android:id="@+id/tenantRowLeaseEndTV"
-        android:text="Lease ends on 5/19/18"
-        />
+        <!--Lease status -->
+        <TextView
+            android:id="@+id/tenantRowLeaseEndTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/tenantRowLeaseEndDisplayTV"
+            android:text="05/15/2014"
+            android:layout_below="@+id/tenantRowRentStatusTV"
+            />
 
+        <TextView
+            android:id="@+id/tenantRowLeaseIsPrimaryTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:text="Primary"
+            android:layout_below="@+id/tenantRowRentStatusTV"
+            android:layout_alignParentRight="true"
+            />
+
+
+    </RelativeLayout>
     <!--Border -->
     <View
+        android:id="@+id/tenantRowBarBorder"
         android:layout_width="match_parent"
         android:layout_height="3dp"
-        android:background="@color/caldroid_black"
-        android:id="@+id/tenantRowBarBorder"
-        android:layout_below="@+id/tenantRowLeaseEndTV"
+        android:layout_below="@+id/tenantRowLL1"
         android:layout_marginTop="8dp"
-        />
+        android:background="@color/caldroid_black" />
 </RelativeLayout>

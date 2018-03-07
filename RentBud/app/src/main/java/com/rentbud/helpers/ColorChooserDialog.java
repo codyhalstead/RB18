@@ -156,6 +156,10 @@ public class ColorChooserDialog extends Dialog {
 
     }
 
+    public interface ColorListener {
+        //Interface, to customize OnColorClick
+        void OnColorClick(View v, int color);
+    }
 
     private void setListeners() {
         //Set listeners and tags for all buttons

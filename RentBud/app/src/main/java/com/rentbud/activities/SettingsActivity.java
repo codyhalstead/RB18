@@ -9,13 +9,11 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import com.example.cody.rentbud.R;
 import com.rentbud.helpers.ColorChooserDialog;
-import com.rentbud.helpers.ColorListener;
 
 
 /**
@@ -64,7 +62,7 @@ public class SettingsActivity extends BaseActivity {
     public void showColorPopup(View v) {
         //Create the dialog
         ColorChooserDialog dialog = new ColorChooserDialog(SettingsActivity.this);
-        dialog.setColorListener(new ColorListener() {
+        dialog.setColorListener(new ColorChooserDialog.ColorListener() {
             @Override
             public void OnColorClick(View v, int color) {
                 //On selection, change current theme choice saved in shared preferences

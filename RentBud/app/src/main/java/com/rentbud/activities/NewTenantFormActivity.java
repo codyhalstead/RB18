@@ -75,9 +75,20 @@ public class NewTenantFormActivity extends BaseActivity {
                 String lastName = lastNameET.getText().toString().trim();
                 String phone = phoneET.getText().toString().trim();
                 String notes = notesET.getText().toString().trim();
-                //TODO will need to update once tenant type is reworked
+                String leaseStart = " ";
+                String leaseEnd = " ";
+                String paymentDate = " ";
+                int apartmentID = 0;
+                Boolean isPrimary = false;
+                if(tenantToEdit != null){
+                    leaseStart = tenantToEdit.getLeaseStart();
+                    leaseEnd = tenantToEdit.getLeaseEnd();
+                    paymentDate = tenantToEdit.getPaymentDay();
+                    isPrimary = tenantToEdit.getIsPrimary();
+                    apartmentID = tenantToEdit.getApartmentID();
+                }
                 //Create new Tenant object with input data and add it to the database
-                Tenant tenant = new Tenant(-1, firstName, lastName, phone, 1, " ", notes, " ", " ");
+                Tenant tenant = new Tenant(-1, firstName, lastName, phone, apartmentID, isPrimary, paymentDate, notes, leaseStart, leaseEnd);
                 //Set result success, close this activity
                 if (!isEdit) {
                     databaseHandler.addNewTenant(tenant, MainActivity.user.getId());
@@ -85,7 +96,7 @@ public class NewTenantFormActivity extends BaseActivity {
                     finish();
                 } else {
                     tenant.setId(tenantToEdit.getId());
-                    databaseHandler.editTenant(tenant, MainActivity.user.getId());
+                    databaseHandler.editTenant(tenant);
                     Intent data = new Intent();
                     data.putExtra("newTenantInfo", tenant);
                     setResult(RESULT_OK, data);

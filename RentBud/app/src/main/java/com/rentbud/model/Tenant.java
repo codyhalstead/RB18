@@ -13,18 +13,21 @@ public class Tenant implements Parcelable{
     private String lastName;
     private String phone;
     private int apartmentID;
+    private Boolean isPrimary;
     private String paymentDay;
     private String notes;
     private String leaseStart;
     private String leaseEnd;
 
-    public Tenant(int id, String firstName, String lastName, String phone, int apartmentID, String paymentDay,
+
+    public Tenant(int id, String firstName, String lastName, String phone, int apartmentID, Boolean isPrimary, String paymentDay,
                   String notes, String leaseStart, String leaseEnd) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.phone = phone;
         this.apartmentID = apartmentID;
+        this.isPrimary = isPrimary;
         this.paymentDay = paymentDay;
         this.notes = notes;
         this.leaseStart = leaseStart;
@@ -43,6 +46,7 @@ public class Tenant implements Parcelable{
         parcel.writeString(this.lastName);
         parcel.writeString(this.phone);
         parcel.writeInt(this.apartmentID);
+        parcel.writeByte((byte) (isPrimary ? 1 : 0));
         parcel.writeString(this.paymentDay);
         parcel.writeString(this.notes);
         parcel.writeString(this.leaseStart);
@@ -55,6 +59,7 @@ public class Tenant implements Parcelable{
         this.lastName = in.readString();
         this.phone = in.readString();
         this.apartmentID = in.readInt();
+        this.isPrimary = in.readByte() != 0;
         this.paymentDay = in.readString();
         this.notes = in.readString();
         this.leaseStart = in.readString();
@@ -148,5 +153,13 @@ public class Tenant implements Parcelable{
 
     public void setLeaseEnd(String leaseEnd) {
         this.leaseEnd = leaseEnd;
+    }
+
+    public Boolean getIsPrimary() {
+        return isPrimary;
+    }
+
+    public void setIsPrimary(Boolean primary) {
+        isPrimary = primary;
     }
 }

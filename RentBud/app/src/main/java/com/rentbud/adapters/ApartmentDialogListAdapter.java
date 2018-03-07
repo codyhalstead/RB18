@@ -14,34 +14,27 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.cody.rentbud.R;
-import com.rentbud.activities.MainActivity;
 import com.rentbud.model.Apartment;
 import com.rentbud.model.Tenant;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Locale;
 
 /**
- * Created by Cody on 1/11/2018.
+ * Created by Cody on 3/1/2018.
  */
 
-public class ApartmentListAdapter extends BaseAdapter implements Filterable {
+public class ApartmentDialogListAdapter extends BaseAdapter implements Filterable {
     private ArrayList<Apartment> apartmentArray;
     private ArrayList<Apartment> filteredResults;
     private Context context;
     private String searchText;
     private ColorStateList highlightColor;
 
-    public ApartmentListAdapter(Context context, ArrayList<Apartment> apartmentArray, ColorStateList highlightColor) {
-        super();
+    public ApartmentDialogListAdapter(Context context, ArrayList<Apartment> apartmentArray, ColorStateList highlightColor) {
         this.apartmentArray = apartmentArray;
         this.filteredResults = apartmentArray;
         this.context = context;
@@ -70,25 +63,24 @@ public class ApartmentListAdapter extends BaseAdapter implements Filterable {
         Apartment apartment = getItem(position);
         // Check if an existing view is being reused, otherwise inflate the view
         if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.row_apartment, parent, false);
+            convertView = LayoutInflater.from(context).inflate(R.layout.row_dialog_apartment, parent, false);
         }
-        TextView street1TV = convertView.findViewById(R.id.apartmentRowStreet1TV);
-        TextView street2TV = convertView.findViewById(R.id.apartmentRowStreet2TV);
-        TextView cityTV = convertView.findViewById(R.id.apartmentRowCityTV);
-        TextView stateTV = convertView.findViewById(R.id.apartmentRowStateTV);
-        TextView zipTV = convertView.findViewById(R.id.apartmentRowZipTV);
-        TextView rentedByTV = convertView.findViewById(R.id.apartmentRowRentedByTV);
-        TextView tenantFirstName = convertView.findViewById(R.id.apartmentRowTenantFirstNameTV);
-        TextView tenantLastName = convertView.findViewById(R.id.apartmentRowTenantLastNameTV);
-        TextView leaseEndTV = convertView.findViewById(R.id.apartmentRowLeaseEndTV);
-        LinearLayout leaseLL = convertView.findViewById(R.id.apartmentRowLeaseLL);
+        TextView street1TV = convertView.findViewById(R.id.address1TV);
+        TextView street2TV = convertView.findViewById(R.id.address2TV);
+        TextView cityTV = convertView.findViewById(R.id.cityTV);
+        TextView stateTV = convertView.findViewById(R.id.stateTV);
+        TextView zipTV = convertView.findViewById(R.id.zipTV);
+        TextView extraSpaceTV = convertView.findViewById(R.id.extraSpaceTV);
+
         if (apartment != null) {
             setTextHighlightSearch(street1TV, apartment.getStreet1());
             //If empty street 2, set invisible
             if (apartment.getStreet2().equals("")) {
                 street2TV.setVisibility(View.GONE);
+                extraSpaceTV.setVisibility(View.VISIBLE);
             } else {
                 street2TV.setVisibility(View.VISIBLE);
+                extraSpaceTV.setVisibility(View.GONE);
                 setTextHighlightSearch(street2TV, apartment.getStreet2());
             }
             String city = apartment.getCity();
@@ -99,44 +91,16 @@ public class ApartmentListAdapter extends BaseAdapter implements Filterable {
             setTextHighlightSearch(cityTV, city);
             setTextHighlightSearch(stateTV, apartment.getState());
             setTextHighlightSearch(zipTV, apartment.getZip());
-            Tenant primaryTenant = null;
-            for(int i = 0; i < MainActivity.tenantList.size(); i++){
-                if(MainActivity.tenantList.get(i).getApartmentID() == apartment.getId() && MainActivity.tenantList.get(i).getIsPrimary()){
-                    primaryTenant = MainActivity.tenantList.get(i);
-                    break;
-                }
-            }
-            if(primaryTenant != null){
-                convertView.setBackgroundColor(convertView.getResources().getColor(R.color.white));
-                rentedByTV.setText("Rented By:");
-                tenantFirstName.setText(primaryTenant.getFirstName());
-                tenantLastName.setText(primaryTenant.getLastName());
-                leaseLL.setVisibility(View.VISIBLE);
-
-                SimpleDateFormat formatTo = new SimpleDateFormat("MM-dd-yyyy");
-                DateFormat formatFrom = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy");
-                try {
-                    Date endDate = formatFrom.parse(primaryTenant.getLeaseEnd());
-                    leaseEndTV.setText(formatTo.format(endDate));
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                convertView.setBackgroundColor(convertView.getResources().getColor(R.color.lightGrey));
-                rentedByTV.setText("Vacant");
-                tenantFirstName.setText("");
-                tenantLastName.setText("");
-                leaseLL.setVisibility(View.GONE);
-                leaseEndTV.setText("");
-            }
         }
         return convertView;
     }
 
     @Override
     public Filter getFilter() {
+
         return new Filter() {
 
+            @SuppressWarnings("unchecked")
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
                 //Update filtered results and notify change
@@ -170,7 +134,7 @@ public class ApartmentListAdapter extends BaseAdapter implements Filterable {
     }
 
     //Used to change color of any text matching search
-    private void setTextHighlightSearch(TextView textView, String theTextToSet){
+    private void setTextHighlightSearch(TextView textView, String theTextToSet) {
         //If user has any text in the search bar
         if (searchText != null && !searchText.isEmpty()) {
             int startPos = theTextToSet.toLowerCase(Locale.US).indexOf(searchText.toLowerCase(Locale.US));
@@ -192,7 +156,7 @@ public class ApartmentListAdapter extends BaseAdapter implements Filterable {
     }
 
     //Retrieve filtered results
-    public ArrayList<Apartment> getFilteredResults(){
-        return this.filteredResults;
+    public ArrayList<Apartment> getFilteredResults() {
+        return filteredResults;
     }
 }

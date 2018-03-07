@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="match_parent">
 
     <!--Toolbar -->
     <android.support.v7.widget.Toolbar
@@ -18,119 +16,164 @@
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         app:titleTextColor="@color/white" />
 
-    <!--Form layout -->
-    <ScrollView xmlns:app="http://schemas.android.com/apk/res-auto"
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/toolbar">
-
+        android:layout_below="@+id/toolbar"
+        android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="15dp"
             android:layout_marginRight="15dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="15dp"
             android:orientation="vertical">
 
-            <!--Address line 1 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:gravity="center"
                 android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="*Address Line 1 : " />
+                    android:text="*Apartment : " />
 
-                <EditText
-                    android:id="@+id/apartmentFormAddress1ET"
+                <TextView
+                    android:id="@+id/editLeaseChangeApartmentTV"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="40dp"
+                    android:background="@drawable/rect_edit"
+                    android:gravity="center" />
 
             </LinearLayout>
 
-            <!--Address line 2 -->
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
                 android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Address Line 2 : " />
+                    android:text="*Change Lease Start : " />
 
-                <EditText
-                    android:id="@+id/apartmentFormAddress2ET"
+                <TextView
+                    android:id="@+id/editLeaseChangeLeaseStartTV"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="40dp"
+                    android:background="@drawable/rect_edit"
+                    android:gravity="center" />
 
             </LinearLayout>
 
-            <!--City -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
                 android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="*City : " />
+                    android:text="*Change Lease End : " />
 
-                <EditText
-                    android:id="@+id/apartmentFormCityET"
+                <TextView
+                    android:id="@+id/editLeaseChangeLeaseEndTV"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="40dp"
+                    android:background="@drawable/rect_edit"
+                    android:gravity="center" />
 
             </LinearLayout>
 
-            <!--State and ZIP -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
                 android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="*Primary Tenant : " />
+
+                <TextView
+                    android:id="@+id/editLeaseChangePrimaryTenantTV"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:background="@drawable/rect_edit"
+                    android:gravity="center" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:gravity="center"
+                android:text="Secondary Tenants" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="4">
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:orientation="horizontal">
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="3"
+                    android:orientation="vertical">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <Button
+                        android:id="@+id/editLeaseSecondaryTenantsAddBtn"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="*State:" />
+                        android:text="Add" />
 
-                    <Spinner
-                        android:id="@+id/apartmentStateSpinner"
-                        android:layout_width="90dp"
+                    <Button
+                        android:id="@+id/editLeaseSecondaryTenantsRemoveBtn"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:dropDownWidth="100dp" />
+                        android:text="Remove" />
 
                 </LinearLayout>
 
-                <LinearLayout
+                <TextView
+                    android:id="@+id/editLeaseSecondaryTenantsListTV"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/rect_edit_text" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="*ZIP: " />
-
-                    <EditText
-                        android:id="@+id/apartmentFormZIPET"
-                        android:layout_width="140dp"
-                        android:layout_height="wrap_content"
-                        android:inputType="phone" />
-                </LinearLayout>
             </LinearLayout>
 
-            <!--Preferred Rent Cost -->
+            <LinearLayout
+
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="*Rent Due Date : " />
+
+                <Spinner
+                    android:id="@+id/editLeaseRentDueDateSpinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:drawSelectorOnTop="true"
+                    android:entries="@array/date_array" />
+
+
+            </LinearLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -139,65 +182,39 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Preferred Rent Cost : " />
+                    android:text="Deposit : " />
 
                 <EditText
-                    android:id="@+id/apartmentFormPreferredRentET"
+                    android:id="@+id/editLeaseDepositET"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="numberDecimal"
-                    />
+                    android:layout_height="wrap_content" />
 
             </LinearLayout>
 
-            <!--Description -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="15dp">
+                android:orientation="horizontal">
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="*Rent Cost : " />
 
                 <EditText
-                    android:id="@+id/apartmentFormDescriptionET"
+                    android:id="@+id/editLeaseRentCostET"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/rect_edit_text"
-                    android:gravity="top"
-                    android:hint="Description"
-                    android:inputType="textMultiLine"
-                    android:isScrollContainer="true"
-                    android:maxLength="500"
-                    android:minHeight="80dp"
-                    android:padding="10dp" />
+                    android:layout_height="wrap_content" />
+
             </LinearLayout>
 
-            <!--Notes -->
-            <LinearLayout
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="15dp">
-
-
-                <EditText
-                    android:id="@+id/apartmentFormNotesET"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/rect_edit_text"
-                    android:gravity="top"
-                    android:hint="Notes (Optional)"
-                    android:inputType="textMultiLine"
-                    android:isScrollContainer="true"
-                    android:maxLength="500"
-                    android:minHeight="120dp"
-                    android:padding="10dp" />
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="100dp" />
+                android:gravity="center"
+                android:text="Other fees" />
 
         </LinearLayout>
-
 
     </ScrollView>
 
@@ -211,14 +228,14 @@
         android:weightSum="2">
 
         <Button
-            android:id="@+id/apartmentFormCancelBtn"
+            android:id="@+id/leaseFormCancelBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Cancel" />
 
         <Button
-            android:id="@+id/apartmentFormSaveBtn"
+            android:id="@+id/leaseFormSaveBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -227,4 +244,3 @@
     </LinearLayout>
 
 </RelativeLayout>
-

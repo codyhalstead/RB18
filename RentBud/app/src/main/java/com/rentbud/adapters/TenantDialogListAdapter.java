@@ -17,28 +17,23 @@ import android.widget.Filterable;
 import android.widget.TextView;
 
 import com.example.cody.rentbud.R;
-import com.rentbud.activities.MainActivity;
 import com.rentbud.model.Tenant;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Locale;
 
 /**
- * Created by Cody on 1/11/2018.
+ * Created by Cody on 2/27/2018.
  */
 
-public class TenantListAdapter extends BaseAdapter implements Filterable {
+public class TenantDialogListAdapter extends BaseAdapter implements Filterable {
     private ArrayList<Tenant> tenantArray;
     private ArrayList<Tenant> filteredResults;
     private Context context;
     private String searchText;
     private ColorStateList highlightColor;
 
-    public TenantListAdapter(Context context, ArrayList<Tenant> tenantArray, ColorStateList highlightColor) {
+    public TenantDialogListAdapter(Context context, ArrayList<Tenant> tenantArray, ColorStateList highlightColor) {
         this.tenantArray = tenantArray;
         this.filteredResults = tenantArray;
         this.context = context;
@@ -67,7 +62,7 @@ public class TenantListAdapter extends BaseAdapter implements Filterable {
         Tenant tenant = getItem(position);
         // Check if an existing view is being reused, otherwise inflate the view
         if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.row_tenant, parent, false);
+            convertView = LayoutInflater.from(context).inflate(R.layout.row_dialog_tenant, parent, false);
         }
         TextView firstNameTV = (TextView) convertView.findViewById(R.id.firstNameTV);
         TextView lastNameTV = (TextView) convertView.findViewById(R.id.lastNameTV);
@@ -77,50 +72,6 @@ public class TenantListAdapter extends BaseAdapter implements Filterable {
             setTextHighlightSearch(lastNameTV, tenant.getLastName());
             setTextHighlightSearch(phoneNumberTV, tenant.getPhone());
         }
-        TextView leaseEndsTextDisplayTV = convertView.findViewById(R.id.tenantRowLeaseEndDisplayTV);
-        TextView leaseEndsTV = convertView.findViewById(R.id.tenantRowLeaseEndTV);
-        TextView isPrimaryTV = convertView.findViewById(R.id.tenantRowLeaseIsPrimaryTV);
-        if(tenant.getLeaseEnd().equals(" ")){
-            leaseEndsTV.setText("");
-            leaseEndsTextDisplayTV.setText("");
-            isPrimaryTV.setText("");
-        } else {
-            SimpleDateFormat formatTo = new SimpleDateFormat("MM-dd-yyyy");
-            DateFormat formatFrom = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy");
-            Date endDate = null;
-            try {
-                endDate = formatFrom.parse(tenant.getLeaseEnd());
-                leaseEndsTV.setText(formatTo.format(endDate));
-                leaseEndsTextDisplayTV.setText("Lease ending on : ");
-                if(tenant.getIsPrimary()){
-                    isPrimaryTV.setText("Primary");
-                } else {
-                    isPrimaryTV.setText("Secondary");
-                }
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-        }
-        TextView rentingStatusTV = convertView.findViewById(R.id.tenantRowRentStatusTV);
-        TextView apartmentStreet1 = convertView.findViewById(R.id.tenantRowApartmentStreet1TV);
-        TextView apartmentStreet2 = convertView.findViewById(R.id.tenantRowApartmentStreet2TV);
-        if(tenant.getApartmentID() == 0){
-                convertView.setBackgroundColor(convertView.getResources().getColor(R.color.lightGrey));
-                rentingStatusTV.setText("Not Currently Renting");
-                apartmentStreet1.setText("");
-                apartmentStreet2.setText("");
-            } else {
-                rentingStatusTV.setText("Renting ");
-                convertView.setBackgroundColor(convertView.getResources().getColor(R.color.white));
-                for (int i = 0; i < MainActivity.apartmentList.size(); i++) {
-                    if (MainActivity.apartmentList.get(i).getId() == tenant.getApartmentID()){
-                        apartmentStreet1.setText(MainActivity.apartmentList.get(i).getStreet1());
-                        apartmentStreet2.setText(MainActivity.apartmentList.get(i).getStreet2());
-                        break;
-                    }
-                }
-        }
-
         return convertView;
     }
 

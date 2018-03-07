@@ -69,5 +69,10 @@
             android:name="com.rentbud.activities.NewTenantFormActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
+        <!--NewLeaseFormActivity -->
+        <activity
+            android:name="com.rentbud.activities.NewLeaseFormActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
     </application>
 </manifest>

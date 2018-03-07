@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    >
+    android:layout_height="match_parent">
 
     <!--Row -->
     <LinearLayout
+        android:id="@+id/apartmentRowLL"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/apartmentRowLL"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
         android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
         >
 
         <!--Apartment pic -->
@@ -21,8 +23,7 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginLeft="8dp"
-            >
+            android:layout_marginLeft="8dp">
 
             <!--Address 1 -->
             <TextView
@@ -42,33 +43,93 @@
 
             <!--City, state and ZIP -->
             <LinearLayout
+                android:id="@+id/apartmentRowCityStateZipLL"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/apartmentRowStreet2TV"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/apartmentRowCityTV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Letts," />
+
+                <TextView
+                    android:id="@+id/apartmentRowStateTV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginRight="8dp"
+                    android:text="IA" />
+
+                <TextView
+                    android:id="@+id/apartmentRowZipTV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="52754" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:id="@+id/apartmentRowRentedByLL"
+                android:layout_below="@id/apartmentRowCityStateZipLL"
+                >
+
+                <TextView
+                    android:id="@+id/apartmentRowRentedByTV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Rented by:" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" "
+                    />
+
+                <TextView
+                    android:id="@+id/apartmentRowTenantFirstNameTV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Cody" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" " />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Halstead"
+                    android:id="@+id/apartmentRowTenantLastNameTV"
+                    />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_below="@+id/apartmentRowRentedByLL"
+                android:id="@+id/apartmentRowLeaseLL"
                 >
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Letts,"
-                    android:id="@+id/apartmentRowCityTV"
-                     />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="IA"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginRight="8dp"
-                    android:id="@+id/apartmentRowStateTV"
+                    android:text="Until "
                     />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="52754"
-                    android:id="@+id/apartmentRowZipTV"
+                    android:id="@+id/apartmentRowLeaseEndTV"
+                    android:text="1/2/23"
                     />
 
             </LinearLayout>
@@ -79,10 +140,9 @@
 
     <!--Border -->
     <View
+        android:id="@+id/apartmentListBarBorder"
         android:layout_width="match_parent"
         android:layout_height="3dp"
-        android:background="@color/caldroid_black"
         android:layout_below="@+id/apartmentRowLL"
-        android:id="@+id/apartmentListBarBorder"
-        />
+        android:background="@color/caldroid_black" />
 </RelativeLayout>
