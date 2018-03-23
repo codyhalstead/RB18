@@ -14,6 +14,8 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.cody.rentbud.R;
@@ -41,6 +43,12 @@ public class TenantDialogListAdapter extends BaseAdapter implements Filterable {
         this.highlightColor = highlightColor;
     }
 
+    static class ViewHolder {
+        TextView firstNameTV;
+        TextView lastNameTV;
+        TextView phoneNumberTV;
+    }
+
     @Override
     public int getCount() {
         return filteredResults.size();
@@ -60,17 +68,26 @@ public class TenantDialogListAdapter extends BaseAdapter implements Filterable {
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         Tenant tenant = getItem(position);
+        ViewHolder viewHolder;
         // Check if an existing view is being reused, otherwise inflate the view
         if (convertView == null) {
             convertView = LayoutInflater.from(context).inflate(R.layout.row_dialog_tenant, parent, false);
+
+            viewHolder = new ViewHolder();
+            viewHolder.firstNameTV = convertView.findViewById(R.id.firstNameTV);
+            viewHolder.lastNameTV = convertView.findViewById(R.id.lastNameTV);
+            viewHolder.phoneNumberTV = convertView.findViewById(R.id.phoneNumberTV);
+
+            convertView.setTag(viewHolder);
+
+        } else {
+            viewHolder = (ViewHolder) convertView.getTag();
         }
-        TextView firstNameTV = (TextView) convertView.findViewById(R.id.firstNameTV);
-        TextView lastNameTV = (TextView) convertView.findViewById(R.id.lastNameTV);
-        TextView phoneNumberTV = (TextView) convertView.findViewById(R.id.phoneNumberTV);
+
         if (tenant != null) {
-            setTextHighlightSearch(firstNameTV, tenant.getFirstName());
-            setTextHighlightSearch(lastNameTV, tenant.getLastName());
-            setTextHighlightSearch(phoneNumberTV, tenant.getPhone());
+            setTextHighlightSearch(viewHolder.firstNameTV, tenant.getFirstName());
+            setTextHighlightSearch(viewHolder.lastNameTV, tenant.getLastName());
+            setTextHighlightSearch(viewHolder.phoneNumberTV, tenant.getPhone());
         }
         return convertView;
     }

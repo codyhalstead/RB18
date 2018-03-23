@@ -2,32 +2,45 @@ package com.rentbud.adapters;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.TextAppearanceSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.cody.rentbud.R;
-import com.rentbud.activities.MainActivity;
+import com.rentbud.helpers.MainArrayDataMethods;
 import com.rentbud.model.Apartment;
 import com.rentbud.model.Tenant;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.lang.ref.WeakReference;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
+
+import static android.content.ContentValues.TAG;
 
 /**
  * Created by Cody on 1/11/2018.
@@ -39,6 +52,7 @@ public class ApartmentListAdapter extends BaseAdapter implements Filterable {
     private Context context;
     private String searchText;
     private ColorStateList highlightColor;
+    MainArrayDataMethods dataMethods;
 
     public ApartmentListAdapter(Context context, ArrayList<Apartment> apartmentArray, ColorStateList highlightColor) {
         super();
@@ -47,6 +61,24 @@ public class ApartmentListAdapter extends BaseAdapter implements Filterable {
         this.context = context;
         this.searchText = "";
         this.highlightColor = highlightColor;
+        this.dataMethods = new MainArrayDataMethods();
+    }
+
+    static class ViewHolder {
+        TextView street1TV;
+        TextView street2TV;
+        TextView cityTV;
+        TextView stateTV;
+        TextView zipTV;
+        TextView rentedByTV;
+        TextView tenantFirstName;
+        TextView tenantLastName;
+        TextView leaseEndTV;
+        LinearLayout leaseLL;
+        ImageView mainPicIV;
+        int position;
+       // ImageDownloaderTask imageDownloaderTask;
+        //boolean shouldHavePic;
     }
 
     @Override
@@ -68,66 +100,96 @@ public class ApartmentListAdapter extends BaseAdapter implements Filterable {
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         Apartment apartment = getItem(position);
+        ViewHolder viewHolder;
         // Check if an existing view is being reused, otherwise inflate the view
         if (convertView == null) {
             convertView = LayoutInflater.from(context).inflate(R.layout.row_apartment, parent, false);
+            viewHolder = new ViewHolder();
+
+            viewHolder.street1TV = convertView.findViewById(R.id.apartmentRowStreet1TV);
+            viewHolder.street2TV = convertView.findViewById(R.id.apartmentRowStreet2TV);
+            viewHolder.cityTV = convertView.findViewById(R.id.apartmentRowCityTV);
+            viewHolder.stateTV = convertView.findViewById(R.id.apartmentRowStateTV);
+            viewHolder.zipTV = convertView.findViewById(R.id.apartmentRowZipTV);
+            viewHolder.rentedByTV = convertView.findViewById(R.id.apartmentRowRentedByTV);
+            viewHolder.tenantFirstName = convertView.findViewById(R.id.apartmentRowTenantFirstNameTV);
+            viewHolder.tenantLastName = convertView.findViewById(R.id.apartmentRowTenantLastNameTV);
+            viewHolder.leaseEndTV = convertView.findViewById(R.id.apartmentRowLeaseEndTV);
+            viewHolder.leaseLL = convertView.findViewById(R.id.apartmentRowLeaseLL);
+            viewHolder.mainPicIV = convertView.findViewById(R.id.apartmentRowMainPicIV);
+            //viewHolder.position = position;
+
+            convertView.setTag(viewHolder);
+
+        } else {
+            viewHolder = (ViewHolder) convertView.getTag();
+           // viewHolder.position = position;
+          //  if(viewHolder.imageDownloaderTask != null){
+          //      viewHolder.imageDownloaderTask.cancel(true);
+            //    viewHolder.imageDownloaderTask = null;
+           // }
+
         }
-        TextView street1TV = convertView.findViewById(R.id.apartmentRowStreet1TV);
-        TextView street2TV = convertView.findViewById(R.id.apartmentRowStreet2TV);
-        TextView cityTV = convertView.findViewById(R.id.apartmentRowCityTV);
-        TextView stateTV = convertView.findViewById(R.id.apartmentRowStateTV);
-        TextView zipTV = convertView.findViewById(R.id.apartmentRowZipTV);
-        TextView rentedByTV = convertView.findViewById(R.id.apartmentRowRentedByTV);
-        TextView tenantFirstName = convertView.findViewById(R.id.apartmentRowTenantFirstNameTV);
-        TextView tenantLastName = convertView.findViewById(R.id.apartmentRowTenantLastNameTV);
-        TextView leaseEndTV = convertView.findViewById(R.id.apartmentRowLeaseEndTV);
-        LinearLayout leaseLL = convertView.findViewById(R.id.apartmentRowLeaseLL);
+
+
         if (apartment != null) {
-            setTextHighlightSearch(street1TV, apartment.getStreet1());
+            setTextHighlightSearch(viewHolder.street1TV, apartment.getStreet1());
             //If empty street 2, set invisible
             if (apartment.getStreet2().equals("")) {
-                street2TV.setVisibility(View.GONE);
+                viewHolder.street2TV.setVisibility(View.GONE);
             } else {
-                street2TV.setVisibility(View.VISIBLE);
-                setTextHighlightSearch(street2TV, apartment.getStreet2());
+                viewHolder.street2TV.setVisibility(View.VISIBLE);
+                setTextHighlightSearch(viewHolder.street2TV, apartment.getStreet2());
             }
             String city = apartment.getCity();
             //If city not empty, add comma
-            if(!apartment.getCity().equals("")){
+            if (!apartment.getCity().equals("")) {
                 city += ",";
             }
-            setTextHighlightSearch(cityTV, city);
-            setTextHighlightSearch(stateTV, apartment.getState());
-            setTextHighlightSearch(zipTV, apartment.getZip());
+            setTextHighlightSearch(viewHolder.cityTV, city);
+            setTextHighlightSearch(viewHolder.stateTV, apartment.getState());
+            setTextHighlightSearch(viewHolder.zipTV, apartment.getZip());
             Tenant primaryTenant = null;
-            for(int i = 0; i < MainActivity.tenantList.size(); i++){
-                if(MainActivity.tenantList.get(i).getApartmentID() == apartment.getId() && MainActivity.tenantList.get(i).getIsPrimary()){
-                    primaryTenant = MainActivity.tenantList.get(i);
-                    break;
-                }
+            if (apartment.isRented()) {
+                primaryTenant = dataMethods.getCachedPrimaryTenantByApartmentID(apartment.getId());
             }
-            if(primaryTenant != null){
+            if (primaryTenant != null) {
                 convertView.setBackgroundColor(convertView.getResources().getColor(R.color.white));
-                rentedByTV.setText("Rented By:");
-                tenantFirstName.setText(primaryTenant.getFirstName());
-                tenantLastName.setText(primaryTenant.getLastName());
-                leaseLL.setVisibility(View.VISIBLE);
+                viewHolder.rentedByTV.setText("Rented By:");
+                viewHolder.tenantFirstName.setText(primaryTenant.getFirstName());
+                viewHolder.tenantLastName.setText(primaryTenant.getLastName());
+                viewHolder.leaseLL.setVisibility(View.VISIBLE);
 
-                SimpleDateFormat formatTo = new SimpleDateFormat("MM-dd-yyyy");
-                DateFormat formatFrom = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy");
+                SimpleDateFormat formatTo = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+                DateFormat formatFrom = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy", Locale.US);
                 try {
                     Date endDate = formatFrom.parse(primaryTenant.getLeaseEnd());
-                    leaseEndTV.setText(formatTo.format(endDate));
+                    viewHolder.leaseEndTV.setText(formatTo.format(endDate));
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
             } else {
                 convertView.setBackgroundColor(convertView.getResources().getColor(R.color.lightGrey));
-                rentedByTV.setText("Vacant");
-                tenantFirstName.setText("");
-                tenantLastName.setText("");
-                leaseLL.setVisibility(View.GONE);
-                leaseEndTV.setText("");
+                viewHolder.rentedByTV.setText("Vacant");
+                viewHolder.tenantFirstName.setText("");
+                viewHolder.tenantLastName.setText("");
+                viewHolder.leaseLL.setVisibility(View.GONE);
+                viewHolder.leaseEndTV.setText("");
+            }
+            viewHolder.mainPicIV.setImageBitmap(null);
+            if (apartment.getMainPic() != null && !apartment.getMainPic().equals("")) {
+                if (viewHolder.mainPicIV != null) {
+                    //viewHolder.mainPicIV.setImageResource(R.drawable.blank_home_pic);
+                   // viewHolder.shouldHavePic = true;
+                   // ImageDownloaderTask imageDownloaderTask = new ImageDownloaderTask(viewHolder.mainPicIV, apartment.getMainPic(), viewHolder, position);
+                   /////// imageDownloaderTask.execute();
+                    Glide.with(context).load(apartment.getMainPic()).into(viewHolder.mainPicIV);
+                    //imageDownloaderTask.cancel(true);
+                   // new ImageLoaderTask(viewHolder.mainPicIV, apartment.getMainPic(), viewHolder, position).execute();
+                }
+            } else {
+                viewHolder.mainPicIV.setImageResource(R.drawable.blank_home_pic);
+                //viewHolder.shouldHavePic = false;
             }
         }
         return convertView;
@@ -170,7 +232,8 @@ public class ApartmentListAdapter extends BaseAdapter implements Filterable {
     }
 
     //Used to change color of any text matching search
-    private void setTextHighlightSearch(TextView textView, String theTextToSet){
+
+    private void setTextHighlightSearch(TextView textView, String theTextToSet) {
         //If user has any text in the search bar
         if (searchText != null && !searchText.isEmpty()) {
             int startPos = theTextToSet.toLowerCase(Locale.US).indexOf(searchText.toLowerCase(Locale.US));
@@ -192,7 +255,8 @@ public class ApartmentListAdapter extends BaseAdapter implements Filterable {
     }
 
     //Retrieve filtered results
-    public ArrayList<Apartment> getFilteredResults(){
+    public ArrayList<Apartment> getFilteredResults() {
         return this.filteredResults;
     }
+
 }

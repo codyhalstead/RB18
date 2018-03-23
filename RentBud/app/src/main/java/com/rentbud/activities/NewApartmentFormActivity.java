@@ -13,8 +13,10 @@ import android.widget.Spinner;
 
 import com.example.cody.rentbud.R;
 import com.rentbud.fragments.ApartmentListFragment;
+import com.rentbud.helpers.MainArrayDataMethods;
 import com.rentbud.helpers.UserInputValidation;
 import com.rentbud.model.Apartment;
+import com.rentbud.model.Tenant;
 import com.rentbud.model.User;
 import com.rentbud.sqlite.DatabaseHandler;
 
@@ -35,6 +37,9 @@ public class NewApartmentFormActivity extends BaseActivity {
     Boolean isEdit;
     Apartment apartmentToEdit;
     UserInputValidation validation;
+    String mainPic;
+    ArrayList<String> otherPics;
+    MainArrayDataMethods dataMethods;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -75,6 +80,7 @@ public class NewApartmentFormActivity extends BaseActivity {
         this.saveBtn = findViewById(R.id.apartmentFormSaveBtn);
         this.cancelBtn = findViewById(R.id.apartmentFormCancelBtn);
         this.isEdit = false;
+        this.dataMethods = new MainArrayDataMethods();
     }
 
     private void setOnClickListeners() {
@@ -93,18 +99,37 @@ public class NewApartmentFormActivity extends BaseActivity {
                 String notes = notesET.getText().toString().trim();
                 String state = stateSpinner.getSelectedItem().toString();
                 int stateID = MainActivity.stateMap.get(state);
+                String newMainPic = null;
+                if(mainPic != null) {
+                    newMainPic = mainPic;
+                }
+                ArrayList<String> newOtherPics = new ArrayList<>();
+                if(otherPics != null){
+                    newOtherPics = otherPics;
+                }
                 //Create new Apartment object with input data and add it to the database
-                Apartment apartment = new Apartment(-1, address1, address2, city, stateID, state, zip, description, notes, "", new ArrayList<String>());
+                Apartment apartment = new Apartment(-1, address1, address2, city, stateID, state, zip, description, false, notes, newMainPic, newOtherPics);
                 if(!isEdit){
                     databaseHandler.addNewApartment(apartment, MainActivity.user.getId());
                     //Set result success, close this activity
+                    dataMethods.sortMainApartmentArray();
                     setResult(RESULT_OK);
                     finish();
                 }else{
-                    apartment.setId(apartmentToEdit.getId());
-                    databaseHandler.editApartment(apartment, MainActivity.user.getId());
+                   // apartment.setId(apartmentToEdit.getId());
+                    Apartment originalApartment = dataMethods.getCachedApartmentByApartmentID(apartmentToEdit.getId());
+                    originalApartment.setStreet1(address1);
+                    originalApartment.setStreet2(address2);
+                    originalApartment.setCity(city);
+                    originalApartment.setStateID(stateID);
+                    originalApartment.setState(state);
+                    originalApartment.setZip(zip);
+                    originalApartment.setDescription(description);
+                    originalApartment.setNotes(notes);
+                    databaseHandler.editApartment(originalApartment, MainActivity.user.getId());
+                    dataMethods.sortMainApartmentArray();
                     Intent data = new Intent();
-                    data.putExtra("newApartmentInfo", apartment);
+                    data.putExtra("editedApartmentID", originalApartment.getId());
                     setResult(RESULT_OK, data);
                     finish();
                 }
@@ -138,6 +163,8 @@ public class NewApartmentFormActivity extends BaseActivity {
                 int spinnerPosition = adapter.getPosition(state);
                 stateSpinner.setSelection(spinnerPosition);
             }
+            this.mainPic = apartmentToEdit.getMainPic();
+            this.otherPics = apartmentToEdit.getOtherPics();
         }
     }
 

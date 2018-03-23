@@ -75,7 +75,8 @@ public class TenantListFragment extends Fragment implements AdapterView.OnItemCl
         Intent intent = new Intent(getContext(), TenantViewActivity.class);
         //Uses filtered results to match what is on screen
         Tenant tenant = tenantListAdapter.getFilteredResults().get(i);
-        intent.putExtra("tenant", tenant);
+        intent.putExtra("tenantID", tenant.getId());
+        intent.putExtra("apartmentID", tenant.getApartmentID());
         startActivity(intent);
     }
 
@@ -87,7 +88,7 @@ public class TenantListFragment extends Fragment implements AdapterView.OnItemCl
                 //When user changed the Text
                 if (tenantListAdapter != null) {
                     tenantListAdapter.getFilter().filter(cs);
-                    tenantListAdapter.notifyDataSetChanged();
+                 //   tenantListAdapter.notifyDataSetChanged();
                 }
             }
 

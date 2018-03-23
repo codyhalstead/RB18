@@ -12,23 +12,36 @@ public class Tenant implements Parcelable{
     private String firstName;
     private String lastName;
     private String phone;
+    private String email;
+    private String emergencyFirstName;
+    private String emergencyLastName;
+    private String emergencyPhone;
     private int apartmentID;
     private Boolean isPrimary;
     private String paymentDay;
+    private int rentCost;
+    private int deposit;
     private String notes;
     private String leaseStart;
     private String leaseEnd;
 
 
-    public Tenant(int id, String firstName, String lastName, String phone, int apartmentID, Boolean isPrimary, String paymentDay,
-                  String notes, String leaseStart, String leaseEnd) {
+    public Tenant(int id, String firstName, String lastName, String phone, String email, String emergencyFirstName,
+                  String emergencyLastName, String emergencyPhone, int apartmentID, int rentCost, int deposit,
+                  Boolean isPrimary, String paymentDay, String notes, String leaseStart, String leaseEnd) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.phone = phone;
+        this.email = email;
+        this.emergencyFirstName = emergencyFirstName;
+        this.emergencyLastName = emergencyLastName;
+        this.emergencyPhone = emergencyPhone;
         this.apartmentID = apartmentID;
         this.isPrimary = isPrimary;
         this.paymentDay = paymentDay;
+        this.rentCost = rentCost;
+        this.deposit = deposit;
         this.notes = notes;
         this.leaseStart = leaseStart;
         this.leaseEnd = leaseEnd;
@@ -45,7 +58,13 @@ public class Tenant implements Parcelable{
         parcel.writeString(this.firstName);
         parcel.writeString(this.lastName);
         parcel.writeString(this.phone);
+        parcel.writeString(this.email);
+        parcel.writeString(this.emergencyFirstName);
+        parcel.writeString(this.emergencyLastName);
+        parcel.writeString(this.emergencyPhone);
         parcel.writeInt(this.apartmentID);
+        parcel.writeInt(this.rentCost);
+        parcel.writeInt(this.deposit);
         parcel.writeByte((byte) (isPrimary ? 1 : 0));
         parcel.writeString(this.paymentDay);
         parcel.writeString(this.notes);
@@ -58,7 +77,13 @@ public class Tenant implements Parcelable{
         this.firstName = in.readString();
         this.lastName = in.readString();
         this.phone = in.readString();
+        this.email= in.readString();
+        this.emergencyFirstName = in.readString();
+        this.emergencyLastName = in.readString();
+        this.emergencyPhone = in.readString();
         this.apartmentID = in.readInt();
+        this.rentCost = in.readInt();
+        this.deposit = in.readInt();
         this.isPrimary = in.readByte() != 0;
         this.paymentDay = in.readString();
         this.notes = in.readString();
@@ -161,5 +186,53 @@ public class Tenant implements Parcelable{
 
     public void setIsPrimary(Boolean primary) {
         isPrimary = primary;
+    }
+
+    public String getTenantEmail() {
+        return email;
+    }
+
+    public void setTenantEmail(String email) {
+        this.email = email;
+    }
+
+    public String getEmergencyFirstName() {
+        return emergencyFirstName;
+    }
+
+    public void setEmergencyFirstName(String emergencyFirstName) {
+        this.emergencyFirstName = emergencyFirstName;
+    }
+
+    public String getEmergencyLastName() {
+        return emergencyLastName;
+    }
+
+    public void setEmergencyLastName(String emergencyLastName) {
+        this.emergencyLastName = emergencyLastName;
+    }
+
+    public String getEmergencyPhone() {
+        return emergencyPhone;
+    }
+
+    public void setEmergencyPhone(String emergencyPhone) {
+        this.emergencyPhone = emergencyPhone;
+    }
+
+    public int getRentCost() {
+        return rentCost;
+    }
+
+    public void setRentCost(int rentCost) {
+        this.rentCost = rentCost;
+    }
+
+    public int getDeposit() {
+        return deposit;
+    }
+
+    public void setDeposit(int deposit) {
+        this.deposit = deposit;
     }
 }

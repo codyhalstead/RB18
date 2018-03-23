@@ -15,16 +15,12 @@
                 android:title="Edit apartment" />
 
             <item
-                android:id="@+id/editTenant"
-                android:title="Edit tenants" />
-
-            <item
                 android:id="@+id/editMainPic"
-                android:title="Edit main picture" />
+                android:title="Change main picture" />
 
             <item
                 android:id="@+id/editotherPics"
-                android:title="Edit side pictures" />
+                android:title="Add side picture" />
 
             <item
                 android:id="@+id/editDescription"
@@ -33,6 +29,10 @@
             <item
                 android:id="@+id/editNotes"
                 android:title="Edit notes" />
+
+            <item
+                android:id="@+id/deleteApartment"
+                android:title="Delete apartment" />
 
         </menu>
 

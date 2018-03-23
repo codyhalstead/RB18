@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
 /**
  * Created by Cody on 1/27/2018.
@@ -18,12 +19,13 @@ public class Apartment implements Parcelable {
     private String state;
     private String zip;
     private String description;
+    private boolean isRented;
     private String notes;
     private String mainPic;
     private ArrayList<String> otherPics;
 
-    public Apartment(int id, String street1, String street2, String city, int stateID,
-                     String state, String zip, String description, String notes, String mainPic, ArrayList<String> otherPics){
+    public Apartment(int id, String street1, String street2, String city, int stateID, String state, String zip,
+                     String description, boolean isRented, String notes, String mainPic, ArrayList<String> otherPics) {
         this.id = id;
         this.street1 = street1;
         this.street2 = street2;
@@ -32,9 +34,10 @@ public class Apartment implements Parcelable {
         this.state = state;
         this.zip = zip;
         this.description = description;
+        this.isRented = isRented;
         this.notes = notes;
         this.mainPic = mainPic;
-        //this.otherPics = otherPics;
+        this.otherPics = otherPics;
     }
 
     @Override
@@ -52,9 +55,20 @@ public class Apartment implements Parcelable {
         parcel.writeString(this.state);
         parcel.writeString(this.zip);
         parcel.writeString(this.description);
+        parcel.writeByte((byte) (isRented? 1 : 0));
         parcel.writeString(this.notes);
-        parcel.writeString(this.mainPic);
-       // parcel.writeStringList(this.otherPics);
+        if (this.mainPic != null) {
+            parcel.writeInt(1);
+            parcel.writeString(this.mainPic);
+        } else {
+            parcel.writeInt(-1);
+        }
+        if (this.otherPics != null) {
+            parcel.writeInt(this.otherPics.size());
+            parcel.writeList(this.otherPics);
+        } else {
+            parcel.writeInt(-1);
+        }
     }
 
     private Apartment(Parcel in) {
@@ -66,9 +80,22 @@ public class Apartment implements Parcelable {
         this.state = in.readString();
         this.zip = in.readString();
         this.description = in.readString();
+        this.isRented = in.readByte() != 0;
         this.notes = in.readString();
-        this.mainPic = in.readString();
-      //  in.readStringList(this.otherPics);
+        int size = in.readInt();
+        if(size > -1){
+            //this.mainPic = new byte[size];
+            //in.readByteArray(this.mainPic);
+            this.mainPic = in.readString();
+        } else {
+            this.mainPic = null;
+        }
+        int size2 = in.readInt();
+        if(size2 > -1){
+            this.otherPics = in.readArrayList(null);
+        } else {
+            this.otherPics = new ArrayList<>();
+        }
     }
 
 
@@ -175,4 +202,17 @@ public class Apartment implements Parcelable {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    public void addOtherPic(String otherPic){
+        this.otherPics.add(otherPic);
+    }
+
+    public boolean isRented() {
+        return isRented;
+    }
+
+    public void setRented(boolean rented) {
+        isRented = rented;
+    }
+
 }

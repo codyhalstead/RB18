@@ -17,8 +17,10 @@
         <!--Apartment pic -->
         <ImageView
             android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:src="@drawable/blank_home_pic" />
+            android:layout_height="120dp"
+            android:src="@drawable/blank_home_pic"
+            android:id="@+id/apartmentRowMainPicIV"
+            />
 
         <RelativeLayout
             android:layout_width="match_parent"

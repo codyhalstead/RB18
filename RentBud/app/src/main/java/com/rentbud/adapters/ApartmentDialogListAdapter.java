@@ -14,6 +14,8 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.cody.rentbud.R;
@@ -42,6 +44,15 @@ public class ApartmentDialogListAdapter extends BaseAdapter implements Filterabl
         this.highlightColor = highlightColor;
     }
 
+    static class ViewHolder {
+        TextView street1TV;
+        TextView street2TV;
+        TextView cityTV;
+        TextView stateTV;
+        TextView zipTV;
+        TextView extraSpaceTV;
+    }
+
     @Override
     public int getCount() {
         return filteredResults.size();
@@ -61,36 +72,45 @@ public class ApartmentDialogListAdapter extends BaseAdapter implements Filterabl
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         Apartment apartment = getItem(position);
+        ViewHolder viewHolder;
         // Check if an existing view is being reused, otherwise inflate the view
         if (convertView == null) {
             convertView = LayoutInflater.from(context).inflate(R.layout.row_dialog_apartment, parent, false);
+
+            viewHolder = new ViewHolder();
+
+            viewHolder.street1TV = convertView.findViewById(R.id.address1TV);
+            viewHolder.street2TV = convertView.findViewById(R.id.address2TV);
+            viewHolder.cityTV = convertView.findViewById(R.id.cityTV);
+            viewHolder.stateTV = convertView.findViewById(R.id.stateTV);
+            viewHolder.zipTV = convertView.findViewById(R.id.zipTV);
+            viewHolder.extraSpaceTV = convertView.findViewById(R.id.extraSpaceTV);
+
+            convertView.setTag(viewHolder);
+
+        } else {
+            viewHolder = (ViewHolder) convertView.getTag();
         }
-        TextView street1TV = convertView.findViewById(R.id.address1TV);
-        TextView street2TV = convertView.findViewById(R.id.address2TV);
-        TextView cityTV = convertView.findViewById(R.id.cityTV);
-        TextView stateTV = convertView.findViewById(R.id.stateTV);
-        TextView zipTV = convertView.findViewById(R.id.zipTV);
-        TextView extraSpaceTV = convertView.findViewById(R.id.extraSpaceTV);
 
         if (apartment != null) {
-            setTextHighlightSearch(street1TV, apartment.getStreet1());
+            setTextHighlightSearch(viewHolder.street1TV, apartment.getStreet1());
             //If empty street 2, set invisible
             if (apartment.getStreet2().equals("")) {
-                street2TV.setVisibility(View.GONE);
-                extraSpaceTV.setVisibility(View.VISIBLE);
+                viewHolder.street2TV.setVisibility(View.GONE);
+                viewHolder.extraSpaceTV.setVisibility(View.VISIBLE);
             } else {
-                street2TV.setVisibility(View.VISIBLE);
-                extraSpaceTV.setVisibility(View.GONE);
-                setTextHighlightSearch(street2TV, apartment.getStreet2());
+                viewHolder.street2TV.setVisibility(View.VISIBLE);
+                viewHolder.extraSpaceTV.setVisibility(View.GONE);
+                setTextHighlightSearch(viewHolder.street2TV, apartment.getStreet2());
             }
             String city = apartment.getCity();
             //If city not empty, add comma
-            if(!apartment.getCity().equals("")){
+            if (!apartment.getCity().equals("")) {
                 city += ",";
             }
-            setTextHighlightSearch(cityTV, city);
-            setTextHighlightSearch(stateTV, apartment.getState());
-            setTextHighlightSearch(zipTV, apartment.getZip());
+            setTextHighlightSearch(viewHolder.cityTV, city);
+            setTextHighlightSearch(viewHolder.stateTV, apartment.getState());
+            setTextHighlightSearch(viewHolder.zipTV, apartment.getZip());
         }
         return convertView;
     }

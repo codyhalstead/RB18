@@ -1,6 +1,7 @@
 package com.rentbud.activities;
 
 import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -14,33 +15,40 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.example.cody.rentbud.R;
+import com.rentbud.helpers.MainArrayDataMethods;
 import com.rentbud.helpers.TenantOrApartmentChooserDialog;
+import com.rentbud.helpers.UserInputValidation;
 import com.rentbud.model.Apartment;
 import com.rentbud.model.Tenant;
 import com.rentbud.sqlite.DatabaseHandler;
 
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * Created by Cody on 2/27/2018.
  */
 
 public class NewLeaseFormActivity extends BaseActivity implements View.OnClickListener {
-    TextView changeLeaseStartTV, changeLeaseEndTV, primaryTenantTV, secondaryTenantsTV, apartmentTV, changeApartmentTV;
+    TextView changeLeaseStartTV, changeLeaseEndTV, primaryTenantTV, secondaryTenantsTV, changeApartmentTV;
     EditText depositET, rentCostET;
-    Button   addSecondaryTenantBtn, removeSecondaryTenantBtn, saveBtn, cancelBtn;
+    Button addSecondaryTenantBtn, removeSecondaryTenantBtn, saveBtn, cancelBtn;
     Spinner rentDueDateSpinner;
     private DatePickerDialog.OnDateSetListener dateSetLeaseStartListener, dateSetLeaseEndListener;
     DatabaseHandler db;
     private Date leaseStartDate, leaseEndDate;
-    Tenant tenant;
+    Tenant primaryTenant;
     Apartment apartment;
     ArrayList<Tenant> availableTenants;
     ArrayList<Apartment> availableApartments;
     ArrayList<Tenant> secondaryTenants;
+    MainArrayDataMethods dataMethods;
+    UserInputValidation validation;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -49,9 +57,95 @@ public class NewLeaseFormActivity extends BaseActivity implements View.OnClickLi
         setContentView(R.layout.activity_edit_lease);
         setupBasicToolbar();
         initializeVariables();
-        getAvailableTenants();
-        getAvailableApartments();
         setUpdateSelectedDateListeners();
+        if (savedInstanceState != null) {
+            if (savedInstanceState.getParcelable("apartment") != null) {
+                this.apartment = savedInstanceState.getParcelable("apartment");
+                setApartmentTextView();
+            }
+            if (savedInstanceState.getParcelable("primaryTenant") != null) {
+                this.primaryTenant = savedInstanceState.getParcelable("primaryTenant");
+                setPrimaryTenantTextView();
+            }
+            if (savedInstanceState.getParcelableArrayList("secondaryTenants") != null) {
+                this.secondaryTenants = savedInstanceState.getParcelableArrayList("secondaryTenants");
+                setSecondaryTenantsTV();
+            }
+            if (savedInstanceState.getString("leaseStartDate") != null) {
+                SimpleDateFormat formatTo = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+                DateFormat formatFrom = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy", Locale.US);
+                try {
+                    Date startDate = formatFrom.parse(savedInstanceState.getString("leaseStartDate"));
+                    leaseStartDate = startDate;
+                    changeLeaseStartTV.setText(formatTo.format(startDate));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (savedInstanceState.getString("leaseEndDate") != null) {
+                SimpleDateFormat formatTo = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+                DateFormat formatFrom = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy", Locale.US);
+                try {
+                    Date endDate = formatFrom.parse(savedInstanceState.getString("leaseEndDate"));
+                    leaseEndDate = endDate;
+                    changeLeaseEndTV.setText(formatTo.format(endDate));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (savedInstanceState.getParcelableArrayList("availableTenants") != null) {
+                this.availableTenants = savedInstanceState.getParcelableArrayList("availableTenants");
+            }
+            if (savedInstanceState.getParcelableArrayList("availableApartments") != null) {
+                this.availableApartments = savedInstanceState.getParcelableArrayList("availableApartments");
+            }
+        } else {
+            Bundle extras = getIntent().getExtras();
+            //Existing lease, launched by TenantView
+            if (extras.get("existingLeaseTenant") != null) {
+                Tenant passedTenant = extras.getParcelable("existingLeaseTenant");
+                setUpForExistingLeaseWithTenant(passedTenant);
+                setPrimaryTenantTextView();
+                setSecondaryTenantsTV();
+                setApartmentTextView();
+                setLeaseStartTextView(primaryTenant);
+                setLeaseEndTextView(primaryTenant);
+            }
+            //New lease, launched by TenantView, user wants passed Tenant to be secondary tenant
+            else if (extras.get("secondaryTenant") != null) {
+                Tenant passedTenant = extras.getParcelable("secondaryTenant");
+                setUpForNewLeaseWithPassedSecondaryTenant(passedTenant);
+                setSecondaryTenantsTV();
+            }
+            //New lease, launched by TenantView, user wants passed Tenant to be primary tenant
+            else if (extras.get("primaryTenant") != null) {
+                Tenant passedTenant = extras.getParcelable("primaryTenant");
+                setUpForNewLeaseWithPassedPrimaryTenant(passedTenant);
+                setPrimaryTenantTextView();
+            }
+            //Launched by ApartmentView
+            else if (extras.get("apartment") != null) {
+                Apartment passedApartment = extras.getParcelable("apartment");
+                if (passedApartment.isRented()) {
+                    //Existing lease
+                    setUpForExistingLeaseWithApartment(passedApartment);
+                    setPrimaryTenantTextView();
+                    setSecondaryTenantsTV();
+                    setApartmentTextView();
+                    setLeaseStartTextView(primaryTenant);
+                    setLeaseEndTextView(primaryTenant);
+                } else {
+                    //New lease
+                    setUpForNewLeaseWithPassedApartment(passedApartment);
+                    setApartmentTextView();
+                }
+            }
+            //Launched with no passed data
+            else {
+                getAvailableTenants();
+                getAvailableApartments();
+            }
+        }
     }
 
     private void initializeVariables() {
@@ -59,9 +153,9 @@ public class NewLeaseFormActivity extends BaseActivity implements View.OnClickLi
         this.availableTenants = new ArrayList<>();
         this.availableApartments = new ArrayList<>();
         this.db = new DatabaseHandler(this);
+        this.dataMethods = new MainArrayDataMethods();
+        this.validation = new UserInputValidation(this);
 
-
-        this.apartmentTV = findViewById(R.id.editLeaseChangeApartmentTV);
         this.secondaryTenantsTV = findViewById(R.id.editLeaseSecondaryTenantsListTV);
         this.depositET = findViewById(R.id.editLeaseDepositET);
         this.rentCostET = findViewById(R.id.editLeaseRentCostET);
@@ -101,7 +195,7 @@ public class NewLeaseFormActivity extends BaseActivity implements View.OnClickLi
                 cal.set(Calendar.SECOND, 0);
                 cal.set(Calendar.MILLISECOND, 0);
                 leaseStartDate = cal.getTime();
-                SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
+                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
                 changeLeaseStartTV.setText(formatter.format(leaseStartDate));
             }
         };
@@ -118,7 +212,7 @@ public class NewLeaseFormActivity extends BaseActivity implements View.OnClickLi
                 cal.set(Calendar.SECOND, 0);
                 cal.set(Calendar.MILLISECOND, 0);
                 leaseEndDate = cal.getTime();
-                SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
+                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
                 changeLeaseEndTV.setText(formatter.format(leaseEndDate));
             }
         };
@@ -135,10 +229,12 @@ public class NewLeaseFormActivity extends BaseActivity implements View.OnClickLi
                 dialog4.setDialogResult(new TenantOrApartmentChooserDialog.OnTenantChooserDialogResult() {
                     @Override
                     public void finish(Tenant tenantResult, Apartment apartmentResult) {
+                        if(apartment != null) {
+                            availableApartments.add(apartment);
+                        }
+                        availableApartments.remove(apartmentResult);
                         apartment = apartmentResult;
-                        changeApartmentTV.setText(apartment.getStreet1());
-                        changeApartmentTV.append(" ");
-                        changeApartmentTV.append(apartment.getStreet2());
+                        setApartmentTextView();
                     }
                 });
                 break;
@@ -171,10 +267,12 @@ public class NewLeaseFormActivity extends BaseActivity implements View.OnClickLi
                 dialog3.setDialogResult(new TenantOrApartmentChooserDialog.OnTenantChooserDialogResult() {
                     @Override
                     public void finish(Tenant tenantResult, Apartment apartmentResult) {
-                        tenant = tenantResult;
-                        primaryTenantTV.setText(tenant.getFirstName());
-                        primaryTenantTV.append(" ");
-                        primaryTenantTV.append(tenant.getLastName());
+                        if(primaryTenant != null){
+                            availableTenants.add(primaryTenant);
+                        }
+                        availableTenants.remove(apartmentResult);
+                        primaryTenant = tenantResult;
+                        setPrimaryTenantTextView();
                     }
                 });
                 break;
@@ -188,6 +286,7 @@ public class NewLeaseFormActivity extends BaseActivity implements View.OnClickLi
                     @Override
                     public void finish(Tenant tenantResult, Apartment apartmentResult) {
                         secondaryTenants.add(tenantResult);
+                        availableTenants.remove(tenantResult);
                         setSecondaryTenantsTV();
                     }
                 });
@@ -201,6 +300,7 @@ public class NewLeaseFormActivity extends BaseActivity implements View.OnClickLi
                         @Override
                         public void finish(Tenant tenantResult, Apartment apartmentResult) {
                             secondaryTenants.remove(tenantResult);
+                            availableTenants.add(tenantResult);
                             setSecondaryTenantsTV();
                         }
                     });
@@ -208,19 +308,30 @@ public class NewLeaseFormActivity extends BaseActivity implements View.OnClickLi
                 break;
 
             case R.id.leaseFormSaveBtn:
-                if(apartment != null && tenant != null && leaseStartDate != null && leaseEndDate != null){
-                    tenant.setApartmentID(apartment.getId());
-                    tenant.setIsPrimary(true);
-                    tenant.setLeaseStart(leaseStartDate.toString());
-                    tenant.setLeaseEnd(leaseEndDate.toString());
-                    //tenant.setPaymentDay();
-                    for(int i = 0; i < secondaryTenants.size(); i++){
-                        secondaryTenants.get(i).setApartmentID(apartment.getId());
-                        secondaryTenants.get(i).setLeaseStart(leaseStartDate.toString());
-                        secondaryTenants.get(i).setLeaseEnd(leaseEndDate.toString());
+                if (apartment != null && primaryTenant != null && leaseStartDate != null && leaseEndDate != null) {
+                    if(validation.isFirstDateBeforeSecondDate(leaseStartDate, leaseEndDate, changeLeaseStartTV, "Lease start should be before end")) {
+                        primaryTenant.setApartmentID(apartment.getId());
+                        primaryTenant.setIsPrimary(true);
+                        primaryTenant.setLeaseStart(leaseStartDate.toString());
+                        primaryTenant.setLeaseEnd(leaseEndDate.toString());
+                        //primaryTenant.setPaymentDay();
+                        for (int i = 0; i < secondaryTenants.size(); i++) {
+                            secondaryTenants.get(i).setApartmentID(apartment.getId());
+                            secondaryTenants.get(i).setLeaseStart(leaseStartDate.toString());
+                            secondaryTenants.get(i).setLeaseEnd(leaseEndDate.toString());
+                        }
+                        db.createNewLease(apartment, primaryTenant, secondaryTenants);
+                        Intent data = new Intent();
+                        apartment.setRented(true);
+                        data.putExtra("updatedApartmentID", apartment.getId());
+                        data.putExtra("updatedPrimaryTenantID", primaryTenant.getId());
+                        //data.putParcelableArrayListExtra("updatedSecondaryTenants", secondaryTenants);
+
+                        dataMethods.sortMainApartmentArray();
+                        dataMethods.sortMainTenantArray();
+                        setResult(RESULT_OK, data);
+                        finish();
                     }
-                    db.createNewLease(apartment, tenant, secondaryTenants);
-                    finish();
                 }
                 break;
 
@@ -245,7 +356,6 @@ public class NewLeaseFormActivity extends BaseActivity implements View.OnClickLi
     private void getAvailableTenants() {
         for (int i = 0; i < MainActivity.tenantList.size(); i++) {
             if (MainActivity.tenantList.get(i).getApartmentID() == 0) {
-                Log.d("TAG", "getAvailableTenants: ADDED");
                 availableTenants.add(MainActivity.tenantList.get(i));
             }
         }
@@ -253,20 +363,205 @@ public class NewLeaseFormActivity extends BaseActivity implements View.OnClickLi
 
     private void getAvailableApartments() {
         for (int i = 0; i < MainActivity.apartmentList.size(); i++) {
-            //TODO
-            availableApartments.add(MainActivity.apartmentList.get(i));
+            if (!MainActivity.apartmentList.get(i).isRented()) {
+                availableApartments.add(MainActivity.apartmentList.get(i));
+            }
         }
     }
 
-    private ArrayList<Tenant> getTenantListWithSelectedExcluded(){
+    private ArrayList<Tenant> getTenantListWithSelectedExcluded() {
         ArrayList<Tenant> tenants = new ArrayList<>();
         tenants.addAll(availableTenants);
-        if(tenant != null){
-            tenants.remove(tenant);
+        if (primaryTenant != null) {
+            tenants.remove(primaryTenant);
         }
-        if(!secondaryTenants.isEmpty()){
-           tenants.removeAll(secondaryTenants);
+        if (!secondaryTenants.isEmpty()) {
+            tenants.removeAll(secondaryTenants);
         }
         return tenants;
+    }
+
+    public void setUpForExistingLeaseWithTenant(Tenant passedTenant) {
+        int apartmentID = passedTenant.getApartmentID();
+        for (int i = 0; i < MainActivity.tenantList.size(); i++) {
+            //If Tenant isn't currently renting, add to available tenants list
+            if (MainActivity.tenantList.get(i).getApartmentID() == 0) {
+                availableTenants.add(MainActivity.tenantList.get(i));
+                //If Tenant is currently renting selected apartment
+            } else if (MainActivity.tenantList.get(i).getApartmentID() == apartmentID) {
+                //and is Primary, set primary tenant
+                if (MainActivity.tenantList.get(i).getIsPrimary()) {
+                    this.primaryTenant = MainActivity.tenantList.get(i);
+                    //and is secondary, add to secondary tenant list
+                } else {
+                    secondaryTenants.add(MainActivity.tenantList.get(i));
+                }
+            }
+        }
+        for (int i = 0; i < MainActivity.apartmentList.size(); i++) {
+            if (MainActivity.apartmentList.get(i).getId() == apartmentID) {
+                this.apartment = MainActivity.apartmentList.get(i);
+            } else if (!MainActivity.apartmentList.get(i).isRented()) {
+                availableApartments.add(MainActivity.apartmentList.get(i));
+            }
+        }
+    }
+
+    public void setUpForNewLeaseWithPassedSecondaryTenant(Tenant passedTenant) {
+        Tenant secondaryTenant = null;
+        for (int i = 0; i < MainActivity.tenantList.size(); i++) {
+            if (MainActivity.tenantList.get(i).getId() == passedTenant.getId()) {
+                secondaryTenant = MainActivity.tenantList.get(i);
+            } else if (MainActivity.tenantList.get(i).getApartmentID() == 0) {
+                availableTenants.add(MainActivity.tenantList.get(i));
+            }
+        }
+        if (secondaryTenant != null) {
+            secondaryTenants.add(secondaryTenant);
+        }
+        apartment = null;
+        this.primaryTenant = null;
+        this.leaseStartDate = null;
+        this.leaseEndDate = null;
+        getAvailableApartments();
+    }
+
+    private void setUpForNewLeaseWithPassedPrimaryTenant(Tenant passedTenant) {
+        Tenant primaryTenant = null;
+        for (int i = 0; i < MainActivity.tenantList.size(); i++) {
+            if (MainActivity.tenantList.get(i).getId() == passedTenant.getId()) {
+                primaryTenant = MainActivity.tenantList.get(i);
+            } else if (MainActivity.tenantList.get(i).getApartmentID() == 0) {
+                availableTenants.add(MainActivity.tenantList.get(i));
+            }
+        }
+        if (primaryTenant != null) {
+            this.primaryTenant = primaryTenant;
+        }
+        apartment = null;
+        this.leaseStartDate = null;
+        this.leaseEndDate = null;
+        getAvailableApartments();
+    }
+
+    private void setUpForExistingLeaseWithApartment(Apartment passedApartment) {
+        int apartmentID = passedApartment.getId();
+        for (int i = 0; i < MainActivity.tenantList.size(); i++) {
+            //If Tenant isn't currently renting, add to available tenants list
+            if (MainActivity.tenantList.get(i).getApartmentID() == 0) {
+                availableTenants.add(MainActivity.tenantList.get(i));
+                //If Tenant is currently renting selected apartment
+            } else if (MainActivity.tenantList.get(i).getApartmentID() == apartmentID) {
+                //and is Primary, set primary tenant
+                if (MainActivity.tenantList.get(i).getIsPrimary()) {
+                    this.primaryTenant = MainActivity.tenantList.get(i);
+                    //and is secondary, add to secondary tenant list
+                } else {
+                    secondaryTenants.add(MainActivity.tenantList.get(i));
+                }
+            }
+        }
+        for (int i = 0; i < MainActivity.apartmentList.size(); i++) {
+            if (MainActivity.apartmentList.get(i).getId() == apartmentID) {
+                this.apartment = MainActivity.apartmentList.get(i);
+            } else if (!MainActivity.apartmentList.get(i).isRented()) {
+                availableApartments.add(MainActivity.apartmentList.get(i));
+            }
+        }
+    }
+
+    private void setUpForNewLeaseWithPassedApartment(Apartment passedApartment) {
+        int apartmentID = passedApartment.getId();
+        getAvailableTenants();
+        for (int i = 0; i < MainActivity.apartmentList.size(); i++) {
+            if (!MainActivity.apartmentList.get(i).isRented()) {
+                if (MainActivity.apartmentList.get(i).getId() == apartmentID) {
+                    this.apartment = MainActivity.apartmentList.get(i);
+                } else {
+                    availableApartments.add(MainActivity.apartmentList.get(i));
+                }
+            }
+        }
+    }
+
+    public Tenant findPassedTenant(int tenantID) {
+        for (int i = 0; i < MainActivity.tenantList.size(); i++) {
+            if (MainActivity.tenantList.get(i).getId() == tenantID) {
+                return MainActivity.tenantList.get(i);
+            }
+        }
+        return null;
+    }
+
+    public Apartment findPassedApartment(int apartmentID) {
+        for (int i = 0; i < MainActivity.apartmentList.size(); i++) {
+            if (MainActivity.tenantList.get(i).getId() == apartmentID) {
+                return MainActivity.apartmentList.get(i);
+            }
+        }
+        return null;
+    }
+
+    public void setPrimaryTenantTextView() {
+        primaryTenantTV.setText(primaryTenant.getFirstName());
+        primaryTenantTV.append(" ");
+        primaryTenantTV.append(primaryTenant.getLastName());
+    }
+
+    public void setApartmentTextView() {
+        changeApartmentTV.setText(apartment.getStreet1());
+        changeApartmentTV.append(" ");
+        changeApartmentTV.append(apartment.getStreet2());
+    }
+
+    public void setLeaseStartTextView(Tenant tenant) {
+        SimpleDateFormat formatTo = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+        DateFormat formatFrom = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy", Locale.US);
+        try {
+            Date startDate = formatFrom.parse(tenant.getLeaseStart());
+            leaseStartDate = startDate;
+            changeLeaseStartTV.setText(formatTo.format(startDate));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setLeaseEndTextView(Tenant tenant) {
+        SimpleDateFormat formatTo = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+        DateFormat formatFrom = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy", Locale.US);
+        try {
+            Date endDate = formatFrom.parse(tenant.getLeaseEnd());
+            leaseEndDate = endDate;
+            changeLeaseEndTV.setText(formatTo.format(endDate));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        //Save the fragment's instance
+        super.onSaveInstanceState(outState);
+        if (apartment != null) {
+            outState.putParcelable("apartment", apartment);
+        }
+        if (primaryTenant != null) {
+            outState.putParcelable("primaryTenant", primaryTenant);
+        }
+        if (secondaryTenants != null) {
+            outState.putParcelableArrayList("secondaryTenants", secondaryTenants);
+        }
+        if (leaseStartDate != null) {
+            outState.putString("leaseStartDate", leaseStartDate.toString());
+        }
+        if (leaseEndDate != null) {
+            outState.putString("leaseEndDate", leaseEndDate.toString());
+        }
+        if (availableTenants != null) {
+            outState.putParcelableArrayList("availableTenants", availableTenants);
+        }
+        if (availableApartments != null) {
+            outState.putParcelableArrayList("availableApartments", availableApartments);
+        }
     }
 }

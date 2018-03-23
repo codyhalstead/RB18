@@ -49,9 +49,16 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public static final String TENANT_INFO_FIRST_NAME_COLUMN = "tenant_info_first_name";
     public static final String TENANT_INFO_LAST_NAME_COLUMN = "tenant_info_last_name";
     public static final String TENANT_INFO_PHONE_COLUMN = "tenant_info_phone";
+    public static final String TENANT_INFO_EMAIL_COLUMN = "tenant_info_email";
+    public static final String TENANT_INFO_EMERGENCY_FIRST_NAME = "tenant_info_emergency_first_name";
+    public static final String TENANT_INFO_EMERGENCY_LAST_NAME = "tenant_info_emergency_last_name";
+    public static final String TENANT_INFO_EMERGENCY_PHONE = "tenant_info_emergency_phone";
     public static final String TENANT_INFO_APARTMENT_ID_COLUMN_FK = "tenant_info_apartment_id";
+    public static final String TENANT_INFO_RENT_COST = "tenant_info_rent_cost";
+    public static final String TENANT_INFO_DEPOSIT = "tenant_info_deposit";
     public static final String TENANT_INFO_IS_PRIMARY_TENANT_COLUMN = "tenant_info_is_primary";
     public static final String TENANT_INFO_PAYMENT_DAY_COLUMN = "tenant_info_payment_day";
+
     public static final String TENANT_INFO_NOTES_COLUMN = "tenant_info_notes";
     public static final String TENANT_INFO_LEASE_START_COLUMN = "tenant_info_lease_start";
     public static final String TENANT_INFO_LEASE_END_COLUMN = "tenant_info_lease_end";
@@ -152,6 +159,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public static final String APARTMENTS_VIEW_ZIP = "ZIP";
     public static final String APARTMENTS_VIEW_DESCRIPTION = "description";
     public static final String APARTMENTS_VIEW_NOTES = "notes";
+    public static final String APARTMENTS_VIEW_MAIN_PIC = "main_pic";
+    public static final String APARTMENTS_VIEW_IS_RENTED = "is_apartment_rented";
     public static final String APARTMENTS_VIEW_DATE_CREATED = "date_created";
     public static final String APARTMENTS_VIEW_LAST_UPDATE = "last_update";
     public static final String APARTMENTS_VIEW_IS_ACTIVE = "is_active";
@@ -229,7 +238,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public void deleteUser(User user) {
         SQLiteDatabase db = this.getWritableDatabase();
         // delete user record by id
-        db.delete(USER_INFO_TABLE, USER_INFO_ID_COLUMN_PK + " = ?",
+        db.delete(USER_INFO_TABLE, USER_INFO_ID_COLUMN_PK + " = ? ",
                 new String[]{String.valueOf(user.getId())});
         db.close();
     }
@@ -333,7 +342,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(TENANT_INFO_FIRST_NAME_COLUMN, tenant.getFirstName());
         values.put(TENANT_INFO_LAST_NAME_COLUMN, tenant.getLastName());
         values.put(TENANT_INFO_PHONE_COLUMN, tenant.getPhone());
+        values.put(TENANT_INFO_EMAIL_COLUMN, tenant.getTenantEmail());
+        values.put(TENANT_INFO_EMERGENCY_FIRST_NAME, tenant.getEmergencyFirstName());
+        values.put(TENANT_INFO_EMERGENCY_LAST_NAME, tenant.getEmergencyLastName());
+        values.put(TENANT_INFO_EMERGENCY_PHONE, tenant.getEmergencyPhone());
         values.putNull(TENANT_INFO_APARTMENT_ID_COLUMN_FK);
+        values.put(TENANT_INFO_RENT_COST, 0);
+        values.put(TENANT_INFO_DEPOSIT, 0);
         values.put(TENANT_INFO_PAYMENT_DAY_COLUMN, tenant.getPaymentDay());
         values.put(TENANT_INFO_NOTES_COLUMN, tenant.getNotes());
         values.put(TENANT_INFO_LEASE_START_COLUMN, tenant.getLeaseStart());
@@ -350,12 +365,18 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(TENANT_INFO_FIRST_NAME_COLUMN, tenant.getFirstName());
         values.put(TENANT_INFO_LAST_NAME_COLUMN, tenant.getLastName());
         values.put(TENANT_INFO_PHONE_COLUMN, tenant.getPhone());
+        values.put(TENANT_INFO_EMAIL_COLUMN, tenant.getTenantEmail());
+        values.put(TENANT_INFO_EMERGENCY_FIRST_NAME, tenant.getEmergencyFirstName());
+        values.put(TENANT_INFO_EMERGENCY_LAST_NAME, tenant.getEmergencyLastName());
+        values.put(TENANT_INFO_EMERGENCY_PHONE, tenant.getEmergencyPhone());
         values.put(TENANT_INFO_NOTES_COLUMN, tenant.getNotes());
         if (tenant.getApartmentID() != 0) {
             values.put(TENANT_INFO_APARTMENT_ID_COLUMN_FK, tenant.getApartmentID());
         } else {
             values.putNull(TENANT_INFO_APARTMENT_ID_COLUMN_FK);
         }
+        values.put(TENANT_INFO_RENT_COST, tenant.getRentCost());
+        values.put(TENANT_INFO_DEPOSIT, tenant.getDeposit());
         values.put(TENANT_INFO_IS_PRIMARY_TENANT_COLUMN, tenant.getIsPrimary());
         values.put(TENANT_INFO_PAYMENT_DAY_COLUMN, tenant.getPaymentDay());
         values.put(TENANT_INFO_LEASE_START_COLUMN, tenant.getLeaseStart());
@@ -365,8 +386,17 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close();
     }
 
-    //Add apartment
+    public void setTenantInactive(Tenant tenant){
+        SQLiteDatabase db = this.getWritableDatabase();
 
+        ContentValues values = new ContentValues();
+        values.put(TENANT_INFO_IS_ACTIVE_COLUMN, 0);
+        // updating row
+        db.update(TENANT_INFO_TABLE, values, TENANT_INFO_ID_COLUMN_PK + " = ?", new String[]{String.valueOf(tenant.getId())});
+        db.close();
+    }
+
+    //Add apartment
     public void addNewApartment(Apartment apartment, int userID) {
         ContentValues values = new ContentValues();
         SQLiteDatabase db = this.getReadableDatabase();
@@ -378,8 +408,26 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(APARTMENT_INFO_ZIP_COLUMN, apartment.getZip());
         values.put(APARTMENT_INFO_DESCRIPTION_COLUMN, apartment.getDescription());
         values.put(APARTMENT_INFO_NOTES_COLUMN, apartment.getNotes());
-        values.put(APARTMENT_INFO_MAIN_PIC_COLUMN, apartment.getMainPic());
+        values.putNull(APARTMENT_INFO_MAIN_PIC_COLUMN);
         db.insert(APARTMENT_INFO_TABLE, null, values);
+        db.close();
+    }
+
+    public void addApartmentOtherPic(Apartment apartment, String otherPic, User user) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(APARTMENT_PICS_APARTMENT_ID_COLUMN_FK, apartment.getId());
+        values.put(APARTMENT_PICS_USER_ID_COLUMN_FK, user.getId());
+        values.put(APARTMENT_PICS_PIC_COLUMN, otherPic);
+        db.insert(APARTMENT_PICS_TABLE, null, values);
+        db.close();
+    }
+
+    public void removeApartmentOtherPic(String otherPic, User user) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        // delete user record by id
+        db.delete(APARTMENT_PICS_TABLE, APARTMENT_PICS_PIC_COLUMN + " = ? AND " + APARTMENT_PICS_USER_ID_COLUMN_FK + " = ? ",
+                new String[]{String.valueOf(otherPic), String.valueOf(user.getId())});
         db.close();
     }
 
@@ -395,10 +443,58 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(APARTMENT_INFO_ZIP_COLUMN, apartment.getZip());
         values.put(APARTMENT_INFO_DESCRIPTION_COLUMN, apartment.getDescription());
         values.put(APARTMENT_INFO_NOTES_COLUMN, apartment.getNotes());
-        values.put(APARTMENT_INFO_MAIN_PIC_COLUMN, apartment.getMainPic());
+        if (apartment.getMainPic() != null) {
+            values.put(APARTMENT_INFO_MAIN_PIC_COLUMN, apartment.getMainPic());
+        } else {
+            values.putNull(APARTMENT_INFO_MAIN_PIC_COLUMN);
+        }
         // updating row
         db.update(APARTMENT_INFO_TABLE, values, APARTMENT_INFO_ID_COLUMN_PK + " = ?", new String[]{String.valueOf(apartment.getId())});
         db.close();
+    }
+
+    public void setApartmentInactive(Apartment apartment){
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(APARTMENT_INFO_IS_ACTIVE_COLUMN, 0);
+        // updating row
+        db.update(APARTMENT_INFO_TABLE, values, APARTMENT_INFO_ID_COLUMN_PK + " = ?", new String[]{String.valueOf(apartment.getId())});
+        db.close();
+    }
+
+    public void changeApartmentMainPic(Apartment apartment) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(APARTMENT_INFO_MAIN_PIC_COLUMN, apartment.getMainPic());
+        db.update(APARTMENT_INFO_TABLE, values, APARTMENT_INFO_ID_COLUMN_PK + " = ?", new String[]{String.valueOf(apartment.getId())});
+        db.close();
+    }
+
+    public void removeApartmentMainPic(Apartment apartment) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.putNull(APARTMENT_INFO_MAIN_PIC_COLUMN);
+        db.update(APARTMENT_INFO_TABLE, values, APARTMENT_INFO_ID_COLUMN_PK + " = ?", new String[]{String.valueOf(apartment.getId())});
+        db.close();
+    }
+
+    private ArrayList<String> getApartmentOtherPics(SQLiteDatabase db, int apartmentID) {
+        ArrayList<String> otherPics = new ArrayList<>();
+        String Query = "Select * from " + APARTMENT_PICS_TABLE + " WHERE " + APARTMENT_PICS_APARTMENT_ID_COLUMN_FK + " = " + apartmentID + " AND " +
+                APARTMENT_PICS_IS_ACTIVE_COLUMN + " = 1";
+        Cursor cursor = db.rawQuery(Query, null);
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
+                //if (!cursor.isNull(cursor.getColumnIndex(APARTMENT_PICS_PIC_COLUMN))) {
+                String pic = cursor.getString(cursor.getColumnIndex(APARTMENT_PICS_PIC_COLUMN));
+                otherPics.add(pic);
+                //}
+                cursor.moveToNext();
+            }
+        }
+        cursor.close();
+        return otherPics;
     }
 
     //Add payment log entry
@@ -456,38 +552,36 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
     }
 
-    private void storeApartmentLease(Apartment apartment) {
-
-    }
-
-    private void storeTenantLease(Tenant primaryTenant, Apartment apartment, SQLiteDatabase db) {
-
-    }
-
-    private void storeSecondaryTenantLease() {
-
-    }
-
     //Gets a users active tenants
     public ArrayList<Tenant> getUsersTenants(User user) {
         SQLiteDatabase db = this.getReadableDatabase();
         ArrayList<Tenant> tenants = new ArrayList<>();
-        String Query = "Select * from " + TENANT_INFO_TABLE + " WHERE " + TENANT_INFO_USER_ID_COLUMN_FK + " = " + user.getId() + " AND " +
-                TENANT_INFO_IS_ACTIVE_COLUMN + " = 1";
+        String Query = "Select * from " + TENANT_INFO_TABLE +
+                " WHERE " + TENANT_INFO_USER_ID_COLUMN_FK + " = " + user.getId() + " AND " + TENANT_INFO_IS_ACTIVE_COLUMN + " = 1" +
+                " ORDER BY " + TENANT_INFO_APARTMENT_ID_COLUMN_FK + " IS NULL " + ", " +
+                " UPPER(" + TENANT_INFO_FIRST_NAME_COLUMN + ")" + ", " +
+                " UPPER(" + TENANT_INFO_LAST_NAME_COLUMN + ")";
         Cursor cursor = db.rawQuery(Query, null);
         if (cursor.moveToFirst()) {
             while (!cursor.isAfterLast()) {
                 int id = cursor.getInt(cursor.getColumnIndex(TENANT_INFO_ID_COLUMN_PK));
                 String firstName = cursor.getString(cursor.getColumnIndex(TENANT_INFO_FIRST_NAME_COLUMN));
-                String lastname = cursor.getString(cursor.getColumnIndex(TENANT_INFO_LAST_NAME_COLUMN));
+                String lastName = cursor.getString(cursor.getColumnIndex(TENANT_INFO_LAST_NAME_COLUMN));
                 String phone = cursor.getString(cursor.getColumnIndex(TENANT_INFO_PHONE_COLUMN));
+                String email = cursor.getString(cursor.getColumnIndex(TENANT_INFO_EMAIL_COLUMN));
+                String emergencyFirstName = cursor.getString(cursor.getColumnIndex(TENANT_INFO_EMERGENCY_FIRST_NAME));
+                String emergencyLastName = cursor.getString(cursor.getColumnIndex(TENANT_INFO_EMERGENCY_LAST_NAME));
+                String emergencyPhone = cursor.getString(cursor.getColumnIndex(TENANT_INFO_EMERGENCY_PHONE));
                 int aptID = cursor.getInt(cursor.getColumnIndex(TENANT_INFO_APARTMENT_ID_COLUMN_FK));
+                int rentCost = cursor.getInt(cursor.getColumnIndex(TENANT_INFO_RENT_COST));
+                int deposit = cursor.getInt(cursor.getColumnIndex(TENANT_INFO_DEPOSIT));
                 Boolean isPrimary = cursor.getInt(cursor.getColumnIndex(TENANT_INFO_IS_PRIMARY_TENANT_COLUMN)) > 0;
-                String paymentDay = cursor.getString(cursor.getColumnIndex(TENANT_INFO_PAYMENT_DAY_COLUMN)); //TODO
+                String paymentDay = cursor.getString(cursor.getColumnIndex(TENANT_INFO_PAYMENT_DAY_COLUMN));
                 String notes = cursor.getString(cursor.getColumnIndex(TENANT_INFO_NOTES_COLUMN));
-                String leaseStart = cursor.getString(cursor.getColumnIndex(TENANT_INFO_LEASE_START_COLUMN)); //TODO
-                String leaseEnd = cursor.getString(cursor.getColumnIndex(TENANT_INFO_LEASE_END_COLUMN)); //TODO
-                tenants.add(new Tenant(id, firstName, lastname, phone, aptID, isPrimary, paymentDay, notes, leaseStart, leaseEnd));
+                String leaseStart = cursor.getString(cursor.getColumnIndex(TENANT_INFO_LEASE_START_COLUMN));
+                String leaseEnd = cursor.getString(cursor.getColumnIndex(TENANT_INFO_LEASE_END_COLUMN));
+                tenants.add(new Tenant(id, firstName, lastName, phone, email, emergencyFirstName, emergencyLastName, emergencyPhone,
+                        aptID, rentCost, deposit, isPrimary, paymentDay, notes, leaseStart, leaseEnd));
                 cursor.moveToNext();
             }
             cursor.close();
@@ -504,8 +598,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public ArrayList<Apartment> getUsersApartments(User user) {
         SQLiteDatabase db = this.getReadableDatabase();
         ArrayList<Apartment> apartments = new ArrayList<>();
-        String Query = "Select * from " + APARTMENTS_VIEW + " WHERE " + APARTMENTS_VIEW_USER_ID + " = " + user.getId() + " AND " +
-                APARTMENTS_VIEW_IS_ACTIVE + " = 1";
+        String Query = "Select * from " + APARTMENTS_VIEW +
+                " WHERE " + APARTMENTS_VIEW_USER_ID + " = " + user.getId() + " AND " + APARTMENTS_VIEW_IS_ACTIVE + " = 1" +
+                " ORDER BY " + APARTMENTS_VIEW_IS_RENTED + " DESC, " +
+                " UPPER(" + APARTMENTS_VIEW_CITY + ")";
         Cursor cursor = db.rawQuery(Query, null);
         if (cursor.moveToFirst()) {
             while (!cursor.isAfterLast()) {
@@ -517,10 +613,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 String state = cursor.getString(cursor.getColumnIndex(APARTMENTS_VIEW_STATE));
                 String zip = cursor.getString(cursor.getColumnIndex(APARTMENTS_VIEW_ZIP));
                 String description = cursor.getString(cursor.getColumnIndex(APARTMENTS_VIEW_DESCRIPTION));
+                Boolean isRented = cursor.getInt(cursor.getColumnIndex(APARTMENTS_VIEW_IS_RENTED)) > 0;
                 String notes = cursor.getString(cursor.getColumnIndex(APARTMENTS_VIEW_NOTES));
-                String mainPic = "";//cursor.getString(cursor.getColumnIndex(APARTMENT_INFO_MAIN_PIC_COLUMN));//TODO
-                ArrayList<String> otherPics = new ArrayList<>(); //TODO
-                apartments.add(new Apartment(id, street1, street2, city, stateID, state, zip, description, notes, mainPic, otherPics));
+                String mainPic = null;
+                if (!cursor.isNull(cursor.getColumnIndex(APARTMENTS_VIEW_MAIN_PIC))) {
+                    mainPic = cursor.getString(cursor.getColumnIndex(APARTMENTS_VIEW_MAIN_PIC));
+                }
+                ArrayList<String> otherPics = getApartmentOtherPics(db, id);
+                apartments.add(new Apartment(id, street1, street2, city, stateID, state, zip, description, isRented, notes, mainPic, otherPics));
                 cursor.moveToNext();
             }
             cursor.close();
@@ -603,7 +703,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 TENANT_INFO_FIRST_NAME_COLUMN + " VARCHAR(10), " +
                 TENANT_INFO_LAST_NAME_COLUMN + " VARCHAR(15), " +
                 TENANT_INFO_PHONE_COLUMN + " VARCHAR(12), " +
+                TENANT_INFO_EMAIL_COLUMN + " VARCHAR(30), " +
+                TENANT_INFO_EMERGENCY_FIRST_NAME + " VARCHAR(10), " +
+                TENANT_INFO_EMERGENCY_LAST_NAME + " VARCHAR(15), " +
+                TENANT_INFO_EMERGENCY_PHONE + " VARCHAR(12), " +
                 TENANT_INFO_APARTMENT_ID_COLUMN_FK + " INTEGER REFERENCES " + APARTMENT_INFO_TABLE + "(" + APARTMENT_INFO_ID_COLUMN_PK + "), " +
+                TENANT_INFO_RENT_COST + " INTEGER, " +
+                TENANT_INFO_DEPOSIT + " INTEGER, " +
                 TENANT_INFO_IS_PRIMARY_TENANT_COLUMN + " BOOLEAN NOT NULL DEFAULT 0, " +
                 TENANT_INFO_PAYMENT_DAY_COLUMN + " INTEGER, " +
                 TENANT_INFO_NOTES_COLUMN + " VARCHAR(150), " +
@@ -627,7 +733,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 APARTMENT_INFO_ZIP_COLUMN + " VARCHAR(5), " +
                 APARTMENT_INFO_DESCRIPTION_COLUMN + " VARCHAR(150), " +
                 APARTMENT_INFO_NOTES_COLUMN + " VARCHAR(150), " +
-                APARTMENT_INFO_MAIN_PIC_COLUMN + " BLOB, " +
+                APARTMENT_INFO_MAIN_PIC_COLUMN + " VARCHAR(50), " +
                 APARTMENT_INFO_DATE_CREATED_COLUMN + " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
                 APARTMENT_INFO_LAST_UPDATE_COLUMN + " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
                 APARTMENT_INFO_IS_ACTIVE_COLUMN + " BOOLEAN NOT NULL DEFAULT 1 " +
@@ -722,7 +828,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 APARTMENT_PICS_ID_COLUMN_PK + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 APARTMENT_PICS_USER_ID_COLUMN_FK + " INTEGER REFERENCES " + USER_INFO_TABLE + "(" + USER_INFO_ID_COLUMN_PK + "), " +
                 APARTMENT_PICS_APARTMENT_ID_COLUMN_FK + " INTEGER REFERENCES " + APARTMENT_INFO_TABLE + "(" + APARTMENT_INFO_ID_COLUMN_PK + "), " +
-                APARTMENT_PICS_PIC_COLUMN + " VARCHAR(150), " +
+                APARTMENT_PICS_PIC_COLUMN + " VARCHAR(30), " +
                 APARTMENT_PICS_DATE_CREATED_COLUMN + " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
                 APARTMENT_PICS_LAST_UPDATED_COLUMN + " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
                 APARTMENT_PICS_IS_ACTIVE_COLUMN + " BOOLEAN NOT NULL DEFAULT 1 " +
@@ -752,13 +858,22 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 STATE_TABLE + "." + STATE_STATE_ABR_COLUMN + " AS " + APARTMENTS_VIEW_STATE + ", " +
                 APARTMENT_INFO_TABLE + "." + APARTMENT_INFO_ZIP_COLUMN + " AS " + APARTMENTS_VIEW_ZIP + ", " +
                 APARTMENT_INFO_TABLE + "." + APARTMENT_INFO_DESCRIPTION_COLUMN + " AS " + APARTMENTS_VIEW_DESCRIPTION + ", " +
+                APARTMENT_INFO_TABLE + "." + APARTMENT_INFO_MAIN_PIC_COLUMN + " AS " + APARTMENTS_VIEW_MAIN_PIC + ", " +
                 APARTMENT_INFO_TABLE + "." + APARTMENT_INFO_NOTES_COLUMN + " AS " + APARTMENTS_VIEW_NOTES + ", " +
+                " CASE WHEN " + TENANT_INFO_TABLE + ".totalCount > 0 THEN 1 ELSE 0 END " + APARTMENTS_VIEW_IS_RENTED + ", " +
                 APARTMENT_INFO_TABLE + "." + APARTMENT_INFO_DATE_CREATED_COLUMN + " AS " + APARTMENTS_VIEW_DATE_CREATED + ", " +
                 APARTMENT_INFO_TABLE + "." + APARTMENT_INFO_LAST_UPDATE_COLUMN + " AS " + APARTMENTS_VIEW_LAST_UPDATE + ", " +
                 APARTMENT_INFO_TABLE + "." + APARTMENT_INFO_IS_ACTIVE_COLUMN + " AS " + APARTMENTS_VIEW_IS_ACTIVE + " " +
-                "FROM " +
+                " FROM " +
                 APARTMENT_INFO_TABLE +
                 " INNER JOIN " + STATE_TABLE + " ON " + STATE_TABLE + "." + STATE_ID_COLUMN_PK + " = " + APARTMENT_INFO_TABLE + "." + APARTMENT_INFO_STATE_COLUMN_FK +
+                " LEFT JOIN (" +
+                " SELECT " + TENANT_INFO_APARTMENT_ID_COLUMN_FK + ", " +
+                " COUNT(DISTINCT " + TENANT_INFO_APARTMENT_ID_COLUMN_FK + ")" + " AS totalCount " +
+                " FROM " + TENANT_INFO_TABLE +
+                " WHERE " + TENANT_INFO_IS_ACTIVE_COLUMN + " = 1" +
+                " GROUP BY " + TENANT_INFO_APARTMENT_ID_COLUMN_FK +
+                ") " + TENANT_INFO_TABLE + " ON " + APARTMENT_INFO_TABLE + "." + APARTMENT_INFO_ID_COLUMN_PK + " = " + TENANT_INFO_TABLE + "." + TENANT_INFO_APARTMENT_ID_COLUMN_FK +
                 ";";
         db.execSQL(insert);
     }
@@ -787,14 +902,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     public void addTestData(User user) {
         //Temporary method
-        Apartment apartment1 = new Apartment(0, "2390 Burlington Rd", "", "Letts", 1, "IA", "52754", "", "", "", new ArrayList<String>());
-        Apartment apartment2 = new Apartment(1, "2495 McNair Farms Dr", "Apt 555", "Herndon", 2, "VA", "78978", "", "", "", new ArrayList<String>());
-        Tenant tenant1 = new Tenant(0, "Cody", "Halstead", "563-299-9577", 1, false, "", "", "", "");
-        Tenant tenant2 = new Tenant(1, "Monet", "Tomioka", "345-554-2323", 2, true, "", "", "", "");
+        //Apartment apartment1 = new Apartment(0, "2390 Burlington Rd", "", "Letts", 1, "IA", "52754", "", "", "", new ArrayList<String>());
+        //Apartment apartment2 = new Apartment(1, "2495 McNair Farms Dr", "Apt 555", "Herndon", 2, "VA", "78978", "", "", "", new ArrayList<String>());
+        //Tenant tenant1 = new Tenant(0, "Cody", "Halstead", "563-299-9577", 1, false, "", "", "", "");
+        //Tenant tenant2 = new Tenant(1, "Monet", "Tomioka", "345-554-2323", 2, true, "", "", "", "");
 
-        this.addNewApartment(apartment1, user.getId());
-        this.addNewApartment(apartment2, user.getId());
-        this.addNewTenant(tenant1, user.getId());
-        this.addNewTenant(tenant2, user.getId());
+        //this.addNewApartment(apartment1, user.getId());
+        //this.addNewApartment(apartment2, user.getId());
+        //this.addNewTenant(tenant1, user.getId());
+        //this.addNewTenant(tenant2, user.getId());
     }
 }

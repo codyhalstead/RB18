@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.example.cody.rentbud.R;
+import com.rentbud.helpers.MainArrayDataMethods;
 import com.rentbud.helpers.UserInputValidation;
 import com.rentbud.model.Apartment;
 import com.rentbud.model.Tenant;
@@ -27,7 +28,7 @@ import java.util.ArrayList;
  */
 
 public class NewTenantFormActivity extends BaseActivity {
-    EditText firstNameET, lastNameET, phoneET, notesET;
+    EditText firstNameET, lastNameET, phoneET, emailET, emergencyFirstNameET, emergencyLastNameET, emergencyPhoneET, notesET;
     Button saveBtn, cancelBtn;
     DatabaseHandler databaseHandler;
     Tenant tenantToEdit;
@@ -37,6 +38,7 @@ public class NewTenantFormActivity extends BaseActivity {
     private boolean deletingHyphen;
     private int hyphenStart;
     private boolean deletingBackward;
+    MainArrayDataMethods dataMethods;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -56,10 +58,15 @@ public class NewTenantFormActivity extends BaseActivity {
         this.firstNameET = findViewById(R.id.tenantFormFirstNameET);
         this.lastNameET = findViewById(R.id.tenantFormLastNameET);
         this.phoneET = findViewById(R.id.tenantFormPhoneET);
+        this.emailET = findViewById(R.id.tenantFormEmailET);
+        this.emergencyFirstNameET = findViewById(R.id.tenantFormEmergencyFirstNameET);
+        this.emergencyLastNameET = findViewById(R.id.tenantFormEmergenctLastNameET);
+        this.emergencyPhoneET = findViewById(R.id.tenantFormEmergencyPhoneET);
         this.notesET = findViewById(R.id.tenantFormNotesET);
         this.saveBtn = findViewById(R.id.tenantFormSaveBtn);
         this.cancelBtn = findViewById(R.id.tenantFormCancelBtn);
         this.isEdit = false;
+        this.dataMethods = new MainArrayDataMethods();
     }
 
     private void setOnClickListeners() {
@@ -74,13 +81,17 @@ public class NewTenantFormActivity extends BaseActivity {
                 String firstName = firstNameET.getText().toString().trim();
                 String lastName = lastNameET.getText().toString().trim();
                 String phone = phoneET.getText().toString().trim();
+                String email = emailET.getText().toString().trim();
+                String emergencyFirstName = emergencyFirstNameET.getText().toString().trim();
+                String emergencyLastName = emergencyLastNameET.getText().toString().trim();
+                String emergencyPhone = emergencyPhoneET.getText().toString().trim();
                 String notes = notesET.getText().toString().trim();
                 String leaseStart = " ";
                 String leaseEnd = " ";
                 String paymentDate = " ";
                 int apartmentID = 0;
                 Boolean isPrimary = false;
-                if(tenantToEdit != null){
+                if (tenantToEdit != null) {
                     leaseStart = tenantToEdit.getLeaseStart();
                     leaseEnd = tenantToEdit.getLeaseEnd();
                     paymentDate = tenantToEdit.getPaymentDay();
@@ -88,17 +99,29 @@ public class NewTenantFormActivity extends BaseActivity {
                     apartmentID = tenantToEdit.getApartmentID();
                 }
                 //Create new Tenant object with input data and add it to the database
-                Tenant tenant = new Tenant(-1, firstName, lastName, phone, apartmentID, isPrimary, paymentDate, notes, leaseStart, leaseEnd);
+                Tenant tenant = new Tenant(-1, firstName, lastName, phone, email, emergencyFirstName, emergencyLastName, emergencyPhone,
+                        apartmentID, 0, 0, isPrimary, paymentDate, notes, leaseStart, leaseEnd);
                 //Set result success, close this activity
                 if (!isEdit) {
                     databaseHandler.addNewTenant(tenant, MainActivity.user.getId());
+                    dataMethods.sortMainTenantArray();
                     setResult(RESULT_OK);
                     finish();
                 } else {
-                    tenant.setId(tenantToEdit.getId());
-                    databaseHandler.editTenant(tenant);
+                    Tenant originalTenant = dataMethods.getCachedTenantByTenantID(tenantToEdit.getId());
+                    originalTenant.setFirstName(firstName);
+                    originalTenant.setLastName(lastName);
+                    originalTenant.setPhone(phone);
+                    originalTenant.setTenantEmail(email);
+                    originalTenant.setEmergencyFirstName(emergencyFirstName);
+                    originalTenant.setEmergencyLastName(emergencyLastName);
+                    originalTenant.setEmergencyPhone(emergencyPhone);
+                    originalTenant.setNotes(notes);
+                    //tenant.setId(tenantToEdit.getId());
+                    databaseHandler.editTenant(originalTenant);
+                    dataMethods.sortMainTenantArray();
                     Intent data = new Intent();
-                    data.putExtra("newTenantInfo", tenant);
+                    data.putExtra("editedTenantID", originalTenant.getId());
                     setResult(RESULT_OK, data);
                     finish();
                 }
@@ -124,6 +147,10 @@ public class NewTenantFormActivity extends BaseActivity {
             firstNameET.setText(tenantToEdit.getFirstName());
             lastNameET.setText(tenantToEdit.getLastName());
             phoneET.setText(tenantToEdit.getPhone());
+            emailET.setText(tenantToEdit.getTenantEmail());
+            emergencyFirstNameET.setText(tenantToEdit.getEmergencyFirstName());
+            emergencyLastNameET.setText(tenantToEdit.getEmergencyLastName());
+            emergencyPhoneET.setText(tenantToEdit.getEmergencyPhone());
             notesET.setText(tenantToEdit.getNotes());
         }
     }
@@ -140,12 +167,21 @@ public class NewTenantFormActivity extends BaseActivity {
         if (!validation.isInputEditText10DigitPhoneOrEmpty(this.phoneET, getString(R.string.please_use_10_digit_phone))) {
             valid = false;
         }
+        if (!validation.isInputEditText10DigitPhoneOrEmpty(this.emergencyPhoneET, getString(R.string.please_use_10_digit_phone))) {
+            valid = false;
+        }
         return valid;
     }
 
     //Automatically enters hyphens for the user
-    private void setPhoneNumberEditTextHelper(){
-        this.phoneET.addTextChangedListener(new TextWatcher() {
+    private void setPhoneNumberEditTextHelper() {
+
+        this.phoneET.addTextChangedListener(createPhoneNumberTextWatcher());
+        this.emergencyPhoneET.addTextChangedListener(createPhoneNumberTextWatcher());
+    }
+
+    private TextWatcher createPhoneNumberTextWatcher(){
+        TextWatcher textWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 if (isFormatting)
@@ -196,6 +232,7 @@ public class NewTenantFormActivity extends BaseActivity {
                 }
                 isFormatting = false;
             }
-        });
+        };
+        return textWatcher;
     }
 }

@@ -75,7 +75,7 @@ public class ApartmentListFragment extends Fragment implements AdapterView.OnIte
         Intent intent = new Intent(getContext(), ApartmentViewActivity.class);
         //Uses filtered results to match what is on screen
         Apartment apartment = apartmentListAdapter.getFilteredResults().get(i);
-        intent.putExtra("apartment", apartment);
+        intent.putExtra("apartmentID", apartment.getId());
         startActivity(intent);
     }
 
@@ -92,13 +92,13 @@ public class ApartmentListFragment extends Fragment implements AdapterView.OnIte
                 //When user changed the Text
                 if (apartmentListAdapter != null) {
                     apartmentListAdapter.getFilter().filter(cs);
-                    apartmentListAdapter.notifyDataSetChanged();
+
                 }
             }
 
             @Override
             public void afterTextChanged(Editable editable) {
-
+                //apartmentListAdapter.notifyDataSetChanged();
             }
 
             @Override

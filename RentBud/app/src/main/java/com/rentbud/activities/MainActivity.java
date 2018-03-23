@@ -34,9 +34,11 @@ import java.util.TreeMap;
 public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
     //Request codes
     public static final int REQUEST_SIGNIN = 77;
-    public static final int REQUEST_GALLERY = 20;
+    public static final int REQUEST_GALLERY_FOR_MAIN_PIC = 20;
+    public static final int REQUEST_GALLERY_FOR_OTHER_PICS = 21;
     public static final int REQUEST_NEW_APARTMENT_FORM = 36;
     public static final int REQUEST_NEW_TENANT_FORM = 37;
+    public static final int REQUEST_NEW_LEASE_FORM = 38;
     //Fragment tag
     public static final String CURRENT_FRAG_TAG = "current_frag_tag";
     //initialized with initializeVariables()
@@ -55,6 +57,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     public static TreeMap<String, Integer> stateMap;
     public static ArrayList<Tenant> tenantList;
     public static ArrayList<Apartment> apartmentList;
+
+    int testTenants = 0;
+    int testAppartments = 0;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -110,6 +115,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             } else {
                 //If not on home fragment, will go to home fragment
                 displaySelectedScreen(R.id.nav_home);
+                navigationView.setCheckedItem(R.id.nav_home);
             }
         }
     }
@@ -142,7 +148,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }
         //Get picture from gallery result
         //TODO unfinished
-        if (requestCode == REQUEST_GALLERY) {
+        if (requestCode == REQUEST_GALLERY_FOR_MAIN_PIC) {
             //If picture selection  successfully completed
             if (resultCode == RESULT_OK) {
                 // profilePic = data.getData();
@@ -218,12 +224,12 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                     intent2 = new Intent();
                     intent2.setAction(Intent.ACTION_GET_CONTENT);
                     intent2.setType("*/*");
-                    startActivityForResult(intent2, REQUEST_GALLERY);
+                    startActivityForResult(intent2, REQUEST_GALLERY_FOR_MAIN_PIC);
                 } else {
                     intent2 = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                     intent2.addCategory(Intent.CATEGORY_OPENABLE);
                     intent2.setType("*/*");
-                    startActivityForResult(intent2, REQUEST_GALLERY);
+                    startActivityForResult(intent2, REQUEST_GALLERY_FOR_MAIN_PIC);
                 }
                 //  intent2.setType("image/*");
                 //  startActivityForResult(intent2, REQUEST_GALLERY);
@@ -386,6 +392,29 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         MainActivity.apartmentList.clear();
         for(int i = 0; i < apartmentList.size(); i++){
             MainActivity.apartmentList.add(apartmentList.get(i));
+        }
+    }
+
+    public void add100Tenants(View view) {
+        int i = 0;
+        while (i < 100){
+            Tenant tenant = new Tenant(-1, "Frank", "Lascelles " + testTenants, "563-598-8965", "snappydude@hotmail.com", "Matt",
+                    "Thurston", "568-785-8956", 0, 80, 700, false, "", "Is frank " + testTenants,
+                     "", "");
+            dbHandler.addNewTenant(tenant, user.getId());
+            testTenants++;
+            i++;
+        }
+    }
+
+    public void add100Apartments(View view) {
+        int i = 0;
+        while(i < 100){
+            Apartment apartment = new Apartment(0, "2366 Lange Ave", "Apt." + testAppartments, "Atalissa", 1, "AL",
+                    "53654", "2 bed 1 bath", false, "Big ol building", null, null);
+            dbHandler.addNewApartment(apartment, user.getId());
+            testAppartments++;
+            i++;
         }
     }
 }

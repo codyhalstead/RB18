@@ -7,6 +7,9 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.TextView;
+
+import java.util.Date;
 
 /**
  * Created by Cody on 12/13/2017.
@@ -121,5 +124,15 @@ public class UserInputValidation {
                 return true;
             }
         }
+    }
+
+    public boolean isFirstDateBeforeSecondDate(Date date1, Date date2, TextView textView, String message){
+        boolean isBefore = date1.before(date2);
+        if (isBefore){
+            textView.setError(null);
+        } else {
+            textView.setError(message);
+        }
+        return isBefore;
     }
 }

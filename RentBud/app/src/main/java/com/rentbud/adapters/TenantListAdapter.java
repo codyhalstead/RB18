@@ -46,6 +46,18 @@ public class TenantListAdapter extends BaseAdapter implements Filterable {
         this.highlightColor = highlightColor;
     }
 
+    static class ViewHolder {
+        TextView firstNameTV;
+        TextView lastNameTV;
+        TextView phoneNumberTV;
+        TextView leaseEndsTextDisplayTV;
+        TextView leaseEndsTV;
+        TextView isPrimaryTV;
+        TextView rentingStatusTV;
+        TextView apartmentStreet1;
+        TextView apartmentStreet2;
+    }
+
     @Override
     public int getCount() {
         return filteredResults.size();
@@ -65,60 +77,71 @@ public class TenantListAdapter extends BaseAdapter implements Filterable {
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         Tenant tenant = getItem(position);
+        ViewHolder viewHolder;
         // Check if an existing view is being reused, otherwise inflate the view
         if (convertView == null) {
             convertView = LayoutInflater.from(context).inflate(R.layout.row_tenant, parent, false);
-        }
-        TextView firstNameTV = (TextView) convertView.findViewById(R.id.firstNameTV);
-        TextView lastNameTV = (TextView) convertView.findViewById(R.id.lastNameTV);
-        TextView phoneNumberTV = (TextView) convertView.findViewById(R.id.phoneNumberTV);
-        if (tenant != null) {
-            setTextHighlightSearch(firstNameTV, tenant.getFirstName());
-            setTextHighlightSearch(lastNameTV, tenant.getLastName());
-            setTextHighlightSearch(phoneNumberTV, tenant.getPhone());
-        }
-        TextView leaseEndsTextDisplayTV = convertView.findViewById(R.id.tenantRowLeaseEndDisplayTV);
-        TextView leaseEndsTV = convertView.findViewById(R.id.tenantRowLeaseEndTV);
-        TextView isPrimaryTV = convertView.findViewById(R.id.tenantRowLeaseIsPrimaryTV);
-        if(tenant.getLeaseEnd().equals(" ")){
-            leaseEndsTV.setText("");
-            leaseEndsTextDisplayTV.setText("");
-            isPrimaryTV.setText("");
+            viewHolder = new ViewHolder();
+
+            viewHolder.firstNameTV = convertView.findViewById(R.id.firstNameTV);
+            viewHolder.lastNameTV = convertView.findViewById(R.id.lastNameTV);
+            viewHolder.phoneNumberTV = convertView.findViewById(R.id.phoneNumberTV);
+            viewHolder.leaseEndsTextDisplayTV = convertView.findViewById(R.id.tenantRowLeaseEndDisplayTV);
+            viewHolder.leaseEndsTV = convertView.findViewById(R.id.tenantRowLeaseEndTV);
+            viewHolder.isPrimaryTV = convertView.findViewById(R.id.tenantRowLeaseIsPrimaryTV);
+            viewHolder.rentingStatusTV = convertView.findViewById(R.id.tenantRowRentStatusTV);
+            viewHolder.apartmentStreet1 = convertView.findViewById(R.id.tenantRowApartmentStreet1TV);
+            viewHolder.apartmentStreet2 = convertView.findViewById(R.id.tenantRowApartmentStreet2TV);
+
+            convertView.setTag(viewHolder);
+
         } else {
-            SimpleDateFormat formatTo = new SimpleDateFormat("MM-dd-yyyy");
-            DateFormat formatFrom = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy");
-            Date endDate = null;
-            try {
-                endDate = formatFrom.parse(tenant.getLeaseEnd());
-                leaseEndsTV.setText(formatTo.format(endDate));
-                leaseEndsTextDisplayTV.setText("Lease ending on : ");
-                if(tenant.getIsPrimary()){
-                    isPrimaryTV.setText("Primary");
-                } else {
-                    isPrimaryTV.setText("Secondary");
-                }
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
+            viewHolder = (ViewHolder) convertView.getTag();
         }
-        TextView rentingStatusTV = convertView.findViewById(R.id.tenantRowRentStatusTV);
-        TextView apartmentStreet1 = convertView.findViewById(R.id.tenantRowApartmentStreet1TV);
-        TextView apartmentStreet2 = convertView.findViewById(R.id.tenantRowApartmentStreet2TV);
-        if(tenant.getApartmentID() == 0){
-                convertView.setBackgroundColor(convertView.getResources().getColor(R.color.lightGrey));
-                rentingStatusTV.setText("Not Currently Renting");
-                apartmentStreet1.setText("");
-                apartmentStreet2.setText("");
+
+        if (tenant != null) {
+            setTextHighlightSearch(viewHolder.firstNameTV, tenant.getFirstName());
+            setTextHighlightSearch(viewHolder.lastNameTV, tenant.getLastName());
+            setTextHighlightSearch(viewHolder.phoneNumberTV, tenant.getPhone());
+
+            if (tenant.getApartmentID() == 0) {
+                viewHolder.leaseEndsTV.setText("");
+                viewHolder.leaseEndsTextDisplayTV.setText("");
+                viewHolder.isPrimaryTV.setText("");
             } else {
-                rentingStatusTV.setText("Renting ");
+                SimpleDateFormat formatTo = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+                DateFormat formatFrom = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy", Locale.US);
+                Date endDate;
+                try {
+                    endDate = formatFrom.parse(tenant.getLeaseEnd());
+                    viewHolder.leaseEndsTV.setText(formatTo.format(endDate));
+                    viewHolder.leaseEndsTextDisplayTV.setText("Lease ending on : ");
+                    if (tenant.getIsPrimary()) {
+                        viewHolder.isPrimaryTV.setText("Primary");
+                    } else {
+                        viewHolder.isPrimaryTV.setText("Secondary");
+                    }
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if (tenant.getApartmentID() == 0) {
+                convertView.setBackgroundColor(convertView.getResources().getColor(R.color.lightGrey));
+                viewHolder.rentingStatusTV.setText("Not Currently Renting");
+                viewHolder.apartmentStreet1.setText("");
+                viewHolder.apartmentStreet2.setText("");
+            } else {
+                viewHolder.rentingStatusTV.setText("Renting ");
                 convertView.setBackgroundColor(convertView.getResources().getColor(R.color.white));
                 for (int i = 0; i < MainActivity.apartmentList.size(); i++) {
-                    if (MainActivity.apartmentList.get(i).getId() == tenant.getApartmentID()){
-                        apartmentStreet1.setText(MainActivity.apartmentList.get(i).getStreet1());
-                        apartmentStreet2.setText(MainActivity.apartmentList.get(i).getStreet2());
+                    if (MainActivity.apartmentList.get(i).getId() == tenant.getApartmentID()) {
+                        viewHolder.apartmentStreet1.setText(MainActivity.apartmentList.get(i).getStreet1());
+                        viewHolder.apartmentStreet2.setText(MainActivity.apartmentList.get(i).getStreet2());
                         break;
                     }
                 }
+            }
         }
 
         return convertView;

@@ -136,4 +136,10 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
+
+    public void autoLog(View view) {
+        databaseHandler.addUser("c", "c@c.c", "ccccc");
+        this.user = databaseHandler.getUser("c@c.c", "ccccc");
+        onLoginSuccess();
+    }
 }
