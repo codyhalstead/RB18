@@ -112,7 +112,7 @@ public class NewApartmentFormActivity extends BaseActivity {
                 if(!isEdit){
                     databaseHandler.addNewApartment(apartment, MainActivity.user.getId());
                     //Set result success, close this activity
-                    dataMethods.sortMainApartmentArray();
+                    MainActivity.apartmentList = databaseHandler.getUsersApartments(MainActivity.user);
                     setResult(RESULT_OK);
                     finish();
                 }else{

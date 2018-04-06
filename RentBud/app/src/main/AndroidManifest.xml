@@ -49,6 +49,16 @@
             android:name="com.rentbud.activities.SettingsActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
+        <!--ExpenseViewActivity -->
+        <activity
+            android:name="com.rentbud.activities.ExpenseViewActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+        <!--IncomeViewActivity -->
+        <activity
+            android:name="com.rentbud.activities.IncomeViewActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
         <!--TenantViewActivity -->
         <activity android:name="com.rentbud.activities.TenantViewActivity"
             android:theme="@style/AppTheme.NoActionBar"
@@ -59,18 +69,33 @@
             android:theme="@style/AppTheme.NoActionBar"
             >
         </activity>
+        <!--NewExpenseFormActivity -->
+        <activity
+            android:windowSoftInputMode="stateHidden"
+            android:name="com.rentbud.activities.NewExpenseFormActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+        <!--NewIncomeFormActivity -->
+        <activity
+            android:windowSoftInputMode="stateHidden"
+            android:name="com.rentbud.activities.NewIncomeFormActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
         <!--NewApartmentFormActivity -->
         <activity
+            android:windowSoftInputMode="stateHidden"
             android:name="com.rentbud.activities.NewApartmentFormActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <!--NewTenantFormActivity -->
         <activity
+            android:windowSoftInputMode="stateHidden"
             android:name="com.rentbud.activities.NewTenantFormActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <!--NewLeaseFormActivity -->
         <activity
+            android:windowSoftInputMode="stateHidden"
             android:name="com.rentbud.activities.NewLeaseFormActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>

@@ -3,6 +3,8 @@ package com.rentbud.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.Date;
+
 /**
  * Created by Cody on 1/27/2018.
  */
@@ -18,17 +20,17 @@ public class Tenant implements Parcelable{
     private String emergencyPhone;
     private int apartmentID;
     private Boolean isPrimary;
-    private String paymentDay;
+    private Date paymentDay;
     private int rentCost;
     private int deposit;
     private String notes;
-    private String leaseStart;
-    private String leaseEnd;
+    private Date leaseStart;
+    private Date leaseEnd;
 
 
     public Tenant(int id, String firstName, String lastName, String phone, String email, String emergencyFirstName,
                   String emergencyLastName, String emergencyPhone, int apartmentID, int rentCost, int deposit,
-                  Boolean isPrimary, String paymentDay, String notes, String leaseStart, String leaseEnd) {
+                  Boolean isPrimary, Date paymentDay, String notes, Date leaseStart, Date leaseEnd) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -66,10 +68,25 @@ public class Tenant implements Parcelable{
         parcel.writeInt(this.rentCost);
         parcel.writeInt(this.deposit);
         parcel.writeByte((byte) (isPrimary ? 1 : 0));
-        parcel.writeString(this.paymentDay);
+        if(this.paymentDay != null){
+            parcel.writeInt(1);
+            parcel.writeLong(this.paymentDay.getTime());
+        }else{
+            parcel.writeInt(0);
+        }
         parcel.writeString(this.notes);
-        parcel.writeString(this.leaseStart);
-        parcel.writeString(this.leaseEnd);
+        if(this.leaseStart != null){
+            parcel.writeInt(1);
+            parcel.writeLong(this.leaseStart.getTime());
+        }else{
+            parcel.writeInt(0);
+        }
+        if(this.leaseEnd != null){
+            parcel.writeInt(1);
+            parcel.writeLong(this.leaseEnd.getTime());
+        }else{
+            parcel.writeInt(0);
+        }
     }
 
     private Tenant(Parcel in) {
@@ -85,10 +102,19 @@ public class Tenant implements Parcelable{
         this.rentCost = in.readInt();
         this.deposit = in.readInt();
         this.isPrimary = in.readByte() != 0;
-        this.paymentDay = in.readString();
+        int paymentDateIsNotNull = in.readInt();
+        if(paymentDateIsNotNull == 1) {
+            this.paymentDay = new Date(in.readLong());
+        }
         this.notes = in.readString();
-        this.leaseStart = in.readString();
-        this.leaseEnd = in.readString();
+        int leaseStartDateIsNotNull = in.readInt();
+        if(leaseStartDateIsNotNull == 1) {
+            this.leaseStart = new Date(in.readLong());
+        }
+        int leaseEndDateIsNotNull = in.readInt();
+        if(leaseEndDateIsNotNull == 1) {
+            this.leaseEnd = new Date(in.readLong());
+        }
     }
 
 
@@ -148,11 +174,11 @@ public class Tenant implements Parcelable{
         this.apartmentID = apartmentID;
     }
 
-    public String getPaymentDay() {
+    public Date getPaymentDay() {
         return paymentDay;
     }
 
-    public void setPaymentDay(String paymentDay) {
+    public void setPaymentDay(Date paymentDay) {
         this.paymentDay = paymentDay;
     }
 
@@ -164,19 +190,19 @@ public class Tenant implements Parcelable{
         this.notes = notes;
     }
 
-    public String getLeaseStart() {
+    public Date getLeaseStart() {
         return leaseStart;
     }
 
-    public void setLeaseStart(String leaseStart) {
+    public void setLeaseStart(Date leaseStart) {
         this.leaseStart = leaseStart;
     }
 
-    public String getLeaseEnd() {
+    public Date getLeaseEnd() {
         return leaseEnd;
     }
 
-    public void setLeaseEnd(String leaseEnd) {
+    public void setLeaseEnd(Date leaseEnd) {
         this.leaseEnd = leaseEnd;
     }
 

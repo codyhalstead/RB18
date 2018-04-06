@@ -154,12 +154,14 @@ public class TenantViewActivity extends BaseActivity {
         emergencyFirstNameTV.setText(tenant.getEmergencyFirstName());
         emergencyLastNameTV.setText(tenant.getEmergencyLastName());
         getEmergencyPhoneTV.setText(tenant.getEmergencyPhone());
-        if (tenant.getApartmentID() == 0) {
+        Log.d("TAG", "fillTextViews: " + tenant.getApartmentID());
+        if (tenant.getApartmentID() == 0 ) {
             renterStatusTV.setText("Not Currently Renting");
             editLeaseBtn.setText("Create Lease");
             apartmentAddressTV.setText("");
             apartmentAddress2TV.setVisibility(View.GONE);
-
+            leaseLL.setVisibility(View.GONE);
+            leaseHolderTypeTV.setVisibility(View.GONE);
 
         } else {
             renterStatusTV.setText("Renting");
@@ -178,19 +180,14 @@ public class TenantViewActivity extends BaseActivity {
             } else {
                 leaseHolderTypeTV.setText("Secondary Tenant");
             }
-            if (!tenant.getLeaseStart().equals("")) {
-                SimpleDateFormat formatTo = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-                DateFormat formatFrom = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy", Locale.US);
+            if (tenant.getLeaseStart() != null) {
                 leaseLL.setVisibility(View.VISIBLE);
                 leaseHolderTypeTV.setVisibility(View.VISIBLE);
-                try {
-                    Date startDate = formatFrom.parse(tenant.getLeaseStart());
-                    Date endDate = formatFrom.parse(tenant.getLeaseEnd());
-                    leaseStartTV.setText(formatTo.format(startDate));
-                    leaseEndTV.setText(formatTo.format(endDate));
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
+
+                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+                leaseStartTV.setText(formatter.format(tenant.getLeaseStart()));
+                leaseEndTV.setText(formatter.format(tenant.getLeaseEnd()));
+
 
             } else {
                 leaseLL.setVisibility(View.GONE);
@@ -282,16 +279,16 @@ public class TenantViewActivity extends BaseActivity {
                     tenant.setIsPrimary(false);
                     for (int x = 0; x < otherTenants.size(); x++) {
                         otherTenants.get(x).setApartmentID(0);
-                        otherTenants.get(x).setLeaseStart("");
-                        otherTenants.get(x).setLeaseEnd("");
+                        otherTenants.get(x).setLeaseStart(null);
+                        otherTenants.get(x).setLeaseEnd(null);
                         databaseHandler.editTenant(otherTenants.get(x));
                     }
                     apartment.setRented(false);
                     MainActivity.tenantList = databaseHandler.getUsersTenants(MainActivity.user);
                 }
                 tenant.setApartmentID(0);
-                tenant.setLeaseStart("");
-                tenant.setLeaseEnd("");
+                tenant.setLeaseStart(null);
+                tenant.setLeaseEnd(null);
                 databaseHandler.editTenant(tenant);
 
                 dataMethods.sortMainApartmentArray();

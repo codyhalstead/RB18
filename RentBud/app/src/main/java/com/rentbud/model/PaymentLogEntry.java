@@ -3,23 +3,30 @@ package com.rentbud.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.math.BigDecimal;
+import java.util.Date;
+
 /**
  * Created by Cody on 1/27/2018.
  */
 
 public class PaymentLogEntry implements Parcelable{
     private int id;
-    private String paymentDate;
+    private Date paymentDate;
     private int typeID;
+    private String typeLabel;
     private int tenantID;
-    private int amount;
+    private BigDecimal amount;
+    private String description;
 
-    public PaymentLogEntry(int id, String paymentDate, int typeID, int tenantID, int amount){
+    public PaymentLogEntry(int id, Date paymentDate, int typeID, String typeLabel, int tenantID, BigDecimal amount, String description){
         this.id = id;
         this.paymentDate = paymentDate;
         this.typeID = typeID;
+        this.typeLabel = typeLabel;
         this.tenantID = tenantID;
         this.amount = amount;
+        this.description = description;
     }
 
     @Override
@@ -30,18 +37,32 @@ public class PaymentLogEntry implements Parcelable{
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeInt(this.id);
-        parcel.writeString(this.paymentDate);
+        if(this.paymentDate != null){
+            parcel.writeInt(1);
+            parcel.writeLong(this.paymentDate.getTime());
+        }else{
+            parcel.writeInt(0);
+        }
         parcel.writeInt(this.typeID);
+        parcel.writeString(this.typeLabel);
         parcel.writeInt(this.tenantID);
-        parcel.writeInt(this.amount);
+        String amountString = amount.toPlainString();
+        parcel.writeString(amountString);
+        parcel.writeString(this.description);
     }
 
     protected PaymentLogEntry(Parcel in) {
         this.id = in.readInt();
-        this.paymentDate = in.readString();
+        int paymentDayIsNotNull = in.readInt();
+        if(paymentDayIsNotNull == 1) {
+            this.paymentDate = new Date(in.readLong());
+        }
         this.typeID = in.readInt();
+        this.typeLabel = in.readString();
         this.tenantID = in.readInt();
-        this.amount = in.readInt();
+        String amountString = in.readString();
+        this.amount = new BigDecimal(amountString);
+        this.description = in.readString();
     }
 
     public static final Creator<PaymentLogEntry> CREATOR = new Creator<PaymentLogEntry>() {
@@ -64,11 +85,11 @@ public class PaymentLogEntry implements Parcelable{
         this.id = id;
     }
 
-    public String getPaymentDate() {
+    public Date getPaymentDate() {
         return paymentDate;
     }
 
-    public void setPaymentDate(String paymentDate) {
+    public void setPaymentDate(Date paymentDate) {
         this.paymentDate = paymentDate;
     }
 
@@ -88,11 +109,27 @@ public class PaymentLogEntry implements Parcelable{
         this.tenantID = tenantID;
     }
 
-    public int getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(int amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getTypeLabel() {
+        return typeLabel;
+    }
+
+    public void setTypeLabel(String typeLabel) {
+        this.typeLabel = typeLabel;
     }
 }

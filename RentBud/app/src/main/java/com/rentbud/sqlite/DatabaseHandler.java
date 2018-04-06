@@ -1,6 +1,5 @@
 package com.rentbud.sqlite;
 
-import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -9,6 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Build;
 import android.util.Log;
 
+import com.example.cody.rentbud.R;
 import com.rentbud.helpers.RandomNumberGenerator;
 import com.rentbud.model.Apartment;
 import com.rentbud.model.EventLogEntry;
@@ -17,9 +17,12 @@ import com.rentbud.model.PaymentLogEntry;
 import com.rentbud.model.Tenant;
 import com.rentbud.model.User;
 
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Date;
+import java.util.Locale;
 import java.util.TreeMap;
 
 import static android.content.ContentValues.TAG;
@@ -31,6 +34,7 @@ import static android.content.ContentValues.TAG;
 public class DatabaseHandler extends SQLiteOpenHelper {
     public static int DATABASE_VERSION = 1;
     public static String DB_FILE_NAME = "allData.db";
+    private Context context;
 
     public static final String USER_INFO_TABLE = "user_info_table";
     public static final String USER_INFO_ID_COLUMN_PK = "_id";
@@ -87,7 +91,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public static final String PAYMENT_LOG_PAYMENT_DATE_COLUMN = "payment_log_payment_date";
     public static final String PAYMENT_LOG_TYPE_ID_COLUMN_FK = "payment_log_type_id";
     public static final String PAYMENT_LOG_TENANT_ID_COLUMN_FK = "payment_log_tenant_id";
+    public static final String PAYMENT_LOG_APARTMENT_ID_COLUMN_FK = "payment_log_apartment_id";
     public static final String PAYMENT_LOG_AMOUNT_COLUMN = "payment_log_amount";
+    public static final String PAYMENT_LOG_DESCRIPTION_COLUMN = "payment_log_description";
     public static final String PAYMENT_LOG_DATE_CREATED_COLUMN = "payment_log_date_created";
     public static final String PAYMENT_LOG_LAST_UPDATE_COLUMN = "payment_log_last_update";
     public static final String PAYMENT_LOG_IS_ACTIVE_COLUMN = "payment_log_is_active";
@@ -100,7 +106,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public static final String EXPENSE_LOG_APARTMENT_ID_COLUMN_FK = "expense_log_apartment_id";
     public static final String EXPENSE_LOG_DESCRIPTION_COLUMN = "expense_log_description";
     public static final String EXPENSE_LOG_TYPE_ID_COLUMN_FK = "expense_log_type_id";
-    public static final String EXPENSE_LOG_RECIPT_PIC = "expense_log_recipt_pic";
+    public static final String EXPENSE_LOG_RECEIPT_PIC = "expense_log_receipt_pic";
     public static final String EXPENSE_LOG_DATE_CREATED_COLUMN = "expense_log_date_created";
     public static final String EXPENSE_LOG_LAST_UPDATE_COLUMN = "expense_log_last_update";
     public static final String EXPENSE_LOG_IS_ACTIVE_COLUMN = "expense_log_is_active";
@@ -172,7 +178,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public static final String TENANTS_VIEW_LAST_NAME = "last_name";
     public static final String TENANTS_VIEW_PHONE = "phone";
     public static final String TENANTS_VIEW_RENTED_APARTMENT_ID = "apartment_currently_renting";
-    public static final String TENANTS_VIEW_PAYMENT_DAY_ = "payment_day";
+    public static final String TENANTS_VIEW_PAYMENT_DAY = "payment_day";
     public static final String TENANTS_VIEW_NOTES = "notes";
     public static final String TENANTS_VIEW_LEASE_START = "lease_start";
     public static final String TENANTS_VIEW_LEASE_END = "lease_end";
@@ -180,11 +186,42 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public static final String TENANTS_VIEW_LAST_UPDATE = "last_update";
     public static final String TENANTS_VIEW_IS_ACTIVE = "is_active";
 
+    public static final String EXPENSES_VIEW = "expenses_view";
+    public static final String EXPENSES_VIEW_EXPENSE_ID = "expense_id";
+    public static final String EXPENSES_VIEW_USER_ID = "user_id";
+    public static final String EXPENSES_VIEW_APARTMENT_ID = "apartment_id";
+    public static final String EXPENSES_VIEW_EXPENSE_DATE = "expense_date";
+    public static final String EXPENSES_VIEW_AMOUNT = "expense_amount";
+    public static final String EXPENSES_VIEW_DESCRIPTION = "expense_description";
+    public static final String EXPENSES_VIEW_TYPE_ID = "expense_type_id";
+    public static final String EXPENSES_VIEW_TYPE_LABEL = "expense_type_label";
+    public static final String EXPENSES_VIEW_TYPE = "expense_type";
+    public static final String EXPENSES_VIEW_RECEIPT_PIC = "receipt_pic";
+    public static final String EXPENSES_VIEW_DATE_CREATED = "date_created";
+    public static final String EXPENSES_VIEW_LAST_UPDATE = "last_update";
+    public static final String EXPENSES_VIEW_IS_ACTIVE = "is_active";
+
+    public static final String INCOME_VIEW = "income_view";
+    public static final String INCOME_VIEW_INCOME_ID = "income_id";
+    public static final String INCOME_VIEW_USER_ID = "user_id";
+    public static final String INCOME_VIEW_APARTMENT_ID = "apartment_id";
+    public static final String INCOME_VIEW_TENANT_ID = "tenant_id";
+    public static final String INCOME_VIEW_INCOME_DATE = "income_date";
+    public static final String INCOME_VIEW_AMOUNT = "income_amount";
+    public static final String INCOME_VIEW_DESCRIPTION = "income_description";
+    public static final String INCOME_VIEW_TYPE_ID = "income_type_id";
+    public static final String INCOME_VIEW_TYPE_LABEL = "income_type_label";
+    public static final String INCOME_VIEW_TYPE = "income_type";
+    public static final String INCOME_VIEW_DATE_CREATED = "date_created";
+    public static final String INCOME_VIEW_LAST_UPDATE = "last_update";
+    public static final String INCOME_VIEW_IS_ACTIVE = "is_active";
+
     RandomNumberGenerator verificationGenerator;
 
     public DatabaseHandler(Context context) {
         super(context, DB_FILE_NAME, null, DATABASE_VERSION);
         verificationGenerator = new RandomNumberGenerator();
+        this.context = context;
     }
 
     //Add new user
@@ -228,7 +265,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(USER_INFO_NAME_COLUMN, user.getName());
         values.put(USER_INFO_EMAIL_COLUMN, user.getEmail());
         values.put(USER_INFO_PASSWORD_COLUMN, user.getPassword());
-
+        values.put(USER_INFO_LAST_UPDATE_COLUMN, " time('now') ");
         // updating row
         db.update(USER_INFO_TABLE, values, USER_INFO_ID_COLUMN_PK + " = ?", new String[]{String.valueOf(user.getId())});
         db.close();
@@ -349,10 +386,26 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.putNull(TENANT_INFO_APARTMENT_ID_COLUMN_FK);
         values.put(TENANT_INFO_RENT_COST, 0);
         values.put(TENANT_INFO_DEPOSIT, 0);
-        values.put(TENANT_INFO_PAYMENT_DAY_COLUMN, tenant.getPaymentDay());
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        if (tenant.getPaymentDay() != null) {
+            String paymentDayString = formatter.format(tenant.getPaymentDay());
+            values.put(TENANT_INFO_PAYMENT_DAY_COLUMN, paymentDayString);
+        } else {
+            values.putNull(TENANT_INFO_PAYMENT_DAY_COLUMN);
+        }
         values.put(TENANT_INFO_NOTES_COLUMN, tenant.getNotes());
-        values.put(TENANT_INFO_LEASE_START_COLUMN, tenant.getLeaseStart());
-        values.put(TENANT_INFO_LEASE_END_COLUMN, tenant.getLeaseEnd());
+        if (tenant.getLeaseStart() != null) {
+            String leaseStartString = formatter.format(tenant.getLeaseStart());
+            values.put(TENANT_INFO_LEASE_START_COLUMN, leaseStartString);
+        } else {
+            values.putNull(TENANT_INFO_LEASE_START_COLUMN);
+        }
+        if (tenant.getLeaseEnd() != null) {
+            String leaseEndString = formatter.format(tenant.getLeaseEnd());
+            values.put(TENANT_INFO_LEASE_END_COLUMN, leaseEndString);
+        } else {
+            values.putNull(TENANT_INFO_LEASE_END_COLUMN);
+        }
         db.insert(TENANT_INFO_TABLE, null, values);
         db.close();
     }
@@ -378,19 +431,37 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(TENANT_INFO_RENT_COST, tenant.getRentCost());
         values.put(TENANT_INFO_DEPOSIT, tenant.getDeposit());
         values.put(TENANT_INFO_IS_PRIMARY_TENANT_COLUMN, tenant.getIsPrimary());
-        values.put(TENANT_INFO_PAYMENT_DAY_COLUMN, tenant.getPaymentDay());
-        values.put(TENANT_INFO_LEASE_START_COLUMN, tenant.getLeaseStart());
-        values.put(TENANT_INFO_LEASE_END_COLUMN, tenant.getLeaseEnd());
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        if (tenant.getPaymentDay() != null) {
+            String paymentDayString = formatter.format(tenant.getPaymentDay());
+            values.put(TENANT_INFO_PAYMENT_DAY_COLUMN, paymentDayString);
+        } else {
+            values.putNull(TENANT_INFO_PAYMENT_DAY_COLUMN);
+        }
+        if (tenant.getLeaseStart() != null) {
+            String leaseStartString = formatter.format(tenant.getLeaseStart());
+            values.put(TENANT_INFO_LEASE_START_COLUMN, leaseStartString);
+        } else {
+            values.putNull(TENANT_INFO_LEASE_START_COLUMN);
+        }
+        if (tenant.getLeaseEnd() != null) {
+            String leaseEndString = formatter.format(tenant.getLeaseEnd());
+            values.put(TENANT_INFO_LEASE_END_COLUMN, leaseEndString);
+        } else {
+            values.putNull(TENANT_INFO_LEASE_END_COLUMN);
+        }
+        values.put(TENANT_INFO_LAST_UPDATE_COLUMN, " time('now') ");
         // updating row
         db.update(TENANT_INFO_TABLE, values, TENANT_INFO_ID_COLUMN_PK + " = ?", new String[]{String.valueOf(tenant.getId())});
         db.close();
     }
 
-    public void setTenantInactive(Tenant tenant){
+    public void setTenantInactive(Tenant tenant) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
         values.put(TENANT_INFO_IS_ACTIVE_COLUMN, 0);
+        values.put(TENANT_INFO_LAST_UPDATE_COLUMN, " time('now') ");
         // updating row
         db.update(TENANT_INFO_TABLE, values, TENANT_INFO_ID_COLUMN_PK + " = ?", new String[]{String.valueOf(tenant.getId())});
         db.close();
@@ -419,6 +490,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(APARTMENT_PICS_APARTMENT_ID_COLUMN_FK, apartment.getId());
         values.put(APARTMENT_PICS_USER_ID_COLUMN_FK, user.getId());
         values.put(APARTMENT_PICS_PIC_COLUMN, otherPic);
+        values.put(APARTMENT_PICS_LAST_UPDATED_COLUMN, " time('now') ");
         db.insert(APARTMENT_PICS_TABLE, null, values);
         db.close();
     }
@@ -448,16 +520,18 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         } else {
             values.putNull(APARTMENT_INFO_MAIN_PIC_COLUMN);
         }
+        values.put(APARTMENT_INFO_LAST_UPDATE_COLUMN, " time('now') ");
         // updating row
         db.update(APARTMENT_INFO_TABLE, values, APARTMENT_INFO_ID_COLUMN_PK + " = ?", new String[]{String.valueOf(apartment.getId())});
         db.close();
     }
 
-    public void setApartmentInactive(Apartment apartment){
+    public void setApartmentInactive(Apartment apartment) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
         values.put(APARTMENT_INFO_IS_ACTIVE_COLUMN, 0);
+        values.put(APARTMENT_INFO_LAST_UPDATE_COLUMN, " time('now') ");
         // updating row
         db.update(APARTMENT_INFO_TABLE, values, APARTMENT_INFO_ID_COLUMN_PK + " = ?", new String[]{String.valueOf(apartment.getId())});
         db.close();
@@ -467,6 +541,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(APARTMENT_INFO_MAIN_PIC_COLUMN, apartment.getMainPic());
+        values.put(APARTMENT_INFO_LAST_UPDATE_COLUMN, " time('now') ");
         db.update(APARTMENT_INFO_TABLE, values, APARTMENT_INFO_ID_COLUMN_PK + " = ?", new String[]{String.valueOf(apartment.getId())});
         db.close();
     }
@@ -475,6 +550,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.putNull(APARTMENT_INFO_MAIN_PIC_COLUMN);
+        values.put(APARTMENT_INFO_LAST_UPDATE_COLUMN, " time('now') ");
         db.update(APARTMENT_INFO_TABLE, values, APARTMENT_INFO_ID_COLUMN_PK + " = ?", new String[]{String.valueOf(apartment.getId())});
         db.close();
     }
@@ -502,12 +578,69 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         SQLiteDatabase db = this.getReadableDatabase();
         values.put(PAYMENT_LOG_USER_ID_COLUMN_FK, userID);
-        values.put(PAYMENT_LOG_PAYMENT_DATE_COLUMN, ple.getPaymentDate());
-        values.put(PAYMENT_LOG_TYPE_ID_COLUMN_FK, ple.getTypeID()); //TODO
-        values.put(PAYMENT_LOG_TENANT_ID_COLUMN_FK, ple.getTenantID()); //TODO
-        values.put(PAYMENT_LOG_AMOUNT_COLUMN, ple.getAmount());
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        if (ple.getPaymentDate() != null) {
+            String paymentDayString = formatter.format(ple.getPaymentDate());
+            values.put(PAYMENT_LOG_PAYMENT_DATE_COLUMN, paymentDayString);
+        } else {
+            values.putNull(PAYMENT_LOG_PAYMENT_DATE_COLUMN);
+        }
+        values.put(PAYMENT_LOG_TYPE_ID_COLUMN_FK, ple.getTypeID());
+        // values.put(PAYMENT_LOG_TENANT_ID_COLUMN_FK, ple.getTenantID()); //TODO
+        values.put(PAYMENT_LOG_AMOUNT_COLUMN, ple.getAmount().toPlainString());
+        values.put(PAYMENT_LOG_DESCRIPTION_COLUMN, ple.getDescription());
         db.insert(PAYMENT_LOG_TABLE, null, values);
         db.close();
+    }
+
+    public void editPaymentLogEntry(PaymentLogEntry ple) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        if (ple.getPaymentDate() != null) {
+            String paymentDayString = formatter.format(ple.getPaymentDate());
+            values.put(PAYMENT_LOG_PAYMENT_DATE_COLUMN, paymentDayString);
+        } else {
+            values.putNull(PAYMENT_LOG_PAYMENT_DATE_COLUMN);
+        }
+        values.put(PAYMENT_LOG_AMOUNT_COLUMN, ple.getAmount().toPlainString());
+        values.put(PAYMENT_LOG_TYPE_ID_COLUMN_FK, ple.getTypeID());
+        values.put(PAYMENT_LOG_DESCRIPTION_COLUMN, ple.getDescription());
+        values.put(PAYMENT_LOG_LAST_UPDATE_COLUMN, " time('now') ");
+        // updating row
+        db.update(PAYMENT_LOG_TABLE, values, PAYMENT_LOG_ID_COLUMN_PK + " = ?", new String[]{String.valueOf(ple.getId())});
+        db.close();
+    }
+
+    public PaymentLogEntry getPaymentLogEntryByID(int id, User user) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String Query = "Select * from " + INCOME_VIEW + " WHERE " + INCOME_VIEW_INCOME_ID + " = " + id + " AND " +
+                INCOME_VIEW_USER_ID + " = " + user.getId() + " AND " +
+                INCOME_VIEW_IS_ACTIVE + " = 1 LIMIT 1";
+        Cursor cursor = db.rawQuery(Query, null);
+        PaymentLogEntry ple = null;
+        if (cursor.moveToFirst()) {
+            int pleID = cursor.getInt(cursor.getColumnIndex(INCOME_VIEW_INCOME_ID));
+            String incomeDateString = cursor.getString(cursor.getColumnIndex(INCOME_VIEW_INCOME_DATE));
+            Date incomeDate = null;
+            try {
+                incomeDate = new SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(incomeDateString);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            String amountString = cursor.getString(cursor.getColumnIndex(INCOME_VIEW_AMOUNT));
+            BigDecimal amount = new BigDecimal(amountString);
+            int tenantID = cursor.getInt(cursor.getColumnIndex(INCOME_VIEW_APARTMENT_ID));
+            String description = cursor.getString(cursor.getColumnIndex(INCOME_VIEW_DESCRIPTION));
+            int typeID = cursor.getInt(cursor.getColumnIndex(INCOME_VIEW_TYPE_ID));
+            String typeLabel = cursor.getString(cursor.getColumnIndex(INCOME_VIEW_TYPE_LABEL));
+            ple = new PaymentLogEntry(pleID, incomeDate, typeID, typeLabel, tenantID, amount, description);
+
+        }
+        cursor.close();
+        db.close();
+        return ple;
     }
 
     //TODO
@@ -516,14 +649,75 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         SQLiteDatabase db = this.getReadableDatabase();
         values.put(EXPENSE_LOG_USER_ID_COLUMN_FK, userID);
-        values.put(EXPENSE_LOG_EXPENSE_DATE_COLUMN, ele.getExpenseDate());
-        values.put(EXPENSE_LOG_AMOUNT_COLUMN, ele.getAmount());
-        values.put(EXPENSE_LOG_APARTMENT_ID_COLUMN_FK, ele.getApartmentID()); //TODO
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        if (ele.getExpenseDate() != null) {
+            String expenseDayString = formatter.format(ele.getExpenseDate());
+            values.put(EXPENSE_LOG_EXPENSE_DATE_COLUMN, expenseDayString);
+        } else {
+            values.putNull(EXPENSE_LOG_EXPENSE_DATE_COLUMN);
+        }
+        values.put(EXPENSE_LOG_AMOUNT_COLUMN, ele.getAmount().toPlainString());
+        values.putNull(EXPENSE_LOG_APARTMENT_ID_COLUMN_FK);
         values.put(EXPENSE_LOG_DESCRIPTION_COLUMN, ele.getDescription());
-        values.put(EXPENSE_LOG_TYPE_ID_COLUMN_FK, ele.getTypeID()); //TODO
-        values.put(EXPENSE_LOG_RECIPT_PIC, ele.getReceiptPic());
+        values.put(EXPENSE_LOG_TYPE_ID_COLUMN_FK, ele.getTypeID());
+        if (ele.getReceiptPic() != null) {
+            values.put(EXPENSE_LOG_RECEIPT_PIC, ele.getReceiptPic());
+        } else {
+            values.putNull(EXPENSE_LOG_RECEIPT_PIC);
+        }
+
         db.insert(EXPENSE_LOG_TABLE, null, values);
         db.close();
+    }
+
+    public void editExpenseLogEntry(ExpenseLogEntry ele) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        if (ele.getExpenseDate() != null) {
+            String expenseDayString = formatter.format(ele.getExpenseDate());
+            values.put(EXPENSE_LOG_EXPENSE_DATE_COLUMN, expenseDayString);
+        } else {
+            values.putNull(EXPENSE_LOG_EXPENSE_DATE_COLUMN);
+        }
+        values.put(EXPENSE_LOG_AMOUNT_COLUMN, ele.getAmount().toPlainString());
+        values.put(EXPENSE_LOG_TYPE_ID_COLUMN_FK, ele.getTypeID());
+        values.put(EXPENSE_LOG_DESCRIPTION_COLUMN, ele.getDescription());
+        values.put(EXPENSE_LOG_LAST_UPDATE_COLUMN, " time('now') ");
+        // updating row
+        db.update(EXPENSE_LOG_TABLE, values, EXPENSE_LOG_ID_COLUMN_PK + " = ?", new String[]{String.valueOf(ele.getId())});
+        db.close();
+    }
+
+    public ExpenseLogEntry getExpenseLogEntryByID(int id, User user) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String Query = "Select * from " + EXPENSES_VIEW + " WHERE " + EXPENSES_VIEW_EXPENSE_ID + " = " + id + " AND " +
+                EXPENSES_VIEW_USER_ID + " = " + user.getId() + " AND " +
+                EXPENSES_VIEW_IS_ACTIVE + " = 1 LIMIT 1";
+        Cursor cursor = db.rawQuery(Query, null);
+        ExpenseLogEntry ele = null;
+        if (cursor.moveToFirst()) {
+            int eleID = cursor.getInt(cursor.getColumnIndex(EXPENSES_VIEW_EXPENSE_ID));
+            String expenseDateString = cursor.getString(cursor.getColumnIndex(EXPENSES_VIEW_EXPENSE_DATE));
+            Date expenseDate = null;
+            try {
+                expenseDate = new SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(expenseDateString);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            String amountString = cursor.getString(cursor.getColumnIndex(EXPENSES_VIEW_AMOUNT));
+            BigDecimal amount = new BigDecimal(amountString);
+            int apartmentID = cursor.getInt(cursor.getColumnIndex(EXPENSES_VIEW_APARTMENT_ID));
+            String description = cursor.getString(cursor.getColumnIndex(EXPENSES_VIEW_DESCRIPTION));
+            int typeID = cursor.getInt(cursor.getColumnIndex(EXPENSES_VIEW_TYPE_ID));
+            String typeLabel = cursor.getString(cursor.getColumnIndex(EXPENSES_VIEW_TYPE_LABEL));
+            String receiptPic = cursor.getString(cursor.getColumnIndex(EXPENSES_VIEW_RECEIPT_PIC));
+            ele = new ExpenseLogEntry(eleID, expenseDate, amount, apartmentID, description, typeID, typeLabel, receiptPic);
+        }
+        cursor.close();
+        db.close();
+        return ele;
     }
 
     //TODO
@@ -532,20 +726,23 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         SQLiteDatabase db = this.getReadableDatabase();
         values.put(EVENT_LOG_USER_ID_COLUMN_FK, userID);
-        values.put(EVENT_LOG_EVENT_TIME_COLUMN, ele.getEventTime());
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        if (ele.getEventTime() != null) {
+            String eventTimeString = formatter.format(ele.getEventTime());
+            values.put(EVENT_LOG_EVENT_TIME_COLUMN, eventTimeString);
+        } else {
+            values.putNull(EVENT_LOG_EVENT_TIME_COLUMN);
+        }
         values.put(EVENT_LOG_TYPE_ID_COLUMN_FK, ele.getTypeID()); //TODO
         values.put(EVENT_LOG_DESCRIPTION_COLUMN, ele.getDescription());
         values.put(EVENT_LOG_APARTMENT_ID_COLUMN_FK, ele.getApartmentID()); //TODO
         values.put(EVENT_LOG_TENANT_ID_COLUMN_FK, ele.getTenantID()); //TODO
+        values.put(EVENT_LOG_LAST_UPDATE_COLUMN, " time('now') ");
         db.insert(EVENT_LOG_TABLE, null, values);
         db.close();
     }
 
     public void createNewLease(Apartment apartment, Tenant primaryTenant, ArrayList<Tenant> secondaryTenants) {
-        //SQLiteDatabase db = this.getReadableDatabase();
-        //storeApartmentLease(apartment);
-        //storeTenantLease(primaryTenant, apartment, db);
-        //storeSecondaryTenantLease();
         editTenant(primaryTenant);
         for (int i = 0; i < secondaryTenants.size(); i++) {
             editTenant(secondaryTenants.get(i));
@@ -576,10 +773,37 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 int rentCost = cursor.getInt(cursor.getColumnIndex(TENANT_INFO_RENT_COST));
                 int deposit = cursor.getInt(cursor.getColumnIndex(TENANT_INFO_DEPOSIT));
                 Boolean isPrimary = cursor.getInt(cursor.getColumnIndex(TENANT_INFO_IS_PRIMARY_TENANT_COLUMN)) > 0;
-                String paymentDay = cursor.getString(cursor.getColumnIndex(TENANT_INFO_PAYMENT_DAY_COLUMN));
+                String paymentDayString = cursor.getString(cursor.getColumnIndex(TENANT_INFO_PAYMENT_DAY_COLUMN));
+                Date paymentDay = null;
+                if (paymentDayString != null) {
+                    try {
+                        paymentDay = new SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(paymentDayString);
+
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                }
                 String notes = cursor.getString(cursor.getColumnIndex(TENANT_INFO_NOTES_COLUMN));
-                String leaseStart = cursor.getString(cursor.getColumnIndex(TENANT_INFO_LEASE_START_COLUMN));
-                String leaseEnd = cursor.getString(cursor.getColumnIndex(TENANT_INFO_LEASE_END_COLUMN));
+                String leaseStartString = cursor.getString(cursor.getColumnIndex(TENANT_INFO_LEASE_START_COLUMN));
+                Date leaseStart = null;
+                if (leaseStartString != null) {
+                    try {
+                        leaseStart = new SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(leaseStartString);
+
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                }
+                String leaseEndString = cursor.getString(cursor.getColumnIndex(TENANT_INFO_LEASE_END_COLUMN));
+                Date leaseEnd = null;
+                if (leaseEndString != null) {
+                    try {
+                        leaseEnd = new SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(leaseEndString);
+
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                }
                 tenants.add(new Tenant(id, firstName, lastName, phone, email, emergencyFirstName, emergencyLastName, emergencyPhone,
                         aptID, rentCost, deposit, isPrimary, paymentDay, notes, leaseStart, leaseEnd));
                 cursor.moveToNext();
@@ -633,11 +857,255 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
     }
 
+    public ArrayList<ExpenseLogEntry> getUsersExpenses(User user) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        ArrayList<ExpenseLogEntry> expenses = new ArrayList<>();
+        String Query = "Select * from " + EXPENSES_VIEW +
+                " WHERE " + EXPENSES_VIEW_USER_ID + " = " + user.getId() + " AND " + EXPENSES_VIEW_IS_ACTIVE + " = 1" +
+                " ORDER BY " + EXPENSES_VIEW_EXPENSE_DATE + " DESC ";
+        Cursor cursor = db.rawQuery(Query, null);
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
+                int id = cursor.getInt(cursor.getColumnIndex(EXPENSES_VIEW_EXPENSE_ID));
+                String expenseDateString = cursor.getString(cursor.getColumnIndex(EXPENSES_VIEW_EXPENSE_DATE));
+                Date expenseDate = null;
+                try {
+                    expenseDate = new SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(expenseDateString);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                String amountString = cursor.getString(cursor.getColumnIndex(EXPENSES_VIEW_AMOUNT));
+                BigDecimal amount = new BigDecimal(amountString);
+                int apartmentID = cursor.getInt(cursor.getColumnIndex(EXPENSES_VIEW_APARTMENT_ID));
+                String description = cursor.getString(cursor.getColumnIndex(EXPENSES_VIEW_DESCRIPTION));
+                int typeID = cursor.getInt(cursor.getColumnIndex(EXPENSES_VIEW_TYPE_ID));
+                String typeLabel = cursor.getString(cursor.getColumnIndex(EXPENSES_VIEW_TYPE_LABEL));
+                String receiptPic = cursor.getString(cursor.getColumnIndex(EXPENSES_VIEW_RECEIPT_PIC));
+                expenses.add(new ExpenseLogEntry(id, expenseDate, amount, apartmentID, description, typeID, typeLabel, receiptPic));
+                cursor.moveToNext();
+            }
+            cursor.close();
+            db.close();
+            return expenses;
+        }
+        cursor.close();
+        db.close();
+        return expenses;
+    }
+
+    public ArrayList<ExpenseLogEntry> getUsersExpensesWithinDates(User user, Date startDate, Date endDate) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        ArrayList<ExpenseLogEntry> expenses = new ArrayList<>();
+
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        String startDateString = formatter.format(startDate);
+        String endDateString = formatter.format(endDate);
+
+        String Query = "Select * from " + EXPENSES_VIEW +
+                " WHERE " +
+                EXPENSES_VIEW_USER_ID + " = " + user.getId() + " AND " +
+                EXPENSES_VIEW_IS_ACTIVE + " = 1" + " AND " + EXPENSES_VIEW_EXPENSE_DATE +
+                " BETWEEN '" + startDateString + "' AND '" + endDateString +
+                "' ORDER BY " + EXPENSES_VIEW_EXPENSE_DATE + " DESC ";
+        Cursor cursor = db.rawQuery(Query, null);
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
+                int id = cursor.getInt(cursor.getColumnIndex(EXPENSES_VIEW_EXPENSE_ID));
+                String expenseDateString = cursor.getString(cursor.getColumnIndex(EXPENSES_VIEW_EXPENSE_DATE));
+                Date expenseDate = null;
+                try {
+                    expenseDate = new SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(expenseDateString);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                String amountString = cursor.getString(cursor.getColumnIndex(EXPENSES_VIEW_AMOUNT));
+                BigDecimal amount = new BigDecimal(amountString);
+                int apartmentID = cursor.getInt(cursor.getColumnIndex(EXPENSES_VIEW_APARTMENT_ID));
+                String description = cursor.getString(cursor.getColumnIndex(EXPENSES_VIEW_DESCRIPTION));
+                int typeID = cursor.getInt(cursor.getColumnIndex(EXPENSES_VIEW_TYPE_ID));
+                String typeLabel = cursor.getString(cursor.getColumnIndex(EXPENSES_VIEW_TYPE_LABEL));
+                String receiptPic = cursor.getString(cursor.getColumnIndex(EXPENSES_VIEW_RECEIPT_PIC));
+                expenses.add(new ExpenseLogEntry(id, expenseDate, amount, apartmentID, description, typeID, typeLabel, receiptPic));
+                cursor.moveToNext();
+            }
+            cursor.close();
+            db.close();
+            return expenses;
+        }
+        cursor.close();
+        db.close();
+        return expenses;
+    }
+
+    public ArrayList<PaymentLogEntry> getUsersIncome(User user) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        ArrayList<PaymentLogEntry> income = new ArrayList<>();
+        String Query = "Select * from " + INCOME_VIEW +
+                " WHERE " + INCOME_VIEW_USER_ID + " = " + user.getId() + " AND " + INCOME_VIEW_IS_ACTIVE + " = 1" +
+                " ORDER BY " + INCOME_VIEW_INCOME_DATE + " DESC ";
+        Cursor cursor = db.rawQuery(Query, null);
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
+                int id = cursor.getInt(cursor.getColumnIndex(INCOME_VIEW_INCOME_ID));
+                String incomeDateString = cursor.getString(cursor.getColumnIndex(INCOME_VIEW_INCOME_DATE));
+                Date incomeDate = null;
+                try {
+                    incomeDate = new SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(incomeDateString);
+
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                String amountString = cursor.getString(cursor.getColumnIndex(INCOME_VIEW_AMOUNT));
+                BigDecimal amount = new BigDecimal(amountString);
+                int apartmentID = cursor.getInt(cursor.getColumnIndex(INCOME_VIEW_APARTMENT_ID));
+                int tenantID = cursor.getInt(cursor.getColumnIndex(INCOME_VIEW_TENANT_ID));
+                String description = cursor.getString(cursor.getColumnIndex(INCOME_VIEW_DESCRIPTION));
+                int typeID = cursor.getInt(cursor.getColumnIndex(INCOME_VIEW_TYPE_ID));
+                String typeLabel = cursor.getString(cursor.getColumnIndex(INCOME_VIEW_TYPE_LABEL));
+                income.add(new PaymentLogEntry(id, incomeDate, typeID, typeLabel, tenantID, amount, description));
+                cursor.moveToNext();
+            }
+            cursor.close();
+            db.close();
+            return income;
+        }
+        cursor.close();
+        db.close();
+        return income;
+    }
+
+    public ArrayList<PaymentLogEntry> getUsersIncomeWithinDates(User user, Date startDate, Date endDate) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        ArrayList<PaymentLogEntry> income = new ArrayList<>();
+
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        String startDateString = formatter.format(startDate);
+        String endDateString = formatter.format(endDate);
+
+        String Query = "Select * from " + INCOME_VIEW +
+                " WHERE " +
+                INCOME_VIEW_USER_ID + " = " + user.getId() + " AND " +
+                INCOME_VIEW_IS_ACTIVE + " = 1" + " AND " + INCOME_VIEW_INCOME_DATE +
+                " BETWEEN '" + startDateString + "' AND '" + endDateString +
+                "' ORDER BY " + INCOME_VIEW_INCOME_DATE + " DESC ";
+        Cursor cursor = db.rawQuery(Query, null);
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
+                int id = cursor.getInt(cursor.getColumnIndex(INCOME_VIEW_INCOME_ID));
+                String incomeDateString = cursor.getString(cursor.getColumnIndex(INCOME_VIEW_INCOME_DATE));
+                Date incomeDate = null;
+                try {
+                    incomeDate = new SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(incomeDateString);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                String amountString = cursor.getString(cursor.getColumnIndex(INCOME_VIEW_AMOUNT));
+                BigDecimal amount = new BigDecimal(amountString);
+                int tenantID = cursor.getInt(cursor.getColumnIndex(INCOME_VIEW_APARTMENT_ID));
+                String description = cursor.getString(cursor.getColumnIndex(INCOME_VIEW_DESCRIPTION));
+                int typeID = cursor.getInt(cursor.getColumnIndex(INCOME_VIEW_TYPE_ID));
+                String typeLabel = cursor.getString(cursor.getColumnIndex(INCOME_VIEW_TYPE_LABEL));
+                income.add(new PaymentLogEntry(id, incomeDate, typeID, typeLabel, tenantID, amount, description));
+                cursor.moveToNext();
+            }
+            cursor.close();
+            db.close();
+            return income;
+        }
+        cursor.close();
+        db.close();
+        return income;
+    }
+
+    public void addNewIncomeType(String label) {
+        ContentValues values = new ContentValues();
+        SQLiteDatabase db = this.getReadableDatabase();
+        values.put(TYPE_LOOKUP_TYPE_ID_COLUMN_FK, 1);
+        values.put(TYPE_LOOKUP_LABEL_COLUMN, label);
+        db.insert(TYPE_LOOKUP_TABLE, null, values);
+        db.close();
+    }
+
+    public void addNewExpenseType(String label) {
+        ContentValues values = new ContentValues();
+        SQLiteDatabase db = this.getReadableDatabase();
+        values.put(TYPE_LOOKUP_TYPE_ID_COLUMN_FK, 2);
+        values.put(TYPE_LOOKUP_LABEL_COLUMN, label);
+        db.insert(TYPE_LOOKUP_TABLE, null, values);
+        db.close();
+    }
+
+    public void addNewEventType(String label) {
+        ContentValues values = new ContentValues();
+        SQLiteDatabase db = this.getReadableDatabase();
+        values.put(TYPE_LOOKUP_TYPE_ID_COLUMN_FK, 3);
+        values.put(TYPE_LOOKUP_LABEL_COLUMN, label);
+        db.insert(TYPE_LOOKUP_TABLE, null, values);
+        db.close();
+    }
+
+    public TreeMap<String, Integer> getIncomeTypeLabels() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        TreeMap<String, Integer> incomeTypeLabels = new TreeMap<>();
+        String Query = "Select * from " + TYPE_LOOKUP_TABLE +
+                " WHERE " + TYPE_LOOKUP_TYPE_ID_COLUMN_FK + " = " + 1 + " AND " + TYPE_LOOKUP_IS_ACTIVE_COLUMN + " = 1";
+        Cursor cursor = db.rawQuery(Query, null);
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
+                String label = cursor.getString(cursor.getColumnIndex(TYPE_LOOKUP_LABEL_COLUMN));
+                int id = cursor.getInt(cursor.getColumnIndex(TYPE_LOOKUP_ID_COLUMN_PK));
+                incomeTypeLabels.put(label, id);
+                cursor.moveToNext();
+            }
+        }
+        db.close();
+        return incomeTypeLabels;
+    }
+
+    public TreeMap<String, Integer> getExpenseTypeLabels() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        TreeMap<String, Integer> expenseTypeLabels = new TreeMap<>();
+        String Query = "Select * from " + TYPE_LOOKUP_TABLE +
+                " WHERE " + TYPE_LOOKUP_TYPE_ID_COLUMN_FK + " = " + 2 + " AND " + TYPE_LOOKUP_IS_ACTIVE_COLUMN + " = 1";
+        Cursor cursor = db.rawQuery(Query, null);
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
+                String label = cursor.getString(cursor.getColumnIndex(TYPE_LOOKUP_LABEL_COLUMN));
+                int id = cursor.getInt(cursor.getColumnIndex(TYPE_LOOKUP_ID_COLUMN_PK));
+                expenseTypeLabels.put(label, id);
+                cursor.moveToNext();
+            }
+        }
+        db.close();
+        return expenseTypeLabels;
+    }
+
+    public TreeMap<String, Integer> getEventTypeLabels() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        TreeMap<String, Integer> eventTypeLabels = new TreeMap<>();
+        String Query = "Select * from " + TYPE_LOOKUP_TABLE +
+                " WHERE " + TYPE_LOOKUP_TYPE_ID_COLUMN_FK + " = " + 3 + " AND " + TYPE_LOOKUP_IS_ACTIVE_COLUMN + " = 1";
+        Cursor cursor = db.rawQuery(Query, null);
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
+                String label = cursor.getString(cursor.getColumnIndex(TYPE_LOOKUP_LABEL_COLUMN));
+                int id = cursor.getInt(cursor.getColumnIndex(TYPE_LOOKUP_ID_COLUMN_PK));
+                eventTypeLabels.put(label, id);
+                cursor.moveToNext();
+            }
+        }
+        cursor.close();
+        db.close();
+        return eventTypeLabels;
+    }
+
     //Change users profile pic string
+
     public void changeProfilePic(User user, String pic) {
         SQLiteDatabase db = this.getReadableDatabase();
         ContentValues values = new ContentValues();
         values.put(USER_INFO_PROFILE_PIC, pic);
+        values.put(USER_INFO_LAST_UPDATE_COLUMN, " time('now') ");
         db.update(USER_INFO_TABLE, values, USER_INFO_ID_COLUMN_PK + " = ?", new String[]{String.valueOf(user.getId())});
         db.close();
     }
@@ -655,8 +1123,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         createExpenseLogTable(db);
         createPaymentLogTable(db);
         populateStateTable(db);
+        populateTypesTable(db);
+        populateTypeLookupTable(db);
         createApartmentView(db);
         //createTenantView(db);
+        createExpenseView(db);
+        createIncomeView(db);
     }
 
     @Override
@@ -746,8 +1218,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 PAYMENT_LOG_ID_COLUMN_PK + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 PAYMENT_LOG_USER_ID_COLUMN_FK + " INTEGER REFERENCES " + USER_INFO_TABLE + "(" + USER_INFO_ID_COLUMN_PK + "), " +
                 PAYMENT_LOG_PAYMENT_DATE_COLUMN + " DATETIME, " +
-                PAYMENT_LOG_TYPE_ID_COLUMN_FK + " INTEGER REFERENCES " + TYPES_TABLE + "(" + TYPES_ID_COLUMN_PK + "), " +
+                PAYMENT_LOG_TYPE_ID_COLUMN_FK + " INTEGER REFERENCES " + TYPE_LOOKUP_TABLE + "(" + TYPE_LOOKUP_ID_COLUMN_PK + "), " +
+                PAYMENT_LOG_APARTMENT_ID_COLUMN_FK + " INTEGER REFERENCES " + APARTMENT_INFO_TABLE + "(" + APARTMENT_INFO_ID_COLUMN_PK + "), " +
                 PAYMENT_LOG_TENANT_ID_COLUMN_FK + " INTEGER REFERENCES " + TENANT_INFO_TABLE + "(" + TENANT_INFO_ID_COLUMN_PK + "), " +
+                PAYMENT_LOG_DESCRIPTION_COLUMN + " VARCHAR(150), " +
                 PAYMENT_LOG_AMOUNT_COLUMN + " INTEGER, " +
                 PAYMENT_LOG_DATE_CREATED_COLUMN + " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
                 PAYMENT_LOG_LAST_UPDATE_COLUMN + " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
@@ -764,8 +1238,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 EXPENSE_LOG_AMOUNT_COLUMN + " INTEGER, " +
                 EXPENSE_LOG_APARTMENT_ID_COLUMN_FK + " INTEGER REFERENCES " + APARTMENT_INFO_TABLE + "(" + APARTMENT_INFO_ID_COLUMN_PK + "), " +
                 EXPENSE_LOG_DESCRIPTION_COLUMN + " VARCHAR(150), " +
-                EXPENSE_LOG_TYPE_ID_COLUMN_FK + " INTEGER REFERENCES " + TYPES_TABLE + "(" + TYPES_ID_COLUMN_PK + "), " +
-                EXPENSE_LOG_RECIPT_PIC + " BLOB, " +
+                EXPENSE_LOG_TYPE_ID_COLUMN_FK + " INTEGER REFERENCES " + TYPE_LOOKUP_TABLE + "(" + TYPE_LOOKUP_ID_COLUMN_PK + "), " +
+                EXPENSE_LOG_RECEIPT_PIC + "  VARCHAR(50), " +
                 EXPENSE_LOG_DATE_CREATED_COLUMN + " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
                 EXPENSE_LOG_LAST_UPDATE_COLUMN + " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
                 EXPENSE_LOG_IS_ACTIVE_COLUMN + " BOOLEAN NOT NULL DEFAULT 1 " +
@@ -778,7 +1252,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 EVENT_LOG_ID_COLUMN_PK + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 EVENT_LOG_USER_ID_COLUMN_FK + " INTEGER REFERENCES " + USER_INFO_TABLE + "(" + USER_INFO_ID_COLUMN_PK + "), " +
                 EVENT_LOG_EVENT_TIME_COLUMN + " DATETIME, " +
-                EVENT_LOG_TYPE_ID_COLUMN_FK + " INTEGER REFERENCES " + TYPES_TABLE + "(" + TYPES_ID_COLUMN_PK + "), " +
+                EVENT_LOG_TYPE_ID_COLUMN_FK + " INTEGER REFERENCES " + TYPE_LOOKUP_TABLE + "(" + TYPE_LOOKUP_ID_COLUMN_PK + "), " +
                 EVENT_LOG_DESCRIPTION_COLUMN + " VARCHAR(150), " +
                 EVENT_LOG_APARTMENT_ID_COLUMN_FK + " INTEGER REFERENCES " + APARTMENT_INFO_TABLE + "(" + APARTMENT_INFO_ID_COLUMN_PK + "), " +
                 EVENT_LOG_TENANT_ID_COLUMN_FK + " INTEGER REFERENCES " + TENANT_INFO_TABLE + "(" + TENANT_INFO_ID_COLUMN_PK + "), " +
@@ -846,6 +1320,41 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.execSQL(insert);
     }
 
+    private void populateTypesTable(SQLiteDatabase db) {
+        ContentValues cv;
+        String[] typesArray = context.getResources().getStringArray(R.array.DBTypes_array);
+        for (String i : typesArray) {
+            cv = new ContentValues();
+            cv.put(TYPES_TYPE_COLUMN, i);
+            db.insert(TYPES_TABLE, null, cv);
+        }
+    }
+
+    private void populateTypeLookupTable(SQLiteDatabase db) {
+        ContentValues cv;
+        String[] incomeTypeLabels = context.getResources().getStringArray(R.array.DBIncomeLookupTypes_array);
+        String[] expenseTypeLabels = context.getResources().getStringArray(R.array.DBExpenseLookupTypes_array);
+        String[] eventTypeLabels = context.getResources().getStringArray(R.array.DBEventLookupTypes_array);
+        for (String i : incomeTypeLabels) {
+            cv = new ContentValues();
+            cv.put(TYPE_LOOKUP_LABEL_COLUMN, i);
+            cv.put(TYPE_LOOKUP_TYPE_ID_COLUMN_FK, 1);
+            db.insert(TYPE_LOOKUP_TABLE, null, cv);
+        }
+        for (String i : expenseTypeLabels) {
+            cv = new ContentValues();
+            cv.put(TYPE_LOOKUP_LABEL_COLUMN, i);
+            cv.put(TYPE_LOOKUP_TYPE_ID_COLUMN_FK, 2);
+            db.insert(TYPE_LOOKUP_TABLE, null, cv);
+        }
+        for (String i : eventTypeLabels) {
+            cv = new ContentValues();
+            cv.put(TYPE_LOOKUP_LABEL_COLUMN, i);
+            cv.put(TYPE_LOOKUP_TYPE_ID_COLUMN_FK, 3);
+            db.insert(TYPE_LOOKUP_TABLE, null, cv);
+        }
+    }
+
     private void createApartmentView(SQLiteDatabase db) {
         String insert = "CREATE VIEW IF NOT EXISTS " + APARTMENTS_VIEW + " AS" +
                 " SELECT " +
@@ -887,7 +1396,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 TENANT_INFO_TABLE + "." + TENANT_INFO_LAST_NAME_COLUMN + " AS " + TENANTS_VIEW_LAST_NAME + ", " +
                 TENANT_INFO_TABLE + "." + TENANT_INFO_PHONE_COLUMN + " AS " + TENANTS_VIEW_PHONE + ", " +
                 TENANT_INFO_TABLE + "." + TENANT_INFO_APARTMENT_ID_COLUMN_FK + " AS " + TENANTS_VIEW_RENTED_APARTMENT_ID + ", " +
-                TENANT_INFO_TABLE + "." + TENANT_INFO_PAYMENT_DAY_COLUMN + " AS " + TENANTS_VIEW_PAYMENT_DAY_ + ", " +
+                TENANT_INFO_TABLE + "." + TENANT_INFO_PAYMENT_DAY_COLUMN + " AS " + TENANTS_VIEW_PAYMENT_DAY + ", " +
                 TENANT_INFO_TABLE + "." + TENANT_INFO_NOTES_COLUMN + " AS " + TENANTS_VIEW_NOTES + ", " +
                 TENANT_INFO_TABLE + "." + TENANT_INFO_LEASE_START_COLUMN + " AS " + TENANTS_VIEW_LEASE_START + ", " +
                 TENANT_INFO_TABLE + "." + TENANT_INFO_LEASE_END_COLUMN + " AS " + TENANTS_VIEW_LEASE_END + ", " +
@@ -900,16 +1409,51 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.execSQL(insert);
     }
 
-    public void addTestData(User user) {
-        //Temporary method
-        //Apartment apartment1 = new Apartment(0, "2390 Burlington Rd", "", "Letts", 1, "IA", "52754", "", "", "", new ArrayList<String>());
-        //Apartment apartment2 = new Apartment(1, "2495 McNair Farms Dr", "Apt 555", "Herndon", 2, "VA", "78978", "", "", "", new ArrayList<String>());
-        //Tenant tenant1 = new Tenant(0, "Cody", "Halstead", "563-299-9577", 1, false, "", "", "", "");
-        //Tenant tenant2 = new Tenant(1, "Monet", "Tomioka", "345-554-2323", 2, true, "", "", "", "");
+    private void createExpenseView(SQLiteDatabase db) {
+        String insert = "CREATE VIEW IF NOT EXISTS " + EXPENSES_VIEW + " AS" +
+                " SELECT " +
+                EXPENSE_LOG_TABLE + "." + EXPENSE_LOG_ID_COLUMN_PK + " AS " + EXPENSES_VIEW_EXPENSE_ID + ", " +
+                EXPENSE_LOG_TABLE + "." + EXPENSE_LOG_USER_ID_COLUMN_FK + " AS " + EXPENSES_VIEW_USER_ID + ", " +
+                EXPENSE_LOG_TABLE + "." + EXPENSE_LOG_APARTMENT_ID_COLUMN_FK + " AS " + EXPENSES_VIEW_APARTMENT_ID + ", " +
+                EXPENSE_LOG_TABLE + "." + EXPENSE_LOG_EXPENSE_DATE_COLUMN + " AS " + EXPENSES_VIEW_EXPENSE_DATE + ", " +
+                EXPENSE_LOG_TABLE + "." + EXPENSE_LOG_AMOUNT_COLUMN + " AS " + EXPENSES_VIEW_AMOUNT + ", " +
+                EXPENSE_LOG_TABLE + "." + EXPENSE_LOG_DESCRIPTION_COLUMN + " AS " + EXPENSES_VIEW_DESCRIPTION + ", " +
+                EXPENSE_LOG_TABLE + "." + EXPENSE_LOG_TYPE_ID_COLUMN_FK + " AS " + EXPENSES_VIEW_TYPE_ID + ", " +
+                TYPE_LOOKUP_TABLE + "." + TYPE_LOOKUP_LABEL_COLUMN + " AS " + EXPENSES_VIEW_TYPE_LABEL + ", " +
+                TYPES_TABLE + "." + TYPES_TYPE_COLUMN + " AS " + EXPENSES_VIEW_TYPE + ", " +
+                EXPENSE_LOG_TABLE + "." + EXPENSE_LOG_RECEIPT_PIC + " AS " + EXPENSES_VIEW_RECEIPT_PIC + ", " +
+                EXPENSE_LOG_TABLE + "." + EXPENSE_LOG_DATE_CREATED_COLUMN + " AS " + EXPENSES_VIEW_DATE_CREATED + ", " +
+                EXPENSE_LOG_TABLE + "." + EXPENSE_LOG_LAST_UPDATE_COLUMN + " AS " + EXPENSES_VIEW_LAST_UPDATE + ", " +
+                EXPENSE_LOG_TABLE + "." + EXPENSE_LOG_IS_ACTIVE_COLUMN + " AS " + EXPENSES_VIEW_IS_ACTIVE + " " +
+                "FROM " +
+                EXPENSE_LOG_TABLE +
+                " LEFT JOIN " + TYPE_LOOKUP_TABLE + " ON " + TYPE_LOOKUP_TABLE + "." + TYPE_LOOKUP_ID_COLUMN_PK + " = " + EXPENSE_LOG_TABLE + "." + EXPENSE_LOG_TYPE_ID_COLUMN_FK +
+                " LEFT JOIN " + TYPES_TABLE + " ON " + TYPES_TABLE + "." + TYPES_ID_COLUMN_PK + " = " + TYPE_LOOKUP_TABLE + "." + TYPE_LOOKUP_TYPE_ID_COLUMN_FK +
+                ";";
+        db.execSQL(insert);
+    }
 
-        //this.addNewApartment(apartment1, user.getId());
-        //this.addNewApartment(apartment2, user.getId());
-        //this.addNewTenant(tenant1, user.getId());
-        //this.addNewTenant(tenant2, user.getId());
+    private void createIncomeView(SQLiteDatabase db) {
+        String insert = "CREATE VIEW IF NOT EXISTS " + INCOME_VIEW + " AS" +
+                " SELECT " +
+                PAYMENT_LOG_TABLE + "." + PAYMENT_LOG_ID_COLUMN_PK + " AS " + INCOME_VIEW_INCOME_ID + ", " +
+                PAYMENT_LOG_TABLE + "." + PAYMENT_LOG_USER_ID_COLUMN_FK + " AS " + INCOME_VIEW_USER_ID + ", " +
+                PAYMENT_LOG_TABLE + "." + PAYMENT_LOG_APARTMENT_ID_COLUMN_FK + " AS " + INCOME_VIEW_APARTMENT_ID + ", " +
+                PAYMENT_LOG_TABLE + "." + PAYMENT_LOG_TENANT_ID_COLUMN_FK + " AS " + INCOME_VIEW_TENANT_ID + ", " +
+                PAYMENT_LOG_TABLE + "." + PAYMENT_LOG_PAYMENT_DATE_COLUMN + " AS " + INCOME_VIEW_INCOME_DATE + ", " +
+                PAYMENT_LOG_TABLE + "." + PAYMENT_LOG_AMOUNT_COLUMN + " AS " + INCOME_VIEW_AMOUNT + ", " +
+                PAYMENT_LOG_TABLE + "." + PAYMENT_LOG_DESCRIPTION_COLUMN + " AS " + INCOME_VIEW_DESCRIPTION + ", " +
+                PAYMENT_LOG_TABLE + "." + PAYMENT_LOG_TYPE_ID_COLUMN_FK + " AS " + INCOME_VIEW_TYPE_ID + ", " +
+                TYPE_LOOKUP_TABLE + "." + TYPE_LOOKUP_LABEL_COLUMN + " AS " + INCOME_VIEW_TYPE_LABEL + ", " +
+                TYPES_TABLE + "." + TYPES_TYPE_COLUMN + " AS " + INCOME_VIEW_TYPE + ", " +
+                PAYMENT_LOG_TABLE + "." + PAYMENT_LOG_DATE_CREATED_COLUMN + " AS " + INCOME_VIEW_DATE_CREATED + ", " +
+                PAYMENT_LOG_TABLE + "." + PAYMENT_LOG_LAST_UPDATE_COLUMN + " AS " + INCOME_VIEW_LAST_UPDATE + ", " +
+                PAYMENT_LOG_TABLE + "." + PAYMENT_LOG_IS_ACTIVE_COLUMN + " AS " + INCOME_VIEW_IS_ACTIVE + " " +
+                "FROM " +
+                PAYMENT_LOG_TABLE +
+                " LEFT JOIN " + TYPE_LOOKUP_TABLE + " ON " + TYPE_LOOKUP_TABLE + "." + TYPE_LOOKUP_ID_COLUMN_PK + " = " + PAYMENT_LOG_TABLE + "." + PAYMENT_LOG_TYPE_ID_COLUMN_FK +
+                " LEFT JOIN " + TYPES_TABLE + " ON " + TYPES_TABLE + "." + TYPES_ID_COLUMN_PK + " = " + TYPE_LOOKUP_TABLE + "." + TYPE_LOOKUP_TYPE_ID_COLUMN_FK +
+                ";";
+        db.execSQL(insert);
     }
 }

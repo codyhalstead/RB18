@@ -73,7 +73,7 @@ public class NewLeaseFormActivity extends BaseActivity implements View.OnClickLi
             }
             if (savedInstanceState.getString("leaseStartDate") != null) {
                 SimpleDateFormat formatTo = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-                DateFormat formatFrom = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy", Locale.US);
+                DateFormat formatFrom = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
                 try {
                     Date startDate = formatFrom.parse(savedInstanceState.getString("leaseStartDate"));
                     leaseStartDate = startDate;
@@ -84,7 +84,7 @@ public class NewLeaseFormActivity extends BaseActivity implements View.OnClickLi
             }
             if (savedInstanceState.getString("leaseEndDate") != null) {
                 SimpleDateFormat formatTo = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-                DateFormat formatFrom = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy", Locale.US);
+                DateFormat formatFrom = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
                 try {
                     Date endDate = formatFrom.parse(savedInstanceState.getString("leaseEndDate"));
                     leaseEndDate = endDate;
@@ -194,7 +194,9 @@ public class NewLeaseFormActivity extends BaseActivity implements View.OnClickLi
                 cal.set(Calendar.MINUTE, 0);
                 cal.set(Calendar.SECOND, 0);
                 cal.set(Calendar.MILLISECOND, 0);
+
                 leaseStartDate = cal.getTime();
+
                 SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
                 changeLeaseStartTV.setText(formatter.format(leaseStartDate));
             }
@@ -211,7 +213,9 @@ public class NewLeaseFormActivity extends BaseActivity implements View.OnClickLi
                 cal.set(Calendar.MINUTE, 0);
                 cal.set(Calendar.SECOND, 0);
                 cal.set(Calendar.MILLISECOND, 0);
+
                 leaseEndDate = cal.getTime();
+
                 SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
                 changeLeaseEndTV.setText(formatter.format(leaseEndDate));
             }
@@ -312,13 +316,13 @@ public class NewLeaseFormActivity extends BaseActivity implements View.OnClickLi
                     if(validation.isFirstDateBeforeSecondDate(leaseStartDate, leaseEndDate, changeLeaseStartTV, "Lease start should be before end")) {
                         primaryTenant.setApartmentID(apartment.getId());
                         primaryTenant.setIsPrimary(true);
-                        primaryTenant.setLeaseStart(leaseStartDate.toString());
-                        primaryTenant.setLeaseEnd(leaseEndDate.toString());
+                        primaryTenant.setLeaseStart(leaseStartDate);
+                        primaryTenant.setLeaseEnd(leaseEndDate);
                         //primaryTenant.setPaymentDay();
                         for (int i = 0; i < secondaryTenants.size(); i++) {
                             secondaryTenants.get(i).setApartmentID(apartment.getId());
-                            secondaryTenants.get(i).setLeaseStart(leaseStartDate.toString());
-                            secondaryTenants.get(i).setLeaseEnd(leaseEndDate.toString());
+                            secondaryTenants.get(i).setLeaseStart(leaseStartDate);
+                            secondaryTenants.get(i).setLeaseEnd(leaseEndDate);
                         }
                         db.createNewLease(apartment, primaryTenant, secondaryTenants);
                         Intent data = new Intent();
@@ -405,6 +409,8 @@ public class NewLeaseFormActivity extends BaseActivity implements View.OnClickLi
                 availableApartments.add(MainActivity.apartmentList.get(i));
             }
         }
+        this.leaseStartDate = primaryTenant.getLeaseStart();
+        this.leaseEndDate = primaryTenant.getLeaseEnd();
     }
 
     public void setUpForNewLeaseWithPassedSecondaryTenant(Tenant passedTenant) {
@@ -468,6 +474,8 @@ public class NewLeaseFormActivity extends BaseActivity implements View.OnClickLi
                 availableApartments.add(MainActivity.apartmentList.get(i));
             }
         }
+        this.leaseStartDate = primaryTenant.getLeaseStart();
+        this.leaseEndDate = primaryTenant.getLeaseEnd();
     }
 
     private void setUpForNewLeaseWithPassedApartment(Apartment passedApartment) {
@@ -515,27 +523,13 @@ public class NewLeaseFormActivity extends BaseActivity implements View.OnClickLi
     }
 
     public void setLeaseStartTextView(Tenant tenant) {
-        SimpleDateFormat formatTo = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-        DateFormat formatFrom = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy", Locale.US);
-        try {
-            Date startDate = formatFrom.parse(tenant.getLeaseStart());
-            leaseStartDate = startDate;
-            changeLeaseStartTV.setText(formatTo.format(startDate));
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+        SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+        changeLeaseStartTV.setText(formatter.format(tenant.getLeaseStart()));
     }
 
     public void setLeaseEndTextView(Tenant tenant) {
-        SimpleDateFormat formatTo = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-        DateFormat formatFrom = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy", Locale.US);
-        try {
-            Date endDate = formatFrom.parse(tenant.getLeaseEnd());
-            leaseEndDate = endDate;
-            changeLeaseEndTV.setText(formatTo.format(endDate));
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+        SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+        changeLeaseEndTV.setText(formatter.format(tenant.getLeaseEnd()));
     }
 
     @Override
@@ -551,11 +545,12 @@ public class NewLeaseFormActivity extends BaseActivity implements View.OnClickLi
         if (secondaryTenants != null) {
             outState.putParcelableArrayList("secondaryTenants", secondaryTenants);
         }
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
         if (leaseStartDate != null) {
-            outState.putString("leaseStartDate", leaseStartDate.toString());
+            outState.putString("leaseStartDate", formatter.format(leaseStartDate));
         }
         if (leaseEndDate != null) {
-            outState.putString("leaseEndDate", leaseEndDate.toString());
+            outState.putString("leaseEndDate", formatter.format(leaseEndDate));
         }
         if (availableTenants != null) {
             outState.putParcelableArrayList("availableTenants", availableTenants);

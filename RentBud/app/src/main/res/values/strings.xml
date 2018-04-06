@@ -25,6 +25,28 @@
     <string name="field_required">Field required</string>
     <string name="please_use_10_digit_phone">Please use a 10 digit phone number</string>
 
+    <string-array name="DBTypes_array">
+        <item>Income</item>
+        <item>Expense</item>
+        <item>Event</item>
+    </string-array>
+
+    <string-array name="DBIncomeLookupTypes_array">
+        <item>Rent</item>
+        <item>Late Fee</item>
+    </string-array>
+
+    <string-array name="DBExpenseLookupTypes_array">
+        <item>Utility</item>
+        <item>Renovation</item>
+        <item>Repairs</item>
+    </string-array>
+
+    <string-array name="DBEventLookupTypes_array">
+        <item>Lease Started</item>
+        <item>Lease Ended</item>
+    </string-array>
+
     <string-array name="date_array">
         <item>1</item>
         <item>2</item>

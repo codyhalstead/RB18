@@ -22,6 +22,7 @@ import com.rentbud.model.User;
 import com.rentbud.sqlite.DatabaseHandler;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * Created by Cody on 2/9/2018.
@@ -86,9 +87,9 @@ public class NewTenantFormActivity extends BaseActivity {
                 String emergencyLastName = emergencyLastNameET.getText().toString().trim();
                 String emergencyPhone = emergencyPhoneET.getText().toString().trim();
                 String notes = notesET.getText().toString().trim();
-                String leaseStart = " ";
-                String leaseEnd = " ";
-                String paymentDate = " ";
+                Date leaseStart = null;
+                Date leaseEnd = null;
+                Date paymentDate = null;
                 int apartmentID = 0;
                 Boolean isPrimary = false;
                 if (tenantToEdit != null) {
@@ -104,7 +105,7 @@ public class NewTenantFormActivity extends BaseActivity {
                 //Set result success, close this activity
                 if (!isEdit) {
                     databaseHandler.addNewTenant(tenant, MainActivity.user.getId());
-                    dataMethods.sortMainTenantArray();
+                    MainActivity.tenantList = databaseHandler.getUsersTenants(MainActivity.user);
                     setResult(RESULT_OK);
                     finish();
                 } else {

@@ -415,16 +415,11 @@ public class ApartmentViewActivity extends BaseActivity {
             leaseHyphenTV.setText(" - ");
             primaryTenantFirstNameTV.setText(primaryTenant.getFirstName());
             primaryTenantLastNAmeTV.setText(primaryTenant.getLastName());
-            SimpleDateFormat formatTo = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-            DateFormat formatFrom = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy", Locale.US);
-            try {
-                Date startDate = formatFrom.parse(primaryTenant.getLeaseStart());
-                Date endDate = formatFrom.parse(primaryTenant.getLeaseEnd());
-                leaseStartTV.setText(formatTo.format(startDate));
-                leaseEndTV.setText(formatTo.format(endDate));
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
+
+            SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+            leaseStartTV.setText(formatter.format(primaryTenant.getLeaseStart()));
+            leaseEndTV.setText(formatter.format(primaryTenant.getLeaseEnd()));
+
             if (!secondaryTenants.isEmpty()) {
                 secondaryTenantsLL.setVisibility(View.VISIBLE);
                 secondaryTenantsTV.setText("");
@@ -483,13 +478,13 @@ public class ApartmentViewActivity extends BaseActivity {
                 databaseHandler.setApartmentInactive(apartment);
                 if (apartment.isRented()) {
                     primaryTenant.setApartmentID(0);
-                    primaryTenant.setLeaseStart("");
-                    primaryTenant.setLeaseEnd("");
+                    primaryTenant.setLeaseStart(null);
+                    primaryTenant.setLeaseEnd(null);
                     databaseHandler.editTenant(primaryTenant);
                     for (int x = 0; x < secondaryTenants.size(); x++) {
                         secondaryTenants.get(x).setApartmentID(0);
-                        secondaryTenants.get(x).setLeaseStart("");
-                        secondaryTenants.get(x).setLeaseEnd("");
+                        secondaryTenants.get(x).setLeaseStart(null);
+                        secondaryTenants.get(x).setLeaseEnd(null);
                         databaseHandler.editTenant(secondaryTenants.get(x));
                     }
                     apartment.setRented(false);

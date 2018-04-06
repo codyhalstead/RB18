@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import com.example.cody.rentbud.R;
 import com.rentbud.activities.MainActivity;
+import com.rentbud.model.ExpenseLogEntry;
 import com.rentbud.model.Tenant;
 
 import java.text.DateFormat;
@@ -109,20 +110,12 @@ public class TenantListAdapter extends BaseAdapter implements Filterable {
                 viewHolder.leaseEndsTextDisplayTV.setText("");
                 viewHolder.isPrimaryTV.setText("");
             } else {
-                SimpleDateFormat formatTo = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-                DateFormat formatFrom = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy", Locale.US);
-                Date endDate;
-                try {
-                    endDate = formatFrom.parse(tenant.getLeaseEnd());
-                    viewHolder.leaseEndsTV.setText(formatTo.format(endDate));
-                    viewHolder.leaseEndsTextDisplayTV.setText("Lease ending on : ");
-                    if (tenant.getIsPrimary()) {
-                        viewHolder.isPrimaryTV.setText("Primary");
-                    } else {
-                        viewHolder.isPrimaryTV.setText("Secondary");
-                    }
-                } catch (ParseException e) {
-                    e.printStackTrace();
+                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+                viewHolder.leaseEndsTV.setText(formatter.format(tenant.getLeaseEnd()));
+                if (tenant.getIsPrimary()) {
+                    viewHolder.isPrimaryTV.setText("Primary");
+                } else {
+                    viewHolder.isPrimaryTV.setText("Secondary");
                 }
             }
 
@@ -208,5 +201,13 @@ public class TenantListAdapter extends BaseAdapter implements Filterable {
     //Retrieve filtered results
     public ArrayList<Tenant> getFilteredResults() {
         return filteredResults;
+    }
+
+    public void updateResults(ArrayList<Tenant> results) {
+        tenantArray = results;
+        filteredResults = results;
+
+        //Triggers the list update
+        notifyDataSetChanged();
     }
 }

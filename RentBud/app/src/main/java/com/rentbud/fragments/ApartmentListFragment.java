@@ -65,7 +65,10 @@ public class ApartmentListFragment extends Fragment implements AdapterView.OnIte
         super.onResume();
         if ( ApartmentListFragment.apartmentListAdapterNeedsRefreshed) {
             searchBarET.setText("");
-            setUpListAdapter();
+            if(this.apartmentListAdapter != null){
+                apartmentListAdapter.updateResults(MainActivity.apartmentList);
+                ApartmentListFragment.apartmentListAdapterNeedsRefreshed = false;
+            }
         }
     }
 
@@ -111,18 +114,22 @@ public class ApartmentListFragment extends Fragment implements AdapterView.OnIte
 
     private void setUpListAdapter() {
         if (MainActivity.apartmentList != null) {
+            apartmentListAdapter = new ApartmentListAdapter(getActivity(), MainActivity.apartmentList, accentColor);
+            listView.setAdapter(apartmentListAdapter);
+            listView.setOnItemClickListener(this);
             if (!MainActivity.apartmentList.isEmpty()) {
                 //If MainActivity.apartmentList is not null or empty, set apartment list adapter
-                apartmentListAdapter = new ApartmentListAdapter(getActivity(), MainActivity.apartmentList, accentColor);
-                listView.setAdapter(apartmentListAdapter);
-                listView.setOnItemClickListener(this);
+
             } else {
                 //If MainActivity.apartmentList is not null but is empty, show empty list text
                 noApartmentsTV.setVisibility(View.VISIBLE);
+                noApartmentsTV.setText("No Current Apartments");
             }
         } else {
             //If MainActivity.apartmentList is null show empty list text
             noApartmentsTV.setVisibility(View.VISIBLE);
+            noApartmentsTV.setText("Error Loading Apartments");
         }
     }
+
 }

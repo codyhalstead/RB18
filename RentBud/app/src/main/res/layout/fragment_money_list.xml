@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:fab="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <!--Search bar -->
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/apartmentSearchToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary">
+
+        <LinearLayout
+            android:id="@+id/searchBarLL"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="?attr/colorPrimary"
+            android:orientation="vertical">
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:background="?attr/colorPrimary"
+                android:paddingRight="15dp">
+
+                <EditText
+                    android:id="@+id/moneyListSearchET"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_margin="5dp"
+                    android:background="@color/white"
+                    android:drawableLeft="@drawable/ic_search_black_24dp"
+                    android:ems="10"
+                    android:gravity="left|center"
+                    android:hint="Search by description" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="?attr/colorPrimary"
+                android:orientation="vertical"
+
+                >
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="15dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:weightSum="2">
+
+                    <Button
+                        android:id="@+id/moneyListDateRangeStartBtn"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="1/15/2017" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="  to  "
+                        android:textColor="@color/white" />
+
+                    <Button
+                        android:id="@+id/moneyListDateRangeEndBtn"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="1/15/2018" />
+
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+    </android.support.v7.widget.Toolbar>
+
+    <!--Border -->
+    <View
+        android:id="@+id/apartmentListBarBorder"
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:layout_below="@+id/apartmentSearchToolbar"
+        android:background="@color/caldroid_black" />
+
+    <!--FAB -->
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/moneyListFab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="40dp"
+        android:layout_marginRight="30dp"
+        app:srcCompat="@drawable/ic_add_white_24dp"
+        fab:elevation="6dp"
+        android:onClick="moneyFABClick"
+        />
+
+    <!--Text view if list empty -->
+    <TextView
+        android:id="@+id/moneyEmptyListTV"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="250dp"
+        android:gravity="center"
+        android:text="No current expenses"
+        android:textSize="28sp"
+        android:visibility="invisible" />
+
+    <!--Apartment list view -->
+    <ListView
+        android:id="@+id/mainMoneyListView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/apartmentListBarBorder">
+
+    </ListView>
+
+</RelativeLayout>

@@ -65,7 +65,10 @@ public class TenantListFragment extends Fragment implements AdapterView.OnItemCl
         super.onResume();
         if(TenantListFragment.tenantListAdapterNeedsRefreshed){
             searchBarET.setText("");
-            setUpListAdapter();
+            if(this.tenantListAdapter != null){
+                tenantListAdapter.updateResults(MainActivity.tenantList);
+                TenantListFragment.tenantListAdapterNeedsRefreshed = false;
+            }
         }
     }
 
@@ -107,18 +110,21 @@ public class TenantListFragment extends Fragment implements AdapterView.OnItemCl
 
     private void setUpListAdapter(){
         if (MainActivity.tenantList != null) {
+            tenantListAdapter = new TenantListAdapter(getActivity(), MainActivity.tenantList, accentColor);
+            listView.setAdapter(tenantListAdapter);
+            listView.setOnItemClickListener(this);
             if (!MainActivity.tenantList.isEmpty()) {
                 //If MainActivity.tenantList is not null or empty, set apartment list adapter
-                tenantListAdapter = new TenantListAdapter(getActivity(), MainActivity.tenantList, accentColor);
-                listView.setAdapter(tenantListAdapter);
-                listView.setOnItemClickListener(this);
+
             } else {
                 //If MainActivity.tenantList is not null but is empty, show empty list text
                 noTenantsTV.setVisibility(View.VISIBLE);
+                noTenantsTV.setText("No Current Tenants");
             }
         } else {
             //If MainActivity.tenantList is null show empty list text
             noTenantsTV.setVisibility(View.VISIBLE);
+            noTenantsTV.setText("Error Loading Tenants");
         }
     }
 }

@@ -3,19 +3,21 @@ package com.rentbud.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.Date;
+
 /**
  * Created by Cody on 1/27/2018.
  */
 
 public class EventLogEntry implements Parcelable {
     private int id;
-    private String eventTime;
+    private Date eventTime;
     private int typeID;
     private String description;
     private int apartmentID;
     private int tenantID;
 
-    public EventLogEntry(int id, String eventTime, int typeID, String description, int apartmentID, int tenantID) {
+    public EventLogEntry(int id, Date eventTime, int typeID, String description, int apartmentID, int tenantID) {
         this.id = id;
         this.eventTime = eventTime;
         this.typeID = typeID;
@@ -32,7 +34,12 @@ public class EventLogEntry implements Parcelable {
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeInt(this.id);
-        parcel.writeString(this.eventTime);
+        if(this.eventTime != null){
+            parcel.writeInt(1);
+            parcel.writeLong(this.eventTime.getTime());
+        }else{
+            parcel.writeInt(0);
+        }
         parcel.writeInt(this.typeID);
         parcel.writeString(this.description);
         parcel.writeInt(this.apartmentID);
@@ -41,8 +48,10 @@ public class EventLogEntry implements Parcelable {
 
     protected EventLogEntry(Parcel in) {
         this.id = in.readInt();
-        this.eventTime = in.readString();
-        this.typeID = in.readInt();
+        int eventDateIsNotNull = in.readInt();
+        if(eventDateIsNotNull == 1) {
+            this.eventTime = new Date(in.readLong());
+        }
         this.description = in.readString();
         this.apartmentID = in.readInt();
         this.tenantID = in.readInt();
@@ -68,11 +77,11 @@ public class EventLogEntry implements Parcelable {
         this.id = id;
     }
 
-    public String getEventTime() {
+    public Date getEventTime() {
         return eventTime;
     }
 
-    public void setEventTime(String eventTime) {
+    public void setEventTime(Date eventTime) {
         this.eventTime = eventTime;
     }
 

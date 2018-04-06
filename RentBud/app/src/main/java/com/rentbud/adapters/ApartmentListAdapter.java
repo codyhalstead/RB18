@@ -27,6 +27,7 @@ import com.bumptech.glide.Glide;
 import com.example.cody.rentbud.R;
 import com.rentbud.helpers.MainArrayDataMethods;
 import com.rentbud.model.Apartment;
+import com.rentbud.model.ExpenseLogEntry;
 import com.rentbud.model.Tenant;
 
 import java.io.ByteArrayOutputStream;
@@ -76,9 +77,6 @@ public class ApartmentListAdapter extends BaseAdapter implements Filterable {
         TextView leaseEndTV;
         LinearLayout leaseLL;
         ImageView mainPicIV;
-        int position;
-       // ImageDownloaderTask imageDownloaderTask;
-        //boolean shouldHavePic;
     }
 
     @Override
@@ -160,14 +158,9 @@ public class ApartmentListAdapter extends BaseAdapter implements Filterable {
                 viewHolder.tenantLastName.setText(primaryTenant.getLastName());
                 viewHolder.leaseLL.setVisibility(View.VISIBLE);
 
-                SimpleDateFormat formatTo = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-                DateFormat formatFrom = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy", Locale.US);
-                try {
-                    Date endDate = formatFrom.parse(primaryTenant.getLeaseEnd());
-                    viewHolder.leaseEndTV.setText(formatTo.format(endDate));
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
+                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+                viewHolder.leaseEndTV.setText(formatter.format(primaryTenant.getLeaseEnd()));
+
             } else {
                 convertView.setBackgroundColor(convertView.getResources().getColor(R.color.lightGrey));
                 viewHolder.rentedByTV.setText("Vacant");
@@ -232,7 +225,6 @@ public class ApartmentListAdapter extends BaseAdapter implements Filterable {
     }
 
     //Used to change color of any text matching search
-
     private void setTextHighlightSearch(TextView textView, String theTextToSet) {
         //If user has any text in the search bar
         if (searchText != null && !searchText.isEmpty()) {
@@ -257,6 +249,14 @@ public class ApartmentListAdapter extends BaseAdapter implements Filterable {
     //Retrieve filtered results
     public ArrayList<Apartment> getFilteredResults() {
         return this.filteredResults;
+    }
+
+    public void updateResults(ArrayList<Apartment> results) {
+        apartmentArray = results;
+        filteredResults = results;
+
+        //Triggers the list update
+        notifyDataSetChanged();
     }
 
 }

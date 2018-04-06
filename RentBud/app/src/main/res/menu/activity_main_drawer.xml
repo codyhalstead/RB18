@@ -26,4 +26,32 @@
             android:title="View Tenant List" />
     </group>
 
+
+    <item android:title="Money">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/nav_income"
+                    android:icon="@drawable/ic_attach_money_green_24dp"
+                    android:title="View Income" />
+
+                <item
+                    android:id="@+id/nav_expenses"
+                    android:icon="@drawable/ic_money_off_black_24dp"
+                    android:title="View Expenses" />
+            </group>
+        </menu>
+    </item>
+
+
+    <item android:title="Totals">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/nav_totals"
+                    android:icon="@drawable/ic_folder_special_black_24dp"
+                    android:title="View Totals" />
+            </group>
+        </menu>
+    </item>
 </menu>
