@@ -20,6 +20,7 @@ import com.rentbud.fragments.ApartmentListFragment;
 import com.rentbud.fragments.TenantListFragment;
 import com.rentbud.helpers.MainArrayDataMethods;
 import com.rentbud.model.Apartment;
+import com.rentbud.model.Lease;
 import com.rentbud.model.Tenant;
 import com.rentbud.sqlite.DatabaseHandler;
 
@@ -41,6 +42,7 @@ public class TenantViewActivity extends BaseActivity {
             leaseHolderTypeTV, emailTV, emergencyFirstNameTV, emergencyLastNameTV, getEmergencyPhoneTV;
     Button editLeaseBtn;
     Apartment apartment;
+    Lease currentLease;
     LinearLayout leaseLL;
     DatabaseHandler databaseHandler;
     MainArrayDataMethods dataMethods;
@@ -56,18 +58,21 @@ public class TenantViewActivity extends BaseActivity {
         if (savedInstanceState != null) {
             tenant = savedInstanceState.getParcelable("tenant");
             apartment = savedInstanceState.getParcelable("apartment");
+            currentLease = savedInstanceState.getParcelable("currentLease");
         } else {
             Bundle bundle = getIntent().getExtras();
             int tenantID = bundle.getInt("tenantID");
-            int apartmentID = bundle.getInt("apartmentID");
-            if (apartmentID == 0) {
+            tenant = dataMethods.getCachedTenantByTenantID(tenantID);
+            currentLease = dataMethods.getCachedActiveLeaseByTenantID(tenantID);
+         //   int apartmentID = dataMethods.getCachedApartmentByApartmentID(currentLease.getApartmentID());
+            if (!tenant.getHasLease()) {
                 this.tenant = dataMethods.getCachedTenantByTenantID(tenantID);
                 this.apartment = null;
             } else {
-                Pair<Tenant, ArrayList<Tenant>> tenants = dataMethods.getCachedSelectedTenantAndRoomMatesByIDs(apartmentID, tenantID);
+                Pair<Tenant, ArrayList<Tenant>> tenants = dataMethods.getCachedSelectedTenantAndRoomMatesByLease(currentLease, tenantID);
                 this.tenant = tenants.first;
                 this.otherTenants = tenants.second;
-                this.apartment = dataMethods.getCachedApartmentByApartmentID(apartmentID);
+                this.apartment = dataMethods.getCachedApartmentByApartmentID(currentLease.getApartmentID());
             }
         }
 
@@ -126,20 +131,27 @@ public class TenantViewActivity extends BaseActivity {
             //If successful(not cancelled, passed validation)
             if (resultCode == RESULT_OK) {
                 //Re-query cached apartment array to update cache and refresh current fragment to display new data
-                int tenantID  = data.getIntExtra("editedTenantID", 0);
-                this.tenant = dataMethods.getCachedTenantByTenantID(tenantID);
+                //int tenantID  = data.getIntExtra("editedTenantID", 0);
+                this.tenant = dataMethods.getCachedTenantByTenantID(tenant.getId());
                 fillTextViews();
                 TenantListFragment.tenantListAdapterNeedsRefreshed = true;
             }
         }
         if (requestCode == MainActivity.REQUEST_NEW_LEASE_FORM) {
             if (resultCode == RESULT_OK) {
-                int apartmentID = data.getIntExtra("updatedApartmentID", 0);
+                //int apartmentID = data.getIntExtra("updatedApartmentID", 0);
                 int tenantID = this.tenant.getId();
-                this.apartment = dataMethods.getCachedApartmentByApartmentID(apartmentID);
-                Pair<Tenant, ArrayList<Tenant>> tenants = dataMethods.getCachedSelectedTenantAndRoomMatesByIDs(apartmentID, tenantID);
-                this.tenant = tenants.first;
-                this.otherTenants = tenants.second;
+                this.currentLease = dataMethods.getCachedActiveLeaseByTenantID(tenantID);
+                if(currentLease != null) {
+                    this.apartment = dataMethods.getCachedApartmentByApartmentID(currentLease.getApartmentID());
+                    Pair<Tenant, ArrayList<Tenant>> tenants = dataMethods.getCachedSelectedTenantAndRoomMatesByLease(currentLease, tenantID);
+                    this.tenant = tenants.first;
+                    this.otherTenants = tenants.second;
+                } else {
+                    this.apartment = null;
+                    this.tenant = dataMethods.getCachedTenantByTenantID(tenantID);
+                    this.otherTenants = null;
+                }
             }
             fillTextViews();
             TenantListFragment.tenantListAdapterNeedsRefreshed = true;
@@ -154,8 +166,7 @@ public class TenantViewActivity extends BaseActivity {
         emergencyFirstNameTV.setText(tenant.getEmergencyFirstName());
         emergencyLastNameTV.setText(tenant.getEmergencyLastName());
         getEmergencyPhoneTV.setText(tenant.getEmergencyPhone());
-        Log.d("TAG", "fillTextViews: " + tenant.getApartmentID());
-        if (tenant.getApartmentID() == 0 ) {
+        if (!tenant.getHasLease()) {
             renterStatusTV.setText("Not Currently Renting");
             editLeaseBtn.setText("Create Lease");
             apartmentAddressTV.setText("");
@@ -175,18 +186,18 @@ public class TenantViewActivity extends BaseActivity {
                     apartmentAddress2TV.setText(apartment.getStreet2());
                 }
             }
-            if (tenant.getIsPrimary()) {
+            if (tenant.getId() == currentLease.getPrimaryTenantID()) {
                 leaseHolderTypeTV.setText("Primary Tenant");
             } else {
                 leaseHolderTypeTV.setText("Secondary Tenant");
             }
-            if (tenant.getLeaseStart() != null) {
+            if (currentLease.getLeaseStart() != null) {
                 leaseLL.setVisibility(View.VISIBLE);
                 leaseHolderTypeTV.setVisibility(View.VISIBLE);
 
                 SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-                leaseStartTV.setText(formatter.format(tenant.getLeaseStart()));
-                leaseEndTV.setText(formatter.format(tenant.getLeaseEnd()));
+                leaseStartTV.setText(formatter.format(currentLease.getLeaseStart()));
+                leaseEndTV.setText(formatter.format(currentLease.getLeaseEnd()));
 
 
             } else {
@@ -202,7 +213,7 @@ public class TenantViewActivity extends BaseActivity {
         this.editLeaseBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (tenant.getApartmentID() > 0) {
+                if (tenant.getHasLease()) {
                     Intent intent = new Intent(TenantViewActivity.this, NewLeaseFormActivity.class);
                     //Uses filtered results to match what is on screen
                     intent.putExtra("existingLeaseTenant", tenant);
@@ -255,6 +266,9 @@ public class TenantViewActivity extends BaseActivity {
         if (apartment != null) {
             outState.putParcelable("apartment", apartment);
         }
+        if(currentLease != null){
+            outState.putParcelable("currentLease", currentLease);
+        }
     }
 
     public void showDeleteConfirmationAlertDialog() {
@@ -275,22 +289,24 @@ public class TenantViewActivity extends BaseActivity {
             public void onClick(DialogInterface dialogInterface, int i) {
                 databaseHandler.setTenantInactive(tenant);
                 MainActivity.tenantList.remove(tenant);
-                if (tenant.getIsPrimary()) {
-                    tenant.setIsPrimary(false);
-                    for (int x = 0; x < otherTenants.size(); x++) {
-                        otherTenants.get(x).setApartmentID(0);
-                        otherTenants.get(x).setLeaseStart(null);
-                        otherTenants.get(x).setLeaseEnd(null);
-                        databaseHandler.editTenant(otherTenants.get(x));
+                if(currentLease != null) {
+                    if (tenant.getId() == currentLease.getPrimaryTenantID()) {
+                        //     tenant.setIsPrimary(false);
+                        //     for (int x = 0; x < otherTenants.size(); x++) {
+                        //         otherTenants.get(x).setApartmentID(0);
+                        //         otherTenants.get(x).setLeaseStart(null);
+                        //         otherTenants.get(x).setLeaseEnd(null);
+                        //         databaseHandler.editTenant(otherTenants.get(x));
+                        //     }
+                        apartment.setRented(false);
+                        MainActivity.tenantList = databaseHandler.getUsersTenants(MainActivity.user);
                     }
-                    apartment.setRented(false);
-                    MainActivity.tenantList = databaseHandler.getUsersTenants(MainActivity.user);
                 }
-                tenant.setApartmentID(0);
-                tenant.setLeaseStart(null);
-                tenant.setLeaseEnd(null);
-                databaseHandler.editTenant(tenant);
-
+                //tenant.setApartmentID(0);
+                //tenant.setLeaseStart(null);
+                //tenant.setLeaseEnd(null);
+                //databaseHandler.editTenant(tenant);
+                //TODO
                 dataMethods.sortMainApartmentArray();
                 //MainActivity.apartmentList = databaseHandler.getUsersApartments(MainActivity.user);
                 TenantListFragment.tenantListAdapterNeedsRefreshed = true;

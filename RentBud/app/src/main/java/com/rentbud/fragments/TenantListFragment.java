@@ -21,6 +21,8 @@ import com.example.cody.rentbud.R;
 import com.rentbud.activities.MainActivity;
 import com.rentbud.activities.TenantViewActivity;
 import com.rentbud.adapters.TenantListAdapter;
+import com.rentbud.helpers.MainArrayDataMethods;
+import com.rentbud.model.Lease;
 import com.rentbud.model.Tenant;
 
 import static android.content.ContentValues.TAG;
@@ -35,6 +37,7 @@ public class TenantListFragment extends Fragment implements AdapterView.OnItemCl
     TenantListAdapter tenantListAdapter;
     ColorStateList accentColor;
     ListView listView;
+    MainArrayDataMethods dataMethods;
     public static boolean tenantListAdapterNeedsRefreshed;
 
     @Override
@@ -51,6 +54,7 @@ public class TenantListFragment extends Fragment implements AdapterView.OnItemCl
         this.searchBarET = view.findViewById(R.id.tenantListSearchET);
         this.listView = view.findViewById(R.id.maintenantListView);
         getActivity().setTitle("Tenant View");
+        dataMethods = new MainArrayDataMethods();
         TenantListFragment.tenantListAdapterNeedsRefreshed = false;
         //Get current theme accent color, which is passed into the list adapter for search highlighting
         TypedValue colorValue = new TypedValue();
@@ -78,8 +82,9 @@ public class TenantListFragment extends Fragment implements AdapterView.OnItemCl
         Intent intent = new Intent(getContext(), TenantViewActivity.class);
         //Uses filtered results to match what is on screen
         Tenant tenant = tenantListAdapter.getFilteredResults().get(i);
+    //    Lease currentLease = dataMethods.getCachedActiveLeaseByTenantID(tenant.getId());
         intent.putExtra("tenantID", tenant.getId());
-        intent.putExtra("apartmentID", tenant.getApartmentID());
+    //    intent.putExtra("apartmentID", currentLease.getApartmentID());
         startActivity(intent);
     }
 

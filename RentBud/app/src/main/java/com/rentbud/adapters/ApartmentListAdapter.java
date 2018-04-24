@@ -25,9 +25,11 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.example.cody.rentbud.R;
+import com.rentbud.activities.MainActivity;
 import com.rentbud.helpers.MainArrayDataMethods;
 import com.rentbud.model.Apartment;
 import com.rentbud.model.ExpenseLogEntry;
+import com.rentbud.model.Lease;
 import com.rentbud.model.Tenant;
 
 import java.io.ByteArrayOutputStream;
@@ -147,11 +149,13 @@ public class ApartmentListAdapter extends BaseAdapter implements Filterable {
             setTextHighlightSearch(viewHolder.cityTV, city);
             setTextHighlightSearch(viewHolder.stateTV, apartment.getState());
             setTextHighlightSearch(viewHolder.zipTV, apartment.getZip());
+            Lease currentLease = null;
             Tenant primaryTenant = null;
             if (apartment.isRented()) {
-                primaryTenant = dataMethods.getCachedPrimaryTenantByApartmentID(apartment.getId());
+                currentLease = dataMethods.getCachedActiveLeaseByApartmentID(apartment.getId());
+                primaryTenant = dataMethods.getCachedPrimaryTenantByLease(currentLease);
             }
-            if (primaryTenant != null) {
+            if (primaryTenant != null && currentLease != null) {
                 convertView.setBackgroundColor(convertView.getResources().getColor(R.color.white));
                 viewHolder.rentedByTV.setText("Rented By:");
                 viewHolder.tenantFirstName.setText(primaryTenant.getFirstName());
@@ -159,7 +163,7 @@ public class ApartmentListAdapter extends BaseAdapter implements Filterable {
                 viewHolder.leaseLL.setVisibility(View.VISIBLE);
 
                 SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-                viewHolder.leaseEndTV.setText(formatter.format(primaryTenant.getLeaseEnd()));
+                viewHolder.leaseEndTV.setText(formatter.format(currentLease.getLeaseEnd()));
 
             } else {
                 convertView.setBackgroundColor(convertView.getResources().getColor(R.color.lightGrey));

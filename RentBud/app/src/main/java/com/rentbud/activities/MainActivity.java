@@ -1,5 +1,7 @@
 package com.rentbud.activities;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
@@ -25,10 +27,12 @@ import com.rentbud.fragments.ExpenseListFragment;
 import com.rentbud.fragments.HomeFragment;
 import com.rentbud.fragments.ApartmentListFragment;
 import com.rentbud.fragments.IncomeListFragment;
+import com.rentbud.fragments.LeaseListFragment;
 import com.rentbud.fragments.TenantListFragment;
 import com.rentbud.helpers.MainArrayDataMethods;
 import com.rentbud.model.Apartment;
 import com.rentbud.model.ExpenseLogEntry;
+import com.rentbud.model.Lease;
 import com.rentbud.model.PaymentLogEntry;
 import com.rentbud.model.Tenant;
 import com.rentbud.model.User;
@@ -61,6 +65,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     public static User user;
     Boolean isHomeFragDisplayed;
     Boolean isExpenseFragDisplayed;
+    Boolean isLeaseFragDisplayed;
     MainArrayDataMethods dataMethods;
     //initialized with setUpDrawer
     DrawerLayout drawer;
@@ -72,6 +77,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     public static TreeMap<String, Integer> stateMap;
     public static ArrayList<Tenant> tenantList;
     public static ArrayList<Apartment> apartmentList;
+    public static ArrayList<Lease> currentLeasesList;
     //public static ArrayList<ExpenseLogEntry> expenseList;
     //public static ArrayList<PaymentLogEntry> incomeList;
     public static TreeMap<String, Integer> expenseTypeLabels;
@@ -101,6 +107,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             if (savedInstanceState != null) {
                 this.isHomeFragDisplayed = savedInstanceState.getBoolean("isHome");
                 this.isExpenseFragDisplayed = savedInstanceState.getBoolean("isExpense");
+                this.isLeaseFragDisplayed = savedInstanceState.getBoolean("isLease");
             } else {
                 //Display home if initial load and user is logged in
                 displaySelectedScreen(R.id.nav_home);
@@ -227,6 +234,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         MainActivity.user = null;
         MainActivity.apartmentList.clear();
         MainActivity.tenantList.clear();
+        MainActivity.currentLeasesList.clear();
         //MainActivity.incomeList.clear();
         //MainActivity.expenseList.clear();
         //TODO maybe not clear stateMap
@@ -293,6 +301,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         Fragment fragment = null;
         Bundle bundle = new Bundle();
         isExpenseFragDisplayed = false;
+        isLeaseFragDisplayed = false;
         switch (id) {
 
             case R.id.nav_home:
@@ -331,6 +340,11 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 isExpenseFragDisplayed = true;
                 break;
 
+            case R.id.nav_lease:
+                fragment = new LeaseListFragment();
+                isHomeFragDisplayed = false;
+                isLeaseFragDisplayed = true;
+
             case R.id.nav_totals:
 
                 isHomeFragDisplayed = false;
@@ -360,6 +374,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         super.onSaveInstanceState(outState);
         outState.putBoolean("isHome", isHomeFragDisplayed);
         outState.putBoolean("isExpense", isExpenseFragDisplayed);
+        outState.putBoolean("isLease", isLeaseFragDisplayed);
     }
 
     public void apartmentFABClick(View view) {
@@ -380,10 +395,43 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         if (isExpenseFragDisplayed) {
             Intent intent = new Intent(this, NewExpenseFormActivity.class);
             startActivityForResult(intent, REQUEST_NEW_EXPENSE_FORM);
-        } else {
+        } else if(isLeaseFragDisplayed) {
+            showNewOrOldLeaseAlertDialog(view);
+        }else {
             Intent intent = new Intent(this, NewIncomeFormActivity.class);
             startActivityForResult(intent, REQUEST_NEW_INCOME_FORM);
         }
+    }
+
+    private void showNewOrOldLeaseAlertDialog(View view) {
+        // setup the alert builder
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        //builder.setTitle("AlertDialog");
+        builder.setMessage("Is this lease current, or completed and for record keeping?");
+
+        // add the buttons
+        builder.setPositiveButton("Current", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Intent intent = new Intent(MainActivity.this, NewLeaseFormActivity.class);
+                //Uses filtered results to match what is on screen
+                intent.putExtra("isLeaseForHistory", false);
+                startActivityForResult(intent, MainActivity.REQUEST_NEW_LEASE_FORM);
+            }
+        });
+        builder.setNegativeButton("Completed", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Intent intent = new Intent(MainActivity.this, NewLeaseFormActivity.class);
+                //Uses filtered results to match what is on screen
+                intent.putExtra("isLeaseForHistory", true);
+                startActivityForResult(intent, MainActivity.REQUEST_NEW_LEASE_FORM);
+            }
+        });
+
+        // create and show the alert dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     private void refreshFragView() {
@@ -406,6 +454,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         this.dbHandler = new DatabaseHandler(this);
         this.isHomeFragDisplayed = true;
         this.isExpenseFragDisplayed = false;
+        this.isLeaseFragDisplayed = false;
         this.dataMethods = new MainArrayDataMethods();
     }
 
@@ -457,7 +506,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         MainActivity.eventTypeLabels = dbHandler.getEventTypeLabels();
         MainActivity.tenantList = dbHandler.getUsersTenants(MainActivity.user);
         MainActivity.apartmentList = dbHandler.getUsersApartments(MainActivity.user);
-
+        MainActivity.currentLeasesList = dbHandler.getUsersActiveLeases(MainActivity.user);
         //Date endDate = Calendar.getInstance().getTime();
         //Calendar calendar = Calendar.getInstance();
         //calendar.setTime(endDate);
@@ -478,8 +527,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         int i = 0;
         while (i < 100) {
             Tenant tenant = new Tenant(-1, "Frank", "Lascelles " + testTenants, "563-598-8965", "snappydude@hotmail.com", "Matt",
-                    "Thurston", "568-785-8956", 0, 80, 700, false, null, "Is frank " + testTenants,
-                    null, null);
+                    "Thurston", "568-785-8956",  false, "Is frank " + testTenants);
             dbHandler.addNewTenant(tenant, user.getId());
             testTenants++;
             i++;

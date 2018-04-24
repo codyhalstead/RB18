@@ -195,6 +195,9 @@ public class IncomeListFragment extends android.support.v4.app.Fragment implemen
 
             case R.id.moneyListDateRangeStartBtn:
                 Calendar cal = Calendar.getInstance();
+                if(filterDateStart != null) {
+                    cal.setTime(filterDateStart);
+                }
                 int year = cal.get(Calendar.YEAR);
                 int month = cal.get(Calendar.MONTH);
                 int day = cal.get(Calendar.DAY_OF_MONTH);
@@ -205,6 +208,9 @@ public class IncomeListFragment extends android.support.v4.app.Fragment implemen
 
             case R.id.moneyListDateRangeEndBtn:
                 Calendar cal2 = Calendar.getInstance();
+                if(filterDateEnd != null) {
+                    cal2.setTime(filterDateEnd);
+                }
                 int year2 = cal2.get(Calendar.YEAR);
                 int month2 = cal2.get(Calendar.MONTH);
                 int day2 = cal2.get(Calendar.DAY_OF_MONTH);

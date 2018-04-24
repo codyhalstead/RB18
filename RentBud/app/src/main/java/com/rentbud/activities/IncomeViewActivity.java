@@ -45,7 +45,9 @@ public class IncomeViewActivity extends BaseActivity {
         dataMethods = new MainArrayDataMethods();
         //if recreated
         if (savedInstanceState != null) {
-
+            if (savedInstanceState.getParcelable("income") != null) {
+                this.income = savedInstanceState.getParcelable("income");
+            }
         } else {
             //If new
             Bundle bundle = getIntent().getExtras();
@@ -115,5 +117,12 @@ public class IncomeViewActivity extends BaseActivity {
                 IncomeListFragment.incomeListAdapterNeedsRefreshed = true;
             }
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        //Save the fragment's instance
+        super.onSaveInstanceState(outState);
+        outState.putParcelable("income", income);
     }
 }

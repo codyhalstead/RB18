@@ -25,7 +25,7 @@ public class Apartment implements Parcelable {
     private ArrayList<String> otherPics;
 
     public Apartment(int id, String street1, String street2, String city, int stateID, String state, String zip,
-                     String description, boolean isRented, String notes, String mainPic, ArrayList<String> otherPics) {
+                     String description, Boolean isRented, String notes, String mainPic, ArrayList<String> otherPics) {
         this.id = id;
         this.street1 = street1;
         this.street2 = street2;

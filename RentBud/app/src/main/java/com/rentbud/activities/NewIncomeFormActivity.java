@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -27,6 +28,7 @@ import com.rentbud.sqlite.DatabaseHandler;
 
 import java.math.BigDecimal;
 import java.text.DateFormat;
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -51,6 +53,7 @@ public class NewIncomeFormActivity extends BaseActivity {
     UserInputValidation validation;
     MainArrayDataMethods dataMethods;
     Date incomeDate;
+    BigDecimal currentAmount;
     ArrayAdapter<String> adapter;
     private DatePickerDialog.OnDateSetListener setIncomeDateListener;
 
@@ -77,7 +80,16 @@ public class NewIncomeFormActivity extends BaseActivity {
 
             @Override
             public void afterTextChanged(Editable editable) {
-
+                if (amountET == null) return;
+                String s = editable.toString();
+                if (s.isEmpty()) return;
+                amountET.removeTextChangedListener(this);
+                String cleanString = s.replaceAll("[$,.]", "");
+                currentAmount = new BigDecimal(cleanString).setScale(2, BigDecimal.ROUND_FLOOR).divide(new BigDecimal(100), BigDecimal.ROUND_FLOOR);
+                String formatted = NumberFormat.getCurrencyInstance().format(currentAmount);
+                amountET.setText(formatted);
+                amountET.setSelection(formatted.length());
+                amountET.addTextChangedListener(this);
             }
         });
     }
@@ -88,12 +100,14 @@ public class NewIncomeFormActivity extends BaseActivity {
         this.validation = new UserInputValidation(this);
         this.dateTV = findViewById(R.id.incomeFormDateTV);
         this.amountET = findViewById(R.id.incomeFormAmountET);
+        amountET.setSelection(amountET.getText().length());
         this.descriptionET = findViewById(R.id.incomeFormDescriptionET);
         this.saveBtn = findViewById(R.id.incomeFormSaveBtn);
         this.cancelBtn = findViewById(R.id.incomeFormCancelBtn);
         this.newTypeBtn = findViewById(R.id.incomeFormTypeBtn);
         this.incomeTypeSpinner = findViewById(R.id.incomeFormTypeSpinner);
         this.isEdit = false;
+        this.currentAmount = new BigDecimal(0);
     }
 
     private void loadIncomeDataIfEditing() {
@@ -106,8 +120,15 @@ public class NewIncomeFormActivity extends BaseActivity {
                 SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
                 dateTV.setText(formatter.format(incomeDate));
             }
-
-            amountET.setText(incomeToEdit.getAmount().toString());
+            //currentAmount = expenseToEdit.getAmount();
+            //amountET.setText(incomeToEdit.getAmount().toPlainString());
+            String s = incomeToEdit.getAmount().toPlainString();
+            if (s.isEmpty()) return;
+            String cleanString = s.replaceAll("[$,.]", "");
+            currentAmount = new BigDecimal(cleanString).setScale(2, BigDecimal.ROUND_FLOOR).divide(new BigDecimal(100), BigDecimal.ROUND_FLOOR);
+            String formatted = NumberFormat.getCurrencyInstance().format(currentAmount);
+            amountET.setText(formatted);
+            amountET.setSelection(formatted.length());
             String label = incomeToEdit.getTypeLabel();
             if (label != null) {
                 int spinnerPosition = adapter.getPosition(label);
@@ -127,7 +148,7 @@ public class NewIncomeFormActivity extends BaseActivity {
                 }
                 //Get users input data
                 String amountString = amountET.getText().toString().trim();
-                BigDecimal amount = new BigDecimal(amountString);
+                //BigDecimal amount = new BigDecimal(amountString);
                 String typeLabel = incomeTypeSpinner.getSelectedItem().toString();
                 int typeID = MainActivity.incomeTypeLabels.get(typeLabel);
                 String description = descriptionET.getText().toString().trim();
@@ -139,7 +160,7 @@ public class NewIncomeFormActivity extends BaseActivity {
 
                 //Set result success, close this activity
                 if (!isEdit) {
-                    PaymentLogEntry income = new PaymentLogEntry(id, incomeDate, typeID, typeLabel, 0, amount, description);
+                    PaymentLogEntry income = new PaymentLogEntry(id, incomeDate, typeID, typeLabel, 0, 0, currentAmount, description);
                     databaseHandler.addPaymentLogEntry(income, MainActivity.user.getId());
                     //MainActivity.incomeList = databaseHandler.getUsersIncome(MainActivity.user);
                     setResult(RESULT_OK);
@@ -147,7 +168,7 @@ public class NewIncomeFormActivity extends BaseActivity {
                 } else {
                     //PaymentLogEntry originalIncome = dataMethods.getCachedIncomeByID(incomeToEdit.getId());
                     incomeToEdit.setPaymentDate(incomeDate);
-                    incomeToEdit.setAmount(amount);
+                    incomeToEdit.setAmount(currentAmount);
                     incomeToEdit.setTypeID(typeID);
                     incomeToEdit.setTypeLabel(typeLabel);
                     incomeToEdit.setDescription(description);
@@ -194,6 +215,9 @@ public class NewIncomeFormActivity extends BaseActivity {
             @Override
             public void onClick(View view) {
                 Calendar cal = Calendar.getInstance();
+                if(incomeDate != null) {
+                    cal.setTime(incomeDate);
+                }
                 int year = cal.get(Calendar.YEAR);
                 int month = cal.get(Calendar.MONTH);
                 int day = cal.get(Calendar.DAY_OF_MONTH);

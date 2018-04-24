@@ -16,15 +16,17 @@ public class PaymentLogEntry implements Parcelable{
     private int typeID;
     private String typeLabel;
     private int tenantID;
+    private int leaseID;
     private BigDecimal amount;
     private String description;
 
-    public PaymentLogEntry(int id, Date paymentDate, int typeID, String typeLabel, int tenantID, BigDecimal amount, String description){
+    public PaymentLogEntry(int id, Date paymentDate, int typeID, String typeLabel, int tenantID, int leaseID, BigDecimal amount, String description){
         this.id = id;
         this.paymentDate = paymentDate;
         this.typeID = typeID;
         this.typeLabel = typeLabel;
         this.tenantID = tenantID;
+        this.leaseID = leaseID;
         this.amount = amount;
         this.description = description;
     }
@@ -46,6 +48,7 @@ public class PaymentLogEntry implements Parcelable{
         parcel.writeInt(this.typeID);
         parcel.writeString(this.typeLabel);
         parcel.writeInt(this.tenantID);
+        parcel.writeInt(this.leaseID);
         String amountString = amount.toPlainString();
         parcel.writeString(amountString);
         parcel.writeString(this.description);
@@ -60,6 +63,7 @@ public class PaymentLogEntry implements Parcelable{
         this.typeID = in.readInt();
         this.typeLabel = in.readString();
         this.tenantID = in.readInt();
+        this.leaseID = in.readInt();
         String amountString = in.readString();
         this.amount = new BigDecimal(amountString);
         this.description = in.readString();
@@ -131,5 +135,13 @@ public class PaymentLogEntry implements Parcelable{
 
     public void setTypeLabel(String typeLabel) {
         this.typeLabel = typeLabel;
+    }
+
+    public int getLeaseID() {
+        return leaseID;
+    }
+
+    public void setLeaseID(int leaseID) {
+        this.leaseID = leaseID;
     }
 }

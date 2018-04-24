@@ -34,19 +34,25 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:weightSum="5"
+                >
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="*Apartment : " />
+                    android:text="*Apartment : "
+                    android:layout_weight="2"
+                    />
 
                 <TextView
                     android:id="@+id/editLeaseChangeApartmentTV"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="40dp"
                     android:background="@drawable/rect_edit"
-                    android:gravity="center" />
+                    android:gravity="center"
+                    android:layout_weight="3"
+                    />
 
             </LinearLayout>
 
@@ -55,19 +61,25 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:weightSum="5"
+                >
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="*Change Lease Start : " />
+                    android:text="*Change Lease Start : "
+                    android:layout_weight="2"
+                    />
 
                 <TextView
                     android:id="@+id/editLeaseChangeLeaseStartTV"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="40dp"
                     android:background="@drawable/rect_edit"
-                    android:gravity="center" />
+                    android:gravity="center"
+                    android:layout_weight="3"
+                    />
 
             </LinearLayout>
 
@@ -75,18 +87,23 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:weightSum="5"
+                >
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="*Change Lease End : " />
+                    android:text="*Change Lease End : "
+                    android:layout_weight="2"
+                    />
 
                 <TextView
                     android:id="@+id/editLeaseChangeLeaseEndTV"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="40dp"
                     android:background="@drawable/rect_edit"
+                    android:layout_weight="3"
                     android:gravity="center" />
 
             </LinearLayout>
@@ -95,18 +112,23 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:weightSum="5"
+                >
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="*Primary Tenant : " />
+                    android:text="*Primary Tenant : "
+                    android:layout_weight="2"
+                    />
 
                 <TextView
                     android:id="@+id/editLeaseChangePrimaryTenantTV"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="40dp"
                     android:background="@drawable/rect_edit"
+                    android:layout_weight="3"
                     android:gravity="center" />
 
             </LinearLayout>
@@ -149,7 +171,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:background="@drawable/rect_edit_text" />
+                    android:background="@drawable/rect_edit" />
 
             </LinearLayout>
 
@@ -167,7 +189,7 @@
                 <Spinner
                     android:id="@+id/editLeaseRentDueDateSpinner"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
+                    android:layout_height="40dp"
                     android:drawSelectorOnTop="true"
                     android:entries="@array/date_array" />
 
@@ -187,7 +209,33 @@
                 <EditText
                     android:id="@+id/editLeaseDepositET"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:text="$0.00"
+                    />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:id="@+id/leaseFormDepositWithheldLL"
+                android:visibility="gone"
+                >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Deposit Withheld : " />
+
+                <EditText
+                    android:id="@+id/leaseFormDepositWithheldET"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:text="$0.00"
+                    />
 
             </LinearLayout>
 
@@ -199,20 +247,19 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="*Rent Cost : " />
+                    android:text="*Monthly Rent : " />
 
                 <EditText
                     android:id="@+id/editLeaseRentCostET"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:text="$0.00"
+                    />
 
             </LinearLayout>
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="Other fees" />
+
 
         </LinearLayout>
 

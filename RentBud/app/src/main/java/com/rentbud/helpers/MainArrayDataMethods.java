@@ -1,11 +1,13 @@
 package com.rentbud.helpers;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.util.Pair;
 
 import com.rentbud.activities.MainActivity;
 import com.rentbud.model.Apartment;
 import com.rentbud.model.ExpenseLogEntry;
+import com.rentbud.model.Lease;
 import com.rentbud.model.PaymentLogEntry;
 import com.rentbud.model.Tenant;
 
@@ -48,51 +50,92 @@ public class MainArrayDataMethods {
         return apartment;
     }
 
-    public Tenant getCachedPrimaryTenantByApartmentID(int apartmentID) {
-        Tenant primaryTenant = null;
-        for (int i = 0; i < MainActivity.tenantList.size(); i++) {
-            if (MainActivity.tenantList.get(i).getApartmentID() == apartmentID && MainActivity.tenantList.get(i).getIsPrimary()) {
-                primaryTenant = MainActivity.tenantList.get(i);
-                break;
-            }
+    public Tenant getCachedPrimaryTenantByLease(@Nullable Lease lease) {
+        if(lease != null) {
+            return getCachedTenantByTenantID(lease.getPrimaryTenantID());
+        } else {
+            return null;
         }
-        return primaryTenant;
     }
 
-    public ArrayList<Tenant> getCachedSecondaryTenantsByApartmentID(int apartmentID) {
-        ArrayList<Tenant> secondaryTenants = new ArrayList<>();
-        for (int i = 0; i < MainActivity.tenantList.size(); i++) {
-            if (MainActivity.tenantList.get(i).getApartmentID() == apartmentID && !MainActivity.tenantList.get(i).getIsPrimary()) {
-                secondaryTenants.add(MainActivity.tenantList.get(i));
+    public Lease getCachedActiveLeaseByApartmentID(int apartmentID) {
+        for (int i = 0; i < MainActivity.currentLeasesList.size(); i++) {
+            if (MainActivity.currentLeasesList.get(i).getApartmentID() == apartmentID) {
+                return MainActivity.currentLeasesList.get(i);
+
             }
         }
-        return secondaryTenants;
+        return null;
     }
 
-    public Pair<Tenant, ArrayList<Tenant>> getCachedPrimaryAndSecondaryTenantsByApartmentID(int apartmentID) {
+    public Lease getCachedActiveLeaseByTenantID(int tenantID) {
+        for (int i = 0; i < MainActivity.currentLeasesList.size(); i++) {
+            if (MainActivity.currentLeasesList.get(i).getPrimaryTenantID() == tenantID) {
+                return MainActivity.currentLeasesList.get(i);
+            } else {
+                ArrayList<Integer> secondaryTenantIDs = MainActivity.currentLeasesList.get(i).getSecondaryTenantIDs();
+                for (int y = 0; y < secondaryTenantIDs.size(); y++) {
+                    if (secondaryTenantIDs.get(y) == tenantID) {
+                        return MainActivity.currentLeasesList.get(i);
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    //public ArrayList<Tenant> getCachedSecondaryTenantsByApartmentID(int apartmentID) {
+    //    ArrayList<Tenant> secondaryTenants = new ArrayList<>();
+    //    for (int i = 0; i < MainActivity.tenantList.size(); i++) {
+    //        if (MainActivity.tenantList.get(i).getApartmentID() == apartmentID && !MainActivity.tenantList.get(i).getIsPrimary()) {
+    //            secondaryTenants.add(MainActivity.tenantList.get(i));
+    //        }
+    //    }
+    //    return secondaryTenants;
+    //}
+
+    public Pair<Tenant, ArrayList<Tenant>> getCachedPrimaryAndSecondaryTenantsByLease(@Nullable Lease lease) {
         Tenant primaryTenant = null;
         ArrayList<Tenant> secondaryTenants = new ArrayList<>();
-        for (int i = 0; i < MainActivity.tenantList.size(); i++) {
-            if (MainActivity.tenantList.get(i).getApartmentID() == apartmentID) {
-                if (MainActivity.tenantList.get(i).getIsPrimary()) {
+        if (lease != null) {
+            ArrayList<Integer> secondaryTenantIDs = lease.getSecondaryTenantIDs();
+            for (int i = 0; i < MainActivity.tenantList.size(); i++) {
+                if (MainActivity.tenantList.get(i).getId() == lease.getPrimaryTenantID()) {
                     primaryTenant = MainActivity.tenantList.get(i);
                 } else {
-                    secondaryTenants.add(MainActivity.tenantList.get(i));
+                    for (int y = 0; y < secondaryTenantIDs.size(); y++) {
+                        if (secondaryTenantIDs.get(y) == MainActivity.tenantList.get(i).getId()) {
+                            secondaryTenants.add(MainActivity.tenantList.get(i));
+                        }
+                    }
                 }
             }
         }
         return new Pair<>(primaryTenant, secondaryTenants);
     }
 
-    public Pair<Tenant, ArrayList<Tenant>> getCachedSelectedTenantAndRoomMatesByIDs(int apartmentID, int tenantID) {
+    public Pair<Tenant, ArrayList<Tenant>> getCachedSelectedTenantAndRoomMatesByLease(@Nullable Lease lease, int tenantID) {
         Tenant selectedTenant = null;
         ArrayList<Tenant> otherTenants = new ArrayList<>();
-        for (int i = 0; i < MainActivity.tenantList.size(); i++) {
-            if (MainActivity.tenantList.get(i).getApartmentID() == apartmentID) {
-                if (MainActivity.tenantList.get(i).getId() == tenantID) {
-                    selectedTenant = MainActivity.tenantList.get(i);
+        if (lease != null) {
+            ArrayList<Integer> secondaryTenantIDs = lease.getSecondaryTenantIDs();
+            for (int i = 0; i < MainActivity.tenantList.size(); i++) {
+                if (MainActivity.tenantList.get(i).getId() == lease.getPrimaryTenantID()) {
+                    if (MainActivity.tenantList.get(i).getId() == tenantID) {
+                        selectedTenant = MainActivity.tenantList.get(i);
+                    } else {
+                        otherTenants.add(MainActivity.tenantList.get(i));
+                    }
                 } else {
-                    otherTenants.add(MainActivity.tenantList.get(i));
+                    for (int y = 0; y < secondaryTenantIDs.size(); y++) {
+                        if (secondaryTenantIDs.get(y) == MainActivity.tenantList.get(i).getId()) {
+                            if (MainActivity.tenantList.get(i).getId() == tenantID) {
+                                selectedTenant = MainActivity.tenantList.get(i);
+                            } else {
+                                otherTenants.add(MainActivity.tenantList.get(i));
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -122,8 +165,8 @@ public class MainArrayDataMethods {
         Collections.sort(MainActivity.tenantList, new Comparator<Tenant>() {
             @Override
             public int compare(Tenant tenant, Tenant t1) {
-                int b1 = (tenant.getApartmentID() > 0) ? 1 : 0;
-                int b2 = (t1.getApartmentID() > 0) ? 1 : 0;
+                int b1 = (tenant.getHasLease()) ? 1 : 0;
+                int b2 = (t1.getHasLease()) ? 1 : 0;
 
                 int comp = b2 - b1;
                 if (comp != 0) {
@@ -144,45 +187,45 @@ public class MainArrayDataMethods {
         });
     }
 
-   // public ExpenseLogEntry getCachedExpenseByID(int expenseID) {
-   //     ExpenseLogEntry expense = null;
-   //     for (int i = 0; i < MainActivity.expenseList.size(); i++) {
-   //         if (MainActivity.expenseList.get(i).getId() == expenseID) {
-   //             expense = MainActivity.expenseList.get(i);
-   //             break;
-   //         }
-   //     }
-   //     return expense;
-   // }
+    // public ExpenseLogEntry getCachedExpenseByID(int expenseID) {
+    //     ExpenseLogEntry expense = null;
+    //     for (int i = 0; i < MainActivity.expenseList.size(); i++) {
+    //         if (MainActivity.expenseList.get(i).getId() == expenseID) {
+    //             expense = MainActivity.expenseList.get(i);
+    //             break;
+    //         }
+    //     }
+    //     return expense;
+    // }
 
-   // public PaymentLogEntry getCachedIncomeByID(int incomeID) {
-   //     PaymentLogEntry income = null;
-   //     for (int i = 0; i < MainActivity.incomeList.size(); i++) {
-   //         if (MainActivity.incomeList.get(i).getId() == incomeID) {
-   //             income = MainActivity.incomeList.get(i);
-   //             break;
-   //         }
-   //     }
-   //     return income;
-   // }
+    // public PaymentLogEntry getCachedIncomeByID(int incomeID) {
+    //     PaymentLogEntry income = null;
+    //     for (int i = 0; i < MainActivity.incomeList.size(); i++) {
+    //         if (MainActivity.incomeList.get(i).getId() == incomeID) {
+    //             income = MainActivity.incomeList.get(i);
+    //             break;
+    //         }
+    //     }
+    //     return income;
+    // }
 
-   // public void sortMainIncomeArray() {
-   //     Collections.sort(MainActivity.incomeList, new Comparator<PaymentLogEntry>() {
-   //         @Override
-   //         public int compare(PaymentLogEntry ple, PaymentLogEntry p1) {
-   //
-   //             return ple.getPaymentDate().compareTo(p1.getPaymentDate());
-   //         }
-   //     });
-   // }
+    // public void sortMainIncomeArray() {
+    //     Collections.sort(MainActivity.incomeList, new Comparator<PaymentLogEntry>() {
+    //         @Override
+    //         public int compare(PaymentLogEntry ple, PaymentLogEntry p1) {
+    //
+    //             return ple.getPaymentDate().compareTo(p1.getPaymentDate());
+    //         }
+    //     });
+    // }
 
-   // public void sortMainExpenseArray() {
-   //     Collections.sort(MainActivity.expenseList, new Comparator<ExpenseLogEntry>() {
-   //         @Override
-   //         public int compare(ExpenseLogEntry ele, ExpenseLogEntry e1) {
+    // public void sortMainExpenseArray() {
+    //     Collections.sort(MainActivity.expenseList, new Comparator<ExpenseLogEntry>() {
+    //         @Override
+    //         public int compare(ExpenseLogEntry ele, ExpenseLogEntry e1) {
 
-   //             return ele.getExpenseDate().compareTo(e1.getExpenseDate());
-   //         }
-   //     });
-   // }
+    //             return ele.getExpenseDate().compareTo(e1.getExpenseDate());
+    //         }
+    //     });
+    // }
 }

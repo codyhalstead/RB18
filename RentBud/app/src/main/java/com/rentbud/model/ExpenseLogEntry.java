@@ -157,4 +157,5 @@ public class ExpenseLogEntry implements Parcelable {
     public void setTypeLabel(String typeLabel) {
         this.typeLabel = typeLabel;
     }
+
 }

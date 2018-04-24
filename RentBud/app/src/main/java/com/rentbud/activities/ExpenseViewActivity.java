@@ -57,7 +57,10 @@ public class ExpenseViewActivity extends BaseActivity {
         dataMethods = new MainArrayDataMethods();
         //if recreated
         if (savedInstanceState != null) {
-
+            if (savedInstanceState.getParcelable("expense") != null) {
+                this.expense = savedInstanceState.getParcelable("expense");
+                this.receiptPic = expense.getReceiptPic();
+            }
         } else {
             //If new
             Bundle bundle = getIntent().getExtras();
@@ -88,8 +91,8 @@ public class ExpenseViewActivity extends BaseActivity {
 
         BigDecimal displayVal = expense.getAmount().setScale(2, RoundingMode.HALF_EVEN);
         NumberFormat usdCostFormat = NumberFormat.getCurrencyInstance(Locale.US);
-        usdCostFormat.setMinimumFractionDigits( 2 );
-        usdCostFormat.setMaximumFractionDigits( 2 );
+        usdCostFormat.setMinimumFractionDigits(2);
+        usdCostFormat.setMaximumFractionDigits(2);
 
         amountTV.setText(usdCostFormat.format(displayVal.doubleValue()));
         typeTV.setText(expense.getTypeLabel());
@@ -135,5 +138,12 @@ public class ExpenseViewActivity extends BaseActivity {
                 ExpenseListFragment.expenseListAdapterNeedsRefreshed = true;
             }
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        //Save the fragment's instance
+        super.onSaveInstanceState(outState);
+        outState.putParcelable("expense", expense);
     }
 }

@@ -87,21 +87,9 @@ public class NewTenantFormActivity extends BaseActivity {
                 String emergencyLastName = emergencyLastNameET.getText().toString().trim();
                 String emergencyPhone = emergencyPhoneET.getText().toString().trim();
                 String notes = notesET.getText().toString().trim();
-                Date leaseStart = null;
-                Date leaseEnd = null;
-                Date paymentDate = null;
-                int apartmentID = 0;
-                Boolean isPrimary = false;
-                if (tenantToEdit != null) {
-                    leaseStart = tenantToEdit.getLeaseStart();
-                    leaseEnd = tenantToEdit.getLeaseEnd();
-                    paymentDate = tenantToEdit.getPaymentDay();
-                    isPrimary = tenantToEdit.getIsPrimary();
-                    apartmentID = tenantToEdit.getApartmentID();
-                }
                 //Create new Tenant object with input data and add it to the database
                 Tenant tenant = new Tenant(-1, firstName, lastName, phone, email, emergencyFirstName, emergencyLastName, emergencyPhone,
-                        apartmentID, 0, 0, isPrimary, paymentDate, notes, leaseStart, leaseEnd);
+                       false, notes);
                 //Set result success, close this activity
                 if (!isEdit) {
                     databaseHandler.addNewTenant(tenant, MainActivity.user.getId());

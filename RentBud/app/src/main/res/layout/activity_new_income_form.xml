@@ -67,7 +67,8 @@
                     android:id="@+id/incomeFormAmountET"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="numberDecimal"
+                    android:inputType="number"
+                    android:text="$0.00"
                     />
 
             </LinearLayout>

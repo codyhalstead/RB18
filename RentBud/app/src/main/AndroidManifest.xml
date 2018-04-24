@@ -69,6 +69,11 @@
             android:theme="@style/AppTheme.NoActionBar"
             >
         </activity>
+        <!--LeaseViewActivity -->
+        <activity android:name="com.rentbud.activities.LeaseViewActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            >
+        </activity>
         <!--NewExpenseFormActivity -->
         <activity
             android:windowSoftInputMode="stateHidden"
@@ -95,7 +100,7 @@
         </activity>
         <!--NewLeaseFormActivity -->
         <activity
-            android:windowSoftInputMode="stateHidden"
+            android:windowSoftInputMode="adjustPan"
             android:name="com.rentbud.activities.NewLeaseFormActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>

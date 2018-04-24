@@ -18,7 +18,10 @@ import android.widget.TextView;
 
 import com.example.cody.rentbud.R;
 import com.rentbud.activities.MainActivity;
+import com.rentbud.helpers.MainArrayDataMethods;
+import com.rentbud.model.Apartment;
 import com.rentbud.model.ExpenseLogEntry;
+import com.rentbud.model.Lease;
 import com.rentbud.model.Tenant;
 
 import java.text.DateFormat;
@@ -38,6 +41,7 @@ public class TenantListAdapter extends BaseAdapter implements Filterable {
     private Context context;
     private String searchText;
     private ColorStateList highlightColor;
+    MainArrayDataMethods dataMethods;
 
     public TenantListAdapter(Context context, ArrayList<Tenant> tenantArray, ColorStateList highlightColor) {
         this.tenantArray = tenantArray;
@@ -45,6 +49,7 @@ public class TenantListAdapter extends BaseAdapter implements Filterable {
         this.context = context;
         this.searchText = "";
         this.highlightColor = highlightColor;
+        this.dataMethods = new MainArrayDataMethods();
     }
 
     static class ViewHolder {
@@ -104,35 +109,38 @@ public class TenantListAdapter extends BaseAdapter implements Filterable {
             setTextHighlightSearch(viewHolder.firstNameTV, tenant.getFirstName());
             setTextHighlightSearch(viewHolder.lastNameTV, tenant.getLastName());
             setTextHighlightSearch(viewHolder.phoneNumberTV, tenant.getPhone());
-
-            if (tenant.getApartmentID() == 0) {
+            Lease currentLease = null;
+            if (!tenant.getHasLease()) {
                 viewHolder.leaseEndsTV.setText("");
                 viewHolder.leaseEndsTextDisplayTV.setText("");
                 viewHolder.isPrimaryTV.setText("");
             } else {
                 SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-                viewHolder.leaseEndsTV.setText(formatter.format(tenant.getLeaseEnd()));
-                if (tenant.getIsPrimary()) {
-                    viewHolder.isPrimaryTV.setText("Primary");
-                } else {
-                    viewHolder.isPrimaryTV.setText("Secondary");
+                currentLease = dataMethods.getCachedActiveLeaseByTenantID(tenant.getId());
+                viewHolder.leaseEndsTV.setText("ERROR");
+                viewHolder.isPrimaryTV.setText("ERROR");
+                if(currentLease != null) {
+                    viewHolder.leaseEndsTV.setText(formatter.format(currentLease.getLeaseEnd()));
+                    if (tenant.getId() == currentLease.getPrimaryTenantID()) {
+                        viewHolder.isPrimaryTV.setText("Primary");
+                    } else {
+                        viewHolder.isPrimaryTV.setText("Secondary");
+                    }
                 }
             }
 
-            if (tenant.getApartmentID() == 0) {
+            if (!tenant.getHasLease()) {
                 convertView.setBackgroundColor(convertView.getResources().getColor(R.color.lightGrey));
                 viewHolder.rentingStatusTV.setText("Not Currently Renting");
                 viewHolder.apartmentStreet1.setText("");
                 viewHolder.apartmentStreet2.setText("");
             } else {
                 viewHolder.rentingStatusTV.setText("Renting ");
-                convertView.setBackgroundColor(convertView.getResources().getColor(R.color.white));
-                for (int i = 0; i < MainActivity.apartmentList.size(); i++) {
-                    if (MainActivity.apartmentList.get(i).getId() == tenant.getApartmentID()) {
-                        viewHolder.apartmentStreet1.setText(MainActivity.apartmentList.get(i).getStreet1());
-                        viewHolder.apartmentStreet2.setText(MainActivity.apartmentList.get(i).getStreet2());
-                        break;
-                    }
+                if(currentLease != null) {
+                    convertView.setBackgroundColor(convertView.getResources().getColor(R.color.white));
+                    Apartment apartment = dataMethods.getCachedApartmentByApartmentID(currentLease.getApartmentID());
+                    viewHolder.apartmentStreet1.setText(apartment.getStreet1());
+                    viewHolder.apartmentStreet2.setText(apartment.getStreet2());
                 }
             }
         }

@@ -1,16 +1,15 @@
 package com.rentbud.fragments;
 
 import android.app.DatePickerDialog;
-import android.app.Fragment;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,14 +22,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.cody.rentbud.R;
-import com.rentbud.activities.ApartmentViewActivity;
 import com.rentbud.activities.ExpenseViewActivity;
+import com.rentbud.activities.LeaseViewActivity;
 import com.rentbud.activities.MainActivity;
-import com.rentbud.activities.NewLeaseFormActivity;
-import com.rentbud.adapters.ApartmentListAdapter;
 import com.rentbud.adapters.ExpenseListAdapter;
-import com.rentbud.model.Apartment;
+import com.rentbud.adapters.LeaseListAdapter;
 import com.rentbud.model.ExpenseLogEntry;
+import com.rentbud.model.Lease;
 import com.rentbud.sqlite.DatabaseHandler;
 
 import java.text.DateFormat;
@@ -41,24 +39,22 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-import static android.content.ContentValues.TAG;
-
 /**
- * Created by Cody on 3/23/2018.
+ * Created by Cody on 4/14/2018.
  */
 
-public class ExpenseListFragment extends android.support.v4.app.Fragment implements AdapterView.OnItemClickListener, View.OnClickListener {
-    TextView noExpensesTV;
+public class LeaseListFragment extends Fragment implements AdapterView.OnItemClickListener, View.OnClickListener {
+    TextView noLeasesTV;
     EditText searchBarET;
-    ExpenseListAdapter expenseListAdapter;
+    LeaseListAdapter leaseListAdapter;
     ColorStateList accentColor;
     ListView listView;
     Button dateRangeStartBtn, dateRangeEndBtn;
-    public static boolean expenseListAdapterNeedsRefreshed;
+    public static boolean leaseListAdapterNeedsRefreshed;
     Date filterDateStart, filterDateEnd;
     private DatePickerDialog.OnDateSetListener dateSetFilterStartListener, dateSetFilterEndListener;
     private DatabaseHandler db;
-    private ArrayList<ExpenseLogEntry> currentFilteredExpenses;
+    private ArrayList<Lease> currentFilteredLeases;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -69,7 +65,7 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        this.noExpensesTV = view.findViewById(R.id.moneyEmptyListTV);
+        this.noLeasesTV = view.findViewById(R.id.moneyEmptyListTV);
         this.searchBarET = view.findViewById(R.id.moneyListSearchET);
         this.dateRangeStartBtn = view.findViewById(R.id.moneyListDateRangeStartBtn);
         this.dateRangeStartBtn.setOnClickListener(this);
@@ -100,10 +96,10 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
                     e.printStackTrace();
                 }
             }
-            if(savedInstanceState.getParcelableArrayList("filteredExpenses") != null){
-                this.currentFilteredExpenses = savedInstanceState.getParcelableArrayList("filteredExpenses");
+            if(savedInstanceState.getParcelableArrayList("filteredLeases") != null){
+                this.currentFilteredLeases = savedInstanceState.getParcelableArrayList("filteredLeases");
             } else {
-                this.currentFilteredExpenses = new ArrayList<>();
+                this.currentFilteredLeases = new ArrayList<>();
             }
         } else {
             Date endDate = Calendar.getInstance().getTime();
@@ -112,7 +108,7 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
             calendar.add(Calendar.YEAR, -1);
             Date startDate = calendar.getTime();
 
-            this.currentFilteredExpenses = db.getUsersExpensesWithinDates(MainActivity.user, startDate, endDate );
+            this.currentFilteredLeases = db.getUsersActiveLeasesWithinDates(MainActivity.user, startDate, endDate );
             this.filterDateEnd = endDate;
             this.filterDateStart = startDate;
             SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
@@ -121,8 +117,8 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
 
         }
         setUpdateSelectedDateListeners();
-        getActivity().setTitle("Expense View");
-        ExpenseListFragment.expenseListAdapterNeedsRefreshed = false;
+        getActivity().setTitle("Lease View");
+        LeaseListFragment.leaseListAdapterNeedsRefreshed = false;
         //Get current theme accent color, which is passed into the list adapter for search highlighting
         TypedValue colorValue = new TypedValue();
         getActivity().getTheme().resolveAttribute(R.attr.colorAccent, colorValue, true);
@@ -134,13 +130,13 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
     @Override
     public void onResume() {
         super.onResume();
-        if (ExpenseListFragment.expenseListAdapterNeedsRefreshed) {
+        if (LeaseListFragment.leaseListAdapterNeedsRefreshed) {
             searchBarET.setText("");
-            if(this.expenseListAdapter != null){
-                this.currentFilteredExpenses = db.getUsersExpensesWithinDates(MainActivity.user, filterDateStart, filterDateEnd);
-                expenseListAdapter.updateResults(this.currentFilteredExpenses);
-                expenseListAdapterNeedsRefreshed = false;
-                expenseListAdapter.getFilter().filter("");
+            if(this.leaseListAdapter != null){
+                this.currentFilteredLeases = db.getUsersActiveLeasesWithinDates(MainActivity.user, filterDateStart, filterDateEnd);
+                leaseListAdapter.updateResults(this.currentFilteredLeases);
+                leaseListAdapterNeedsRefreshed = false;
+                leaseListAdapter.getFilter().filter("");
             }
         }
     }
@@ -151,8 +147,8 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
             @Override
             public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
                 //When user changed the Text
-                if (expenseListAdapter != null) {
-                    expenseListAdapter.getFilter().filter(cs);
+                if (leaseListAdapter != null) {
+                    leaseListAdapter.getFilter().filter(cs);
 
                 }
             }
@@ -171,28 +167,28 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
     }
 
     private void setUpListAdapter() {
-        if (currentFilteredExpenses != null) {
-            expenseListAdapter = new ExpenseListAdapter(getActivity(), currentFilteredExpenses, accentColor);
-            listView.setAdapter(expenseListAdapter);
+        if (currentFilteredLeases != null) {
+            leaseListAdapter = new LeaseListAdapter(getActivity(), currentFilteredLeases, accentColor);
+            listView.setAdapter(leaseListAdapter);
             listView.setOnItemClickListener(this);
-            if (currentFilteredExpenses.isEmpty()) {
-                noExpensesTV.setVisibility(View.VISIBLE);
-                noExpensesTV.setText("No Current Expenses");
+            if (currentFilteredLeases.isEmpty()) {
+                noLeasesTV.setVisibility(View.VISIBLE);
+                noLeasesTV.setText("No Current Leases");
             }
         } else {
             //If MainActivity.expenseList is null show empty list text
-            noExpensesTV.setVisibility(View.VISIBLE);
-            noExpensesTV.setText("Error Loading Expenses");
+            noLeasesTV.setVisibility(View.VISIBLE);
+            noLeasesTV.setText("Error Loading Leases");
         }
     }
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         //On listView row click, launch ApartmentViewActivity passing the rows data into it.
-        Intent intent = new Intent(getContext(), ExpenseViewActivity.class);
+        Intent intent = new Intent(getContext(), LeaseViewActivity.class);
         //Uses filtered results to match what is on screen
-        ExpenseLogEntry expense = expenseListAdapter.getFilteredResults().get(i);
-        intent.putExtra("expenseID", expense.getId());
+        Lease lease = leaseListAdapter.getFilteredResults().get(i);
+        intent.putExtra("leaseID", lease.getId());
         startActivity(intent);
     }
 
@@ -245,18 +241,18 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
                 cal.set(Calendar.SECOND, 0);
                 cal.set(Calendar.MILLISECOND, 0);
                 filterDateStart = cal.getTime();
-                currentFilteredExpenses = db.getUsersExpensesWithinDates(MainActivity.user, filterDateStart, filterDateEnd);
-                if(currentFilteredExpenses.isEmpty()){
-                    noExpensesTV.setVisibility(View.VISIBLE);
-                    noExpensesTV.setText("No Current Expenses");
+                currentFilteredLeases = db.getUsersActiveLeasesWithinDates(MainActivity.user, filterDateStart, filterDateEnd);
+                if(currentFilteredLeases.isEmpty()){
+                    noLeasesTV.setVisibility(View.VISIBLE);
+                    noLeasesTV.setText("No Current Leases");
                 } else {
-                    noExpensesTV.setVisibility(View.GONE);
-                    noExpensesTV.setText("No Current Expenses");
+                    noLeasesTV.setVisibility(View.GONE);
+                    noLeasesTV.setText("No Current Leases");
                 }
                 SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
                 dateRangeStartBtn.setText(formatter.format(filterDateStart));
-                expenseListAdapter.updateResults(currentFilteredExpenses);
-                expenseListAdapter.getFilter().filter(searchBarET.getText());
+                leaseListAdapter.updateResults(currentFilteredLeases);
+                leaseListAdapter.getFilter().filter(searchBarET.getText());
             }
         };
         dateSetFilterEndListener = new DatePickerDialog.OnDateSetListener() {
@@ -272,19 +268,19 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
                 cal.set(Calendar.SECOND, 0);
                 cal.set(Calendar.MILLISECOND, 0);
                 filterDateEnd = cal.getTime();
-                currentFilteredExpenses = db.getUsersExpensesWithinDates(MainActivity.user, filterDateStart, filterDateEnd);
-                if(currentFilteredExpenses.isEmpty()){
-                    noExpensesTV.setVisibility(View.VISIBLE);
-                    noExpensesTV.setText("No Current Expenses");
+                currentFilteredLeases = db.getUsersActiveLeasesWithinDates(MainActivity.user, filterDateStart, filterDateEnd);
+                if(currentFilteredLeases.isEmpty()){
+                    noLeasesTV.setVisibility(View.VISIBLE);
+                    noLeasesTV.setText("No Current Leases");
                 } else {
-                    noExpensesTV.setVisibility(View.GONE);
-                    noExpensesTV.setText("No Current Expenses");
+                    noLeasesTV.setVisibility(View.GONE);
+                    noLeasesTV.setText("No Current Leases");
                 }
                 SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
                 dateRangeEndBtn.setText(formatter.format(filterDateEnd));
-                expenseListAdapter.notifyDataSetChanged();
-                expenseListAdapter.updateResults(currentFilteredExpenses);
-                expenseListAdapter.getFilter().filter(searchBarET.getText());
+                leaseListAdapter.notifyDataSetChanged();
+                leaseListAdapter.updateResults(currentFilteredLeases);
+                leaseListAdapter.getFilter().filter(searchBarET.getText());
             }
         };
     }
@@ -299,8 +295,8 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
         if (filterDateEnd != null) {
             outState.putString("filterDateEnd", formatter.format(filterDateEnd));
         }
-        if (currentFilteredExpenses != null) {
-            outState.putParcelableArrayList("filteredExpenses", currentFilteredExpenses);
+        if (currentFilteredLeases != null) {
+            outState.putParcelableArrayList("filteredLeases", currentFilteredLeases);
         }
     }
 

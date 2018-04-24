@@ -100,12 +100,14 @@ public class NewExpenseFormActivity extends BaseActivity {
         this.validation = new UserInputValidation(this);
         this.dateTV = findViewById(R.id.expenseFormDateTV);
         this.amountET = findViewById(R.id.expenseFormAmountET);
+        amountET.setSelection(amountET.getText().length());
         this.descriptionET = findViewById(R.id.expenseFormDescriptionET);
         this.saveBtn = findViewById(R.id.expenseFormSaveBtn);
         this.cancelBtn = findViewById(R.id.expenseFormCancelBtn);
         this.newTypeBtn = findViewById(R.id.expenseFormTypeBtn);
         this.expenseTypeSpinner = findViewById(R.id.expenseFormTypeSpinner);
         this.isEdit = false;
+        this.currentAmount = new BigDecimal(0);
     }
 
     private void loadExpenseDataIfEditing() {
@@ -118,8 +120,16 @@ public class NewExpenseFormActivity extends BaseActivity {
                 SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
                 dateTV.setText(formatter.format(expenseDate));
             }
-            currentAmount = expenseToEdit.getAmount();
-            amountET.setText(expenseToEdit.getAmount().toString());
+            //currentAmount = expenseToEdit.getAmount();
+            //amountET.setText(expenseToEdit.getAmount().toPlainString());
+            String s = expenseToEdit.getAmount().toPlainString();
+            if (s.isEmpty()) return;
+            String cleanString = s.replaceAll("[$,.]", "");
+            currentAmount = new BigDecimal(cleanString).setScale(2, BigDecimal.ROUND_FLOOR).divide(new BigDecimal(100), BigDecimal.ROUND_FLOOR);
+            String formatted = NumberFormat.getCurrencyInstance().format(currentAmount);
+            amountET.setText(formatted);
+            amountET.setSelection(formatted.length());
+            //amountET.setSelection(amountET.getText().length());
             String label = expenseToEdit.getTypeLabel();
             if (label != null) {
                 int spinnerPosition = adapter.getPosition(label);
@@ -205,6 +215,9 @@ public class NewExpenseFormActivity extends BaseActivity {
             @Override
             public void onClick(View view) {
                 Calendar cal = Calendar.getInstance();
+                if(expenseDate != null) {
+                    cal.setTime(expenseDate);
+                }
                 int year = cal.get(Calendar.YEAR);
                 int month = cal.get(Calendar.MONTH);
                 int day = cal.get(Calendar.DAY_OF_MONTH);
