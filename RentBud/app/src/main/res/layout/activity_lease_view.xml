@@ -31,14 +31,21 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginTop="15dp"
+                style="@style/FormLabel"
                 android:text="Address" />
+
+            <!--Border -->
+            <View
+                android:layout_width="250dp"
+                android:layout_gravity="center"
+                android:layout_height="2dp"
+                android:background="@color/caldroid_black" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="15dp"
                 android:layout_marginRight="15dp"
-                android:background="@drawable/rect_edit"
                 android:orientation="vertical">
 
                 <!--Street 1 -->
@@ -47,6 +54,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
+                    style="@style/FormText"
                     android:text="2390 Burlington Rd" />
 
                 <!--Street 2 -->
@@ -54,6 +62,7 @@
                     android:id="@+id/leaseViewStreet2TV"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    style="@style/FormText"
                     android:gravity="center"
                     android:text="Apt. 231" />
 
@@ -68,27 +77,32 @@
                         android:id="@+id/leaseViewCityTV"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        style="@style/FormText"
                         android:text="Letts," />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        style="@style/FormText"
                         android:text="  " />
 
                     <TextView
                         android:id="@+id/leaseViewStateTV"
                         android:layout_width="wrap_content"
+                        style="@style/FormText"
                         android:layout_height="wrap_content"
                         android:text="IA" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        style="@style/FormText"
                         android:text="  " />
 
                     <TextView
                         android:id="@+id/leaseViewZipTV"
                         android:layout_width="wrap_content"
+                        style="@style/FormText"
                         android:layout_height="wrap_content"
                         android:text="52754" />
 
@@ -101,8 +115,16 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="Primary Tenant Information"
+                style="@style/FormLabel"
                 android:layout_marginTop="15dp"
                 />
+
+            <!--Border -->
+            <View
+                android:layout_width="250dp"
+                android:layout_gravity="center"
+                android:layout_height="2dp"
+                android:background="@color/caldroid_black" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -110,7 +132,6 @@
                 android:layout_marginLeft="15dp"
                 android:layout_marginRight="15dp"
                 android:orientation="vertical"
-                android:background="@drawable/rect_edit"
                 >
 
                 <LinearLayout
@@ -124,6 +145,7 @@
                         android:id="@+id/leaseViewPrimaryTenantFirstNameTV"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        style="@style/FormText"
                         android:text="Bill"
                         />
 
@@ -131,12 +153,14 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text=" "
+                        style="@style/FormText"
                         />
 
                     <TextView
                         android:id="@+id/leaseViewPrimaryTenantLastNameTV"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        style="@style/FormText"
                         android:text="Clinton"
                         />
 
@@ -147,6 +171,7 @@
                     android:id="@+id/leaseViewPrimaryTenantPhoneTV"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    style="@style/FormText"
                     android:layout_gravity="center"
                     android:text="1-555-4444"
                     />
@@ -156,6 +181,7 @@
                     android:id="@+id/leaseViewPrimaryTenantEmailTV"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    style="@style/FormText"
                     android:layout_gravity="center"
                     android:text="koko@dodo.com"
                     />
@@ -166,15 +192,22 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                style="@style/FormLabel"
                 android:layout_marginTop="15dp"
                 android:text="Lease Information" />
+
+            <!--Border -->
+            <View
+                android:layout_width="250dp"
+                android:layout_gravity="center"
+                android:layout_height="2dp"
+                android:background="@color/caldroid_black" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="15dp"
                 android:layout_marginRight="15dp"
-                android:background="@drawable/rect_edit"
                 android:orientation="vertical">
 
                 <LinearLayout
@@ -187,24 +220,28 @@
                         android:id="@+id/leaseViewRentalLeaseTV"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        style="@style/FormText"
                         android:text="Lease: " />
 
                     <TextView
                         android:id="@+id/leaseViewLeaseStartTV"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        style="@style/FormText"
                         android:text="1/2/17" />
 
                     <TextView
                         android:id="@+id/leaseViewLeaseHyphenTV"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        style="@style/FormText"
                         android:text=" - " />
 
                     <TextView
                         android:id="@+id/leaseViewLeaseEndTV"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        style="@style/FormText"
                         android:text="1/2/18" />
 
                 </LinearLayout>
@@ -219,10 +256,12 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        style="@style/FormText"
                         android:text="Secondary Tenants:" />
 
                     <TextView
                         android:id="@+id/leaseViewSecondaryTenantsTV"
+                        style="@style/FormText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="center" />
@@ -237,7 +276,15 @@
                 android:text="Notes"
                 android:layout_gravity="center"
                 android:layout_marginTop="15dp"
+                style="@style/FormLabel"
                 />
+
+            <!--Border -->
+            <View
+                android:layout_width="250dp"
+                android:layout_gravity="center"
+                android:layout_height="2dp"
+                android:background="@color/caldroid_black" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -251,8 +298,8 @@
                     android:id="@+id/leaseViewNotesTV"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/rect_edit"
-                    android:gravity="top"
+                    android:gravity="top|center"
+                    style="@style/FormText"
                     android:isScrollContainer="true"
                     android:maxLength="500"
                     android:minHeight="120dp"

@@ -54,7 +54,7 @@ public class NewApartmentFormActivity extends BaseActivity {
     }
 
     private void populateStateSpinner() {
-        //Create state array from MainActivity.stateMap
+        //Create state array from MainActivity5.stateMap
         List<String> spinnerArray = new ArrayList<>();
         for (Map.Entry<String, Integer> entry : MainActivity.stateMap.entrySet()) {
             spinnerArray.add(entry.getKey());

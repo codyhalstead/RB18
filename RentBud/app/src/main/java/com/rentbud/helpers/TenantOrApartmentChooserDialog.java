@@ -107,16 +107,16 @@ public class TenantOrApartmentChooserDialog extends Dialog implements AdapterVie
     private void setUpTenantListAdapter() {
         if (availableTenants != null) {
             if (!availableTenants.isEmpty()) {
-                //If MainActivity.tenantList is not null or empty, set apartment list adapter
+                //If MainActivity5.tenantList is not null or empty, set apartment list adapter
                 tenantListAdapter = new TenantDialogListAdapter(context, availableTenants, accentColor);
                 listView.setAdapter(tenantListAdapter);
                 listView.setOnItemClickListener(this);
             } else {
-                //If MainActivity.tenantList is not null but is empty, show empty list text
+                //If MainActivity5.tenantList is not null but is empty, show empty list text
                 emptyListTV.setVisibility(View.VISIBLE);
             }
         } else {
-            //If MainActivity.tenantList is null show empty list text
+            //If MainActivity5.tenantList is null show empty list text
             emptyListTV.setVisibility(View.VISIBLE);
         }
     }
@@ -124,16 +124,16 @@ public class TenantOrApartmentChooserDialog extends Dialog implements AdapterVie
     private void setUpApartmentListAdapter() {
         if (availableApartments != null) {
             if (!availableApartments.isEmpty()) {
-                //If MainActivity.tenantList is not null or empty, set apartment list adapter
+                //If MainActivity5.tenantList is not null or empty, set apartment list adapter
                 apartmentListAdapter = new ApartmentDialogListAdapter(context, availableApartments, accentColor);
                 listView.setAdapter(apartmentListAdapter);
                 listView.setOnItemClickListener(this);
             } else {
-                //If MainActivity.tenantList is not null but is empty, show empty list text
+                //If MainActivity5.tenantList is not null but is empty, show empty list text
                 emptyListTV.setVisibility(View.VISIBLE);
             }
         } else {
-            //If MainActivity.tenantList is null show empty list text
+            //If MainActivity5.tenantList is null show empty list text
             emptyListTV.setVisibility(View.VISIBLE);
         }
     }

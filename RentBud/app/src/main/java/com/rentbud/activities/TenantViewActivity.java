@@ -308,7 +308,7 @@ public class TenantViewActivity extends BaseActivity {
                 //databaseHandler.editTenant(tenant);
                 //TODO
                 dataMethods.sortMainApartmentArray();
-                //MainActivity.apartmentList = databaseHandler.getUsersApartments(MainActivity.user);
+                //MainActivity5.apartmentList = databaseHandler.getUsersApartments(MainActivity5.user);
                 TenantListFragment.tenantListAdapterNeedsRefreshed = true;
                 ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
                 TenantViewActivity.this.finish();

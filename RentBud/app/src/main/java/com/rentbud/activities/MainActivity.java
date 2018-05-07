@@ -16,11 +16,11 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.example.android.wizardpager.MainActivity5;
 import com.example.cody.rentbud.R;
 import com.rentbud.fragments.CalendarFragment;
 import com.rentbud.fragments.ExpenseListFragment;
@@ -31,19 +31,12 @@ import com.rentbud.fragments.LeaseListFragment;
 import com.rentbud.fragments.TenantListFragment;
 import com.rentbud.helpers.MainArrayDataMethods;
 import com.rentbud.model.Apartment;
-import com.rentbud.model.ExpenseLogEntry;
 import com.rentbud.model.Lease;
-import com.rentbud.model.PaymentLogEntry;
 import com.rentbud.model.Tenant;
 import com.rentbud.model.User;
 import com.rentbud.sqlite.DatabaseHandler;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
 import java.util.TreeMap;
 
 public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -85,7 +78,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     public static TreeMap<String, Integer> eventTypeLabels;
 
     int testTenants = 0;
-    int testAppartments = 0;
+    int testApartments = 0;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -155,7 +148,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         if (requestCode == REQUEST_SIGNIN) {
             //If log-in successful
             if (resultCode == RESULT_OK) {
-                //Log-in user data passed to MainActivity
+                //Log-in user data passed to MainActivity5
                 MainActivity.user = (User) data.getExtras().get("newUserInfo");
                 //Save user info to shared preferences to stay logged in until user manually logs out
                 SharedPreferences.Editor editor = preferences.edit();
@@ -235,8 +228,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         MainActivity.apartmentList.clear();
         MainActivity.tenantList.clear();
         MainActivity.currentLeasesList.clear();
-        //MainActivity.incomeList.clear();
-        //MainActivity.expenseList.clear();
+        //MainActivity5.incomeList.clear();
+        //MainActivity5.expenseList.clear();
         //TODO maybe not clear stateMap
         MainActivity.stateMap.clear();
         //Launch LoginActivity for result
@@ -413,9 +406,11 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         builder.setPositiveButton("Current", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                Intent intent = new Intent(MainActivity.this, NewLeaseFormActivity.class);
+                //Intent intent = new Intent(MainActivity.this, NewLeaseFormActivity.class);
                 //Uses filtered results to match what is on screen
-                intent.putExtra("isLeaseForHistory", false);
+                //intent.putExtra("isLeaseForHistory", false);
+                //startActivityForResult(intent, MainActivity.REQUEST_NEW_LEASE_FORM);
+                Intent intent = new Intent(MainActivity.this, NewLeaseWizard.class);
                 startActivityForResult(intent, MainActivity.REQUEST_NEW_LEASE_FORM);
             }
         });
@@ -459,7 +454,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     }
 
     private void setUpToolbar() {
-        //Set up MainActivity toolbar
+        //Set up MainActivity5 toolbar
         setupBasicToolbar();
         if (Build.VERSION.SDK_INT > 15) {
             //Set toolbar color to match users theme
@@ -512,8 +507,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         //calendar.setTime(endDate);
         //calendar.add(Calendar.YEAR, -1);
         //Date startDate = calendar.getTime();
-        //MainActivity.expenseList = dbHandler.getUsersExpensesWithinDates(MainActivity.user, startDate, endDate);
-        //MainActivity.incomeList = dbHandler.getUsersIncomeWithinDates(MainActivity.user, startDate, endDate);
+        //MainActivity5.expenseList = dbHandler.getUsersExpensesWithinDates(MainActivity5.user, startDate, endDate);
+        //MainActivity5.incomeList = dbHandler.getUsersIncomeWithinDates(MainActivity5.user, startDate, endDate);
     }
 
     public static void updateApartmentList(ArrayList<Apartment> apartmentList) {
@@ -537,10 +532,10 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     public void add100Apartments(View view) {
         int i = 0;
         while (i < 100) {
-            Apartment apartment = new Apartment(0, "2366 Lange Ave", "Apt." + testAppartments, "Atalissa", 1, "AL",
+            Apartment apartment = new Apartment(0, "2366 Lange Ave", "Apt." + testApartments, "Atalissa", 1, "AL",
                     "53654", "2 bed 1 bath", false, "Big ol building", null, null);
             dbHandler.addNewApartment(apartment, user.getId());
-            testAppartments++;
+            testApartments++;
             i++;
         }
     }
@@ -550,7 +545,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     //  while(i < 100){
     //  Apartment apartment = new ExpenseLogEntry(0, "", 154.54, 0, "description", 1, "");
     //  dbHandler.addNewApartment(apartment, user.getId());
-    //  testAppartments++;
+    //  testApartments++;
     //  i++;
     // }
     //}

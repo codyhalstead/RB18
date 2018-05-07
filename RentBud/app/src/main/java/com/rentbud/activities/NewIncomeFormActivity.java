@@ -162,7 +162,7 @@ public class NewIncomeFormActivity extends BaseActivity {
                 if (!isEdit) {
                     PaymentLogEntry income = new PaymentLogEntry(id, incomeDate, typeID, typeLabel, 0, 0, currentAmount, description);
                     databaseHandler.addPaymentLogEntry(income, MainActivity.user.getId());
-                    //MainActivity.incomeList = databaseHandler.getUsersIncome(MainActivity.user);
+                    //MainActivity5.incomeList = databaseHandler.getUsersIncome(MainActivity5.user);
                     setResult(RESULT_OK);
                     finish();
                 } else {
@@ -253,7 +253,7 @@ public class NewIncomeFormActivity extends BaseActivity {
     }
 
     private void populateIncomeTypeSpinner() {
-        //Create state array from MainActivity.stateMap
+        //Create state array from MainActivity5.stateMap
         List<String> spinnerArray = new ArrayList<>();
         for (Map.Entry<String, Integer> entry : MainActivity.incomeTypeLabels.entrySet()) {
             spinnerArray.add(entry.getKey());

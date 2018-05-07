@@ -418,7 +418,7 @@ public class NewLeaseFormActivity extends BaseActivity implements View.OnClickLi
                         if (primaryTenant != null) {
                             availableTenants.add(primaryTenant);
                         }
-                        availableTenants.remove(apartmentResult);
+                        availableTenants.remove(tenantResult);
                         primaryTenant = tenantResult;
                         setPrimaryTenantTextView();
                     }
@@ -498,7 +498,7 @@ public class NewLeaseFormActivity extends BaseActivity implements View.OnClickLi
                         dataMethods.sortMainApartmentArray();
                         dataMethods.sortMainTenantArray();
                         MainActivity.currentLeasesList = db.getUsersActiveLeases(MainActivity.user);
-                        //MainActivity.apartmentList = db.getUsersApartments(MainActivity.user);
+                        //MainActivity5.apartmentList = db.getUsersApartments(MainActivity5.user);
                         ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
                         TenantListFragment.tenantListAdapterNeedsRefreshed = true;
                         LeaseListFragment.leaseListAdapterNeedsRefreshed = true;

@@ -28,7 +28,7 @@ public class SettingsActivity extends BaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //Preferences must be initialized before setContentView because it is used in determining activities theme
-        //Will be different from static MainActivity.currentThemeChoice when user selects themes within this activity
+        //Will be different from static MainActivity5.currentThemeChoice when user selects themes within this activity
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         int theme = preferences.getInt(MainActivity.user.getEmail(), 0);
         setupUserAppTheme(theme);

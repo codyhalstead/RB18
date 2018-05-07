@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/WizardPageContainer">
+
+    <TextView style="@style/WizardPageTitle" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:scrollbarStyle="outsideOverlay">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView style="@style/WizardTitle"
+                android:text="Tenants"
+                />
+
+            <TextView
+                android:id="@+id/leaseWizardPrimaryTenantLabelTV"
+                style="@style/WizardFormLabel"
+                android:text="*Primary Tenant" />
+
+            <TextView
+                android:id="@+id/leaseWizardPrimaryTenantTV"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/rect_edit"
+                android:gravity="center_vertical"
+                style="@style/FormText"
+                android:hint="Click to add primary tenant"
+                android:paddingEnd="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingStart="10dp"
+                android:saveEnabled="false" />
+
+            <TextView
+                android:id="@+id/leaseWizardSecondaryTenantLabelTV"
+                style="@style/WizardFormLabel"
+                android:text="Other Tenants" />
+
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="20dp"
+                >
+
+                <TextView
+                    android:id="@+id/leaseWizardSecondaryTenantsTV"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:background="@drawable/rect_edit"
+                    android:gravity="center_vertical"
+                    android:hint="Use ADD or REMOVE to modify"
+                    android:paddingEnd="10dp"
+                    style="@style/FormText"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:paddingStart="10dp"
+                    android:saveEnabled="false" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:weightSum="2"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/leaseWizardSecondaryTenantsRemoveBtn"
+                        android:layout_weight="1"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        style="?android:attr/buttonBarButtonStyle"
+                        android:text="Remove" />
+
+                    <Button
+                        android:id="@+id/leaseWizardSecondaryTenantsAddBtn"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        style="?android:attr/buttonBarButtonStyle"
+                        android:layout_weight="1"
+                        android:text="Add" />
+
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+            <TextView style="@style/WizardTitle"
+                android:text="Deposit"
+                />
+
+            <TextView
+                android:id="@+id/leaseWizardDepositLabelTV"
+                style="@style/WizardFormLabel"
+                android:text="Deposit Amount" />
+
+            <EditText
+                android:id="@+id/leaseWizardDepositET"
+                android:layout_width="match_parent"
+                style="@style/FormText"
+                android:layout_height="40dp"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/rect_edit"
+                android:gravity="center_vertical"
+                android:text="$0.00"
+                android:hint=""
+                android:paddingEnd="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingStart="10dp"
+                android:saveEnabled="false"
+                android:inputType="number"
+                />
+
+            <TextView
+                android:id="@+id/leaseWizardDepositWithheldLabelTV"
+                style="@style/WizardFormLabel"
+                android:text="Deposit Withheld" />
+
+            <EditText
+                android:id="@+id/leaseWizardDepositWithheldET"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginBottom="20dp"
+                style="@style/FormText"
+                android:background="@drawable/rect_edit"
+                android:gravity="center_vertical"
+                android:text="$0.00"
+                android:hint=""
+                android:paddingEnd="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingStart="10dp"
+                android:saveEnabled="false"
+                android:inputType="number"
+                />
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

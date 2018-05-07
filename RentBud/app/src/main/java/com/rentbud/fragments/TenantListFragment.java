@@ -119,15 +119,15 @@ public class TenantListFragment extends Fragment implements AdapterView.OnItemCl
             listView.setAdapter(tenantListAdapter);
             listView.setOnItemClickListener(this);
             if (!MainActivity.tenantList.isEmpty()) {
-                //If MainActivity.tenantList is not null or empty, set apartment list adapter
+                //If MainActivity5.tenantList is not null or empty, set apartment list adapter
 
             } else {
-                //If MainActivity.tenantList is not null but is empty, show empty list text
+                //If MainActivity5.tenantList is not null but is empty, show empty list text
                 noTenantsTV.setVisibility(View.VISIBLE);
                 noTenantsTV.setText("No Current Tenants");
             }
         } else {
-            //If MainActivity.tenantList is null show empty list text
+            //If MainActivity5.tenantList is null show empty list text
             noTenantsTV.setVisibility(View.VISIBLE);
             noTenantsTV.setText("Error Loading Tenants");
         }

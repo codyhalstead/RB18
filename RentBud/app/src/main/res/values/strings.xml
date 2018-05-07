@@ -48,34 +48,52 @@
     </string-array>
 
     <string-array name="date_array">
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-        <item>4</item>
-        <item>5</item>
-        <item>6</item>
-        <item>7</item>
-        <item>8</item>
-        <item>9</item>
-        <item>10</item>
-        <item>11</item>
-        <item>12</item>
-        <item>13</item>
-        <item>14</item>
-        <item>15</item>
-        <item>16</item>
-        <item>17</item>
-        <item>18</item>
-        <item>19</item>
-        <item>20</item>
-        <item>21</item>
-        <item>22</item>
-        <item>23</item>
-        <item>24</item>
-        <item>25</item>
-        <item>26</item>
-        <item>27</item>
-        <item>28</item>
+        <item>1st</item>
+        <item>2nd</item>
+        <item>3rd</item>
+        <item>4th</item>
+        <item>5th</item>
+        <item>6th</item>
+        <item>7th</item>
+        <item>8th</item>
+        <item>9th</item>
+        <item>10th</item>
+        <item>11th</item>
+        <item>12th</item>
+        <item>13th</item>
+        <item>14th</item>
+        <item>15th</item>
+        <item>16th</item>
+        <item>17th</item>
+        <item>18th</item>
+        <item>19th</item>
+        <item>20th</item>
+        <item>21th</item>
+        <item>22th</item>
+        <item>23th</item>
+        <item>24th</item>
+        <item>25th</item>
+        <item>26th</item>
+        <item>27th</item>
+        <item>28th</item>
+        <item>29th</item>
+        <item>30th</item>
+        <item>31st</item>
+    </string-array>
+
+    <string-array name="frequency_array">
+        <item>Monthly</item>
+        <item>Every 2 Months</item>
+        <item>Every 3 Months</item>
+        <item>Every 4 Months</item>
+        <item>Every 5 Months</item>
+        <item>Every 6 Months</item>
+        <item>Every 7 Months</item>
+        <item>Every 8 Months</item>
+        <item>Every 9 Months</item>
+        <item>Every 10 Months</item>
+        <item>Every 11 Months</item>
+        <item>Yearly</item>
     </string-array>
 
 </resources>

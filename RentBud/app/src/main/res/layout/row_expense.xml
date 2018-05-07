@@ -19,12 +19,12 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:layout_weight="2"
-
             >
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                style="@style/FormText"
                 android:text="Purchased 3 2 x 4s to repair wall on apt.234"
                 android:id="@+id/expenseRowDescriptionTV"
                 />
@@ -42,6 +42,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                style="@style/FormLabel"
                 android:text="1/21/15"
                 android:textSize="18sp"
                 android:id="@+id/expenseRowDateTV"
@@ -52,6 +53,7 @@
                 android:layout_height="wrap_content"
                 android:text="$355,000.58"
                 android:textSize="18sp"
+                android:textStyle="bold"
                 android:textColor="@color/red"
                 android:id="@+id/expenseRowAmountTV"
                 />
@@ -59,6 +61,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                style="@style/FormText"
                 android:text="Type"
                 android:textSize="18dp"
                 android:id="@+id/expenseRowTypeTV"

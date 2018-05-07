@@ -118,15 +118,15 @@ public class ApartmentListFragment extends Fragment implements AdapterView.OnIte
             listView.setAdapter(apartmentListAdapter);
             listView.setOnItemClickListener(this);
             if (!MainActivity.apartmentList.isEmpty()) {
-                //If MainActivity.apartmentList is not null or empty, set apartment list adapter
+                //If MainActivity5.apartmentList is not null or empty, set apartment list adapter
 
             } else {
-                //If MainActivity.apartmentList is not null but is empty, show empty list text
+                //If MainActivity5.apartmentList is not null but is empty, show empty list text
                 noApartmentsTV.setVisibility(View.VISIBLE);
                 noApartmentsTV.setText("No Current Apartments");
             }
         } else {
-            //If MainActivity.apartmentList is null show empty list text
+            //If MainActivity5.apartmentList is null show empty list text
             noApartmentsTV.setVisibility(View.VISIBLE);
             noApartmentsTV.setText("Error Loading Apartments");
         }

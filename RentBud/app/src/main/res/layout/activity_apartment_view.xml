@@ -46,10 +46,12 @@
                     android:layout_marginTop="10dp"
                     android:gravity="center">
 
+
+                    <!-- Was 200dp X 200dp -->
                     <ImageView
                         android:id="@+id/apartmentViewMainPicIV"
-                        android:layout_width="200dp"
-                        android:layout_height="200dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
                         android:src="@drawable/blank_home_pic" />
                 </LinearLayout>
 
@@ -69,15 +71,24 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginTop="15dp"
-                android:text="Address" />
+                android:text="Address"
+                style="@style/FormLabel"
+                />
+
+            <!--Border -->
+            <View
+                android:layout_width="250dp"
+                android:layout_gravity="center"
+                android:layout_height="2dp"
+                android:background="@color/caldroid_black" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="15dp"
                 android:layout_marginRight="15dp"
-                android:background="@drawable/rect_edit"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                >
 
                 <!--Street 1 -->
                 <TextView
@@ -85,7 +96,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="2390 Burlington Rd" />
+                    android:text="2390 Burlington Rd"
+                    style="@style/FormText"
+                    />
 
                 <!--Street 2 -->
                 <TextView
@@ -93,7 +106,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="Apt. 231" />
+                    android:text="Apt. 231"
+                    style="@style/FormText"
+                    />
 
                 <!--City, state, and ZIP -->
                 <LinearLayout
@@ -106,29 +121,36 @@
                         android:id="@+id/apartmentViewCityTextView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        style="@style/FormText"
                         android:text="Letts," />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        style="@style/FormText"
                         android:text="  " />
 
                     <TextView
                         android:id="@+id/apartmentViewStateTextView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        style="@style/FormText"
                         android:text="IA" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="  " />
+                        android:text="  "
+                        style="@style/FormText"
+                        />
 
                     <TextView
                         android:id="@+id/apartmentViewZipTextView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="52754" />
+                        style="@style/FormText"
+                        android:text="52754"
+                        />
 
                 </LinearLayout>
 
@@ -139,14 +161,21 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginTop="15dp"
+                style="@style/FormLabel"
                 android:text="Description" />
+
+            <!--Border -->
+            <View
+                android:layout_width="250dp"
+                android:layout_height="2dp"
+                android:layout_gravity="center"
+                android:background="@color/caldroid_black" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="15dp"
                 android:layout_marginRight="15dp"
-                android:background="@drawable/rect_edit"
                 android:orientation="vertical">
 
                 <TextView
@@ -154,6 +183,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
+                    style="@style/FormText"
                     android:text="Description" />
 
             </LinearLayout>
@@ -163,14 +193,21 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginTop="15dp"
+                style="@style/FormLabel"
                 android:text="Lease Information" />
+
+            <!--Border -->
+            <View
+                android:layout_width="250dp"
+                android:layout_gravity="center"
+                android:layout_height="2dp"
+                android:background="@color/caldroid_black" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="15dp"
                 android:layout_marginRight="15dp"
-                android:background="@drawable/rect_edit"
                 android:orientation="vertical">
 
                 <LinearLayout
@@ -183,23 +220,29 @@
                         android:id="@+id/apartmentViewRentalLeaseTV"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        style="@style/FormText"
                         android:text="Lease: " />
 
                     <TextView
                         android:id="@+id/apartmentViewLeaseStartTextView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="1/2/17" />
+                        android:text="1/2/17"
+                        style="@style/FormText"
+                        />
 
                     <TextView
                         android:id="@+id/apartmentViewLeaseHyphenTV"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text=" - " />
+                        android:text=" - "
+                        style="@style/FormText"
+                        />
 
                     <TextView
                         android:id="@+id/apartmentViewLeaseEndTextView"
                         android:layout_width="wrap_content"
+                        style="@style/FormText"
                         android:layout_height="wrap_content"
                         android:text="1/2/18" />
 
@@ -216,21 +259,26 @@
                         android:id="@+id/apartmentViewPrimaryTenantDisplayTV"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Primary Tenant: " />
+                        android:text="Primary Tenant: "
+                        style="@style/FormText"
+                        />
 
                     <TextView
                         android:id="@+id/apartmentViewPrimaryTenantFirstNameTV"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        style="@style/FormText"
                         android:text="Cody" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        style="@style/FormText"
                         android:text="  " />
 
                     <TextView
                         android:id="@+id/apartmentViewPrimaryTenantLastNameTV"
+                        style="@style/FormText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Halstead" />
@@ -247,10 +295,13 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Secondary Tenants:" />
+                        android:text="Secondary Tenants:"
+                        style="@style/FormText"
+                        />
 
                     <TextView
                         android:id="@+id/apartmentViewSecondaryTenantsTV"
+                        style="@style/FormText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="center" />
@@ -262,6 +313,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
+                    android:visibility="gone"
                     android:text="Edit Lease" />
 
             </LinearLayout>
@@ -270,28 +322,34 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Notes"
+                style="@style/FormLabel"
                 android:layout_gravity="center"
                 android:layout_marginTop="15dp"
                 />
+
+            <!--Border -->
+            <View
+                android:layout_width="250dp"
+                android:layout_gravity="center"
+                android:layout_height="2dp"
+                android:background="@color/caldroid_black" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="15dp"
                 android:layout_marginRight="15dp"
-                android:layout_marginBottom="15dp"
                 android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/apartmentViewNotesTextView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/rect_edit"
-                    android:gravity="top"
+                    android:gravity="top|center"
+                    style="@style/FormText"
                     android:isScrollContainer="true"
                     android:maxLength="500"
-                    android:minHeight="120dp"
-                    android:padding="10dp" />
+                    android:minHeight="120dp" />
 
             </LinearLayout>
         </LinearLayout>

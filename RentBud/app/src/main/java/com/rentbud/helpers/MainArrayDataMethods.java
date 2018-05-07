@@ -86,9 +86,9 @@ public class MainArrayDataMethods {
 
     //public ArrayList<Tenant> getCachedSecondaryTenantsByApartmentID(int apartmentID) {
     //    ArrayList<Tenant> secondaryTenants = new ArrayList<>();
-    //    for (int i = 0; i < MainActivity.tenantList.size(); i++) {
-    //        if (MainActivity.tenantList.get(i).getApartmentID() == apartmentID && !MainActivity.tenantList.get(i).getIsPrimary()) {
-    //            secondaryTenants.add(MainActivity.tenantList.get(i));
+    //    for (int i = 0; i < MainActivity5.tenantList.size(); i++) {
+    //        if (MainActivity5.tenantList.get(i).getApartmentID() == apartmentID && !MainActivity5.tenantList.get(i).getIsPrimary()) {
+    //            secondaryTenants.add(MainActivity5.tenantList.get(i));
     //        }
     //    }
     //    return secondaryTenants;
@@ -189,9 +189,9 @@ public class MainArrayDataMethods {
 
     // public ExpenseLogEntry getCachedExpenseByID(int expenseID) {
     //     ExpenseLogEntry expense = null;
-    //     for (int i = 0; i < MainActivity.expenseList.size(); i++) {
-    //         if (MainActivity.expenseList.get(i).getId() == expenseID) {
-    //             expense = MainActivity.expenseList.get(i);
+    //     for (int i = 0; i < MainActivity5.expenseList.size(); i++) {
+    //         if (MainActivity5.expenseList.get(i).getId() == expenseID) {
+    //             expense = MainActivity5.expenseList.get(i);
     //             break;
     //         }
     //     }
@@ -200,9 +200,9 @@ public class MainArrayDataMethods {
 
     // public PaymentLogEntry getCachedIncomeByID(int incomeID) {
     //     PaymentLogEntry income = null;
-    //     for (int i = 0; i < MainActivity.incomeList.size(); i++) {
-    //         if (MainActivity.incomeList.get(i).getId() == incomeID) {
-    //             income = MainActivity.incomeList.get(i);
+    //     for (int i = 0; i < MainActivity5.incomeList.size(); i++) {
+    //         if (MainActivity5.incomeList.get(i).getId() == incomeID) {
+    //             income = MainActivity5.incomeList.get(i);
     //             break;
     //         }
     //     }
@@ -210,7 +210,7 @@ public class MainArrayDataMethods {
     // }
 
     // public void sortMainIncomeArray() {
-    //     Collections.sort(MainActivity.incomeList, new Comparator<PaymentLogEntry>() {
+    //     Collections.sort(MainActivity5.incomeList, new Comparator<PaymentLogEntry>() {
     //         @Override
     //         public int compare(PaymentLogEntry ple, PaymentLogEntry p1) {
     //
@@ -220,7 +220,7 @@ public class MainArrayDataMethods {
     // }
 
     // public void sortMainExpenseArray() {
-    //     Collections.sort(MainActivity.expenseList, new Comparator<ExpenseLogEntry>() {
+    //     Collections.sort(MainActivity5.expenseList, new Comparator<ExpenseLogEntry>() {
     //         @Override
     //         public int compare(ExpenseLogEntry ele, ExpenseLogEntry e1) {
 

@@ -354,7 +354,7 @@ public class ApartmentViewActivity extends BaseActivity {
                 this.apartment.setMainPic(filePath);
                 this.mainPic = filePath;
                 databaseHandler.changeApartmentMainPic(this.apartment);
-                //MainActivity.apartmentList = databaseHandler.getUsersApartments(MainActivity.user);
+                //MainActivity5.apartmentList = databaseHandler.getUsersApartments(MainActivity5.user);
                 ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
             }
         }
@@ -377,7 +377,7 @@ public class ApartmentViewActivity extends BaseActivity {
                 cursor.close();
                 this.apartment.addOtherPic(filePath);
                 databaseHandler.addApartmentOtherPic(apartment, filePath, MainActivity.user);
-                //MainActivity.apartmentList = databaseHandler.getUsersApartments(MainActivity.user);
+                //MainActivity5.apartmentList = databaseHandler.getUsersApartments(MainActivity5.user);
                 //ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
                 adapter.notifyDataSetChanged();
             }

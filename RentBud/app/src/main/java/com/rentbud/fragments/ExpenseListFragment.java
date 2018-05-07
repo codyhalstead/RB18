@@ -180,7 +180,7 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
                 noExpensesTV.setText("No Current Expenses");
             }
         } else {
-            //If MainActivity.expenseList is null show empty list text
+            //If MainActivity5.expenseList is null show empty list text
             noExpensesTV.setVisibility(View.VISIBLE);
             noExpensesTV.setText("Error Loading Expenses");
         }

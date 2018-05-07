@@ -172,7 +172,7 @@ public class IncomeListFragment extends android.support.v4.app.Fragment implemen
                 noIncomeTV.setText("No Current Income");
             }
         } else {
-            //If MainActivity.expenseList is null show empty list text
+            //If MainActivity5.expenseList is null show empty list text
             noIncomeTV.setVisibility(View.VISIBLE);
             noIncomeTV.setText("Error Loading Income");
         }

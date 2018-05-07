@@ -36,7 +36,11 @@
                     android:drawableLeft="@drawable/ic_search_black_24dp"
                     android:ems="10"
                     android:gravity="left|center"
-                    android:hint="Search" />
+                    android:hint="Search"
+                    style="@style/FormText"
+                    android:textStyle="normal"
+                    android:textSize="18sp"
+                    />
 
             </LinearLayout>
 

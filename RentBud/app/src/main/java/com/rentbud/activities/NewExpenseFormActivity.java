@@ -162,7 +162,7 @@ public class NewExpenseFormActivity extends BaseActivity {
                 if (!isEdit) {
                     ExpenseLogEntry expense = new ExpenseLogEntry(id, expenseDate, currentAmount, 0, description, typeID, typeLabel, null);
                     databaseHandler.addExpenseLogEntry(expense, MainActivity.user.getId());
-                    //MainActivity.expenseList = databaseHandler.getUsersExpenses(MainActivity.user);
+                    //MainActivity5.expenseList = databaseHandler.getUsersExpenses(MainActivity5.user);
                     setResult(RESULT_OK);
                     finish();
                 } else {
@@ -253,7 +253,7 @@ public class NewExpenseFormActivity extends BaseActivity {
     }
 
     private void populateExpenseTypeSpinner() {
-        //Create state array from MainActivity.stateMap
+        //Create state array from MainActivity5.stateMap
         List<String> spinnerArray = new ArrayList<>();
         for (Map.Entry<String, Integer> entry : MainActivity.expenseTypeLabels.entrySet()) {
             spinnerArray.add(entry.getKey());

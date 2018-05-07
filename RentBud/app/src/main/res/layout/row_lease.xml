@@ -22,11 +22,13 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/leaseRowStartDateTV"
                 android:text="11/23/1989"
+                style="@style/FormLabel"
                 android:textSize="18sp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                style="@style/FormLabel"
                 android:text=" - "
                 android:textSize="18sp" />
 
@@ -34,6 +36,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/leaseRowEndDateTV"
+                style="@style/FormLabel"
                 android:text="11/23/1990"
                 android:textSize="18sp" />
 
@@ -48,15 +51,18 @@
                 android:id="@+id/leaseRowFirstNameTV"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                style="@style/FormText"
                 android:text="Monet" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                style="@style/FormText"
                 android:text=" " />
 
             <TextView
                 android:id="@+id/leaseRowLastNameTV"
+                style="@style/FormText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Tomioka" />
@@ -72,11 +78,13 @@
                 android:id="@+id/leaseRowApartmentStreet1TV"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                style="@style/FormText"
                 android:text="2390 Burlington Rd." />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                style="@style/FormText"
                 android:text=" "
                 />
 
@@ -84,6 +92,7 @@
                 android:id="@+id/leaseRowApartmentStreet2TV"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                style="@style/FormText"
                 android:text="Apt.2345" />
 
         </LinearLayout>

@@ -25,6 +25,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Rent collected from Burt Green for apt.235"
+                style="@style/FormText"
                 android:id="@+id/incomeRowDescriptionTV"
                 />
 
@@ -42,6 +43,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="1/21/15"
+                style="@style/FormLabel"
                 android:textSize="18sp"
                 android:id="@+id/incomeRowDateTV"
                 />
@@ -52,6 +54,7 @@
                 android:text="$355,000.58"
                 android:textSize="18sp"
                 android:textColor="@color/green_colorPrimaryDark"
+                android:textStyle="bold"
                 android:id="@+id/incomeRowAmountTV"
                 />
 
@@ -60,6 +63,7 @@
                 android:layout_height="wrap_content"
                 android:text="Type"
                 android:textSize="18dp"
+                style="@style/FormText"
                 android:id="@+id/incomeRowTypeTV"
                 />
 

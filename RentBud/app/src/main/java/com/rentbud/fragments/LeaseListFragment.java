@@ -176,7 +176,7 @@ public class LeaseListFragment extends Fragment implements AdapterView.OnItemCli
                 noLeasesTV.setText("No Current Leases");
             }
         } else {
-            //If MainActivity.expenseList is null show empty list text
+            //If MainActivity5.expenseList is null show empty list text
             noLeasesTV.setVisibility(View.VISIBLE);
             noLeasesTV.setText("Error Loading Leases");
         }

@@ -29,15 +29,22 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                style="@style/FormLabel"
                 android:layout_marginTop="15dp"
                 android:text="Expense Info" />
+
+            <!--Border -->
+            <View
+                android:layout_width="250dp"
+                android:layout_gravity="center"
+                android:layout_height="2dp"
+                android:background="@color/caldroid_black" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="15dp"
                 android:layout_marginRight="15dp"
-                android:background="@drawable/rect_edit"
                 android:orientation="vertical">
 
                 <!--Date -->
@@ -46,7 +53,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="2390 Burlington Rd" />
+                    style="@style/FormText"
+                    android:text="1-12-12" />
 
                 <!--Amount -->
                 <TextView
@@ -54,7 +62,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="Apt. 231" />
+                    style="@style/FormText"
+                    android:text="$2000.00" />
 
                 <!--Type -->
                 <TextView
@@ -62,6 +71,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
+                    style="@style/FormText"
                     android:text="Letts," />
 
             </LinearLayout>
@@ -71,6 +81,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginTop="15dp"
+                style="@style/FormLabel"
                 android:text="Description" />
 
             <LinearLayout
@@ -78,14 +89,21 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="15dp"
                 android:layout_marginRight="15dp"
-                android:background="@drawable/rect_edit"
                 android:orientation="vertical">
+
+                <!--Border -->
+                <View
+                    android:layout_width="250dp"
+                    android:layout_gravity="center"
+                    android:layout_height="2dp"
+                    android:background="@color/caldroid_black" />
 
                 <!--description -->
                 <TextView
                     android:id="@+id/incomeViewDescriptionTV"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    style="@style/FormText"
                     android:gravity="center"
                     android:text="Description" />
 
