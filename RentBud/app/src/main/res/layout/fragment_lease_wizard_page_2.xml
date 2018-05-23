@@ -58,16 +58,25 @@
                 <TextView
                     android:id="@+id/leaseWizardSecondaryTenantsTV"
                     android:layout_width="match_parent"
-                    android:layout_height="40dp"
+                    android:layout_height="wrap_content"
                     android:background="@drawable/rect_edit"
-                    android:gravity="center_vertical"
+                    android:gravity="top"
                     android:hint="Use ADD or REMOVE to modify"
                     android:paddingEnd="10dp"
                     style="@style/FormText"
                     android:paddingLeft="10dp"
                     android:paddingRight="10dp"
                     android:paddingStart="10dp"
-                    android:saveEnabled="false" />
+                    android:saveEnabled="false"
+                    android:inputType="textMultiLine"
+                    android:ems="10"
+                    android:padding="10dp"
+                    android:minLines="4"
+                    android:maxLines="4"
+                    android:isScrollContainer="true"
+                    android:longClickable="false"
+                    android:clickable="false"
+                    />
 
                 <LinearLayout
                     android:layout_width="match_parent"

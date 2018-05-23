@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -35,6 +36,8 @@ public class IncomeViewActivity extends BaseActivity {
     TextView dateTV, amountTV, typeTV, descriptionTV;
     DatabaseHandler databaseHandler;
     MainArrayDataMethods dataMethods;
+    ImageView receiptPicIV;
+    String receiptPic;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -47,6 +50,7 @@ public class IncomeViewActivity extends BaseActivity {
         if (savedInstanceState != null) {
             if (savedInstanceState.getParcelable("income") != null) {
                 this.income = savedInstanceState.getParcelable("income");
+                this.receiptPic = income.getReceiptPic();
             }
         } else {
             //If new
@@ -54,12 +58,21 @@ public class IncomeViewActivity extends BaseActivity {
             //Get apartment item
             int incomeID = bundle.getInt("incomeID");
             this.income = databaseHandler.getPaymentLogEntryByID(incomeID, MainActivity.user);
+            if (income.getReceiptPic() != null) {
+                this.receiptPic = income.getReceiptPic();
+            }
         }
         this.dateTV = findViewById(R.id.incomeViewDateTV);
         this.amountTV = findViewById(R.id.incomeViewAmountTV);
         this.typeTV = findViewById(R.id.incomeViewTypeTV);
         this.descriptionTV = findViewById(R.id.incomeViewDescriptionTV);
+        this.receiptPicIV = findViewById(R.id.incomeViewReceiptPicIV);
         fillTextViews();
+        if (receiptPic != null) {
+            Glide.with(this).load(receiptPic).into(receiptPicIV);
+        } else {
+            receiptPicIV.setVisibility(View.GONE);
+        }
         setupBasicToolbar();
     }
 
@@ -90,7 +103,7 @@ public class IncomeViewActivity extends BaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.editIncome:
-                Intent intent = new Intent(this, NewIncomeFormActivity.class);
+                Intent intent = new Intent(this, NewIncomeWizard.class);
                 intent.putExtra("incomeToEdit", income);
                 startActivityForResult(intent, MainActivity.REQUEST_NEW_INCOME_FORM);
                 return true;

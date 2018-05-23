@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/WizardPageContainer">
+
+    <TextView style="@style/WizardPageTitle" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:scrollbarStyle="outsideOverlay">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/WizardTitle"
+                android:text="Income Description" />
+
+            <TextView
+                android:id="@+id/incomeWizardDescriptionLabelTV"
+                style="@style/WizardFormLabel"
+                android:text="*Description" />
+
+            <EditText
+                android:id="@+id/incomeWizardDescriptionET"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textMultiLine"
+                android:ems="10"
+                android:enabled="true"
+                android:minLines="6"
+                android:maxLines="6"
+                android:isScrollContainer="true"
+                android:background="@drawable/rect_edit"
+                android:textIsSelectable="true"
+                android:focusable="true"
+                android:gravity="top"
+                android:padding="10dp"
+                style="@style/FormText"
+                android:layout_marginBottom="20dp"
+                />
+
+            <TextView
+                style="@style/WizardTitle"
+                android:text="Income Receipt Pic" />
+
+            <!-- Was 200dp X 200dp -->
+            <ImageView
+                android:id="@+id/incomeWizardMainPicIV"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:src="@drawable/no_picture"
+                android:layout_marginTop="20dp"
+                android:layout_gravity="center_horizontal"
+                />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="20dp"
+                android:weightSum="2"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/incomeWizardRemovePicBtn"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:text="Remove" />
+
+                <Button
+                    android:id="@+id/incomeWizardChangePicBtn"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_weight="1"
+                    android:text="Change" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

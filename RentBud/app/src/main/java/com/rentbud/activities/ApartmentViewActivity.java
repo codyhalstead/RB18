@@ -252,7 +252,6 @@ public class ApartmentViewActivity extends BaseActivity {
         adapter = new RecyclerViewAdapter(apartment.getOtherPics(), this);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
-        Log.d("TAG", "onCreate: " + apartment.isRented());
     }
 
     @Override
@@ -267,7 +266,7 @@ public class ApartmentViewActivity extends BaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.editApartment:
-                Intent intent = new Intent(this, NewApartmentFormActivity.class);
+                Intent intent = new Intent(this, NewApartmentWizard.class);
                 intent.putExtra("apartmentToEdit", apartment);
                 startActivityForResult(intent, MainActivity.REQUEST_NEW_APARTMENT_FORM);
                 return true;
@@ -399,10 +398,14 @@ public class ApartmentViewActivity extends BaseActivity {
 
     private void fillTextViews() {
         street1TV.setText(apartment.getStreet1());
-        if (apartment.getStreet2().equals("")) {
-            street2TV.setVisibility(View.GONE);
+        if (apartment.getStreet2() != null) {
+            if (apartment.getStreet2().equals("")) {
+                street2TV.setVisibility(View.GONE);
+            } else {
+                street2TV.setVisibility(View.VISIBLE);
+            }
         } else {
-            street2TV.setText(apartment.getStreet2());
+            street2TV.setVisibility(View.GONE);
         }
         String city = apartment.getCity();
         //If city not empty, add comma

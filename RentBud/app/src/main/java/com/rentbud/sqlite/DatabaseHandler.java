@@ -92,6 +92,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public static final String PAYMENT_LOG_USER_ID_COLUMN_FK = "payment_log_user_id";
     public static final String PAYMENT_LOG_PAYMENT_DATE_COLUMN = "payment_log_payment_date";
     public static final String PAYMENT_LOG_TYPE_ID_COLUMN_FK = "payment_log_type_id";
+    public static final String PAYMENT_LOG_RECEIPT_PIC = "payment_log_receipt_pic";
     public static final String PAYMENT_LOG_TENANT_ID_COLUMN_FK = "payment_log_tenant_id";
     public static final String PAYMENT_LOG_APARTMENT_ID_COLUMN_FK = "payment_log_apartment_id";
     public static final String PAYMENT_LOG_AMOUNT_COLUMN = "payment_log_amount";
@@ -255,6 +256,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public static final String INCOME_VIEW_TYPE_ID = "income_type_id";
     public static final String INCOME_VIEW_TYPE_LABEL = "income_type_label";
     public static final String INCOME_VIEW_TYPE = "income_type";
+    public static final String INCOME_VIEW_RECEIPT_PIC = "receipt_pic";
     public static final String INCOME_VIEW_DATE_CREATED = "date_created";
     public static final String INCOME_VIEW_LAST_UPDATE = "last_update";
     public static final String INCOME_VIEW_IS_ACTIVE = "is_active";
@@ -522,9 +524,43 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(APARTMENT_INFO_ZIP_COLUMN, apartment.getZip());
         values.put(APARTMENT_INFO_DESCRIPTION_COLUMN, apartment.getDescription());
         values.put(APARTMENT_INFO_NOTES_COLUMN, apartment.getNotes());
-        values.putNull(APARTMENT_INFO_MAIN_PIC_COLUMN);
+        if(apartment.getMainPic() != null) {
+            if (!apartment.getMainPic().equals("")) {
+                values.put(APARTMENT_INFO_MAIN_PIC_COLUMN, apartment.getMainPic());
+            } else {
+                values.putNull(APARTMENT_INFO_MAIN_PIC_COLUMN);
+            }
+        } else {
+            values.putNull(APARTMENT_INFO_MAIN_PIC_COLUMN);
+        }
+
         db.insert(APARTMENT_INFO_TABLE, null, values);
+
+        if(apartment.getOtherPics() != null){
+            if(!apartment.getOtherPics().isEmpty()){
+                String query = "SELECT last_insert_rowid() FROM " + APARTMENT_INFO_TABLE;
+                Cursor cursor = db.rawQuery(query, null);
+                int id = 0;
+                if (cursor.moveToFirst()) {
+                    id = cursor.getInt(0);
+                }
+                cursor.close();
+                addApartmentOtherPics(id, apartment.getOtherPics(), db);
+            }
+        }
+
         db.close();
+    }
+
+    private void addApartmentOtherPics(int apartmentID, ArrayList<String> otherPics, SQLiteDatabase db){
+        if (apartmentID > 0) {
+            for (int i = 0; i < otherPics.size(); i++) {
+                ContentValues values = new ContentValues();
+                values.put(APARTMENT_PICS_APARTMENT_ID_COLUMN_FK, apartmentID);
+                values.put(APARTMENT_PICS_PIC_COLUMN, otherPics.get(i));
+                db.insert(APARTMENT_PICS_TABLE, null, values);
+            }
+        }
     }
 
     public void addApartmentOtherPic(Apartment apartment, String otherPic, User user) {
@@ -632,6 +668,15 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         // values.put(PAYMENT_LOG_TENANT_ID_COLUMN_FK, ple.getTenantID()); //TODO
         values.put(PAYMENT_LOG_AMOUNT_COLUMN, ple.getAmount().multiply(new BigDecimal(100)).toPlainString());
         values.put(PAYMENT_LOG_DESCRIPTION_COLUMN, ple.getDescription());
+        if (ple.getReceiptPic() != null) {
+            if(!ple.getReceiptPic().equals("")) {
+                values.put(PAYMENT_LOG_RECEIPT_PIC, ple.getReceiptPic());
+            } else {
+                values.putNull(PAYMENT_LOG_RECEIPT_PIC);
+            }
+        } else {
+            values.putNull(PAYMENT_LOG_RECEIPT_PIC);
+        }
         db.insert(PAYMENT_LOG_TABLE, null, values);
         db.close();
     }
@@ -646,6 +691,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             values.put(PAYMENT_LOG_PAYMENT_DATE_COLUMN, paymentDayString);
         } else {
             values.putNull(PAYMENT_LOG_PAYMENT_DATE_COLUMN);
+        }
+        if (ple.getReceiptPic() != null) {
+            values.put(PAYMENT_LOG_RECEIPT_PIC, ple.getReceiptPic());
+        } else {
+            values.putNull(PAYMENT_LOG_RECEIPT_PIC);
         }
         values.put(PAYMENT_LOG_AMOUNT_COLUMN, ple.getAmount().multiply(new BigDecimal(100)).toPlainString());
         values.put(PAYMENT_LOG_TYPE_ID_COLUMN_FK, ple.getTypeID());
@@ -680,7 +730,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             String description = cursor.getString(cursor.getColumnIndex(INCOME_VIEW_DESCRIPTION));
             int typeID = cursor.getInt(cursor.getColumnIndex(INCOME_VIEW_TYPE_ID));
             String typeLabel = cursor.getString(cursor.getColumnIndex(INCOME_VIEW_TYPE_LABEL));
-            ple = new PaymentLogEntry(pleID, incomeDate, typeID, typeLabel, tenantID, leaseID, amount, description);
+            String receiptPic = cursor.getString(cursor.getColumnIndex(INCOME_VIEW_RECEIPT_PIC));
+            ple = new PaymentLogEntry(pleID, incomeDate, typeID, typeLabel, tenantID, leaseID, amount, description, receiptPic);
 
         }
         cursor.close();
@@ -706,11 +757,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(EXPENSE_LOG_DESCRIPTION_COLUMN, ele.getDescription());
         values.put(EXPENSE_LOG_TYPE_ID_COLUMN_FK, ele.getTypeID());
         if (ele.getReceiptPic() != null) {
-            values.put(EXPENSE_LOG_RECEIPT_PIC, ele.getReceiptPic());
+            if(!ele.getReceiptPic().equals("")) {
+                values.put(EXPENSE_LOG_RECEIPT_PIC, ele.getReceiptPic());
+            } else {
+                values.putNull(EXPENSE_LOG_RECEIPT_PIC);
+            }
         } else {
             values.putNull(EXPENSE_LOG_RECEIPT_PIC);
         }
-
         db.insert(EXPENSE_LOG_TABLE, null, values);
         db.close();
     }
@@ -725,6 +779,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             values.put(EXPENSE_LOG_EXPENSE_DATE_COLUMN, expenseDayString);
         } else {
             values.putNull(EXPENSE_LOG_EXPENSE_DATE_COLUMN);
+        }
+        if (ele.getReceiptPic() != null) {
+            values.put(EXPENSE_LOG_RECEIPT_PIC, ele.getReceiptPic());
+        } else {
+            values.putNull(EXPENSE_LOG_RECEIPT_PIC);
         }
         values.put(EXPENSE_LOG_AMOUNT_COLUMN, ele.getAmount().multiply(new BigDecimal(100)).toPlainString());
         values.put(EXPENSE_LOG_TYPE_ID_COLUMN_FK, ele.getTypeID());
@@ -1313,7 +1372,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 String description = cursor.getString(cursor.getColumnIndex(INCOME_VIEW_DESCRIPTION));
                 int typeID = cursor.getInt(cursor.getColumnIndex(INCOME_VIEW_TYPE_ID));
                 String typeLabel = cursor.getString(cursor.getColumnIndex(INCOME_VIEW_TYPE_LABEL));
-                income.add(new PaymentLogEntry(id, incomeDate, typeID, typeLabel, tenantID, leaseID, amount, description));
+                String receiptPic = cursor.getString(cursor.getColumnIndex(INCOME_VIEW_RECEIPT_PIC));
+                income.add(new PaymentLogEntry(id, incomeDate, typeID, typeLabel, tenantID, leaseID, amount, description, receiptPic));
                 cursor.moveToNext();
             }
             cursor.close();
@@ -1358,7 +1418,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 String description = cursor.getString(cursor.getColumnIndex(INCOME_VIEW_DESCRIPTION));
                 int typeID = cursor.getInt(cursor.getColumnIndex(INCOME_VIEW_TYPE_ID));
                 String typeLabel = cursor.getString(cursor.getColumnIndex(INCOME_VIEW_TYPE_LABEL));
-                income.add(new PaymentLogEntry(id, incomeDate, typeID, typeLabel, tenantID, leaseID, amount, description));
+                String receiptPic = cursor.getString(cursor.getColumnIndex(INCOME_VIEW_RECEIPT_PIC));
+                income.add(new PaymentLogEntry(id, incomeDate, typeID, typeLabel, tenantID, leaseID, amount, description, receiptPic));
                 cursor.moveToNext();
             }
             cursor.close();
@@ -1607,6 +1668,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 PAYMENT_LOG_USER_ID_COLUMN_FK + " INTEGER REFERENCES " + USER_INFO_TABLE + "(" + USER_INFO_ID_COLUMN_PK + "), " +
                 PAYMENT_LOG_PAYMENT_DATE_COLUMN + " DATETIME, " +
                 PAYMENT_LOG_TYPE_ID_COLUMN_FK + " INTEGER REFERENCES " + TYPE_LOOKUP_TABLE + "(" + TYPE_LOOKUP_ID_COLUMN_PK + "), " +
+                PAYMENT_LOG_RECEIPT_PIC + "  VARCHAR(50), " +
                 PAYMENT_LOG_APARTMENT_ID_COLUMN_FK + " INTEGER REFERENCES " + APARTMENT_INFO_TABLE + "(" + APARTMENT_INFO_ID_COLUMN_PK + "), " +
                 PAYMENT_LOG_TENANT_ID_COLUMN_FK + " INTEGER REFERENCES " + TENANT_INFO_TABLE + "(" + TENANT_INFO_ID_COLUMN_PK + "), " +
                 PAYMENT_LOG_LEASE_ID_COLUMN_FK + " INTEGER REFERENCES " + LEASE_TABLE + "(" + LEASE_ID_COLUMN_PK + "), " +
@@ -1871,6 +1933,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 PAYMENT_LOG_TABLE + "." + PAYMENT_LOG_TYPE_ID_COLUMN_FK + " AS " + INCOME_VIEW_TYPE_ID + ", " +
                 TYPE_LOOKUP_TABLE + "." + TYPE_LOOKUP_LABEL_COLUMN + " AS " + INCOME_VIEW_TYPE_LABEL + ", " +
                 TYPES_TABLE + "." + TYPES_TYPE_COLUMN + " AS " + INCOME_VIEW_TYPE + ", " +
+                PAYMENT_LOG_TABLE + "." + PAYMENT_LOG_RECEIPT_PIC + " AS " + INCOME_VIEW_RECEIPT_PIC + ", " +
                 PAYMENT_LOG_TABLE + "." + PAYMENT_LOG_DATE_CREATED_COLUMN + " AS " + INCOME_VIEW_DATE_CREATED + ", " +
                 PAYMENT_LOG_TABLE + "." + PAYMENT_LOG_LAST_UPDATE_COLUMN + " AS " + INCOME_VIEW_LAST_UPDATE + ", " +
                 PAYMENT_LOG_TABLE + "." + PAYMENT_LOG_IS_ACTIVE_COLUMN + " AS " + INCOME_VIEW_IS_ACTIVE + " " +

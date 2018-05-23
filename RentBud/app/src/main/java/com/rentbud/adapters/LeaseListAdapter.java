@@ -105,7 +105,10 @@ public class LeaseListAdapter extends BaseAdapter implements Filterable {
             setTextHighlightSearch(viewHolder.primaryTenantFirstNameTV, primaryTenant.getFirstName());
             setTextHighlightSearch(viewHolder.primaryTenantLastNameTV, primaryTenant.getLastName());
             setTextHighlightSearch(viewHolder.apartmentStreet1TV, apartment.getStreet1());
-            setTextHighlightSearch(viewHolder.apartmentStreet2TV, apartment.getStreet2());
+            if(apartment.getStreet2() != null){
+                setTextHighlightSearch(viewHolder.apartmentStreet2TV, apartment.getStreet2());
+            }
+
         }
         return convertView;
     }
@@ -146,9 +149,13 @@ public class LeaseListAdapter extends BaseAdapter implements Filterable {
                     Lease dataNames = leaseArray.get(i);
                     Apartment apartment = dataMethods.getCachedApartmentByApartmentID(dataNames.getApartmentID());
                     Tenant primaryTenant = dataMethods.getCachedTenantByTenantID(dataNames.getPrimaryTenantID());
+                    String street2 = "";
+                    if(apartment.getStreet2() != null){
+                        street2 = apartment.getStreet2();
+                    }
                     //If users search matches any part of any apartment value, add to new filtered list
                     if (apartment.getStreet1().toLowerCase().contains(constraint.toString()) ||
-                            apartment.getStreet2().toLowerCase().contains(constraint.toString()) ||
+                            street2.toLowerCase().contains(constraint.toString()) ||
                             primaryTenant.getFirstName().toLowerCase().contains(constraint.toString()) ||
                             primaryTenant.getLastName().toLowerCase().contains(constraint.toString())) {
                         FilteredArrayNames.add(dataNames);

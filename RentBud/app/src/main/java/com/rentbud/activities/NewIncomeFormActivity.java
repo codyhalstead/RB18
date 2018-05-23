@@ -160,7 +160,7 @@ public class NewIncomeFormActivity extends BaseActivity {
 
                 //Set result success, close this activity
                 if (!isEdit) {
-                    PaymentLogEntry income = new PaymentLogEntry(id, incomeDate, typeID, typeLabel, 0, 0, currentAmount, description);
+                    PaymentLogEntry income = new PaymentLogEntry(id, incomeDate, typeID, typeLabel, 0, 0, currentAmount, description, "");
                     databaseHandler.addPaymentLogEntry(income, MainActivity.user.getId());
                     //MainActivity5.incomeList = databaseHandler.getUsersIncome(MainActivity5.user);
                     setResult(RESULT_OK);

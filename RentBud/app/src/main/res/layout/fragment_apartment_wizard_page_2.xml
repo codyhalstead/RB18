@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/WizardPageContainer">
+
+    <TextView style="@style/WizardPageTitle" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:scrollbarStyle="outsideOverlay">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/WizardTitle"
+                android:text="More Apt. Info" />
+
+            <TextView
+                android:id="@+id/apartmentWizardPreferredRentLabelTV"
+                style="@style/WizardFormLabel"
+                android:text="Preferred Rent Cost" />
+
+            <EditText
+                android:id="@+id/apartmentWizardPreferredRentET"
+                style="@style/FormText"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/rect_edit"
+                android:gravity="center_vertical"
+                android:hint=""
+                android:inputType="number"
+                android:paddingEnd="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingStart="10dp"
+                android:saveEnabled="false"
+                android:text="$0.00" />
+
+            <TextView
+                android:id="@+id/apartmentWizardDescriptionLabelTV"
+                style="@style/WizardFormLabel"
+                android:text="Description" />
+
+            <EditText
+                android:id="@+id/apartmentWizardDescriptionET"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textMultiLine"
+                android:ems="10"
+                android:enabled="true"
+                android:minLines="3"
+                android:maxLines="3"
+                android:isScrollContainer="true"
+                android:background="@drawable/rect_edit"
+                android:textIsSelectable="true"
+                android:focusable="true"
+                android:gravity="top"
+                android:padding="10dp"
+                android:layout_marginBottom="20dp"
+                style="@style/FormText"
+                />
+
+            <TextView
+                android:id="@+id/apartmentWizardNotesLabelTV"
+                style="@style/WizardFormLabel"
+                android:text="Notes" />
+
+            <EditText
+            android:id="@+id/apartmentWizardNotesET"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textMultiLine"
+            android:ems="10"
+            android:enabled="true"
+            android:minLines="6"
+            android:maxLines="6"
+            android:isScrollContainer="true"
+            android:background="@drawable/rect_edit"
+            android:textIsSelectable="true"
+            android:focusable="true"
+            android:gravity="top"
+            android:padding="10dp"
+            style="@style/FormText"
+            />
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

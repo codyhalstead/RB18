@@ -123,11 +123,11 @@ public class ApartmentListAdapter extends BaseAdapter implements Filterable {
 
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
-           // viewHolder.position = position;
-          //  if(viewHolder.imageDownloaderTask != null){
-          //      viewHolder.imageDownloaderTask.cancel(true);
+            // viewHolder.position = position;
+            //  if(viewHolder.imageDownloaderTask != null){
+            //      viewHolder.imageDownloaderTask.cancel(true);
             //    viewHolder.imageDownloaderTask = null;
-           // }
+            // }
 
         }
 
@@ -135,11 +135,16 @@ public class ApartmentListAdapter extends BaseAdapter implements Filterable {
         if (apartment != null) {
             setTextHighlightSearch(viewHolder.street1TV, apartment.getStreet1());
             //If empty street 2, set invisible
-            if (apartment.getStreet2().equals("")) {
-                viewHolder.street2TV.setVisibility(View.GONE);
+            if (apartment.getStreet2() != null) {
+                if (apartment.getStreet2().equals("")) {
+                    viewHolder.street2TV.setVisibility(View.GONE);
+                } else {
+                    viewHolder.street2TV.setVisibility(View.VISIBLE);
+                    setTextHighlightSearch(viewHolder.street2TV, apartment.getStreet2());
+                }
             } else {
-                viewHolder.street2TV.setVisibility(View.VISIBLE);
-                setTextHighlightSearch(viewHolder.street2TV, apartment.getStreet2());
+                viewHolder.street2TV.setText("");
+                viewHolder.street2TV.setVisibility(View.GONE);
             }
             String city = apartment.getCity();
             //If city not empty, add comma
@@ -177,12 +182,12 @@ public class ApartmentListAdapter extends BaseAdapter implements Filterable {
             if (apartment.getMainPic() != null && !apartment.getMainPic().equals("")) {
                 if (viewHolder.mainPicIV != null) {
                     //viewHolder.mainPicIV.setImageResource(R.drawable.blank_home_pic);
-                   // viewHolder.shouldHavePic = true;
-                   // ImageDownloaderTask imageDownloaderTask = new ImageDownloaderTask(viewHolder.mainPicIV, apartment.getMainPic(), viewHolder, position);
-                   /////// imageDownloaderTask.execute();
+                    // viewHolder.shouldHavePic = true;
+                    // ImageDownloaderTask imageDownloaderTask = new ImageDownloaderTask(viewHolder.mainPicIV, apartment.getMainPic(), viewHolder, position);
+                    /////// imageDownloaderTask.execute();
                     Glide.with(context).load(apartment.getMainPic()).into(viewHolder.mainPicIV);
                     //imageDownloaderTask.cancel(true);
-                   // new ImageLoaderTask(viewHolder.mainPicIV, apartment.getMainPic(), viewHolder, position).execute();
+                    // new ImageLoaderTask(viewHolder.mainPicIV, apartment.getMainPic(), viewHolder, position).execute();
                 }
             } else {
                 viewHolder.mainPicIV.setImageResource(R.drawable.blank_home_pic);
@@ -212,9 +217,13 @@ public class ApartmentListAdapter extends BaseAdapter implements Filterable {
                 constraint = constraint.toString().toLowerCase();
                 for (int i = 0; i < apartmentArray.size(); i++) {
                     Apartment dataNames = apartmentArray.get(i);
+                    String street2 = "";
+                    if(dataNames.getStreet2() != null){
+                        street2 = dataNames.getStreet2();
+                    }
                     //If users search matches any part of any apartment value, add to new filtered list
                     if (dataNames.getStreet1().toLowerCase().contains(constraint.toString()) ||
-                            dataNames.getStreet2().toLowerCase().contains(constraint.toString()) ||
+                            street2.toLowerCase().contains(constraint.toString()) ||
                             dataNames.getCity().toLowerCase().contains(constraint.toString()) ||
                             dataNames.getState().toLowerCase().contains(constraint.toString()) ||
                             dataNames.getZip().toLowerCase().contains(constraint.toString())) {

@@ -5,7 +5,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,10 +15,9 @@ import android.widget.TextView;
 
 import com.example.android.wizardpager.wizard.ui.PageFragmentCallbacks;
 import com.example.cody.rentbud.R;
-import com.rentbud.model.LeaseWizardPage1;
-import com.rentbud.model.LeaseWizardPage2;
-import com.rentbud.model.LeaseWizardPage3;
-import com.rentbud.model.LeaseWizardProratedRentPage;
+import com.rentbud.wizards.LeaseWizardPage1;
+import com.rentbud.wizards.LeaseWizardPage3;
+import com.rentbud.wizards.LeaseWizardProratedRentPage;
 
 import org.joda.time.Days;
 import org.joda.time.LocalDate;
@@ -33,8 +31,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
-import static android.support.constraint.Constraints.TAG;
-
 public class LeaseWizardProratedRentPageFragment extends android.support.v4.app.Fragment {
     private static final String ARG_KEY = "key";
 
@@ -42,8 +38,8 @@ public class LeaseWizardProratedRentPageFragment extends android.support.v4.app.
     private String mKey;
     private LeaseWizardProratedRentPage mPage;
     private TextView firstProratedLabelTV, lastProratedTV, firstProratedRentRecommendationTV, lastProratedRentRecommendationTV,
-        firstProratedStartDateTV, lastProratedStartDateTV, firstProratedEndDateTV, lastProratedEndDateTV,
-        firstProratedDayAmountTV, lastProratedDayAmountTV;
+            firstProratedStartDateTV, lastProratedStartDateTV, firstProratedEndDateTV, lastProratedEndDateTV,
+            firstProratedDayAmountTV, lastProratedDayAmountTV;
     private EditText firstProratedAmountET, lastProratedAmountET;
     private LinearLayout recommendedFirstPriceLL, recommendedLastPriceLL, firstDateInfoLL, lastDateInfoLL;
 
@@ -51,6 +47,7 @@ public class LeaseWizardProratedRentPageFragment extends android.support.v4.app.
     private Date leaseEndDate;
     private int paymentDay, paymentMonthlyFrequency;
     private BigDecimal rentCost, proratedFirst, proratedLast;
+    private Boolean hasFirstBeenModified, hasLastBeenModified;
 
     public static LeaseWizardProratedRentPageFragment create(String key) {
         Bundle args = new Bundle();
@@ -91,7 +88,16 @@ public class LeaseWizardProratedRentPageFragment extends android.support.v4.app.
         lastProratedDayAmountTV = rootView.findViewById(R.id.leaseWizardLastProratedDayAmountTV);
 
         firstProratedAmountET = rootView.findViewById(R.id.leaseWizardFirstProratedAmountET);
+        if (mPage.getData().getString(LeaseWizardProratedRentPage.LEASE_PRORATED_FIRST_PAYMENT_FORMATTED_STRING_DATA_KEY) != null) {
+            firstProratedAmountET.setText(mPage.getData().getString(LeaseWizardProratedRentPage.LEASE_PRORATED_FIRST_PAYMENT_FORMATTED_STRING_DATA_KEY));
+        }
+        firstProratedAmountET.setSelection(firstProratedAmountET.getText().length());
+
         lastProratedAmountET = rootView.findViewById(R.id.leaseWizardLastProratedAmountET);
+        if (mPage.getData().getString(LeaseWizardProratedRentPage.LEASE_PRORATED_LAST_PAYMENT_FORMATTED_STRING_DATA_KEY) != null) {
+            lastProratedAmountET.setText(mPage.getData().getString(LeaseWizardProratedRentPage.LEASE_PRORATED_LAST_PAYMENT_FORMATTED_STRING_DATA_KEY));
+        }
+        lastProratedAmountET.setSelection(lastProratedAmountET.getText().length());
 
         recommendedFirstPriceLL = rootView.findViewById(R.id.leaseWizardProratedFirstRecommendedPriceLL);
         recommendedLastPriceLL = rootView.findViewById(R.id.leaseWizardProratedLastRecommendedPriceLL);
@@ -158,17 +164,48 @@ public class LeaseWizardProratedRentPageFragment extends android.support.v4.app.
         firstProratedDayAmountTV.setText(daysOfFirstPayment + "");
         lastProratedDayAmountTV.setText(daysOfLastPayment + "");
 
-        proratedFirst = recommendedProratedFirst;
-        proratedLast = recommendedProratedLast;
-
-        String formatted = NumberFormat.getCurrencyInstance().format(proratedFirst);
-        mPage.getData().putString(LeaseWizardProratedRentPage.LEASE_PRORATED_FIRST_PAYMENT_FORMATTED_STRING_DATA_KEY, formatted);
-        mPage.getData().putString(LeaseWizardProratedRentPage.LEASE_PRORATED_FIRST_PAYMENT_STRING_DATA_KEY, proratedLast.toPlainString());
-        firstProratedAmountET.setText(formatted);
-        formatted = NumberFormat.getCurrencyInstance().format(proratedLast);
-        mPage.getData().putString(LeaseWizardProratedRentPage.LEASE_PRORATED_LAST_PAYMENT_FORMATTED_STRING_DATA_KEY, formatted);
-        mPage.getData().putString(LeaseWizardProratedRentPage.LEASE_PRORATED_LAST_PAYMENT_STRING_DATA_KEY, proratedLast.toPlainString());
-        lastProratedAmountET.setText(formatted);
+        if (mPage.getData().getString(LeaseWizardProratedRentPage.LEASE_PRORATED_FIRST_PAYMENT_FORMATTED_STRING_DATA_KEY) != null) {
+            if(mPage.getData().getBoolean(LeaseWizardProratedRentPage.LEASE_PRORATED_FIRST_PAYMENT_WAS_MODIFIED_DATA_KEY)) {
+                proratedFirst = new BigDecimal(mPage.getData().getString(LeaseWizardProratedRentPage.LEASE_PRORATED_FIRST_PAYMENT_STRING_DATA_KEY));
+                firstProratedAmountET.setText(mPage.getData().getString(LeaseWizardProratedRentPage.LEASE_PRORATED_FIRST_PAYMENT_FORMATTED_STRING_DATA_KEY));
+                firstProratedAmountET.setSelection(firstProratedAmountET.getText().length());
+            } else {
+                proratedFirst = recommendedProratedFirst;
+                String formatted = NumberFormat.getCurrencyInstance().format(proratedFirst);
+                mPage.getData().putString(LeaseWizardProratedRentPage.LEASE_PRORATED_FIRST_PAYMENT_FORMATTED_STRING_DATA_KEY, formatted);
+                mPage.getData().putString(LeaseWizardProratedRentPage.LEASE_PRORATED_FIRST_PAYMENT_STRING_DATA_KEY, proratedFirst.toPlainString());
+                firstProratedAmountET.setText(formatted);
+                firstProratedAmountET.setSelection(firstProratedAmountET.getText().length());
+            }
+        } else {
+            proratedFirst = recommendedProratedFirst;
+            String formatted = NumberFormat.getCurrencyInstance().format(proratedFirst);
+            mPage.getData().putString(LeaseWizardProratedRentPage.LEASE_PRORATED_FIRST_PAYMENT_FORMATTED_STRING_DATA_KEY, formatted);
+            mPage.getData().putString(LeaseWizardProratedRentPage.LEASE_PRORATED_FIRST_PAYMENT_STRING_DATA_KEY, proratedFirst.toPlainString());
+            firstProratedAmountET.setText(formatted);
+            firstProratedAmountET.setSelection(firstProratedAmountET.getText().length());
+        }
+        if (mPage.getData().getString(LeaseWizardProratedRentPage.LEASE_PRORATED_LAST_PAYMENT_FORMATTED_STRING_DATA_KEY) != null) {
+            if(mPage.getData().getBoolean(LeaseWizardProratedRentPage.LEASE_PRORATED_LAST_PAYMENT_WAS_MODIFIED_DATA_KEY)) {
+                proratedLast = new BigDecimal(mPage.getData().getString(LeaseWizardProratedRentPage.LEASE_PRORATED_LAST_PAYMENT_STRING_DATA_KEY));
+                lastProratedAmountET.setText(mPage.getData().getString(LeaseWizardProratedRentPage.LEASE_PRORATED_LAST_PAYMENT_FORMATTED_STRING_DATA_KEY));
+                lastProratedAmountET.setSelection(lastProratedAmountET.getText().length());
+            } else {
+                proratedLast = recommendedProratedLast;
+                String formatted = NumberFormat.getCurrencyInstance().format(proratedLast);
+                mPage.getData().putString(LeaseWizardProratedRentPage.LEASE_PRORATED_LAST_PAYMENT_FORMATTED_STRING_DATA_KEY, formatted);
+                mPage.getData().putString(LeaseWizardProratedRentPage.LEASE_PRORATED_LAST_PAYMENT_STRING_DATA_KEY, proratedLast.toPlainString());
+                lastProratedAmountET.setText(formatted);
+                lastProratedAmountET.setSelection(lastProratedAmountET.getText().length());
+            }
+        } else {
+            proratedLast = recommendedProratedLast;
+            String formatted = NumberFormat.getCurrencyInstance().format(proratedLast);
+            mPage.getData().putString(LeaseWizardProratedRentPage.LEASE_PRORATED_LAST_PAYMENT_FORMATTED_STRING_DATA_KEY, formatted);
+            mPage.getData().putString(LeaseWizardProratedRentPage.LEASE_PRORATED_LAST_PAYMENT_STRING_DATA_KEY, proratedLast.toPlainString());
+            lastProratedAmountET.setText(formatted);
+            lastProratedAmountET.setSelection(lastProratedAmountET.getText().length());
+        }
 
         firstProratedAmountET.addTextChangedListener(new TextWatcher() {
             @Override
@@ -189,10 +226,11 @@ public class LeaseWizardProratedRentPageFragment extends android.support.v4.app.
                 firstProratedAmountET.removeTextChangedListener(this);
                 String cleanString = s.replaceAll("[$,.]", "");
                 proratedFirst = new BigDecimal(cleanString).setScale(2, BigDecimal.ROUND_FLOOR).divide(new BigDecimal(100), BigDecimal.ROUND_FLOOR);
-                String formatted = NumberFormat.getCurrencyInstance().format(rentCost);
+                String formatted = NumberFormat.getCurrencyInstance().format(proratedFirst);
                 firstProratedAmountET.setText(formatted);
                 mPage.getData().putString(LeaseWizardProratedRentPage.LEASE_PRORATED_FIRST_PAYMENT_FORMATTED_STRING_DATA_KEY, formatted);
                 mPage.getData().putString(LeaseWizardProratedRentPage.LEASE_PRORATED_FIRST_PAYMENT_STRING_DATA_KEY, proratedLast.toPlainString());
+                mPage.getData().putBoolean(LeaseWizardProratedRentPage.LEASE_PRORATED_FIRST_PAYMENT_WAS_MODIFIED_DATA_KEY, true);
                 mPage.notifyDataChanged();
                 firstProratedAmountET.setSelection(formatted.length());
                 firstProratedAmountET.addTextChangedListener(this);
@@ -218,10 +256,11 @@ public class LeaseWizardProratedRentPageFragment extends android.support.v4.app.
                 lastProratedAmountET.removeTextChangedListener(this);
                 String cleanString = s.replaceAll("[$,.]", "");
                 proratedLast = new BigDecimal(cleanString).setScale(2, BigDecimal.ROUND_FLOOR).divide(new BigDecimal(100), BigDecimal.ROUND_FLOOR);
-                String formatted = NumberFormat.getCurrencyInstance().format(rentCost);
+                String formatted = NumberFormat.getCurrencyInstance().format(proratedLast);
                 lastProratedAmountET.setText(formatted);
                 mPage.getData().putString(LeaseWizardProratedRentPage.LEASE_PRORATED_LAST_PAYMENT_FORMATTED_STRING_DATA_KEY, formatted);
                 mPage.getData().putString(LeaseWizardProratedRentPage.LEASE_PRORATED_LAST_PAYMENT_STRING_DATA_KEY, proratedLast.toPlainString());
+                mPage.getData().putBoolean(LeaseWizardProratedRentPage.LEASE_PRORATED_LAST_PAYMENT_WAS_MODIFIED_DATA_KEY, true);
                 mPage.notifyDataChanged();
                 lastProratedAmountET.setSelection(formatted.length());
                 lastProratedAmountET.addTextChangedListener(this);
@@ -250,20 +289,20 @@ public class LeaseWizardProratedRentPageFragment extends android.support.v4.app.
         }
     }
 
-    private BigDecimal figureRecommendedProratedPayment(int amountOfDaysRented, int totalAmountOfDaysInPeriod, BigDecimal rentCost){
+    private BigDecimal figureRecommendedProratedPayment(int amountOfDaysRented, int totalAmountOfDaysInPeriod, BigDecimal rentCost) {
         BigDecimal totalAmountOfDaysInPeriodBD = new BigDecimal(totalAmountOfDaysInPeriod).setScale(5, BigDecimal.ROUND_HALF_UP);
         BigDecimal amountOfDaysRentedBD = new BigDecimal(amountOfDaysRented).setScale(5, BigDecimal.ROUND_HALF_UP);
         BigDecimal dailyAmount = amountOfDaysRentedBD.divide(totalAmountOfDaysInPeriodBD, BigDecimal.ROUND_FLOOR).setScale(5, BigDecimal.ROUND_HALF_UP);
         return dailyAmount.multiply(rentCost).setScale(2, BigDecimal.ROUND_HALF_EVEN);
     }
 
-    private int getDaysOfCycleIfFirstWasntProrated(LocalDate endOfFirstPayment, int monthlyFrequency){
+    private int getDaysOfCycleIfFirstWasntProrated(LocalDate endOfFirstPayment, int monthlyFrequency) {
         LocalDate dateStartOfFullCycle = new LocalDate(endOfFirstPayment);
         dateStartOfFullCycle = dateStartOfFullCycle.minusMonths(monthlyFrequency);
         return Days.daysBetween(dateStartOfFullCycle, endOfFirstPayment).getDays();
     }
 
-    private int getDaysOfCycleIfLastWasntProrated(LocalDate lastPaymentDate, int monthlyFrequency){
+    private int getDaysOfCycleIfLastWasntProrated(LocalDate lastPaymentDate, int monthlyFrequency) {
         LocalDate dateEndOfFullCycle = lastPaymentDate.plusMonths(monthlyFrequency);
         return Days.daysBetween(lastPaymentDate, dateEndOfFullCycle).getDays();
     }

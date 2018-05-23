@@ -16,12 +16,11 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.example.android.wizardpager.wizard.model.Page;
 import com.example.android.wizardpager.wizard.ui.PageFragmentCallbacks;
 import com.example.cody.rentbud.R;
-import com.rentbud.model.LeaseWizardPage1;
-import com.rentbud.model.LeaseWizardPage2;
-import com.rentbud.model.LeaseWizardPage3;
+import com.rentbud.wizards.LeaseWizardPage1;
+import com.rentbud.wizards.LeaseWizardPage2;
+import com.rentbud.wizards.LeaseWizardPage3;
 
 import org.joda.time.LocalDate;
 
@@ -48,6 +47,7 @@ public class LeaseWizardPage3Fragment extends android.support.v4.app.Fragment {
     private Spinner paymentFrequencySpinner, paymentDateSpinner;
     private int regular, prorated, paymentDay, paymentFrequency;
     private ArrayList<String> paymentDates;
+    private Boolean isFirstLoad;
 
     Date leaseStartDate, leaseEndDate;
 
@@ -74,6 +74,7 @@ public class LeaseWizardPage3Fragment extends android.support.v4.app.Fragment {
         paymentDates = new ArrayList<>();
         paymentDay = 1;
         paymentFrequency = 1;
+        isFirstLoad = true;
     }
 
     @Override
@@ -92,7 +93,10 @@ public class LeaseWizardPage3Fragment extends android.support.v4.app.Fragment {
         proratedPaymentsAmountTV = rootView.findViewById(R.id.leaseWizardProratedPaymentAmountTV);
 
         paymentDateSpinner = rootView.findViewById(R.id.leaseWizardRentDueDateSpinner);
+        paymentDateSpinner.setSelection(mPage.getData().getInt(LeaseWizardPage3.LEASE_PAYMENT_FREQUENCY_DATA_KEY));
+
         paymentFrequencySpinner = rootView.findViewById(R.id.leaseWizardRentFrequencySpinner);
+        paymentFrequencySpinner.setSelection(mPage.getData().getInt(LeaseWizardPage3.LEASE_PAYMENT_FREQUENCY_DATA_KEY));
 
         return rootView;
     }
@@ -165,16 +169,25 @@ public class LeaseWizardPage3Fragment extends android.support.v4.app.Fragment {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
                 paymentDay = position + 1;
-                if (getUserVisibleHint()) {
+                if (!isFirstLoad) {
+                    if (getUserVisibleHint()) {
+                        new Handler().post(new Runnable() {
+                            @Override
+                            public void run() {
+                                //       if (getUserVisibleHint()) {
+                                figurePayments(leaseStartDate, leaseEndDate, paymentDay, paymentFrequency);
+                                mPage.getData().putString(LeaseWizardPage3.LEASE_DUE_DATE_STRING_DATA_KEY, paymentDateSpinner.getSelectedItem().toString());
+                                mPage.getData().putInt(LeaseWizardPage3.LEASE_DUE_DATE_DATA_KEY, paymentDay);
 
-                    figurePayments(leaseStartDate, leaseEndDate, paymentDay, paymentFrequency);
+                                mPage.notifyDataChanged();
+                                paymentsAmountTV.setText(prorated + regular + "");
+                                proratedPaymentsAmountTV.setText(prorated + "");
+                                //       }
+                            }
+                        });
 
-
-                    paymentsAmountTV.setText(prorated + regular + "");
-                    proratedPaymentsAmountTV.setText(prorated + "");
+                    }
                 }
-                mPage.getData().putString(LeaseWizardPage3.LEASE_DUE_DATE_STRING_DATA_KEY, paymentDateSpinner.getSelectedItem().toString());
-                mPage.getData().putInt(LeaseWizardPage3.LEASE_DUE_DATE_DATA_KEY, paymentDay);
             }
 
             @Override
@@ -187,14 +200,25 @@ public class LeaseWizardPage3Fragment extends android.support.v4.app.Fragment {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
                 paymentFrequency = position + 1;
-                if (getUserVisibleHint()) {
-                    figurePayments(leaseStartDate, leaseEndDate, paymentDay, paymentFrequency);
+                if (!isFirstLoad) {
+                    if (getUserVisibleHint()) {
+                        new Handler().post(new Runnable() {
+                            @Override
+                            public void run() {
+                                //       if (getUserVisibleHint()) {
+                                figurePayments(leaseStartDate, leaseEndDate, paymentDay, paymentFrequency);
+                                mPage.getData().putInt(LeaseWizardPage3.LEASE_PAYMENT_FREQUENCY_DATA_KEY, paymentFrequency);
+                                mPage.getData().putString(LeaseWizardPage3.LEASE_PAYMENT_FREQUENCY_STRING_DATA_KEY, paymentFrequencySpinner.getSelectedItem().toString());
+                                mPage.notifyDataChanged();
+                                paymentsAmountTV.setText(prorated + regular + "");
+                                proratedPaymentsAmountTV.setText(prorated + "");
+                                //       }
+                            }
+                        });
 
-                    paymentsAmountTV.setText(prorated + regular + "");
-                    proratedPaymentsAmountTV.setText(prorated + "");
+
+                    }
                 }
-                mPage.getData().putInt(LeaseWizardPage3.LEASE_PAYMENT_FREQUENCY_DATA_KEY, paymentFrequency);
-                mPage.getData().putString(LeaseWizardPage3.LEASE_PAYMENT_FREQUENCY_STRING_DATA_KEY, paymentFrequencySpinner.getSelectedItem().toString());
             }
 
             @Override
@@ -207,9 +231,22 @@ public class LeaseWizardPage3Fragment extends android.support.v4.app.Fragment {
         figurePayments(leaseStartDate, leaseEndDate, paymentDay, paymentFrequency);
         paymentsAmountTV.setText(prorated + regular + "");
         proratedPaymentsAmountTV.setText(prorated + "");
-        String formatted = NumberFormat.getCurrencyInstance().format(rentCost);
-        mPage.getData().putString(LeaseWizardPage3.LEASE_RENT_COST_FORMATTED_STRING_DATA_KEY, formatted);
-        mPage.getData().putString(LeaseWizardPage3.LEASE_RENT_COST_DATA_KEY, rentCost.toPlainString());
+
+        if (mPage.getData().getString(LeaseWizardPage3.LEASE_RENT_COST_DATA_KEY) == null) {
+            String formatted = NumberFormat.getCurrencyInstance().format(rentCost);
+            mPage.getData().putString(LeaseWizardPage3.LEASE_RENT_COST_FORMATTED_STRING_DATA_KEY, formatted);
+            mPage.getData().putString(LeaseWizardPage3.LEASE_RENT_COST_DATA_KEY, rentCost.toPlainString());
+        }
+
+        if (mPage.getData().getString(LeaseWizardPage3.LEASE_PAYMENT_FREQUENCY_STRING_DATA_KEY) == null) {
+            mPage.getData().putInt(LeaseWizardPage3.LEASE_PAYMENT_FREQUENCY_DATA_KEY, paymentFrequency);
+            mPage.getData().putString(LeaseWizardPage3.LEASE_PAYMENT_FREQUENCY_STRING_DATA_KEY, paymentFrequencySpinner.getSelectedItem().toString());
+        }
+        if (mPage.getData().getString(LeaseWizardPage3.LEASE_DUE_DATE_STRING_DATA_KEY) == null) {
+            mPage.getData().putString(LeaseWizardPage3.LEASE_DUE_DATE_STRING_DATA_KEY, paymentDateSpinner.getSelectedItem().toString());
+            mPage.getData().putInt(LeaseWizardPage3.LEASE_DUE_DATE_DATA_KEY, paymentDay);
+        }
+        isFirstLoad = false;
     }
 
     @Override
@@ -277,14 +314,14 @@ public class LeaseWizardPage3Fragment extends android.support.v4.app.Fragment {
             mPage.getData().putString(LeaseWizardPage3.LEASE_NEED_BRANCH, "No");
         }
         //TODO problem
-        new Handler().post(new Runnable() {
-            @Override
-            public void run() {
-                if (getUserVisibleHint()) {
-                    mPage.notifyDataChanged();
-                }
-            }
-        });
+        //new Handler().post(new Runnable() {
+        //    @Override
+        //    public void run() {
+        //       if (getUserVisibleHint()) {
+        //           mPage.notifyDataChanged();
+        //       }
+        //   }
+        // });
 
     }
 

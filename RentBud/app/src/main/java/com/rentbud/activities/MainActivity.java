@@ -373,60 +373,62 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     public void apartmentFABClick(View view) {
         //Launch NewApartmentFormActivity for result
         //onClick set in xml (ApartmentList fragment FAB)
-        Intent intent = new Intent(this, NewApartmentFormActivity.class);
+        Intent intent = new Intent(this, NewApartmentWizard.class);
         startActivityForResult(intent, REQUEST_NEW_APARTMENT_FORM);
     }
 
     public void tenantFABClick(View view) {
         //Launch NewTenantFormActivity for result
         //onClick set in xml (TenantList fragment FAB)
-        Intent intent = new Intent(this, NewTenantFormActivity.class);
+        Intent intent = new Intent(this, NewTenantWizard.class);
         startActivityForResult(intent, REQUEST_NEW_TENANT_FORM);
     }
 
     public void moneyFABClick(View view) {
         if (isExpenseFragDisplayed) {
-            Intent intent = new Intent(this, NewExpenseFormActivity.class);
+            Intent intent = new Intent(this, NewExpenseWizard.class);
             startActivityForResult(intent, REQUEST_NEW_EXPENSE_FORM);
         } else if(isLeaseFragDisplayed) {
-            showNewOrOldLeaseAlertDialog(view);
+           // showNewOrOldLeaseAlertDialog(view);
+            Intent intent = new Intent(MainActivity.this, NewLeaseWizard.class);
+            startActivityForResult(intent, MainActivity.REQUEST_NEW_LEASE_FORM);
         }else {
-            Intent intent = new Intent(this, NewIncomeFormActivity.class);
+            Intent intent = new Intent(this, NewIncomeWizard.class);
             startActivityForResult(intent, REQUEST_NEW_INCOME_FORM);
         }
     }
 
     private void showNewOrOldLeaseAlertDialog(View view) {
         // setup the alert builder
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        //AlertDialog.Builder builder = new AlertDialog.Builder(this);
         //builder.setTitle("AlertDialog");
-        builder.setMessage("Is this lease current, or completed and for record keeping?");
+        //builder.setMessage("Is this lease current, or completed and for record keeping?");
 
         // add the buttons
-        builder.setPositiveButton("Current", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
+       // builder.setPositiveButton("Current", new DialogInterface.OnClickListener() {
+       //     @Override
+       //     public void onClick(DialogInterface dialogInterface, int i) {
                 //Intent intent = new Intent(MainActivity.this, NewLeaseFormActivity.class);
                 //Uses filtered results to match what is on screen
                 //intent.putExtra("isLeaseForHistory", false);
                 //startActivityForResult(intent, MainActivity.REQUEST_NEW_LEASE_FORM);
                 Intent intent = new Intent(MainActivity.this, NewLeaseWizard.class);
                 startActivityForResult(intent, MainActivity.REQUEST_NEW_LEASE_FORM);
-            }
-        });
-        builder.setNegativeButton("Completed", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                Intent intent = new Intent(MainActivity.this, NewLeaseFormActivity.class);
+       //     }
+       // });
+       // builder.setNegativeButton("Completed", new DialogInterface.OnClickListener() {
+       //     @Override
+       //     public void onClick(DialogInterface dialogInterface, int i) {
+       //         Intent intent = new Intent(MainActivity.this, NewLeaseFormActivity.class);
                 //Uses filtered results to match what is on screen
-                intent.putExtra("isLeaseForHistory", true);
-                startActivityForResult(intent, MainActivity.REQUEST_NEW_LEASE_FORM);
-            }
-        });
+       //         intent.putExtra("isLeaseForHistory", true);
+       //         startActivityForResult(intent, MainActivity.REQUEST_NEW_LEASE_FORM);
+       //     }
+       // });
 
         // create and show the alert dialog
-        AlertDialog dialog = builder.create();
-        dialog.show();
+       // AlertDialog dialog = builder.create();
+       // dialog.show();
     }
 
     private void refreshFragView() {

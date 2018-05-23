@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/WizardPageContainer">
+
+    <TextView style="@style/WizardPageTitle" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:scrollbarStyle="outsideOverlay">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/WizardTitle"
+                android:text="New Apt. Address"
+                android:id="@+id/apartmentWizardPageOneHeader"
+                />
+
+            <TextView
+                android:id="@+id/apartmentWizardAddress1LabelTV"
+                style="@style/WizardFormLabel"
+                android:text="*Address Line 1" />
+
+            <EditText
+                android:id="@+id/apartmentWizardAddress1ET"
+                style="@style/FormText"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/rect_edit"
+                android:gravity="center_vertical"
+                android:hint=""
+                android:inputType="textCapWords"
+                android:paddingEnd="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingStart="10dp"
+                android:saveEnabled="false"
+                android:text="" />
+
+            <TextView
+                android:id="@+id/apartmentWizardAddress2LabelTV"
+                style="@style/WizardFormLabel"
+                android:text="Address Line 2" />
+
+            <EditText
+                android:id="@+id/apartmentWizardAddress2ET"
+                style="@style/FormText"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/rect_edit"
+                android:gravity="center_vertical"
+                android:hint=""
+                android:inputType="textCapWords"
+                android:paddingEnd="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingStart="10dp"
+                android:saveEnabled="false"
+                android:text="" />
+
+            <TextView
+                android:id="@+id/apartmentWizardCityLabelTV"
+                style="@style/WizardFormLabel"
+                android:text="*City" />
+
+            <EditText
+                android:id="@+id/apartmentWizardCityET"
+                style="@style/FormText"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/rect_edit"
+                android:gravity="center_vertical"
+                android:hint=""
+                android:inputType="textCapWords"
+                android:paddingEnd="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingStart="10dp"
+                android:saveEnabled="false"
+                android:text="" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:orientation="horizontal"
+                android:weightSum="2"
+                >
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_weight="1"
+                    >
+
+                    <TextView
+                        android:id="@+id/apartmentWizardStateLabelTV"
+                        style="@style/WizardFormLabel"
+                        android:text="*State" />
+
+                    <Spinner
+                        android:id="@+id/apartmentWizardStateSpinner"
+                        android:layout_width="200dp"
+                        android:layout_height="40dp"
+                        android:layout_marginRight="10dp"
+                        android:background="@android:drawable/btn_dropdown"
+                        android:drawSelectorOnTop="true"
+                        />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_weight="1"
+                    android:layout_marginLeft="10dp"
+                    >
+
+                    <TextView
+                        android:id="@+id/apartmentWizardZIPLabelTV"
+                        style="@style/WizardFormLabel"
+                        android:text="*ZIP" />
+
+                    <EditText
+                        android:id="@+id/apartmentWizardZIPET"
+                        style="@style/FormText"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:background="@drawable/rect_edit"
+                        android:gravity="center_vertical"
+                        android:hint=""
+                        android:inputType="phone"
+                        android:paddingEnd="10dp"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="10dp"
+                        android:paddingStart="10dp"
+                        android:saveEnabled="false"
+                        android:text="" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

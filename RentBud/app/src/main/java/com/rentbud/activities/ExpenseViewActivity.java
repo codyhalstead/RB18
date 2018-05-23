@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -111,7 +112,7 @@ public class ExpenseViewActivity extends BaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.editExpense:
-                Intent intent = new Intent(this, NewExpenseFormActivity.class);
+                Intent intent = new Intent(this, NewExpenseWizard.class);
                 intent.putExtra("expenseToEdit", expense);
                 startActivityForResult(intent, MainActivity.REQUEST_NEW_EXPENSE_FORM);
                 return true;

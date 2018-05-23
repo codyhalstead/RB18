@@ -83,6 +83,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
+                    style="@style/FormText"
                     android:text="1-12-89" />
 
                 <!--Amount -->
@@ -90,6 +91,7 @@
                     android:id="@+id/expenseViewAmountTV"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    style="@style/FormText"
                     android:gravity="center"
                     android:text="$2000" />
 
@@ -98,6 +100,7 @@
                     android:id="@+id/expenseViewTypeTV"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    style="@style/FormText"
                     android:layout_gravity="center"
                     android:text="Renovation" />
 

@@ -95,14 +95,17 @@ public class ApartmentDialogListAdapter extends BaseAdapter implements Filterabl
         if (apartment != null) {
             setTextHighlightSearch(viewHolder.street1TV, apartment.getStreet1());
             //If empty street 2, set invisible
-            if (apartment.getStreet2().equals("")) {
-                viewHolder.street2TV.setVisibility(View.GONE);
-                viewHolder.extraSpaceTV.setVisibility(View.VISIBLE);
+            if (apartment.getStreet2() != null) {
+                if (apartment.getStreet2().equals("")) {
+                    viewHolder.street2TV.setVisibility(View.GONE);
+                } else {
+                    viewHolder.street2TV.setVisibility(View.VISIBLE);
+                    setTextHighlightSearch(viewHolder.street2TV, apartment.getStreet2());
+                }
             } else {
-                viewHolder.street2TV.setVisibility(View.VISIBLE);
-                viewHolder.extraSpaceTV.setVisibility(View.GONE);
-                setTextHighlightSearch(viewHolder.street2TV, apartment.getStreet2());
+                viewHolder.street2TV.setVisibility(View.GONE);
             }
+
             String city = apartment.getCity();
             //If city not empty, add comma
             if (!apartment.getCity().equals("")) {
@@ -137,9 +140,13 @@ public class ApartmentDialogListAdapter extends BaseAdapter implements Filterabl
                 constraint = constraint.toString().toLowerCase();
                 for (int i = 0; i < apartmentArray.size(); i++) {
                     Apartment dataNames = apartmentArray.get(i);
+                    String street2 = "";
+                    if(dataNames.getStreet2() != null){
+                        street2 = dataNames.getStreet2();
+                    }
                     //If users search matches any part of any apartment value, add to new filtered list
                     if (dataNames.getStreet1().toLowerCase().contains(constraint.toString()) ||
-                            dataNames.getStreet2().toLowerCase().contains(constraint.toString()) ||
+                            street2.toLowerCase().contains(constraint.toString()) ||
                             dataNames.getCity().toLowerCase().contains(constraint.toString()) ||
                             dataNames.getState().toLowerCase().contains(constraint.toString()) ||
                             dataNames.getZip().toLowerCase().contains(constraint.toString())) {

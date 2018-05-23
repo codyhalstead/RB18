@@ -3,10 +3,11 @@ package com.rentbud.model;
 import android.content.Context;
 
 import com.example.android.wizardpager.wizard.model.AbstractWizardModel;
-import com.example.android.wizardpager.wizard.model.BranchPage;
-import com.example.android.wizardpager.wizard.model.MultipleFixedChoicePage;
 import com.example.android.wizardpager.wizard.model.PageList;
-import com.example.android.wizardpager.wizard.model.SingleFixedChoicePage;
+import com.rentbud.wizards.LeaseWizardPage1;
+import com.rentbud.wizards.LeaseWizardPage2;
+import com.rentbud.wizards.LeaseWizardPage3;
+import com.rentbud.wizards.LeaseWizardProratedRentPage;
 
 public class LeaseWizardModel extends AbstractWizardModel {
     public LeaseWizardModel(Context context) {
@@ -22,7 +23,7 @@ public class LeaseWizardModel extends AbstractWizardModel {
                 new LeaseWizardPage2(this, "Page2").setRequired(true),
 
                 new LeaseWizardPage3(this, "Page3")
-                        .addBranch("Yes", new LeaseWizardProratedRentPage(this, "ProratedRentPage").setRequired(true)).setRequired(true)
+                        .addBranch("Yes", new LeaseWizardProratedRentPage(this, "ProratedRentPage").setRequired(true))
         );
     }
 }

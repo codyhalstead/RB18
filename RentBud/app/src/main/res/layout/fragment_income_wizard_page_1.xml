@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/WizardPageContainer">
+
+    <TextView style="@style/WizardPageTitle" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:scrollbarStyle="outsideOverlay">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/WizardTitle"
+                android:text="New Income Info"
+                android:id="@+id/incomeWizardPageOneHeader"
+                />
+
+            <TextView
+                android:id="@+id/incomeWizardDateLabelTV"
+                style="@style/WizardFormLabel"
+                android:text="*Date Of Income" />
+
+            <TextView
+                android:id="@+id/incomeWizardDateTV"
+                style="@style/FormText"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/rect_edit"
+                android:gravity="center_vertical"
+                android:hint="Click to add date"
+                android:paddingEnd="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingStart="10dp"
+                android:saveEnabled="false" />
+
+            <TextView
+                android:id="@+id/incomeWizardAmountLabelTV"
+                style="@style/WizardFormLabel"
+                android:text="*Income Amount" />
+
+            <EditText
+                android:id="@+id/incomeWizardAmountET"
+                style="@style/FormText"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/rect_edit"
+                android:gravity="center_vertical"
+                android:hint=""
+                android:inputType="number"
+                android:paddingEnd="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingStart="10dp"
+                android:saveEnabled="false"
+                android:text="$0.00" />
+
+            <TextView
+                android:id="@+id/incomeWizardTypeLabelTV"
+                style="@style/WizardFormLabel"
+                android:text="*Income Type" />
+
+            <Spinner
+                android:id="@+id/incomeWizardTypeSpinner"
+                android:layout_width="200dp"
+                android:layout_height="40dp"
+                android:layout_marginRight="10dp"
+                android:background="@android:drawable/btn_dropdown"
+                android:drawSelectorOnTop="true"
+                />
+
+            <Button
+                android:id="@+id/incomeWizardAddNewTypeBtn"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                style="?android:attr/buttonBarButtonStyle"
+                android:text="Add New Income Type" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

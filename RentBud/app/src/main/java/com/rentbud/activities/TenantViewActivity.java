@@ -110,7 +110,7 @@ public class TenantViewActivity extends BaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.editTenant:
-                Intent intent = new Intent(this, NewTenantFormActivity.class);
+                Intent intent = new Intent(this, NewTenantWizard.class);
                 intent.putExtra("tenantToEdit", tenant);
                 startActivityForResult(intent, MainActivity.REQUEST_NEW_TENANT_FORM);
                 return true;
@@ -179,11 +179,15 @@ public class TenantViewActivity extends BaseActivity {
             editLeaseBtn.setText("Edit Lease");
             if (apartment != null) {
                 apartmentAddressTV.setText(apartment.getStreet1());
-                if (apartment.getStreet2().equals("")) {
-                    apartmentAddress2TV.setVisibility(View.GONE);
+                if(apartment.getStreet2() != null) {
+                    if (apartment.getStreet2().equals("")) {
+                        apartmentAddress2TV.setVisibility(View.GONE);
+                    } else {
+                        apartmentAddress2TV.setVisibility(View.VISIBLE);
+                        apartmentAddress2TV.setText(apartment.getStreet2());
+                    }
                 } else {
-                    apartmentAddress2TV.setVisibility(View.VISIBLE);
-                    apartmentAddress2TV.setText(apartment.getStreet2());
+                    apartmentAddress2TV.setVisibility(View.GONE);
                 }
             }
             if (tenant.getId() == currentLease.getPrimaryTenantID()) {

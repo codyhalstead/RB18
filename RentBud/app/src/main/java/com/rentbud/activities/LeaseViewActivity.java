@@ -90,10 +90,14 @@ public class LeaseViewActivity extends BaseActivity {
 
     private void fillTextViews(){
         apartmentStreet1TV.setText(apartment.getStreet1());
-        if (apartment.getStreet2().equals("")) {
-            apartmentStreet2TV.setVisibility(View.GONE);
+        if(apartment.getStreet2() != null) {
+            if (apartment.getStreet2().equals("")) {
+                apartmentStreet2TV.setVisibility(View.GONE);
+            } else {
+                apartmentStreet2TV.setText(apartment.getStreet2());
+            }
         } else {
-            apartmentStreet2TV.setText(apartment.getStreet2());
+            apartmentStreet2TV.setVisibility(View.GONE);
         }
         String city = apartment.getCity();
         //If city not empty, add comma
@@ -141,7 +145,7 @@ public class LeaseViewActivity extends BaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.editLease:
-                Intent intent = new Intent(this, NewLeaseFormActivity.class);
+                Intent intent = new Intent(this, NewLeaseWizard.class);
                 intent.putExtra("leaseToEdit", lease);
                 startActivityForResult(intent, MainActivity.REQUEST_NEW_LEASE_FORM);
                 return true;

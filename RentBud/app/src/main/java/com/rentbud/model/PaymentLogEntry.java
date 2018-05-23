@@ -19,8 +19,9 @@ public class PaymentLogEntry implements Parcelable{
     private int leaseID;
     private BigDecimal amount;
     private String description;
+    private String receiptPic;
 
-    public PaymentLogEntry(int id, Date paymentDate, int typeID, String typeLabel, int tenantID, int leaseID, BigDecimal amount, String description){
+    public PaymentLogEntry(int id, Date paymentDate, int typeID, String typeLabel, int tenantID, int leaseID, BigDecimal amount, String description, String receiptPic){
         this.id = id;
         this.paymentDate = paymentDate;
         this.typeID = typeID;
@@ -29,6 +30,7 @@ public class PaymentLogEntry implements Parcelable{
         this.leaseID = leaseID;
         this.amount = amount;
         this.description = description;
+        this.receiptPic = receiptPic;
     }
 
     @Override
@@ -52,6 +54,12 @@ public class PaymentLogEntry implements Parcelable{
         String amountString = amount.toPlainString();
         parcel.writeString(amountString);
         parcel.writeString(this.description);
+        if (this.receiptPic != null) {
+            parcel.writeInt(1);
+            parcel.writeString(this.receiptPic);
+        } else {
+            parcel.writeInt(-1);
+        }
     }
 
     protected PaymentLogEntry(Parcel in) {
@@ -67,6 +75,14 @@ public class PaymentLogEntry implements Parcelable{
         String amountString = in.readString();
         this.amount = new BigDecimal(amountString);
         this.description = in.readString();
+        int size = in.readInt();
+        if(size > -1){
+            //this.mainPic = new byte[size];
+            //in.readByteArray(this.mainPic);
+            this.receiptPic = in.readString();
+        } else {
+            this.receiptPic = null;
+        }
     }
 
     public static final Creator<PaymentLogEntry> CREATOR = new Creator<PaymentLogEntry>() {
@@ -143,5 +159,13 @@ public class PaymentLogEntry implements Parcelable{
 
     public void setLeaseID(int leaseID) {
         this.leaseID = leaseID;
+    }
+
+    public String getReceiptPic() {
+        return receiptPic;
+    }
+
+    public void setReceiptPic(String receiptPic) {
+        this.receiptPic = receiptPic;
     }
 }

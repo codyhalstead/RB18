@@ -1,9 +1,7 @@
 package com.rentbud.activities;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -21,7 +19,14 @@ import com.example.android.wizardpager.wizard.ui.PageFragmentCallbacks;
 import com.example.android.wizardpager.wizard.ui.ReviewFragment;
 import com.example.android.wizardpager.wizard.ui.StepPagerStrip;
 import com.example.cody.rentbud.R;
-import com.rentbud.model.LeaseWizardModel;
+import com.rentbud.fragments.TenantListFragment;
+import com.rentbud.helpers.MainArrayDataMethods;
+import com.rentbud.model.Tenant;
+import com.rentbud.model.TenantWizardModel;
+import com.rentbud.wizards.TenantWizardPage1;
+import com.rentbud.wizards.TenantWizardPage2;
+import com.rentbud.wizards.TenantWizardPage3;
+import com.rentbud.sqlite.DatabaseHandler;
 
 import java.util.List;
 
@@ -34,7 +39,7 @@ public class NewTenantWizard extends FragmentActivity implements
 
     private boolean mEditingAfterReview;
 
-    private AbstractWizardModel mWizardModel = new LeaseWizardModel(this);
+    private AbstractWizardModel mWizardModel;// = new TenantWizardModel(this);
 
     private boolean mConsumePageSelectedEvent;
 
@@ -44,16 +49,28 @@ public class NewTenantWizard extends FragmentActivity implements
     private List<Page> mCurrentPageSequence;
     private StepPagerStrip mStepPagerStrip;
 
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_fragment_new_lease_wizard);
+    private DatabaseHandler dbhandler;
+    private MainArrayDataMethods mainArrayDataMethods;
+    public static Tenant tenantToEdit;
 
+    public void onCreate(Bundle savedInstanceState) {
+        setContentView(R.layout.activity_fragment_wizard);
+
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            NewTenantWizard.tenantToEdit = extras.getParcelable("tenantToEdit");
+        } else {
+            NewTenantWizard.tenantToEdit = null;
+        }
+        mWizardModel = new TenantWizardModel(this);
+        super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
             mWizardModel.load(savedInstanceState.getBundle("model"));
         }
 
         mWizardModel.registerListener(this);
-
+        dbhandler = new DatabaseHandler(this);
+        mainArrayDataMethods = new MainArrayDataMethods();
         mPagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
         mPager = findViewById(R.id.pager);
         mPager.setAdapter(mPagerAdapter);
@@ -71,7 +88,7 @@ public class NewTenantWizard extends FragmentActivity implements
         mNextButton = (Button) findViewById(R.id.next_button);
         mPrevButton = (Button) findViewById(R.id.prev_button);
 
-        mPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+        mPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
                 mStepPagerStrip.setCurrentPage(position);
@@ -90,17 +107,42 @@ public class NewTenantWizard extends FragmentActivity implements
             @Override
             public void onClick(View view) {
                 if (mPager.getCurrentItem() == mCurrentPageSequence.size()) {
-                    DialogFragment dg = new DialogFragment() {
-                        @Override
-                        public Dialog onCreateDialog(Bundle savedInstanceState) {
-                            return new AlertDialog.Builder(getActivity())
-                                    .setMessage(com.example.android.wizardpager.R.string.submit_confirm_message)
-                                    .setPositiveButton(com.example.android.wizardpager.R.string.submit_confirm_button, null)
-                                    .setNegativeButton(android.R.string.cancel, null)
-                                    .create();
-                        }
-                    };
-                    dg.show(getSupportFragmentManager(), "place_order_dialog");
+                    String firstName = mWizardModel.findByKey("Page1").getData().getString(TenantWizardPage1.TENANT_FIRST_NAME_DATA_KEY);
+                    String lastName = mWizardModel.findByKey("Page1").getData().getString(TenantWizardPage1.TENANT_LAST_NAME_DATA_KEY);
+                    String phone = mWizardModel.findByKey("Page1").getData().getString(TenantWizardPage1.TENANT_PHONE_DATA_KEY);
+                    String email = mWizardModel.findByKey("Page1").getData().getString(TenantWizardPage1.TENANT_EMAIL_DATA_KEY);
+                    String emergencyFirstName = mWizardModel.findByKey("Page2").getData().getString(TenantWizardPage2.TENANT_EMERGENCY_FIRST_NAME_DATA_KEY);
+                    String emergencyLastName = mWizardModel.findByKey("Page2").getData().getString(TenantWizardPage2.TENANT_EMERGENCY_LAST_NAME_DATA_KEY);
+                    String emergencyPhone = mWizardModel.findByKey("Page2").getData().getString(TenantWizardPage2.TENANT_EMERGENCY_PHONE_DATA_KEY);
+                    String notes = mWizardModel.findByKey("Page3").getData().getString(TenantWizardPage3.TENANT_NOTES_DATA_KEY);
+                    //Create new Tenant object with input data and add it to the database
+
+                    if (NewTenantWizard.tenantToEdit != null) {
+                        //Is editing
+                        Tenant tenant = mainArrayDataMethods.getCachedTenantByTenantID(NewTenantWizard.tenantToEdit.getId());
+                        tenant.setFirstName(firstName);
+                        tenant.setLastName(lastName);
+                        tenant.setPhone(phone);
+                        tenant.setEmail(email);
+                        tenant.setEmergencyFirstName(emergencyFirstName);
+                        tenant.setEmergencyLastName(emergencyLastName);
+                        tenant.setEmergencyPhone(emergencyPhone);
+                        tenant.setNotes(notes);
+                        dbhandler.editTenant(tenant);
+                        Intent data = new Intent();
+                        data.putExtra("editedTenantID", NewTenantWizard.tenantToEdit.getId());
+                        setResult(RESULT_OK, data);
+                    } else {
+                        //Is new
+                        Tenant tenant = new Tenant(-1, firstName, lastName, phone, email, emergencyFirstName, emergencyLastName, emergencyPhone,
+                                false, notes);
+                        dbhandler.addNewTenant(tenant, MainActivity.user.getId());
+                        MainActivity.tenantList.add(tenant);
+                        setResult(RESULT_OK);
+                    }
+                    mainArrayDataMethods.sortMainTenantArray();
+                    TenantListFragment.tenantListAdapterNeedsRefreshed = true;
+                    finish();
                 } else {
                     if (mEditingAfterReview) {
                         mPager.setCurrentItem(mPagerAdapter.getCount() - 1);
@@ -134,7 +176,11 @@ public class NewTenantWizard extends FragmentActivity implements
     private void updateBottomBar() {
         int position = mPager.getCurrentItem();
         if (position == mCurrentPageSequence.size()) {
-            mNextButton.setText(com.example.android.wizardpager.R.string.finish);
+            if(NewTenantWizard.tenantToEdit == null) {
+                mNextButton.setText("Create Tenant");
+            } else {
+                mNextButton.setText("Save Changes");
+            }
             mNextButton.setBackgroundResource(com.example.android.wizardpager.R.drawable.finish_background);
             mNextButton.setTextAppearance(this, com.example.android.wizardpager.R.style.TextAppearanceFinish);
         } else {
@@ -147,7 +193,6 @@ public class NewTenantWizard extends FragmentActivity implements
             mNextButton.setTextAppearance(this, v.resourceId);
             mNextButton.setEnabled(position != mPagerAdapter.getCutOffPage());
         }
-
         mPrevButton.setVisibility(position <= 0 ? View.INVISIBLE : View.VISIBLE);
     }
 

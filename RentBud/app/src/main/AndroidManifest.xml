@@ -96,6 +96,32 @@
         <!--NewLeaseWizardActivity -->
         <activity
             android:name="com.rentbud.activities.NewLeaseWizard"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustPan"
+            ></activity>
+
+        <!--NewTenantWizardActivity -->
+        <activity
+            android:name="com.rentbud.activities.NewTenantWizard"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustPan"></activity>
+
+        <!--NewApartmentWizardActivity -->
+        <activity
+            android:name="com.rentbud.activities.NewApartmentWizard"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustPan"></activity>
+
+        <!--NewExpenseWizardActivity -->
+        <activity
+            android:name="com.rentbud.activities.NewExpenseWizard"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustPan"></activity>
+
+        <!--NewIncomeWizardActivity -->
+        <activity
+            android:name="com.rentbud.activities.NewIncomeWizard"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustPan"></activity>
     </application>
 </manifest>

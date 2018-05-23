@@ -1,15 +1,12 @@
 package com.rentbud.activities;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,9 +26,9 @@ import com.rentbud.helpers.MainArrayDataMethods;
 import com.rentbud.model.Apartment;
 import com.rentbud.model.Lease;
 import com.rentbud.model.LeaseWizardModel;
-import com.rentbud.model.LeaseWizardPage1;
-import com.rentbud.model.LeaseWizardPage2;
-import com.rentbud.model.LeaseWizardPage3;
+import com.rentbud.wizards.LeaseWizardPage1;
+import com.rentbud.wizards.LeaseWizardPage2;
+import com.rentbud.wizards.LeaseWizardPage3;
 import com.rentbud.model.Tenant;
 import com.rentbud.sqlite.DatabaseHandler;
 
@@ -53,7 +50,7 @@ public class NewLeaseWizard extends FragmentActivity implements
 
     private boolean mEditingAfterReview;
 
-    private AbstractWizardModel mWizardModel = new LeaseWizardModel(this);
+    private AbstractWizardModel mWizardModel;// = new LeaseWizardModel(this);
 
     private boolean mConsumePageSelectedEvent;
 
@@ -61,20 +58,30 @@ public class NewLeaseWizard extends FragmentActivity implements
     private Button mPrevButton;
 
     private DatabaseHandler dbhandler;
+    MainArrayDataMethods dataMethods;
+    public static Lease leaseToEdit;
 
     private List<Page> mCurrentPageSequence;
     private StepPagerStrip mStepPagerStrip;
 
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_fragment_new_lease_wizard);
+        setContentView(R.layout.activity_fragment_wizard);
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            NewLeaseWizard.leaseToEdit = extras.getParcelable("leaseToEdit");
+        } else {
+            NewLeaseWizard.leaseToEdit = null;
+        }
 
+        mWizardModel = new LeaseWizardModel(this);
+        super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
             mWizardModel.load(savedInstanceState.getBundle("model"));
         }
 
         mWizardModel.registerListener(this);
         dbhandler = new DatabaseHandler(this);
+        dataMethods = new MainArrayDataMethods();
         mPagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
         mPager = findViewById(R.id.pager);
         mPager.setAdapter(mPagerAdapter);
@@ -111,18 +118,6 @@ public class NewLeaseWizard extends FragmentActivity implements
             @Override
             public void onClick(View view) {
                 if (mPager.getCurrentItem() == mCurrentPageSequence.size()) {
-                   // DialogFragment dg = new DialogFragment() {
-                   //     @Override
-                   //     public Dialog onCreateDialog(Bundle savedInstanceState) {
-                   //         return new AlertDialog.Builder(getActivity())
-                   //                 .setMessage(com.example.android.wizardpager.R.string.submit_confirm_message)
-                   //                 .setPositiveButton(com.example.android.wizardpager.R.string.submit_confirm_button, null)
-                   //                 .setNegativeButton(android.R.string.cancel, null)
-                   //                 .create();
-                   //     }
-                   // };
-                   // dg.show(getSupportFragmentManager(), "place_order_dialog");
-                    Log.d("TAG", "onClick: WAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa");
                     Tenant primaryTenant = mWizardModel.findByKey("Page2").getData().getParcelable(LeaseWizardPage2.LEASE_PRIMARY_TENANT_DATA_KEY);
                     ArrayList<Tenant> secondaryTenants = mWizardModel.findByKey("Page2").getData().getParcelableArrayList(LeaseWizardPage2.LEASE_SECONDARY_TENANTS_DATA_KEY);
                     ArrayList<Integer> secondaryTenantIDs = new ArrayList<>();
@@ -150,12 +145,29 @@ public class NewLeaseWizard extends FragmentActivity implements
                     BigDecimal deposit = new BigDecimal(depositString);
                     String depositWithheldString = mWizardModel.findByKey("Page2").getData().getString(LeaseWizardPage2.LEASE_DEPOSIT_WITHHELD_STRING_DATA_KEY);
                     BigDecimal depositWithheld = new BigDecimal(depositWithheldString);
+                    String notes = "";
 
-                    Lease lease = new Lease(0, primaryTenant.getId(), secondaryTenantIDs, apartment.getId(), leaseStartDate, leaseEndDate,
-                            paymentDay, rentCost, deposit, depositWithheld, "");
-
-                    dbhandler.addLease(lease, MainActivity.user.getId());
-                    MainArrayDataMethods dataMethods = new MainArrayDataMethods();
+                    if(NewLeaseWizard.leaseToEdit != null) {
+                        NewLeaseWizard.leaseToEdit.setPrimaryTenantID(primaryTenant.getId());
+                        NewLeaseWizard.leaseToEdit.setSecondaryTenantIDs(secondaryTenantIDs);
+                        NewLeaseWizard.leaseToEdit.setApartmentID(apartment.getId());
+                        NewLeaseWizard.leaseToEdit.setLeaseStart(leaseStartDate);
+                        NewLeaseWizard.leaseToEdit.setLeaseEnd(leaseEndDate);
+                        NewLeaseWizard.leaseToEdit.setPaymentDay(paymentDay);
+                        NewLeaseWizard.leaseToEdit.setMonthlyRentCost(rentCost);
+                        NewLeaseWizard.leaseToEdit.setDeposit(deposit);
+                        NewLeaseWizard.leaseToEdit.setDepositWithheld(depositWithheld);
+                        NewLeaseWizard.leaseToEdit.setNotes(notes);
+                        dbhandler.editLease(NewLeaseWizard.leaseToEdit);
+                        Intent data = new Intent();
+                        data.putExtra("editedLeaseID", NewLeaseWizard.leaseToEdit.getId());
+                        setResult(RESULT_OK, data);
+                    } else {
+                        Lease lease = new Lease(0, primaryTenant.getId(), secondaryTenantIDs, apartment.getId(), leaseStartDate, leaseEndDate,
+                                paymentDay, rentCost, deposit, depositWithheld, notes);
+                        dbhandler.addLease(lease, MainActivity.user.getId());
+                        setResult(RESULT_OK);
+                    }
                     dataMethods.sortMainApartmentArray();
                     dataMethods.sortMainTenantArray();
                     MainActivity.currentLeasesList = dbhandler.getUsersActiveLeases(MainActivity.user);
@@ -198,7 +210,11 @@ public class NewLeaseWizard extends FragmentActivity implements
     private void updateBottomBar() {
         int position = mPager.getCurrentItem();
         if (position == mCurrentPageSequence.size()) {
-            mNextButton.setText("Create Lease");
+            if(NewLeaseWizard.leaseToEdit == null) {
+                mNextButton.setText("Create Lease");
+            } else {
+                mNextButton.setText("Save Changes");
+            }
             mNextButton.setBackgroundResource(com.example.android.wizardpager.R.drawable.finish_background);
             mNextButton.setTextAppearance(this, com.example.android.wizardpager.R.style.TextAppearanceFinish);
         } else {

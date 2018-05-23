@@ -6,12 +6,14 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.DatePicker;
 import android.widget.LinearLayout;
+import android.widget.Scroller;
 import android.widget.TextView;
 
 import com.example.android.wizardpager.wizard.ui.PageFragmentCallbacks;
@@ -19,13 +21,16 @@ import com.example.cody.rentbud.R;
 import com.rentbud.activities.MainActivity;
 import com.rentbud.helpers.TenantOrApartmentChooserDialog;
 import com.rentbud.model.Apartment;
-import com.rentbud.model.LeaseWizardPage1;
+import com.rentbud.wizards.ExpenseWizardPage1;
+import com.rentbud.wizards.LeaseWizardPage1;
 import com.rentbud.model.Tenant;
 
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.joda.time.Months;
 
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -39,7 +44,7 @@ public class LeaseWizardPage1Fragment extends android.support.v4.app.Fragment {
     private String mKey;
     private LeaseWizardPage1 mPage;
     private TextView leaseStartTV, leaseEndTV, leaseStartLabelTV, leaseEndLabelTV, apartmentTV, apartmentLabelTV,
-            invalidDatesTV, leaseWasTV, monthsAndTV, daysLongTV, amountOfMonthsTV, amoundOfDaysTV;
+            invalidDatesTV, leaseWasTV, monthsAndTV, daysLongTV, amountOfMonthsTV, amountOfDaysTV;
     private LinearLayout durationLL;
     private DatePickerDialog.OnDateSetListener dateSetLeaseStartListener, dateSetLeaseEndListener;
     Date leaseStartDate, leaseEndDate;
@@ -77,21 +82,48 @@ public class LeaseWizardPage1Fragment extends android.support.v4.app.Fragment {
 
         leaseStartTV = (rootView.findViewById(R.id.leaseWizardStartDateTV));
         leaseStartTV.setHint("Click To Select Date");
-        leaseStartTV.setText(mPage.getData().getString(LeaseWizardPage1.LEASE_START_DATE_STRING_DATA_KEY));
+        if(mPage.getData().getString(LeaseWizardPage1.LEASE_START_DATE_STRING_DATA_KEY) != null) {
+            String dateString = mPage.getData().getString(LeaseWizardPage1.LEASE_START_DATE_STRING_DATA_KEY);
+            DateFormat formatFrom = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+            try {
+                leaseStartDate = formatFrom.parse(dateString);
+                leaseStartTV.setText(mPage.getData().getString(LeaseWizardPage1.LEASE_START_DATE_STRING_DATA_KEY));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        //leaseStartTV.setText(mPage.getData().getString(LeaseWizardPage1.LEASE_START_DATE_STRING_DATA_KEY));
 
         leaseEndTV = (rootView.findViewById(R.id.leaseWizardEndDateTV));
-        leaseEndTV.setText(mPage.getData().getString(LeaseWizardPage1.LEASE_END_DATE_STRING_DATA_KEY));
+        //leaseEndTV.setText(mPage.getData().getString(LeaseWizardPage1.LEASE_END_DATE_STRING_DATA_KEY));
         leaseEndTV.setHint("Click To Select Date");
+        if(mPage.getData().getString(LeaseWizardPage1.LEASE_END_DATE_STRING_DATA_KEY) != null) {
+            String dateString = mPage.getData().getString(LeaseWizardPage1.LEASE_END_DATE_STRING_DATA_KEY);
+            DateFormat formatFrom = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+            try {
+                leaseEndDate = formatFrom.parse(dateString);
+                leaseEndTV.setText(mPage.getData().getString(LeaseWizardPage1.LEASE_END_DATE_STRING_DATA_KEY));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
 
         leaseStartLabelTV = (rootView.findViewById(R.id.leaseWizardStartDateLabelTV));
-        leaseStartLabelTV.setText("*Lease Start Date");
+        //leaseStartLabelTV.setText("*Lease Start Date");
 
         leaseEndLabelTV = (rootView.findViewById(R.id.leaseWizardEndDateLabelTV));
-        leaseEndLabelTV.setText("*Lease End Date");
+        //leaseEndLabelTV.setText("*Lease End Date");
 
         apartmentTV = (rootView.findViewById(R.id.leaseWizardApartmentTV));
         apartmentTV.setHint("Click To Select Apartment");
-        apartmentTV.setText(mPage.getData().getString(LeaseWizardPage1.LEASE_APARTMENT_STRING_DATA_KEY));
+        if(mPage.getData().getString(LeaseWizardPage1.LEASE_APARTMENT_STRING_DATA_KEY) != null) {
+            apartmentTV.setText(mPage.getData().getString(LeaseWizardPage1.LEASE_APARTMENT_STRING_DATA_KEY));
+            apartment = mPage.getData().getParcelable(LeaseWizardPage1.LEASE_APARTMENT_DATA_KEY);
+        }
+        apartmentTV.setScroller(new Scroller(getContext()));
+        apartmentTV.setMaxLines(5);
+        apartmentTV.setVerticalScrollBarEnabled(true);
+        apartmentTV.setMovementMethod(new ScrollingMovementMethod());
 
         apartmentLabelTV = (rootView.findViewById(R.id.leaseWizardApartmentLabelTV));
         apartmentLabelTV.setText("*Apartment");
@@ -102,7 +134,7 @@ public class LeaseWizardPage1Fragment extends android.support.v4.app.Fragment {
         leaseWasTV = rootView.findViewById(R.id.leaseWizardLeaseWasTV);
         amountOfMonthsTV = rootView.findViewById(R.id.leaseWizardMonthDurationNumberTV);
         monthsAndTV = rootView.findViewById(R.id.leaseWizardMonthsAndTV);
-        amoundOfDaysTV = rootView.findViewById(R.id.leaseWizardDayDurationTV);
+        amountOfDaysTV = rootView.findViewById(R.id.leaseWizardDayDurationTV);
         daysLongTV = rootView.findViewById(R.id.leaseWizardDaysLongTV);
 
         durationLL = rootView.findViewById(R.id.leaseWizardDurationLL);
@@ -288,8 +320,10 @@ public class LeaseWizardPage1Fragment extends android.support.v4.app.Fragment {
 
     private void setApartmentTextView() {
         apartmentTV.setText(apartment.getStreet1());
-        apartmentTV.append(" ");
-        apartmentTV.append(apartment.getStreet2());
+        if(apartment.getStreet2() != null) {
+            apartmentTV.append(" ");
+            apartmentTV.append(apartment.getStreet2());
+        }
     }
 
     private void checkDates(){
@@ -328,7 +362,7 @@ public class LeaseWizardPage1Fragment extends android.support.v4.app.Fragment {
             } else {
                 monthsAndTV.setText(" Months And ");
             }
-            amoundOfDaysTV.setText(days + "");
+            amountOfDaysTV.setText(days + "");
             if(days == 1){
                 daysLongTV.setText(" Day Long");
             } else {

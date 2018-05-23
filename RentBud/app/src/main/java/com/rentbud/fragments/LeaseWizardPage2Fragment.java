@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Scroller;
 import android.widget.TextView;
 
 import com.example.android.wizardpager.wizard.ui.PageFragmentCallbacks;
@@ -19,7 +21,7 @@ import com.example.cody.rentbud.R;
 import com.rentbud.activities.MainActivity;
 import com.rentbud.helpers.TenantOrApartmentChooserDialog;
 import com.rentbud.model.Apartment;
-import com.rentbud.model.LeaseWizardPage2;
+import com.rentbud.wizards.LeaseWizardPage2;
 import com.rentbud.model.Tenant;
 
 import java.math.BigDecimal;
@@ -76,6 +78,10 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
         (rootView.findViewById(android.R.id.title)).setVisibility(View.GONE);
         primaryTenantTV = rootView.findViewById(R.id.leaseWizardPrimaryTenantTV);
         primaryTenantTV.setText(mPage.getData().getString(LeaseWizardPage2.LEASE_PRIMARY_TENANT_STRING_DATA_KEY));
+        primaryTenantTV.setScroller(new Scroller(getContext()));
+        primaryTenantTV.setMaxLines(5);
+        primaryTenantTV.setVerticalScrollBarEnabled(true);
+        primaryTenantTV.setMovementMethod(new ScrollingMovementMethod());
         primaryTenantLabelTV = rootView.findViewById(R.id.leaseWizardPrimaryTenantLabelTV);
 
         secondaryTenantsTV = rootView.findViewById(R.id.leaseWizardSecondaryTenantsTV);
@@ -210,6 +216,8 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
                 depositAmountET.setText(formatted);
                 mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_FORMATTED_STRING_DATA_KEY, formatted);
                 mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_STRING_DATA_KEY, deposit.toPlainString());
+                Log.d(TAG, "afterTextChanged: " + formatted);
+                Log.d(TAG, "afterTextChanged: " + deposit.toPlainString());
                 mPage.notifyDataChanged();
                 depositAmountET.setSelection(formatted.length());
                 depositAmountET.addTextChangedListener(this);
@@ -245,12 +253,16 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
             }
         });
 
-        String formatted = NumberFormat.getCurrencyInstance().format(deposit);
-        mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_FORMATTED_STRING_DATA_KEY, formatted);
-        mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_STRING_DATA_KEY, deposit.toPlainString());
-        formatted = NumberFormat.getCurrencyInstance().format(depositWithheld);
-        mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_WITHHELD_FORMATTED_STRING_DATA_KEY, formatted);
-        mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_WITHHELD_STRING_DATA_KEY, depositWithheld.toPlainString());
+        if(mPage.getData().getString(LeaseWizardPage2.LEASE_DEPOSIT_STRING_DATA_KEY) == null) {
+            String formatted = NumberFormat.getCurrencyInstance().format(deposit);
+            mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_FORMATTED_STRING_DATA_KEY, formatted);
+            mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_STRING_DATA_KEY, deposit.toPlainString());
+        }
+        if(mPage.getData().getString(LeaseWizardPage2.LEASE_DEPOSIT_WITHHELD_STRING_DATA_KEY) == null) {
+            String formatted = NumberFormat.getCurrencyInstance().format(depositWithheld);
+            mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_WITHHELD_FORMATTED_STRING_DATA_KEY, formatted);
+            mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_WITHHELD_STRING_DATA_KEY, depositWithheld.toPlainString());
+        }
     }
 
     @Override
