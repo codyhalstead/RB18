@@ -303,7 +303,7 @@ public class TenantViewActivity extends BaseActivity {
                         //         databaseHandler.editTenant(otherTenants.get(x));
                         //     }
                         apartment.setRented(false);
-                        MainActivity.tenantList = databaseHandler.getUsersTenants(MainActivity.user);
+                        MainActivity.tenantList = databaseHandler.getUsersTenantsIncludingInactive(MainActivity.user);
                     }
                 }
                 //tenant.setApartmentID(0);

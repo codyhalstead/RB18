@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -21,12 +20,15 @@ import com.example.android.wizardpager.wizard.ui.ReviewFragment;
 import com.example.android.wizardpager.wizard.ui.StepPagerStrip;
 import com.example.cody.rentbud.R;
 import com.rentbud.fragments.IncomeListFragment;
-import com.rentbud.helpers.MainArrayDataMethods;
+import com.rentbud.model.Apartment;
 import com.rentbud.model.IncomeWizardModel;
+import com.rentbud.model.Lease;
+import com.rentbud.model.Tenant;
 import com.rentbud.wizards.IncomeWizardPage1;
 import com.rentbud.wizards.IncomeWizardPage2;
 import com.rentbud.model.PaymentLogEntry;
 import com.rentbud.sqlite.DatabaseHandler;
+import com.rentbud.wizards.IncomeWizardPage3;
 
 import java.math.BigDecimal;
 import java.text.DateFormat;
@@ -36,7 +38,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class NewIncomeWizard extends FragmentActivity implements
+public class NewIncomeWizard extends BaseActivity implements
         PageFragmentCallbacks,
         ReviewFragment.Callbacks,
         ModelCallbacks {
@@ -60,6 +62,7 @@ public class NewIncomeWizard extends FragmentActivity implements
     public static PaymentLogEntry incomeToEdit;
 
     public void onCreate(Bundle savedInstanceState) {
+        setupUserAppTheme(MainActivity.curThemeChoice);
         setContentView(R.layout.activity_fragment_wizard);
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -122,20 +125,41 @@ public class NewIncomeWizard extends FragmentActivity implements
                     }
                     String amountString = mWizardModel.findByKey("Page1").getData().getString(IncomeWizardPage1.INCOME_AMOUNT_STRING_DATA_KEY);
                     BigDecimal amount = new BigDecimal(amountString);
-                    int tenantID = 0; //TODO
-                    int leaseID = 0; //TODO
+                    int apartmentID = 0;
+                    int tenantID = 0;
+                    int leaseID = 0;
+                    if(NewExpenseWizard.expenseToEdit != null){
+                        apartmentID = NewExpenseWizard.expenseToEdit.getApartmentID();
+                    }
+                    if(mWizardModel.findByKey("Page3") != null) {
+                        if(mWizardModel.findByKey("Page3").getData().getParcelable(IncomeWizardPage3.INCOME_RELATED_APT_DATA_KEY) != null){
+                            Apartment apartment = mWizardModel.findByKey("Page3").getData().getParcelable(IncomeWizardPage3.INCOME_RELATED_APT_DATA_KEY);
+                            apartmentID = apartment.getId();
+                        }
+                        if(mWizardModel.findByKey("Page3").getData().getParcelable(IncomeWizardPage3.INCOME_RELATED_TENANT_DATA_KEY) != null){
+                            Tenant tenant = mWizardModel.findByKey("Page3").getData().getParcelable(IncomeWizardPage3.INCOME_RELATED_TENANT_DATA_KEY);
+                            tenantID = tenant.getId();
+                        }
+                        if(mWizardModel.findByKey("Page3").getData().getParcelable(IncomeWizardPage3.INCOME_RELATED_LEASE_DATA_KEY) != null){
+                            Lease lease = mWizardModel.findByKey("Page3").getData().getParcelable(IncomeWizardPage3.INCOME_RELATED_LEASE_DATA_KEY);
+                            leaseID = lease.getId();
+                        }
+                    }
                     String description = mWizardModel.findByKey("Page2").getData().getString(IncomeWizardPage2.INCOME_DESCRIPTION_DATA_KEY);
                     int typeID = mWizardModel.findByKey("Page1").getData().getInt(IncomeWizardPage1.INCOME_TYPE_ID_DATA_KEY);
                     String type = mWizardModel.findByKey("Page1").getData().getString(IncomeWizardPage1.INCOME_TYPE_DATA_KEY);
                     String receiptPic = mWizardModel.findByKey("Page2").getData().getString(IncomeWizardPage2.INCOME_RECEIPT_PIC_DATA_KEY);
 
                     if (NewIncomeWizard.incomeToEdit != null) {
-                        NewIncomeWizard.incomeToEdit.setPaymentDate(date);
+                        NewIncomeWizard.incomeToEdit.setDate(date);
                         NewIncomeWizard.incomeToEdit.setAmount(amount);
                         NewIncomeWizard.incomeToEdit.setTypeID(typeID);
                         NewIncomeWizard.incomeToEdit.setTypeLabel(type);
                         NewIncomeWizard.incomeToEdit.setDescription(description);
                         NewIncomeWizard.incomeToEdit.setReceiptPic(receiptPic);
+                        NewIncomeWizard.incomeToEdit.setApartmentID(apartmentID);
+                        NewIncomeWizard.incomeToEdit.setTenantID(tenantID);
+                        NewIncomeWizard.incomeToEdit.setLeaseID(leaseID);
 
                         dbHandler.editPaymentLogEntry(NewIncomeWizard.incomeToEdit);
                         //dataMethods.sortMainIncomeArray();
@@ -143,7 +167,7 @@ public class NewIncomeWizard extends FragmentActivity implements
                         data.putExtra("editedIncomeID", NewIncomeWizard.incomeToEdit.getId());
                         setResult(RESULT_OK, data);
                     } else {
-                        PaymentLogEntry income = new PaymentLogEntry(-1, date, typeID, type, tenantID, leaseID, amount, description, receiptPic);
+                        PaymentLogEntry income = new PaymentLogEntry(-1, date, typeID, type, tenantID, leaseID, apartmentID, amount, description, receiptPic);
                         dbHandler.addPaymentLogEntry(income, MainActivity.user.getId());
                         IncomeListFragment.incomeListAdapterNeedsRefreshed = true;
                         setResult(RESULT_OK);
@@ -168,7 +192,8 @@ public class NewIncomeWizard extends FragmentActivity implements
                 mPager.setCurrentItem(mPager.getCurrentItem() - 1);
             }
         });
-
+        mStepPagerStrip.setProgressColors(fetchPrimaryColor(), fetchPrimaryColor(), fetchAccentColor());
+        setupBasicToolbar();
         onPageTreeChanged();
         updateBottomBar();
     }
@@ -192,6 +217,7 @@ public class NewIncomeWizard extends FragmentActivity implements
             }
             mNextButton.setBackgroundResource(com.example.android.wizardpager.R.drawable.finish_background);
             mNextButton.setTextAppearance(this, com.example.android.wizardpager.R.style.TextAppearanceFinish);
+            mNextButton.setBackgroundColor(fetchPrimaryColor());
         } else {
             mNextButton.setText(mEditingAfterReview
                     ? com.example.android.wizardpager.R.string.review

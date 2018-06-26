@@ -65,7 +65,7 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
         mPage = (LeaseWizardPage2) mCallbacks.onGetPage(mKey);
         secondaryTenants = new ArrayList<>();
         availableTenants = new ArrayList<>();
-        availableTenants.addAll(MainActivity.tenantList);
+        //availableTenants.addAll(MainActivity.tenantList);
         deposit = new BigDecimal(0);
         depositWithheld = new BigDecimal(0);
 
@@ -92,13 +92,13 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
         depositWithheldLabelTV = rootView.findViewById(R.id.leaseWizardDepositWithheldLabelTV);
 
         depositAmountET = rootView.findViewById(R.id.leaseWizardDepositET);
-        if(mPage.getData().getString(LeaseWizardPage2.LEASE_DEPOSIT_FORMATTED_STRING_DATA_KEY) != null) {
+        if (mPage.getData().getString(LeaseWizardPage2.LEASE_DEPOSIT_FORMATTED_STRING_DATA_KEY) != null) {
             depositAmountET.setText(mPage.getData().getString(LeaseWizardPage2.LEASE_DEPOSIT_FORMATTED_STRING_DATA_KEY));
         }
         depositAmountET.setSelection(depositAmountET.getText().length());
 
         depositWithheldET = rootView.findViewById(R.id.leaseWizardDepositWithheldET);
-        if(mPage.getData().getString(LeaseWizardPage2.LEASE_DEPOSIT_WITHHELD_FORMATTED_STRING_DATA_KEY) != null) {
+        if (mPage.getData().getString(LeaseWizardPage2.LEASE_DEPOSIT_WITHHELD_FORMATTED_STRING_DATA_KEY) != null) {
             depositWithheldET.setText(mPage.getData().getString(LeaseWizardPage2.LEASE_DEPOSIT_WITHHELD_FORMATTED_STRING_DATA_KEY));
         }
         depositWithheldET.setSelection(depositWithheldET.getText().length());
@@ -129,6 +129,36 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        ArrayList<Integer> curTenantIDs = new ArrayList<>();
+        if (mPage.getData().getParcelable(LeaseWizardPage2.LEASE_PRIMARY_TENANT_DATA_KEY) != null) {
+            primaryTenant = mPage.getData().getParcelable(LeaseWizardPage2.LEASE_PRIMARY_TENANT_DATA_KEY);
+            curTenantIDs.add(primaryTenant.getId());
+        }
+        if (mPage.getData().getParcelableArrayList(LeaseWizardPage2.LEASE_SECONDARY_TENANTS_DATA_KEY) != null) {
+            secondaryTenants = mPage.getData().getParcelableArrayList(LeaseWizardPage2.LEASE_SECONDARY_TENANTS_DATA_KEY);
+            for (int z = 0; z < secondaryTenants.size(); z++) {
+                curTenantIDs.add(secondaryTenants.get(z).getId());
+            }
+        }
+
+        for (int i = 0; i < MainActivity.tenantList.size(); i++) {
+            if (MainActivity.tenantList.get(i).isActive()) {
+               // if (!MainActivity.tenantList.get(i).getHasLease()) {
+               //     availableTenants.add(MainActivity.tenantList.get(i));
+               // } else {
+                    boolean isUsed = false;
+                    for (int y = 0; y < curTenantIDs.size(); y++){
+                        if (MainActivity.tenantList.get(i).getId() == curTenantIDs.get(y)){
+                            isUsed = true;
+                            break;
+                        }
+                    }
+                    if(!isUsed){
+                        availableTenants.add(MainActivity.tenantList.get(i));
+                    }
+            //    }
+            }
+        }
 
         primaryTenantTV.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -216,8 +246,6 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
                 depositAmountET.setText(formatted);
                 mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_FORMATTED_STRING_DATA_KEY, formatted);
                 mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_STRING_DATA_KEY, deposit.toPlainString());
-                Log.d(TAG, "afterTextChanged: " + formatted);
-                Log.d(TAG, "afterTextChanged: " + deposit.toPlainString());
                 mPage.notifyDataChanged();
                 depositAmountET.setSelection(formatted.length());
                 depositAmountET.addTextChangedListener(this);
@@ -253,12 +281,12 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
             }
         });
 
-        if(mPage.getData().getString(LeaseWizardPage2.LEASE_DEPOSIT_STRING_DATA_KEY) == null) {
+        if (mPage.getData().getString(LeaseWizardPage2.LEASE_DEPOSIT_STRING_DATA_KEY) == null) {
             String formatted = NumberFormat.getCurrencyInstance().format(deposit);
             mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_FORMATTED_STRING_DATA_KEY, formatted);
             mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_STRING_DATA_KEY, deposit.toPlainString());
         }
-        if(mPage.getData().getString(LeaseWizardPage2.LEASE_DEPOSIT_WITHHELD_STRING_DATA_KEY) == null) {
+        if (mPage.getData().getString(LeaseWizardPage2.LEASE_DEPOSIT_WITHHELD_STRING_DATA_KEY) == null) {
             String formatted = NumberFormat.getCurrencyInstance().format(depositWithheld);
             mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_WITHHELD_FORMATTED_STRING_DATA_KEY, formatted);
             mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_WITHHELD_STRING_DATA_KEY, depositWithheld.toPlainString());

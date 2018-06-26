@@ -17,19 +17,14 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.example.cody.rentbud.R;
-import com.rentbud.fragments.ExpenseListFragment;
 import com.rentbud.helpers.MainArrayDataMethods;
 import com.rentbud.helpers.NewItemCreatorDialog;
 import com.rentbud.helpers.UserInputValidation;
-import com.rentbud.model.Apartment;
 import com.rentbud.model.ExpenseLogEntry;
-import com.rentbud.model.Tenant;
 import com.rentbud.sqlite.DatabaseHandler;
 
 import java.math.BigDecimal;
-import java.text.DateFormat;
 import java.text.NumberFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -115,8 +110,8 @@ public class NewExpenseFormActivity extends BaseActivity {
         if (extras != null) {
             this.isEdit = true;
             expenseToEdit = extras.getParcelable("expenseToEdit");
-            if(expenseToEdit.getExpenseDate() != null) {
-                this.expenseDate = expenseToEdit.getExpenseDate();
+            if(expenseToEdit.getDate() != null) {
+                this.expenseDate = expenseToEdit.getDate();
                 SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
                 dateTV.setText(formatter.format(expenseDate));
             }
@@ -167,7 +162,7 @@ public class NewExpenseFormActivity extends BaseActivity {
                     finish();
                 } else {
                     //ExpenseLogEntry originalExpense = dataMethods.getCachedExpenseByID(expenseToEdit.getId());
-                    expenseToEdit.setExpenseDate(expenseDate);
+                    expenseToEdit.setDate(expenseDate);
                     expenseToEdit.setAmount(currentAmount);
                     expenseToEdit.setTypeID(typeID);
                     expenseToEdit.setTypeLabel(typeLabel);

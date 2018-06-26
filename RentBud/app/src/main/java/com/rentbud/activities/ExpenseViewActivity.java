@@ -1,40 +1,27 @@
 package com.rentbud.activities;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.widget.RecyclerView;
-import android.util.Log;
-import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.example.cody.rentbud.R;
-import com.rentbud.adapters.RecyclerViewAdapter;
 import com.rentbud.fragments.ExpenseListFragment;
-import com.rentbud.fragments.TenantListFragment;
 import com.rentbud.helpers.MainArrayDataMethods;
-import com.rentbud.model.Apartment;
 import com.rentbud.model.ExpenseLogEntry;
-import com.rentbud.model.Tenant;
 import com.rentbud.sqlite.DatabaseHandler;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.DateFormat;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.Locale;
 
 /**
@@ -88,7 +75,7 @@ public class ExpenseViewActivity extends BaseActivity {
 
     private void fillTextViews() {
         SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-        dateTV.setText(formatter.format(expense.getExpenseDate()));
+        dateTV.setText(formatter.format(expense.getDate()));
 
         BigDecimal displayVal = expense.getAmount().setScale(2, RoundingMode.HALF_EVEN);
         NumberFormat usdCostFormat = NumberFormat.getCurrencyInstance(Locale.US);
@@ -118,12 +105,39 @@ public class ExpenseViewActivity extends BaseActivity {
                 return true;
 
             case R.id.deleteExpense:
-
+                showDeleteConfirmationAlertDialog();
                 return true;
 
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    public void showDeleteConfirmationAlertDialog() {
+        // setup the alert builder
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        //builder.setTitle("AlertDialog");
+        builder.setMessage("Are you sure you want to remove this expense?");
+
+        // add the buttons
+        builder.setPositiveButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+        builder.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                databaseHandler.setExpenseInactive(expense);
+                ExpenseListFragment.expenseListAdapterNeedsRefreshed = true;
+                ExpenseViewActivity.this.finish();
+            }
+        });
+
+        // create and show the alert dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     @Override

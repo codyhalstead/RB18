@@ -25,118 +25,108 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!--Housing picture and background frame -->
-            <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:id="@+id/topFrame"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_below="@+id/toolbar"
-                android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="center">
 
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="?attr/actionBarSize"
-                    android:background="?attr/colorPrimary">
+        <!-- Was 200dp X 200dp -->
+        <ImageView
+            android:id="@+id/incomeViewReceiptPicIV"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:src="@drawable/no_picture" />
+    </LinearLayout>
 
-                </RelativeLayout>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:gravity="center">
+    <!--Border -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="15dp"
+        android:background="@color/caldroid_black" />
 
-                    <ImageView
-                        android:id="@+id/incomeViewReceiptPicIV"
-                        android:layout_width="200dp"
-                        android:layout_height="200dp" />
-                </LinearLayout>
+    <TextView
+        style="@style/FormLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Income Info" />
 
-            </FrameLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:orientation="vertical">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                style="@style/FormLabel"
-                android:layout_marginTop="15dp"
-                android:text="Income Info" />
+        <!--Date -->
+        <TextView
+            android:id="@+id/incomeViewDateTV"
+            style="@style/FormText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="1-12-12" />
 
-            <!--Border -->
-            <View
-                android:layout_width="250dp"
-                android:layout_gravity="center"
-                android:layout_height="2dp"
-                android:background="@color/caldroid_black" />
+        <!--Amount -->
+        <TextView
+            android:id="@+id/incomeViewAmountTV"
+            style="@style/FormText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="$2000.00" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="15dp"
-                android:layout_marginRight="15dp"
-                android:orientation="vertical">
+        <!--Type -->
+        <TextView
+            android:id="@+id/incomeViewTypeTV"
+            style="@style/FormText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Letts," />
 
-                <!--Date -->
-                <TextView
-                    android:id="@+id/incomeViewDateTV"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    style="@style/FormText"
-                    android:text="1-12-12" />
+    </LinearLayout>
 
-                <!--Amount -->
-                <TextView
-                    android:id="@+id/incomeViewAmountTV"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    style="@style/FormText"
-                    android:text="$2000.00" />
+    <!--Border -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="15dp"
+        android:background="@color/caldroid_black" />
 
-                <!--Type -->
-                <TextView
-                    android:id="@+id/incomeViewTypeTV"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    style="@style/FormText"
-                    android:text="Letts," />
+    <TextView
+        style="@style/FormLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Description" />
 
-            </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:orientation="vertical">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="15dp"
-                style="@style/FormLabel"
-                android:text="Description" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="15dp"
-                android:layout_marginRight="15dp"
-                android:orientation="vertical">
+        <!--description -->
+        <TextView
+            android:id="@+id/incomeViewDescriptionTV"
+            style="@style/FormText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Description" />
 
-                <!--Border -->
-                <View
-                    android:layout_width="250dp"
-                    android:layout_gravity="center"
-                    android:layout_height="2dp"
-                    android:background="@color/caldroid_black" />
+    </LinearLayout>
 
-                <!--description -->
-                <TextView
-                    android:id="@+id/incomeViewDescriptionTV"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    style="@style/FormText"
-                    android:gravity="center"
-                    android:text="Description" />
-
-            </LinearLayout>
-        </LinearLayout>
-    </ScrollView>
 </LinearLayout>
+
+    </ScrollView>
+
+    </LinearLayout>

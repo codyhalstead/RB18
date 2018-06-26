@@ -71,7 +71,7 @@ public class LeaseWizardPage1Fragment extends android.support.v4.app.Fragment {
         mKey = args.getString(ARG_KEY);
         mPage = (LeaseWizardPage1) mCallbacks.onGetPage(mKey);
         availableApartments = new ArrayList<>();
-        availableApartments.addAll(MainActivity.apartmentList);
+       // availableApartments.addAll(MainActivity.apartmentList);
     }
 
     @Override
@@ -163,6 +163,15 @@ public class LeaseWizardPage1Fragment extends android.support.v4.app.Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        int curAptID = 0;
+        if(apartment != null){
+            curAptID = apartment.getId();
+        }
+        for(int i = 0; i < MainActivity.apartmentList.size(); i++){
+            if(MainActivity.apartmentList.get(i).isActive() && MainActivity.apartmentList.get(i).getId() != curAptID){
+                availableApartments.add(MainActivity.apartmentList.get(i));
+            }
+        }
         leaseStartTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -349,7 +358,7 @@ public class LeaseWizardPage1Fragment extends android.support.v4.app.Fragment {
             // Subtract this number of months from the end date so we can calculate days
             DateTime remainingDays = end.minusMonths(months);
             // Get days
-            int days = Days.daysBetween(start, remainingDays).getDays() +1;
+            int days = Days.daysBetween(start, remainingDays).getDays();
             Date today = Calendar.getInstance().getTime();
             if(leaseEndDate.before(today)){
                 leaseWasTV.setText("Lease Was ");

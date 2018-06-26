@@ -20,10 +20,13 @@ import android.widget.TextView;
 import com.example.cody.rentbud.R;
 import com.rentbud.activities.MainActivity;
 import com.rentbud.activities.TenantViewActivity;
+import com.rentbud.activities.TenantViewActivity2;
 import com.rentbud.adapters.TenantListAdapter;
 import com.rentbud.helpers.MainArrayDataMethods;
 import com.rentbud.model.Lease;
 import com.rentbud.model.Tenant;
+
+import java.util.ArrayList;
 
 import static android.content.ContentValues.TAG;
 
@@ -67,10 +70,26 @@ public class TenantListFragment extends Fragment implements AdapterView.OnItemCl
     @Override
     public void onResume() {
         super.onResume();
-        if(TenantListFragment.tenantListAdapterNeedsRefreshed){
-            searchBarET.setText("");
-            if(this.tenantListAdapter != null){
-                tenantListAdapter.updateResults(MainActivity.tenantList);
+        if (TenantListFragment.tenantListAdapterNeedsRefreshed) {
+            //searchBarET.setText("");
+            if (this.tenantListAdapter != null) {
+                if (MainActivity.tenantList != null) {
+                    ArrayList<Tenant> activeTenantArray = new ArrayList<>();
+                    for (int i = 0; i < MainActivity.tenantList.size(); i++) {
+                        if (MainActivity.tenantList.get(i).isActive()) {
+                            activeTenantArray.add(MainActivity.tenantList.get(i));
+                        }
+                    }
+                    if(activeTenantArray.isEmpty()){
+                        noTenantsTV.setVisibility(View.VISIBLE);
+                        noTenantsTV.setText("No Current Tenants");
+                    } else {
+                        noTenantsTV.setVisibility(View.GONE);
+                    }
+                    this.tenantListAdapter.updateResults(activeTenantArray);
+                }
+                searchBarET.setText(searchBarET.getText());
+                searchBarET.setSelection(searchBarET.getText().length());
                 TenantListFragment.tenantListAdapterNeedsRefreshed = false;
             }
         }
@@ -79,12 +98,12 @@ public class TenantListFragment extends Fragment implements AdapterView.OnItemCl
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         //On listView row click, launch TenantViewActivity passing the rows data into it.
-        Intent intent = new Intent(getContext(), TenantViewActivity.class);
+        Intent intent = new Intent(getContext(), TenantViewActivity2.class);
         //Uses filtered results to match what is on screen
         Tenant tenant = tenantListAdapter.getFilteredResults().get(i);
-    //    Lease currentLease = dataMethods.getCachedActiveLeaseByTenantID(tenant.getId());
+        //    Lease currentLease = dataMethods.getCachedActiveLeaseByTenantID(tenant.getId());
         intent.putExtra("tenantID", tenant.getId());
-    //    intent.putExtra("apartmentID", currentLease.getApartmentID());
+        //    intent.putExtra("apartmentID", currentLease.getApartmentID());
         startActivity(intent);
     }
 
@@ -96,7 +115,7 @@ public class TenantListFragment extends Fragment implements AdapterView.OnItemCl
                 //When user changed the Text
                 if (tenantListAdapter != null) {
                     tenantListAdapter.getFilter().filter(cs);
-                 //   tenantListAdapter.notifyDataSetChanged();
+                    //   tenantListAdapter.notifyDataSetChanged();
                 }
             }
 
@@ -113,9 +132,15 @@ public class TenantListFragment extends Fragment implements AdapterView.OnItemCl
         });
     }
 
-    private void setUpListAdapter(){
+    private void setUpListAdapter() {
         if (MainActivity.tenantList != null) {
-            tenantListAdapter = new TenantListAdapter(getActivity(), MainActivity.tenantList, accentColor);
+            ArrayList<Tenant> activeTenantArray = new ArrayList<>();
+            for (int i = 0; i < MainActivity.tenantList.size(); i++) {
+                if (MainActivity.tenantList.get(i).isActive()) {
+                    activeTenantArray.add(MainActivity.tenantList.get(i));
+                }
+            }
+            tenantListAdapter = new TenantListAdapter(getActivity(), activeTenantArray, accentColor);
             listView.setAdapter(tenantListAdapter);
             listView.setOnItemClickListener(this);
             if (!MainActivity.tenantList.isEmpty()) {

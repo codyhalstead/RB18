@@ -18,10 +18,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.cody.rentbud.R;
+import com.rentbud.activities.ApartmentViewActivity2;
 import com.rentbud.activities.MainActivity;
 import com.rentbud.activities.ApartmentViewActivity;
 import com.rentbud.adapters.ApartmentListAdapter;
 import com.rentbud.model.Apartment;
+
+import java.util.ArrayList;
 
 import static android.app.Activity.RESULT_OK;
 import static android.content.ContentValues.TAG;
@@ -63,10 +66,26 @@ public class ApartmentListFragment extends Fragment implements AdapterView.OnIte
     @Override
     public void onResume() {
         super.onResume();
-        if ( ApartmentListFragment.apartmentListAdapterNeedsRefreshed) {
-            searchBarET.setText("");
-            if(this.apartmentListAdapter != null){
-                apartmentListAdapter.updateResults(MainActivity.apartmentList);
+        if (ApartmentListFragment.apartmentListAdapterNeedsRefreshed) {
+            //searchBarET.setText("");
+            if (this.apartmentListAdapter != null) {
+                if (MainActivity.tenantList != null) {
+                    ArrayList<Apartment> activeApartmentArray = new ArrayList<>();
+                    for (int i = 0; i < MainActivity.apartmentList.size(); i++) {
+                        if (MainActivity.apartmentList.get(i).isActive()) {
+                            activeApartmentArray.add(MainActivity.apartmentList.get(i));
+                        }
+                    }
+                    if(activeApartmentArray.isEmpty()){
+                        noApartmentsTV.setVisibility(View.VISIBLE);
+                        noApartmentsTV.setText("No Current Apartments");
+                    } else {
+                        noApartmentsTV.setVisibility(View.GONE);
+                    }
+                    this.apartmentListAdapter.updateResults(activeApartmentArray);
+                }
+                searchBarET.setText(searchBarET.getText());
+                searchBarET.setSelection(searchBarET.getText().length());
                 ApartmentListFragment.apartmentListAdapterNeedsRefreshed = false;
             }
         }
@@ -75,7 +94,7 @@ public class ApartmentListFragment extends Fragment implements AdapterView.OnIte
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         //On listView row click, launch ApartmentViewActivity passing the rows data into it.
-        Intent intent = new Intent(getContext(), ApartmentViewActivity.class);
+        Intent intent = new Intent(getContext(), ApartmentViewActivity2.class);
         //Uses filtered results to match what is on screen
         Apartment apartment = apartmentListAdapter.getFilteredResults().get(i);
         intent.putExtra("apartmentID", apartment.getId());
@@ -114,7 +133,13 @@ public class ApartmentListFragment extends Fragment implements AdapterView.OnIte
 
     private void setUpListAdapter() {
         if (MainActivity.apartmentList != null) {
-            apartmentListAdapter = new ApartmentListAdapter(getActivity(), MainActivity.apartmentList, accentColor);
+            ArrayList<Apartment> activeApartmentArray = new ArrayList<>();
+            for(int i = 0; i < MainActivity.apartmentList.size(); i++){
+                if(MainActivity.apartmentList.get(i).isActive()){
+                    activeApartmentArray.add(MainActivity.apartmentList.get(i));
+                }
+            }
+            apartmentListAdapter = new ApartmentListAdapter(getActivity(), activeApartmentArray, accentColor);
             listView.setAdapter(apartmentListAdapter);
             listView.setOnItemClickListener(this);
             if (!MainActivity.apartmentList.isEmpty()) {

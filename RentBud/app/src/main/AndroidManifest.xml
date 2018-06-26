@@ -123,5 +123,23 @@
             android:name="com.rentbud.activities.NewIncomeWizard"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="adjustPan"></activity>
+
+        <!--LeaseViewActivity2 -->
+        <activity
+            android:name="com.rentbud.activities.LeaseViewActivity2"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustPan"></activity>
+
+        <!--ApartmentViewActivity2 -->
+        <activity
+            android:name="com.rentbud.activities.ApartmentViewActivity2"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustPan"></activity>
+
+        <!--TenantViewActivity2 -->
+        <activity
+            android:name="com.rentbud.activities.TenantViewActivity2"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustPan"></activity>
     </application>
 </manifest>

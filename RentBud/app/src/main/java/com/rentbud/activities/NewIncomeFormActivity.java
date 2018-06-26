@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -21,15 +20,11 @@ import com.example.cody.rentbud.R;
 import com.rentbud.helpers.MainArrayDataMethods;
 import com.rentbud.helpers.NewItemCreatorDialog;
 import com.rentbud.helpers.UserInputValidation;
-import com.rentbud.model.Apartment;
-import com.rentbud.model.ExpenseLogEntry;
 import com.rentbud.model.PaymentLogEntry;
 import com.rentbud.sqlite.DatabaseHandler;
 
 import java.math.BigDecimal;
-import java.text.DateFormat;
 import java.text.NumberFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -115,8 +110,8 @@ public class NewIncomeFormActivity extends BaseActivity {
         if (extras != null) {
             this.isEdit = true;
             incomeToEdit = extras.getParcelable("incomeToEdit");
-            if(incomeToEdit.getPaymentDate() != null) {
-                this.incomeDate = incomeToEdit.getPaymentDate();
+            if(incomeToEdit.getDate() != null) {
+                this.incomeDate = incomeToEdit.getDate();
                 SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
                 dateTV.setText(formatter.format(incomeDate));
             }
@@ -160,14 +155,14 @@ public class NewIncomeFormActivity extends BaseActivity {
 
                 //Set result success, close this activity
                 if (!isEdit) {
-                    PaymentLogEntry income = new PaymentLogEntry(id, incomeDate, typeID, typeLabel, 0, 0, currentAmount, description, "");
+                    PaymentLogEntry income = new PaymentLogEntry(id, incomeDate, typeID, typeLabel, 0, 0, 0, currentAmount, description, "");
                     databaseHandler.addPaymentLogEntry(income, MainActivity.user.getId());
                     //MainActivity5.incomeList = databaseHandler.getUsersIncome(MainActivity5.user);
                     setResult(RESULT_OK);
                     finish();
                 } else {
                     //PaymentLogEntry originalIncome = dataMethods.getCachedIncomeByID(incomeToEdit.getId());
-                    incomeToEdit.setPaymentDate(incomeDate);
+                    incomeToEdit.setDate(incomeDate);
                     incomeToEdit.setAmount(currentAmount);
                     incomeToEdit.setTypeID(typeID);
                     incomeToEdit.setTypeLabel(typeLabel);

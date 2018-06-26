@@ -16,14 +16,11 @@ import android.widget.TextView;
 
 import com.example.cody.rentbud.R;
 import com.rentbud.helpers.MainArrayDataMethods;
-import com.rentbud.model.Apartment;
 import com.rentbud.model.ExpenseLogEntry;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.DateFormat;
 import java.text.NumberFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -40,6 +37,7 @@ public class ExpenseListAdapter extends BaseAdapter implements Filterable {
     private String searchText;
     private ColorStateList highlightColor;
     MainArrayDataMethods dataMethods;
+    private Date todaysDate;
 
     public ExpenseListAdapter(Context context, ArrayList<ExpenseLogEntry> expenseArray, ColorStateList highlightColor) {
         super();
@@ -49,6 +47,7 @@ public class ExpenseListAdapter extends BaseAdapter implements Filterable {
         this.searchText = "";
         this.highlightColor = highlightColor;
         this.dataMethods = new MainArrayDataMethods();
+        this.todaysDate = new Date(System.currentTimeMillis());
     }
 
     static class ViewHolder {
@@ -93,15 +92,19 @@ public class ExpenseListAdapter extends BaseAdapter implements Filterable {
         } else {
             viewHolder = (ExpenseListAdapter.ViewHolder) convertView.getTag();
         }
+        viewHolder.amountTV.setTextColor(context.getResources().getColor(R.color.red));
         if (expense != null) {
             BigDecimal displayVal = expense.getAmount().setScale(2, RoundingMode.HALF_EVEN);
             NumberFormat usdCostFormat = NumberFormat.getCurrencyInstance(Locale.US);
             usdCostFormat.setMinimumFractionDigits(2);
             usdCostFormat.setMaximumFractionDigits(2);
 
-            viewHolder.amountTV.setText(usdCostFormat.format(displayVal.doubleValue()));
+            viewHolder.amountTV.setText("-" + usdCostFormat.format(displayVal.doubleValue()));
             SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-            viewHolder.dateTV.setText(formatter.format(expense.getExpenseDate()));
+            viewHolder.dateTV.setText(formatter.format(expense.getDate()));
+            if( todaysDate.compareTo(expense.getDate()) < 0){
+                viewHolder.amountTV.setTextColor(context.getResources().getColor(R.color.text_light));
+            }
             viewHolder.typeTV.setText(expense.getTypeLabel());
 
             setTextHighlightSearch(viewHolder.descriptionTV, expense.getDescription());

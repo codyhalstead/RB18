@@ -18,19 +18,13 @@ public class Tenant implements Parcelable{
     private String emergencyFirstName;
     private String emergencyLastName;
     private String emergencyPhone;
-    //private int apartmentID;
-    //private Boolean isPrimary;
-    private Boolean hasLease;
-    //private Date paymentDay;
-    //private int rentCost;
-    //private int deposit;
+    private boolean hasLease;
     private String notes;
-    //private Date leaseStart;
-    //private Date leaseEnd;
+    private boolean isActive;
 
 
     public Tenant(int id, String firstName, String lastName, String phone, String email, String emergencyFirstName,
-                  String emergencyLastName, String emergencyPhone, Boolean hasLease, String notes) {
+                  String emergencyLastName, String emergencyPhone, boolean hasLease, String notes, boolean isActive) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -39,15 +33,9 @@ public class Tenant implements Parcelable{
         this.emergencyFirstName = emergencyFirstName;
         this.emergencyLastName = emergencyLastName;
         this.emergencyPhone = emergencyPhone;
-        //this.apartmentID = apartmentID;
-        //this.isPrimary = isPrimary;
         this.hasLease = hasLease;
-        //this.paymentDay = paymentDay;
-        //this.rentCost = rentCost;
-        //this.deposit = deposit;
         this.notes = notes;
-        //this.leaseStart = leaseStart;
-        //this.leaseEnd = leaseEnd;
+        this.isActive = isActive;
     }
 
     @Override
@@ -65,29 +53,9 @@ public class Tenant implements Parcelable{
         parcel.writeString(this.emergencyFirstName);
         parcel.writeString(this.emergencyLastName);
         parcel.writeString(this.emergencyPhone);
-        //parcel.writeInt(this.apartmentID);
-        //parcel.writeInt(this.rentCost);
-        //parcel.writeInt(this.deposit);
-        //parcel.writeByte((byte) (isPrimary ? 1 : 0));
-        //if(this.paymentDay != null){
-        //    parcel.writeInt(1);
-        //    parcel.writeLong(this.paymentDay.getTime());
-        //}else{
-        //    parcel.writeInt(0);
-        //}
+        parcel.writeByte((byte) (hasLease? 1 : 0));
         parcel.writeString(this.notes);
-        //if(this.leaseStart != null){
-        //    parcel.writeInt(1);
-        //    parcel.writeLong(this.leaseStart.getTime());
-        //}else{
-        //    parcel.writeInt(0);
-        //}
-        //if(this.leaseEnd != null){
-        //    parcel.writeInt(1);
-        //parcel.writeLong(this.leaseEnd.getTime());
-        //}else{
-        //    parcel.writeInt(0);
-        //}
+        parcel.writeByte((byte) (isActive? 1 : 0));
     }
 
     private Tenant(Parcel in) {
@@ -99,23 +67,9 @@ public class Tenant implements Parcelable{
         this.emergencyFirstName = in.readString();
         this.emergencyLastName = in.readString();
         this.emergencyPhone = in.readString();
-        //this.apartmentID = in.readInt();
-        //this.rentCost = in.readInt();
-        //this.deposit = in.readInt();
-        //this.isPrimary = in.readByte() != 0;
-        //int paymentDateIsNotNull = in.readInt();
-        //if(paymentDateIsNotNull == 1) {
-        //    this.paymentDay = new Date(in.readLong());
-        //}
+        this.hasLease = in.readByte() != 0;
         this.notes = in.readString();
-        //int leaseStartDateIsNotNull = in.readInt();
-        //if(leaseStartDateIsNotNull == 1) {
-        //    this.leaseStart = new Date(in.readLong());
-        //}
-        //int leaseEndDateIsNotNull = in.readInt();
-        //if(leaseEndDateIsNotNull == 1) {
-        //    this.leaseEnd = new Date(in.readLong());
-        //}
+        this.isActive = in.readByte() != 0;
     }
 
 
@@ -167,22 +121,6 @@ public class Tenant implements Parcelable{
         this.id = id;
     }
 
-    //public int getApartmentID() {
-    //    return apartmentID;
-    //}
-
-    //public void setApartmentID(int apartmentID) {
-    //    this.apartmentID = apartmentID;
-    //}
-
-    //public Date getPaymentDay() {
-    //    return paymentDay;
-    //}
-
-    //public void setPaymentDay(Date paymentDay) {
-    //    this.paymentDay = paymentDay;
-    //}
-
     public String getNotes() {
         return notes;
     }
@@ -190,30 +128,6 @@ public class Tenant implements Parcelable{
     public void setNotes(String notes) {
         this.notes = notes;
     }
-
-    //public Date getLeaseStart() {
-    //    return leaseStart;
-    //}
-
-    //public void setLeaseStart(Date leaseStart) {
-    //    this.leaseStart = leaseStart;
-    //}
-
-    //public Date getLeaseEnd() {
-    //    return leaseEnd;
-    //}
-
-    //public void setLeaseEnd(Date leaseEnd) {
-    //    this.leaseEnd = leaseEnd;
-    //}
-
-    //public Boolean getIsPrimary() {
-    //    return isPrimary;
-    //}
-
-    //public void setIsPrimary(Boolean primary) {
-    //    isPrimary = primary;
-    //}
 
     public String getTenantEmail() {
         return email;
@@ -247,23 +161,6 @@ public class Tenant implements Parcelable{
         this.emergencyPhone = emergencyPhone;
     }
 
-    //public int getRentCost() {
-    //    return rentCost;
-    //}
-
-    //public void setRentCost(int rentCost) {
-    //    this.rentCost = rentCost;
-    //}
-
-    //public int getDeposit() {
-    //    return deposit;
-    //}
-
-    //public void setDeposit(int deposit) {
-    //    this.deposit = deposit;
-    //}
-
-
     public String getEmail() {
         return email;
     }
@@ -278,5 +175,13 @@ public class Tenant implements Parcelable{
 
     public void setHasLease(Boolean hasLease) {
         this.hasLease = hasLease;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
     }
 }

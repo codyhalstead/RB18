@@ -28,7 +28,7 @@ public class ExpenseWizardPage1 extends Page {
         ExpenseLogEntry expenseLogEntry = NewExpenseWizard.expenseToEdit;
         if(expenseLogEntry != null){
             SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-            String dateString = formatter.format(expenseLogEntry.getExpenseDate());
+            String dateString = formatter.format(expenseLogEntry.getDate());
             mData.putString(EXPENSE_DATE_STRING_DATA_KEY, dateString);
             BigDecimal amountBD = expenseLogEntry.getAmount();
             String formatted = NumberFormat.getCurrencyInstance().format(amountBD);

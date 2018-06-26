@@ -214,7 +214,7 @@ public class MainArrayDataMethods {
     //         @Override
     //         public int compare(PaymentLogEntry ple, PaymentLogEntry p1) {
     //
-    //             return ple.getPaymentDate().compareTo(p1.getPaymentDate());
+    //             return ple.getDate().compareTo(p1.getDate());
     //         }
     //     });
     // }
@@ -224,7 +224,7 @@ public class MainArrayDataMethods {
     //         @Override
     //         public int compare(ExpenseLogEntry ele, ExpenseLogEntry e1) {
 
-    //             return ele.getExpenseDate().compareTo(e1.getExpenseDate());
+    //             return ele.getDate().compareTo(e1.getDate());
     //         }
     //     });
     // }

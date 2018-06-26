@@ -7,6 +7,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,11 +27,13 @@ import com.rentbud.helpers.MainArrayDataMethods;
 import com.rentbud.model.Apartment;
 import com.rentbud.model.Lease;
 import com.rentbud.model.LeaseWizardModel;
+import com.rentbud.model.PaymentLogEntry;
 import com.rentbud.wizards.LeaseWizardPage1;
 import com.rentbud.wizards.LeaseWizardPage2;
 import com.rentbud.wizards.LeaseWizardPage3;
 import com.rentbud.model.Tenant;
 import com.rentbud.sqlite.DatabaseHandler;
+import com.rentbud.wizards.LeaseWizardProratedRentPage;
 
 import java.math.BigDecimal;
 import java.text.DateFormat;
@@ -41,7 +44,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class NewLeaseWizard extends FragmentActivity implements
+public class NewLeaseWizard extends BaseActivity implements
         PageFragmentCallbacks,
         ReviewFragment.Callbacks,
         ModelCallbacks {
@@ -65,6 +68,7 @@ public class NewLeaseWizard extends FragmentActivity implements
     private StepPagerStrip mStepPagerStrip;
 
     public void onCreate(Bundle savedInstanceState) {
+        setupUserAppTheme(MainActivity.curThemeChoice);
         setContentView(R.layout.activity_fragment_wizard);
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -147,7 +151,7 @@ public class NewLeaseWizard extends FragmentActivity implements
                     BigDecimal depositWithheld = new BigDecimal(depositWithheldString);
                     String notes = "";
 
-                    if(NewLeaseWizard.leaseToEdit != null) {
+                    if (NewLeaseWizard.leaseToEdit != null) {
                         NewLeaseWizard.leaseToEdit.setPrimaryTenantID(primaryTenant.getId());
                         NewLeaseWizard.leaseToEdit.setSecondaryTenantIDs(secondaryTenantIDs);
                         NewLeaseWizard.leaseToEdit.setApartmentID(apartment.getId());
@@ -165,7 +169,28 @@ public class NewLeaseWizard extends FragmentActivity implements
                     } else {
                         Lease lease = new Lease(0, primaryTenant.getId(), secondaryTenantIDs, apartment.getId(), leaseStartDate, leaseEndDate,
                                 paymentDay, rentCost, deposit, depositWithheld, notes);
-                        dbhandler.addLease(lease, MainActivity.user.getId());
+                        int leaseID = dbhandler.addLeaseAndReturnID(lease, MainActivity.user.getId());
+                        Boolean isFirstProrated = mWizardModel.findByKey("Page3").getData().getBoolean(LeaseWizardPage3.LEASE_IS_FIRST_PRORATED_REQUIRED_DATA_KEY);
+                        Boolean isLastProrated = mWizardModel.findByKey("Page3").getData().getBoolean(LeaseWizardPage3.LEASE_IS_LAST_PRORATED_REQUIRED_DATA_KEY);
+                        BigDecimal proratedFirst = new BigDecimal(-1);
+                        BigDecimal proratedLast = new BigDecimal(-1);
+                        if (mWizardModel.findByKey("Yes:ProratedRentPage") != null) {
+                            if (mWizardModel.findByKey("Yes:ProratedRentPage").getData().getString(LeaseWizardProratedRentPage.LEASE_PRORATED_FIRST_PAYMENT_STRING_DATA_KEY) != null) {
+                                String proratedFirstString = mWizardModel.findByKey("Yes:ProratedRentPage").getData().getString(LeaseWizardProratedRentPage.LEASE_PRORATED_FIRST_PAYMENT_STRING_DATA_KEY);
+                                proratedFirst = new BigDecimal(proratedFirstString);
+                            }
+                            if (mWizardModel.findByKey("Yes:ProratedRentPage").getData().getString(LeaseWizardProratedRentPage.LEASE_PRORATED_LAST_PAYMENT_STRING_DATA_KEY) != null) {
+                                String proratedLastString = mWizardModel.findByKey("Yes:ProratedRentPage").getData().getString(LeaseWizardProratedRentPage.LEASE_PRORATED_LAST_PAYMENT_STRING_DATA_KEY);
+                                proratedLast = new BigDecimal(proratedLastString);
+                            }
+                        }
+                        //BigDecimal proratedFirst = new BigDecimal(500);
+                        //BigDecimal proratedLast = new BigDecimal(400);
+                        ArrayList<PaymentLogEntry> paymentsArray = new ArrayList<>();
+                        ArrayList<String> paymentDates = mWizardModel.findByKey("Page3").getData().getStringArrayList(LeaseWizardPage3.LEASE_PAYMENT_DATES_ARRAY_DATA_KEY);
+
+                        paymentsArray = createLeasePayments(paymentDates, leaseEndDate, isFirstProrated, proratedFirst, isLastProrated, proratedLast, rentCost, primaryTenant, apartment, leaseID);
+                        dbhandler.addPaymentLogEntryArray(paymentsArray, MainActivity.user.getId());
                         setResult(RESULT_OK);
                     }
                     dataMethods.sortMainApartmentArray();
@@ -193,9 +218,57 @@ public class NewLeaseWizard extends FragmentActivity implements
                 mPager.setCurrentItem(mPager.getCurrentItem() - 1);
             }
         });
-
+        mStepPagerStrip.setProgressColors(fetchPrimaryColor(), fetchPrimaryColor(), fetchAccentColor());
+        setupBasicToolbar();
         onPageTreeChanged();
         updateBottomBar();
+    }
+
+    private ArrayList<PaymentLogEntry> createLeasePayments(ArrayList<String> DatesStringArray, Date leaseEndDate, Boolean isFirstProrated, BigDecimal proratedFirstPayment,
+                                                           Boolean isLastProrated, BigDecimal proratedLastPayment, BigDecimal rentCost, Tenant primaryTenant, Apartment apartment, int leaseID) {
+        DateFormat formatFrom = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        SimpleDateFormat timeFormat = new SimpleDateFormat("MM-dd-yyyy", Locale.US);
+        ArrayList<PaymentLogEntry> paymentLogEntries = new ArrayList<>();
+        String street2 = "";
+        if (apartment.getStreet2() != null) {
+            street2 = apartment.getStreet2();
+        }
+        for (int i = 0; i < DatesStringArray.size(); i++) {
+            Date paymentDate = null;
+            Date paymentEnd = null;
+            try {
+                paymentDate = formatFrom.parse(DatesStringArray.get(i));
+                if (i < DatesStringArray.size() - 1) {
+                    paymentEnd = formatFrom.parse(DatesStringArray.get(i + 1));
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            if (i == 0 && isFirstProrated) {
+                PaymentLogEntry payment = new PaymentLogEntry(-1, paymentDate, 1, "", primaryTenant.getId(), leaseID, apartment.getId(),
+                        proratedFirstPayment, "Prorated rent payment for dates " + timeFormat.format(paymentDate) + " through " + timeFormat.format(paymentEnd) + " by " + primaryTenant.getFirstName() + " " + primaryTenant.getLastName() + " for renting " + apartment.getStreet1() + " " + street2 + ".",
+                        "");
+                paymentLogEntries.add(payment);
+            } else if (i == DatesStringArray.size() - 1 && isLastProrated) {
+                PaymentLogEntry payment = new PaymentLogEntry(-1, paymentDate, 1, "", primaryTenant.getId(), leaseID, apartment.getId(),
+                        proratedLastPayment, "Prorated rent payment for dates " + timeFormat.format(paymentDate) + " through " + timeFormat.format(leaseEndDate) + " by " + primaryTenant.getFirstName() + " " + primaryTenant.getLastName() + " for renting " + apartment.getStreet1() + " " + street2 + ".",
+                        "");
+                paymentLogEntries.add(payment);
+            } else if(i == DatesStringArray.size() - 1) {
+                PaymentLogEntry payment = new PaymentLogEntry(-1, paymentDate, 1, "", primaryTenant.getId(), leaseID, apartment.getId(),
+                        rentCost, "Rent payment for dates " + timeFormat.format(paymentDate) + " through " + timeFormat.format(leaseEndDate) + " by " + primaryTenant.getFirstName() + " " + primaryTenant.getLastName() + " for renting " + apartment.getStreet1() + " " + street2 + ".",
+                        "");
+                paymentLogEntries.add(payment);
+            } else {
+                PaymentLogEntry payment = new PaymentLogEntry(-1, paymentDate, 1, "", primaryTenant.getId(), leaseID, apartment.getId(),
+                        rentCost, "Rent payment for dates " + timeFormat.format(paymentDate) + " through " + timeFormat.format(paymentEnd) + " by " + primaryTenant.getFirstName() + " " + primaryTenant.getLastName() + " for renting " + apartment.getStreet1() + " " + street2 + ".",
+                        "");
+                paymentLogEntries.add(payment);
+            }
+
+
+        }
+        return paymentLogEntries;
     }
 
     @Override
@@ -210,13 +283,14 @@ public class NewLeaseWizard extends FragmentActivity implements
     private void updateBottomBar() {
         int position = mPager.getCurrentItem();
         if (position == mCurrentPageSequence.size()) {
-            if(NewLeaseWizard.leaseToEdit == null) {
+            if (NewLeaseWizard.leaseToEdit == null) {
                 mNextButton.setText("Create Lease");
             } else {
                 mNextButton.setText("Save Changes");
             }
             mNextButton.setBackgroundResource(com.example.android.wizardpager.R.drawable.finish_background);
             mNextButton.setTextAppearance(this, com.example.android.wizardpager.R.style.TextAppearanceFinish);
+            mNextButton.setBackgroundColor(fetchPrimaryColor());
         } else {
             mNextButton.setText(mEditingAfterReview
                     ? com.example.android.wizardpager.R.string.review

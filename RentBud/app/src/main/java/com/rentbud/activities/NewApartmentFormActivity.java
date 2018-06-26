@@ -108,11 +108,11 @@ public class NewApartmentFormActivity extends BaseActivity {
                     newOtherPics = otherPics;
                 }
                 //Create new Apartment object with input data and add it to the database
-                Apartment apartment = new Apartment(-1, address1, address2, city, stateID, state, zip, description, false, notes, newMainPic, newOtherPics);
+                Apartment apartment = new Apartment(-1, address1, address2, city, stateID, state, zip, description, false, notes, newMainPic, newOtherPics, true);
                 if(!isEdit){
                     databaseHandler.addNewApartment(apartment, MainActivity.user.getId());
                     //Set result success, close this activity
-                    MainActivity.apartmentList = databaseHandler.getUsersApartments(MainActivity.user);
+                    MainActivity.apartmentList = databaseHandler.getUsersApartmentsIncludingInactive(MainActivity.user);
                     setResult(RESULT_OK);
                     finish();
                 }else{

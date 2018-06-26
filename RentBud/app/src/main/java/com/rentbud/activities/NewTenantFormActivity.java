@@ -89,11 +89,11 @@ public class NewTenantFormActivity extends BaseActivity {
                 String notes = notesET.getText().toString().trim();
                 //Create new Tenant object with input data and add it to the database
                 Tenant tenant = new Tenant(-1, firstName, lastName, phone, email, emergencyFirstName, emergencyLastName, emergencyPhone,
-                       false, notes);
+                       false, notes, true);
                 //Set result success, close this activity
                 if (!isEdit) {
                     databaseHandler.addNewTenant(tenant, MainActivity.user.getId());
-                    MainActivity.tenantList = databaseHandler.getUsersTenants(MainActivity.user);
+                    MainActivity.tenantList = databaseHandler.getUsersTenantsIncludingInactive(MainActivity.user);
                     setResult(RESULT_OK);
                     finish();
                 } else {

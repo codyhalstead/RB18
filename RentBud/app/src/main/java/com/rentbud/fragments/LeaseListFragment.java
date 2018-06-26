@@ -24,6 +24,7 @@ import android.widget.TextView;
 import com.example.cody.rentbud.R;
 import com.rentbud.activities.ExpenseViewActivity;
 import com.rentbud.activities.LeaseViewActivity;
+import com.rentbud.activities.LeaseViewActivity2;
 import com.rentbud.activities.MainActivity;
 import com.rentbud.adapters.ExpenseListAdapter;
 import com.rentbud.adapters.LeaseListAdapter;
@@ -168,7 +169,7 @@ public class LeaseListFragment extends Fragment implements AdapterView.OnItemCli
 
     private void setUpListAdapter() {
         if (currentFilteredLeases != null) {
-            leaseListAdapter = new LeaseListAdapter(getActivity(), currentFilteredLeases, accentColor);
+            leaseListAdapter = new LeaseListAdapter(getActivity(), currentFilteredLeases, accentColor, null);
             listView.setAdapter(leaseListAdapter);
             listView.setOnItemClickListener(this);
             if (currentFilteredLeases.isEmpty()) {
@@ -185,7 +186,7 @@ public class LeaseListFragment extends Fragment implements AdapterView.OnItemCli
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         //On listView row click, launch ApartmentViewActivity passing the rows data into it.
-        Intent intent = new Intent(getContext(), LeaseViewActivity.class);
+        Intent intent = new Intent(getContext(), LeaseViewActivity2.class);
         //Uses filtered results to match what is on screen
         Lease lease = leaseListAdapter.getFilteredResults().get(i);
         intent.putExtra("leaseID", lease.getId());

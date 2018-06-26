@@ -29,6 +29,7 @@ import com.rentbud.fragments.ApartmentListFragment;
 import com.rentbud.fragments.IncomeListFragment;
 import com.rentbud.fragments.LeaseListFragment;
 import com.rentbud.fragments.TenantListFragment;
+import com.rentbud.fragments.TotalsFragment;
 import com.rentbud.helpers.MainArrayDataMethods;
 import com.rentbud.model.Apartment;
 import com.rentbud.model.Lease;
@@ -339,7 +340,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 isLeaseFragDisplayed = true;
 
             case R.id.nav_totals:
-
+                fragment = new TotalsFragment();
                 isHomeFragDisplayed = false;
                 break;
         }
@@ -501,8 +502,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         MainActivity.expenseTypeLabels = dbHandler.getExpenseTypeLabels();
         MainActivity.incomeTypeLabels = dbHandler.getIncomeTypeLabels();
         MainActivity.eventTypeLabels = dbHandler.getEventTypeLabels();
-        MainActivity.tenantList = dbHandler.getUsersTenants(MainActivity.user);
-        MainActivity.apartmentList = dbHandler.getUsersApartments(MainActivity.user);
+        MainActivity.tenantList = dbHandler.getUsersTenantsIncludingInactive(MainActivity.user);
+        MainActivity.apartmentList = dbHandler.getUsersApartmentsIncludingInactive(MainActivity.user);
         MainActivity.currentLeasesList = dbHandler.getUsersActiveLeases(MainActivity.user);
         //Date endDate = Calendar.getInstance().getTime();
         //Calendar calendar = Calendar.getInstance();
@@ -524,7 +525,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         int i = 0;
         while (i < 100) {
             Tenant tenant = new Tenant(-1, "Frank", "Lascelles " + testTenants, "563-598-8965", "snappydude@hotmail.com", "Matt",
-                    "Thurston", "568-785-8956",  false, "Is frank " + testTenants);
+                    "Thurston", "568-785-8956",  false, "Is frank " + testTenants, true);
             dbHandler.addNewTenant(tenant, user.getId());
             testTenants++;
             i++;
@@ -535,11 +536,17 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         int i = 0;
         while (i < 100) {
             Apartment apartment = new Apartment(0, "2366 Lange Ave", "Apt." + testApartments, "Atalissa", 1, "AL",
-                    "53654", "2 bed 1 bath", false, "Big ol building", null, null);
+                    "53654", "2 bed 1 bath", false, "Big ol building", null, null, true);
             dbHandler.addNewApartment(apartment, user.getId());
             testApartments++;
             i++;
         }
+    }
+
+    public void leaseSample(View view) {
+        Intent intent = new Intent(MainActivity.this, LeaseViewActivity2.class);
+        intent.putExtra("leaseID", 10);
+        startActivity(intent);
     }
 
     //public void add100Expenses(View view) {

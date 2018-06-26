@@ -44,7 +44,7 @@ public class LeaseWizardPage2 extends Page {
             //Tenant primaryTenant = dataMethods.getCachedTenantByTenantID(lease.getPrimaryTenantID());
             String primaryTenantString = primaryTenant.getFirstName();
             primaryTenantString += " ";
-            primaryTenantString += primaryTenant.getEmergencyLastName();
+            primaryTenantString += primaryTenant.getLastName();
             String secondaryTenantsString = "";
             for (int i = 0; i < secondaryTenants.size(); i++) {
                 secondaryTenantsString += (secondaryTenants.get(i).getFirstName() +

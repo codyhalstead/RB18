@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/WizardPageContainer">
+
+    <TextView style="@style/WizardPageTitle" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:scrollbarStyle="outsideOverlay">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/WizardTitle"
+                android:text="Expense Linking"
+                android:id="@+id/expenseWizardPageThreeHeader"
+                />
+
+            <TextView
+                android:id="@+id/expenseWizardAptLinkingLabelTV"
+                style="@style/WizardFormLabel"
+                android:text="Is Expense Related to an Apartment?" />
+
+            <TextView
+                android:id="@+id/expenseWizardAptLinkingTV"
+                style="@style/FormText"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/rect_edit"
+                android:gravity="center_vertical"
+                android:hint="Click to add apt., leave blank if not"
+                android:paddingEnd="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingStart="10dp"
+                android:saveEnabled="false" />
+
+            <TextView
+                style="@style/FormText"
+                android:id="@+id/expenseWizardHintTV"
+                android:layout_width="wrap_content"
+                android:text="Linking Expenses Enables The Expense To Be Properly Sorted And Displayed" />
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

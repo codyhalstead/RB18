@@ -276,16 +276,19 @@ public class LeaseWizardPage3Fragment extends android.support.v4.app.Fragment {
         if (startDate.isBefore(payment)) {
             prorated++;
             //payment = payment.plusMonths(1);
+            mPage.getData().putBoolean(LeaseWizardPage3.LEASE_IS_FIRST_PRORATED_REQUIRED_DATA_KEY, true);
             Log.d(TAG, "figurePayments: INITIAL PAYMENT ---- " + startDate + " --> " + payment + " PRO");
         } else if (startDate.isEqual(payment)) {
             regular++;
             payment = payment.plusMonths(paymentFrequency);
             payment = keepPaymentDayConsistentForEndOfMonth(paymentDay, payment);
+            mPage.getData().putBoolean(LeaseWizardPage3.LEASE_IS_FIRST_PRORATED_REQUIRED_DATA_KEY, false);
             Log.d(TAG, "figurePayments: INITIAL PAYMENT ---- " + startDate + " --> " + payment);
         } else {
             payment = payment.plusMonths(paymentFrequency);
             payment = keepPaymentDayConsistentForEndOfMonth(paymentDay, payment);
             prorated++;
+            mPage.getData().putBoolean(LeaseWizardPage3.LEASE_IS_FIRST_PRORATED_REQUIRED_DATA_KEY, true);
             Log.d(TAG, "figurePayments: INITIAL PAYMENT ---- " + startDate + " --> " + payment + " PRO");
         }
 
@@ -302,11 +305,14 @@ public class LeaseWizardPage3Fragment extends android.support.v4.app.Fragment {
             regular++;
             paymentDates.add(payment.toString("yyyy-MM-dd"));
             Log.d(TAG, "figurePayments: FINAL PAYMENT ---- " + payment + " --> " + endDate);
+            mPage.getData().putBoolean(LeaseWizardPage3.LEASE_IS_LAST_PRORATED_REQUIRED_DATA_KEY, false);
         } else {
             prorated++;
             paymentDates.add(payment.toString("yyyy-MM-dd"));
             Log.d(TAG, "figurePayments: FINAL PAYMENT ---- " + payment + " --> " + endDate + " PRO");
+            mPage.getData().putBoolean(LeaseWizardPage3.LEASE_IS_LAST_PRORATED_REQUIRED_DATA_KEY, true);
         }
+        //paymentDates.add(endDate.toString("yyyy-MM-dd"));
         mPage.getData().putStringArrayList(LeaseWizardPage3.LEASE_PAYMENT_DATES_ARRAY_DATA_KEY, paymentDates);
         if (prorated > 0) {
             mPage.getData().putString(LeaseWizardPage3.LEASE_NEED_BRANCH, "Yes");

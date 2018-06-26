@@ -10,26 +10,21 @@ import java.util.Date;
  * Created by Cody on 1/27/2018.
  */
 
-public class PaymentLogEntry implements Parcelable{
-    private int id;
-    private Date paymentDate;
+public class PaymentLogEntry extends MoneyLogEntry{
     private int typeID;
     private String typeLabel;
     private int tenantID;
     private int leaseID;
-    private BigDecimal amount;
-    private String description;
+    private int apartmentID;
     private String receiptPic;
 
-    public PaymentLogEntry(int id, Date paymentDate, int typeID, String typeLabel, int tenantID, int leaseID, BigDecimal amount, String description, String receiptPic){
-        this.id = id;
-        this.paymentDate = paymentDate;
+    public PaymentLogEntry(int id, Date paymentDate, int typeID, String typeLabel, int tenantID, int leaseID, int apartmentID, BigDecimal amount, String description, String receiptPic){
+        super(id, paymentDate, amount, description);
         this.typeID = typeID;
         this.typeLabel = typeLabel;
         this.tenantID = tenantID;
         this.leaseID = leaseID;
-        this.amount = amount;
-        this.description = description;
+        this.apartmentID = apartmentID;
         this.receiptPic = receiptPic;
     }
 
@@ -40,20 +35,12 @@ public class PaymentLogEntry implements Parcelable{
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeInt(this.id);
-        if(this.paymentDate != null){
-            parcel.writeInt(1);
-            parcel.writeLong(this.paymentDate.getTime());
-        }else{
-            parcel.writeInt(0);
-        }
+        super.writeToParcel(parcel, i);
         parcel.writeInt(this.typeID);
         parcel.writeString(this.typeLabel);
         parcel.writeInt(this.tenantID);
         parcel.writeInt(this.leaseID);
-        String amountString = amount.toPlainString();
-        parcel.writeString(amountString);
-        parcel.writeString(this.description);
+        parcel.writeInt(this.apartmentID);
         if (this.receiptPic != null) {
             parcel.writeInt(1);
             parcel.writeString(this.receiptPic);
@@ -63,18 +50,12 @@ public class PaymentLogEntry implements Parcelable{
     }
 
     protected PaymentLogEntry(Parcel in) {
-        this.id = in.readInt();
-        int paymentDayIsNotNull = in.readInt();
-        if(paymentDayIsNotNull == 1) {
-            this.paymentDate = new Date(in.readLong());
-        }
+        super(in);
         this.typeID = in.readInt();
         this.typeLabel = in.readString();
         this.tenantID = in.readInt();
         this.leaseID = in.readInt();
-        String amountString = in.readString();
-        this.amount = new BigDecimal(amountString);
-        this.description = in.readString();
+        this.apartmentID = in.readInt();
         int size = in.readInt();
         if(size > -1){
             //this.mainPic = new byte[size];
@@ -97,22 +78,6 @@ public class PaymentLogEntry implements Parcelable{
         }
     };
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public Date getPaymentDate() {
-        return paymentDate;
-    }
-
-    public void setPaymentDate(Date paymentDate) {
-        this.paymentDate = paymentDate;
-    }
-
     public int getTypeID() {
         return typeID;
     }
@@ -127,22 +92,6 @@ public class PaymentLogEntry implements Parcelable{
 
     public void setTenantID(int tenantID) {
         this.tenantID = tenantID;
-    }
-
-    public BigDecimal getAmount() {
-        return amount;
-    }
-
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public String getTypeLabel() {
@@ -167,5 +116,13 @@ public class PaymentLogEntry implements Parcelable{
 
     public void setReceiptPic(String receiptPic) {
         this.receiptPic = receiptPic;
+    }
+
+    public int getApartmentID() {
+        return apartmentID;
+    }
+
+    public void setApartmentID(int apartmentID) {
+        this.apartmentID = apartmentID;
     }
 }

@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -21,12 +20,13 @@ import com.example.android.wizardpager.wizard.ui.ReviewFragment;
 import com.example.android.wizardpager.wizard.ui.StepPagerStrip;
 import com.example.cody.rentbud.R;
 import com.rentbud.fragments.ExpenseListFragment;
+import com.rentbud.model.Apartment;
 import com.rentbud.model.ExpenseLogEntry;
 import com.rentbud.model.ExpenseWizardModel;
-import com.rentbud.model.IncomeWizardModel;
 import com.rentbud.wizards.ExpenseWizardPage1;
 import com.rentbud.wizards.ExpenseWizardPage2;
 import com.rentbud.sqlite.DatabaseHandler;
+import com.rentbud.wizards.ExpenseWizardPage3;
 
 import java.math.BigDecimal;
 import java.text.DateFormat;
@@ -36,7 +36,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class NewExpenseWizard extends FragmentActivity implements
+public class NewExpenseWizard extends BaseActivity implements
         PageFragmentCallbacks,
         ReviewFragment.Callbacks,
         ModelCallbacks {
@@ -59,7 +59,7 @@ public class NewExpenseWizard extends FragmentActivity implements
     public static ExpenseLogEntry expenseToEdit;
 
     public void onCreate(Bundle savedInstanceState) {
-
+        setupUserAppTheme(MainActivity.curThemeChoice);
         setContentView(R.layout.activity_fragment_wizard);
 
         Bundle extras = getIntent().getExtras();
@@ -122,19 +122,29 @@ public class NewExpenseWizard extends FragmentActivity implements
                     }
                     String amountString = mWizardModel.findByKey("Page1").getData().getString(ExpenseWizardPage1.EXPENSE_AMOUNT_STRING_DATA_KEY);
                     BigDecimal amount = new BigDecimal(amountString);
-                    int apartmentID = 0; //TODO
+                    int apartmentID = 0;
+                    if(NewExpenseWizard.expenseToEdit != null){
+                        apartmentID = NewExpenseWizard.expenseToEdit.getApartmentID();
+                    }
+                    if(mWizardModel.findByKey("Page3") != null) {
+                        if(mWizardModel.findByKey("Page3").getData().getParcelable(ExpenseWizardPage3.EXPENSE_RELATED_APT_DATA_KEY) != null){
+                            Apartment apartment = mWizardModel.findByKey("Page3").getData().getParcelable(ExpenseWizardPage3.EXPENSE_RELATED_APT_DATA_KEY);
+                            apartmentID = apartment.getId();
+                        }
+                    }
                     String description = mWizardModel.findByKey("Page2").getData().getString(ExpenseWizardPage2.EXPENSE_DESCRIPTION_DATA_KEY);
                     int typeID = mWizardModel.findByKey("Page1").getData().getInt(ExpenseWizardPage1.EXPENSE_TYPE_ID_DATA_KEY);
                     String type = mWizardModel.findByKey("Page1").getData().getString(ExpenseWizardPage1.EXPENSE_TYPE_DATA_KEY);
                     String receiptPic = mWizardModel.findByKey("Page2").getData().getString(ExpenseWizardPage2.EXPENSE_RECEIPT_PIC_DATA_KEY);
 
                     if(NewExpenseWizard.expenseToEdit != null){
-                        NewExpenseWizard.expenseToEdit.setExpenseDate(date);
+                        NewExpenseWizard.expenseToEdit.setDate(date);
                         NewExpenseWizard.expenseToEdit.setAmount(amount);
                         NewExpenseWizard.expenseToEdit.setTypeID(typeID);
                         NewExpenseWizard.expenseToEdit.setTypeLabel(type);
                         NewExpenseWizard.expenseToEdit.setDescription(description);
                         NewExpenseWizard.expenseToEdit.setReceiptPic(receiptPic);
+                        NewExpenseWizard.expenseToEdit.setApartmentID(apartmentID);
 
                         dbHandler.editExpenseLogEntry(NewExpenseWizard.expenseToEdit);
                         //dataMethods.sortMainIncomeArray();
@@ -165,7 +175,8 @@ public class NewExpenseWizard extends FragmentActivity implements
                 mPager.setCurrentItem(mPager.getCurrentItem() - 1);
             }
         });
-
+        mStepPagerStrip.setProgressColors(fetchPrimaryColor(), fetchPrimaryColor(), fetchAccentColor());
+        setupBasicToolbar();
         onPageTreeChanged();
         updateBottomBar();
     }
@@ -189,6 +200,7 @@ public class NewExpenseWizard extends FragmentActivity implements
             }
             mNextButton.setBackgroundResource(com.example.android.wizardpager.R.drawable.finish_background);
             mNextButton.setTextAppearance(this, com.example.android.wizardpager.R.style.TextAppearanceFinish);
+            mNextButton.setBackgroundColor(fetchPrimaryColor());
         } else {
             mNextButton.setText(mEditingAfterReview
                     ? com.example.android.wizardpager.R.string.review

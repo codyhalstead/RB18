@@ -7,10 +7,8 @@ import com.example.android.wizardpager.wizard.model.ModelCallbacks;
 import com.example.android.wizardpager.wizard.model.Page;
 import com.example.android.wizardpager.wizard.model.ReviewItem;
 import com.rentbud.activities.NewIncomeWizard;
-import com.rentbud.activities.NewTenantWizard;
 import com.rentbud.fragments.IncomeWizardPage1Fragment;
 import com.rentbud.model.PaymentLogEntry;
-import com.rentbud.model.Tenant;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
@@ -30,7 +28,7 @@ public class IncomeWizardPage1 extends Page {
         PaymentLogEntry paymentLogEntry = NewIncomeWizard.incomeToEdit;
         if(paymentLogEntry != null){
             SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-            String dateString = formatter.format(paymentLogEntry.getPaymentDate());
+            String dateString = formatter.format(paymentLogEntry.getDate());
             mData.putString(INCOME_DATE_STRING_DATA_KEY, dateString);
             BigDecimal amountBD = paymentLogEntry.getAmount();
             String formatted = NumberFormat.getCurrencyInstance().format(amountBD);

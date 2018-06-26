@@ -58,10 +58,10 @@ public class ReviewFragment extends ListFragment implements ModelCallbacks {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_page, container, false);
-
+        //Modified
         TextView titleView = (TextView) rootView.findViewById(android.R.id.title);
         titleView.setText(R.string.review);
-        titleView.setTextColor(getResources().getColor(R.color.review_green));
+        titleView.setTextColor(getResources().getColor(R.color.blk));
 
         ListView listView = (ListView) rootView.findViewById(android.R.id.list);
         setListAdapter(mReviewAdapter);
@@ -115,6 +115,7 @@ public class ReviewFragment extends ListFragment implements ModelCallbacks {
             mReviewAdapter.notifyDataSetInvalidated();
         }
     }
+
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {

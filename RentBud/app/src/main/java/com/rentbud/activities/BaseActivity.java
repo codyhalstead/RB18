@@ -52,6 +52,15 @@ public class BaseActivity extends AppCompatActivity {
         return a.data;
     }
 
+    public int fetchAccentColor() {
+        TypedValue typedValue = new TypedValue();
+        TypedArray a = obtainStyledAttributes(typedValue.data, new int[] { R.attr.colorAccent });
+        int color = a.getColor(0, 0);
+        a.recycle();
+
+        return color;
+    }
+
     //Sets theme choice, use before setContentView
     public void setupUserAppTheme(int theme) {
         switch (theme) {

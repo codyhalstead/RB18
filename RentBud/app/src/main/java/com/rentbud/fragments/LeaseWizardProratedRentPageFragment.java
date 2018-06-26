@@ -229,7 +229,7 @@ public class LeaseWizardProratedRentPageFragment extends android.support.v4.app.
                 String formatted = NumberFormat.getCurrencyInstance().format(proratedFirst);
                 firstProratedAmountET.setText(formatted);
                 mPage.getData().putString(LeaseWizardProratedRentPage.LEASE_PRORATED_FIRST_PAYMENT_FORMATTED_STRING_DATA_KEY, formatted);
-                mPage.getData().putString(LeaseWizardProratedRentPage.LEASE_PRORATED_FIRST_PAYMENT_STRING_DATA_KEY, proratedLast.toPlainString());
+                mPage.getData().putString(LeaseWizardProratedRentPage.LEASE_PRORATED_FIRST_PAYMENT_STRING_DATA_KEY, proratedFirst.toPlainString());
                 mPage.getData().putBoolean(LeaseWizardProratedRentPage.LEASE_PRORATED_FIRST_PAYMENT_WAS_MODIFIED_DATA_KEY, true);
                 mPage.notifyDataChanged();
                 firstProratedAmountET.setSelection(formatted.length());

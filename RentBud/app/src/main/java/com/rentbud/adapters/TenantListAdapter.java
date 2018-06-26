@@ -139,8 +139,13 @@ public class TenantListAdapter extends BaseAdapter implements Filterable {
                 if(currentLease != null) {
                     convertView.setBackgroundColor(convertView.getResources().getColor(R.color.white));
                     Apartment apartment = dataMethods.getCachedApartmentByApartmentID(currentLease.getApartmentID());
-                    viewHolder.apartmentStreet1.setText(apartment.getStreet1());
-                    viewHolder.apartmentStreet2.setText(apartment.getStreet2());
+                    if (apartment != null) {
+                        viewHolder.apartmentStreet1.setText(apartment.getStreet1());
+                        viewHolder.apartmentStreet2.setText(apartment.getStreet2());
+                    } else {
+                        viewHolder.apartmentStreet1.setText("");
+                        viewHolder.apartmentStreet2.setText("");
+                    }
                 }
             }
         }

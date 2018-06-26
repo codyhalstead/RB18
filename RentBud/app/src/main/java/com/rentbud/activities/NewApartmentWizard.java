@@ -32,7 +32,7 @@ import com.rentbud.sqlite.DatabaseHandler;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NewApartmentWizard extends FragmentActivity implements
+public class NewApartmentWizard extends BaseActivity implements
         PageFragmentCallbacks,
         ReviewFragment.Callbacks,
         ModelCallbacks {
@@ -56,7 +56,7 @@ public class NewApartmentWizard extends FragmentActivity implements
     public static Apartment apartmentToEdit;
 
     public void onCreate(Bundle savedInstanceState) {
-
+        setupUserAppTheme(MainActivity.curThemeChoice);
         setContentView(R.layout.activity_fragment_wizard);
 
         Bundle extras = getIntent().getExtras();
@@ -140,7 +140,7 @@ public class NewApartmentWizard extends FragmentActivity implements
                         setResult(RESULT_OK, data);
                     } else {
                         Apartment apartment = new Apartment(-1, street1, street2, city, stateID, state, zip, description, false,
-                                notes, mainPic, otherPics);
+                                notes, mainPic, otherPics, true);
                         dbhandler.addNewApartment(apartment, MainActivity.user.getId());
                         MainActivity.apartmentList.add(apartment);
                         setResult(RESULT_OK);
@@ -165,7 +165,8 @@ public class NewApartmentWizard extends FragmentActivity implements
                 mPager.setCurrentItem(mPager.getCurrentItem() - 1);
             }
         });
-
+        mStepPagerStrip.setProgressColors(fetchPrimaryColor(), fetchPrimaryColor(), fetchAccentColor());
+        setupBasicToolbar();
         onPageTreeChanged();
         updateBottomBar();
     }
@@ -189,6 +190,7 @@ public class NewApartmentWizard extends FragmentActivity implements
             }
             mNextButton.setBackgroundResource(com.example.android.wizardpager.R.drawable.finish_background);
             mNextButton.setTextAppearance(this, com.example.android.wizardpager.R.style.TextAppearanceFinish);
+            mNextButton.setBackgroundColor(fetchPrimaryColor());
         } else {
             mNextButton.setText(mEditingAfterReview
                     ? com.example.android.wizardpager.R.string.review

@@ -32,7 +32,7 @@ public class HomeFragment extends android.support.v4.app.Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        super.onCreate(savedInstanceState);
+        //super.onCreate(savedInstanceState);
         this.usernameTV = view.findViewById(R.id.usernameTextView);
         this.passbox = view.findViewById(R.id.password);
         this.emailbox = view.findViewById(R.id.email);

@@ -3,6 +3,7 @@ package com.rentbud.adapters;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Typeface;
+import android.support.annotation.Nullable;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.TextAppearanceSpan;
@@ -26,6 +27,7 @@ import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Locale;
 
 /**
@@ -37,15 +39,17 @@ public class LeaseListAdapter extends BaseAdapter implements Filterable {
     private ArrayList<Lease> filteredResults;
     private Context context;
     private String searchText;
+    private Date date;
     private ColorStateList highlightColor;
     MainArrayDataMethods dataMethods;
 
-    public LeaseListAdapter(Context context, ArrayList<Lease> leaseArray, ColorStateList highlightColor) {
+    public LeaseListAdapter(Context context, ArrayList<Lease> leaseArray, ColorStateList highlightColor, @Nullable Date dateToHighlight) {
         super();
         this.leaseArray = leaseArray;
         this.filteredResults = leaseArray;
         this.context = context;
         this.searchText = "";
+        this.date = dateToHighlight;
         this.highlightColor = highlightColor;
         this.dataMethods = new MainArrayDataMethods();
     }
@@ -99,16 +103,39 @@ public class LeaseListAdapter extends BaseAdapter implements Filterable {
         if (lease != null) {
             Apartment apartment = dataMethods.getCachedApartmentByApartmentID(lease.getApartmentID());
             Tenant primaryTenant = dataMethods.getCachedTenantByTenantID(lease.getPrimaryTenantID());
+            if(apartment != null){
+                setTextHighlightSearch(viewHolder.apartmentStreet1TV, apartment.getStreet1());
+                if(apartment.getStreet2() != null){
+                    setTextHighlightSearch(viewHolder.apartmentStreet2TV, apartment.getStreet2());
+                } else {
+                    setTextHighlightSearch(viewHolder.apartmentStreet2TV, "");
+                }
+            } else {
+                setTextHighlightSearch(viewHolder.apartmentStreet1TV, "");
+                setTextHighlightSearch(viewHolder.apartmentStreet2TV, "");
+            }
+            if(primaryTenant != null){
+                setTextHighlightSearch(viewHolder.primaryTenantFirstNameTV, primaryTenant.getFirstName());
+                setTextHighlightSearch(viewHolder.primaryTenantLastNameTV, primaryTenant.getLastName());
+            } else {
+                setTextHighlightSearch(viewHolder.primaryTenantFirstNameTV, "");
+                setTextHighlightSearch(viewHolder.primaryTenantLastNameTV, "");
+            }
             SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
             viewHolder.leaseStartDateTV.setText(formatter.format(lease.getLeaseStart()));
             viewHolder.leaseEndDateTV.setText(formatter.format(lease.getLeaseEnd()));
-            setTextHighlightSearch(viewHolder.primaryTenantFirstNameTV, primaryTenant.getFirstName());
-            setTextHighlightSearch(viewHolder.primaryTenantLastNameTV, primaryTenant.getLastName());
-            setTextHighlightSearch(viewHolder.apartmentStreet1TV, apartment.getStreet1());
-            if(apartment.getStreet2() != null){
-                setTextHighlightSearch(viewHolder.apartmentStreet2TV, apartment.getStreet2());
+            if(date != null){
+                if(lease.getLeaseStart().equals(date)){
+                    viewHolder.leaseStartDateTV.setTextColor(context.getResources().getColor(R.color.green_colorPrimaryDark));
+                } else {
+                    viewHolder.leaseStartDateTV.setTextColor(context.getResources().getColor(R.color.text_light));
+                }
+                if(lease.getLeaseEnd().equals(date)){
+                    viewHolder.leaseEndDateTV.setTextColor(context.getResources().getColor(R.color.red));
+                } else {
+                    viewHolder.leaseEndDateTV.setTextColor(context.getResources().getColor(R.color.text_light));
+                }
             }
-
         }
         return convertView;
     }
@@ -145,19 +172,30 @@ public class LeaseListAdapter extends BaseAdapter implements Filterable {
                 searchText = constraint.toString().toLowerCase();
                 //Perform users search
                 constraint = constraint.toString().toLowerCase();
+                //TODO BUGGY
                 for (int i = 0; i < leaseArray.size(); i++) {
                     Lease dataNames = leaseArray.get(i);
                     Apartment apartment = dataMethods.getCachedApartmentByApartmentID(dataNames.getApartmentID());
                     Tenant primaryTenant = dataMethods.getCachedTenantByTenantID(dataNames.getPrimaryTenantID());
+                    String street1 = "";
                     String street2 = "";
-                    if(apartment.getStreet2() != null){
-                        street2 = apartment.getStreet2();
+                    String firstName = "";
+                    String lastName = "";
+                    if(apartment != null) {
+                        street1 = apartment.getStreet1();
+                        if (apartment.getStreet2() != null) {
+                            street2 = apartment.getStreet2();
+                        }
+                    }
+                    if(primaryTenant != null){
+                        firstName = primaryTenant.getFirstName();
+                        lastName = primaryTenant.getLastName();
                     }
                     //If users search matches any part of any apartment value, add to new filtered list
-                    if (apartment.getStreet1().toLowerCase().contains(constraint.toString()) ||
+                    if (street1.toLowerCase().contains(constraint.toString()) ||
                             street2.toLowerCase().contains(constraint.toString()) ||
-                            primaryTenant.getFirstName().toLowerCase().contains(constraint.toString()) ||
-                            primaryTenant.getLastName().toLowerCase().contains(constraint.toString())) {
+                            firstName.toLowerCase().contains(constraint.toString()) ||
+                            lastName.toLowerCase().contains(constraint.toString())) {
                         FilteredArrayNames.add(dataNames);
                     }
                 }

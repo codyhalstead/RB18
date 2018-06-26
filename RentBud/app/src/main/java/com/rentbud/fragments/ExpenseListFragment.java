@@ -135,12 +135,20 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
     public void onResume() {
         super.onResume();
         if (ExpenseListFragment.expenseListAdapterNeedsRefreshed) {
-            searchBarET.setText("");
+            //searchBarET.setText("");
             if(this.expenseListAdapter != null){
                 this.currentFilteredExpenses = db.getUsersExpensesWithinDates(MainActivity.user, filterDateStart, filterDateEnd);
+                if(currentFilteredExpenses.isEmpty()){
+                    noExpensesTV.setVisibility(View.VISIBLE);
+                    noExpensesTV.setText("No Current Expenses");
+                } else {
+                    noExpensesTV.setVisibility(View.GONE);
+                }
                 expenseListAdapter.updateResults(this.currentFilteredExpenses);
                 expenseListAdapterNeedsRefreshed = false;
-                expenseListAdapter.getFilter().filter("");
+                //expenseListAdapter.getFilter().filter("");
+                searchBarET.setText(searchBarET.getText());
+                searchBarET.setSelection(searchBarET.getText().length());
             }
         }
     }

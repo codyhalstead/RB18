@@ -23,9 +23,10 @@ public class Apartment implements Parcelable {
     private String notes;
     private String mainPic;
     private ArrayList<String> otherPics;
+    private boolean isActive;
 
     public Apartment(int id, String street1, String street2, String city, int stateID, String state, String zip,
-                     String description, Boolean isRented, String notes, String mainPic, ArrayList<String> otherPics) {
+                     String description, Boolean isRented, String notes, String mainPic, ArrayList<String> otherPics, boolean isActive) {
         this.id = id;
         this.street1 = street1;
         this.street2 = street2;
@@ -38,6 +39,7 @@ public class Apartment implements Parcelable {
         this.notes = notes;
         this.mainPic = mainPic;
         this.otherPics = otherPics;
+        this.isActive = isActive;
     }
 
     @Override
@@ -69,6 +71,7 @@ public class Apartment implements Parcelable {
         } else {
             parcel.writeInt(-1);
         }
+        parcel.writeByte((byte) (isActive? 1 : 0));
     }
 
     private Apartment(Parcel in) {
@@ -96,6 +99,7 @@ public class Apartment implements Parcelable {
         } else {
             this.otherPics = new ArrayList<>();
         }
+        this.isActive = in.readByte() != 0;
     }
 
 
@@ -215,4 +219,11 @@ public class Apartment implements Parcelable {
         isRented = rented;
     }
 
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
+    }
 }

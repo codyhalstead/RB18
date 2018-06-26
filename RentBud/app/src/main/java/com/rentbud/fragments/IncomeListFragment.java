@@ -127,12 +127,21 @@ public class IncomeListFragment extends android.support.v4.app.Fragment implemen
     public void onResume() {
         super.onResume();
         if (IncomeListFragment.incomeListAdapterNeedsRefreshed) {
-            searchBarET.setText("");
+            //searchBarET.setText("");
             if(this.incomeListAdapter != null){
                 this.currentFilteredIncome = db.getUsersIncomeWithinDates(MainActivity.user, filterDateStart, filterDateEnd);
+                if(currentFilteredIncome.isEmpty()){
+                    noIncomeTV.setVisibility(View.VISIBLE);
+                    noIncomeTV.setText("No Current Income");
+                } else {
+                    noIncomeTV.setVisibility(View.GONE);
+                }
+
                 incomeListAdapter.updateResults(currentFilteredIncome);
                 incomeListAdapterNeedsRefreshed = false;
-                incomeListAdapter.getFilter().filter("");
+                //incomeListAdapter.getFilter().filter("");
+                searchBarET.setText(searchBarET.getText());
+                searchBarET.setSelection(searchBarET.getText().length());
             }
         }
     }

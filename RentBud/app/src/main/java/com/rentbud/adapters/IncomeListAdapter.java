@@ -15,17 +15,12 @@ import android.widget.Filterable;
 import android.widget.TextView;
 
 import com.example.cody.rentbud.R;
-import com.rentbud.fragments.IncomeListFragment;
 import com.rentbud.helpers.MainArrayDataMethods;
-import com.rentbud.model.Apartment;
-import com.rentbud.model.ExpenseLogEntry;
 import com.rentbud.model.PaymentLogEntry;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.DateFormat;
 import java.text.NumberFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -42,6 +37,7 @@ public class IncomeListAdapter extends BaseAdapter implements Filterable {
     private String searchText;
     private ColorStateList highlightColor;
     MainArrayDataMethods dataMethods;
+    private Date todaysDate;
 
     public IncomeListAdapter(Context context, ArrayList<PaymentLogEntry> paymentArray, ColorStateList highlightColor) {
         super();
@@ -51,6 +47,7 @@ public class IncomeListAdapter extends BaseAdapter implements Filterable {
         this.searchText = "";
         this.highlightColor = highlightColor;
         this.dataMethods = new MainArrayDataMethods();
+        this.todaysDate = new Date(System.currentTimeMillis());
     }
 
     static class ViewHolder{
@@ -95,6 +92,7 @@ public class IncomeListAdapter extends BaseAdapter implements Filterable {
         } else {
             viewHolder = (IncomeListAdapter.ViewHolder) convertView.getTag();
         }
+        viewHolder.amountTV.setTextColor(context.getResources().getColor(R.color.green_colorPrimaryDark));
         if(income != null){
             BigDecimal displayVal = income.getAmount().setScale(2, RoundingMode.HALF_EVEN);
             NumberFormat usdCostFormat = NumberFormat.getCurrencyInstance(Locale.US);
@@ -105,7 +103,10 @@ public class IncomeListAdapter extends BaseAdapter implements Filterable {
             viewHolder.typeTV.setText(income.getTypeLabel());
 
             SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-            viewHolder.dateTV.setText(formatter.format(income.getPaymentDate()));
+            viewHolder.dateTV.setText(formatter.format(income.getDate()));
+            if( todaysDate.compareTo(income.getDate()) < 0){
+                viewHolder.amountTV.setTextColor(context.getResources().getColor(R.color.text_light));
+            }
             setTextHighlightSearch(viewHolder.descriptionTV, income.getDescription());
         }
         return convertView;

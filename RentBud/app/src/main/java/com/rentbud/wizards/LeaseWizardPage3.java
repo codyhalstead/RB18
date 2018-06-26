@@ -29,6 +29,9 @@ public class LeaseWizardPage3 extends Page {
     public static final String LEASE_DUE_DATE_DATA_KEY = "lease_due_date";
     public static final String LEASE_PAYMENT_DATES_ARRAY_DATA_KEY = "lease_payment_dates_array";
 
+    public static final String LEASE_IS_FIRST_PRORATED_REQUIRED_DATA_KEY = "lease_is_first_prorated_required";
+    public static final String LEASE_IS_LAST_PRORATED_REQUIRED_DATA_KEY = "lease_is_last_prorated_required";
+
     public static final String LEASE_NEED_BRANCH = "lease_need_branch";
 
 

@@ -89,6 +89,13 @@ public class StepPagerStrip extends View {
         mOnPageSelectedListener = onPageSelectedListener;
     }
 
+    //Added Custom Method
+    public void setProgressColors(int color1, int color2, int color3){
+        mPrevTabPaint.setColor(color1);
+        mSelectedTabPaint.setColor(color2);
+        mSelectedLastTabPaint.setColor(color3);
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);

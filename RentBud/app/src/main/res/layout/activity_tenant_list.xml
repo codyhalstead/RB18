@@ -43,7 +43,7 @@
 
     <!--Border -->
     <View
-        android:id="@+id/tenantListBarBorder"
+        android:id="@+id/apartmentListBarBorder"
         android:layout_width="match_parent"
         android:layout_height="3dp"
         android:layout_below="@+id/tenantSearchToolbar"
