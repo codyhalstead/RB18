@@ -8,11 +8,13 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,10 +28,13 @@ import com.bumptech.glide.Glide;
 import com.example.android.wizardpager.wizard.ui.PageFragmentCallbacks;
 import com.example.cody.rentbud.R;
 import com.rentbud.activities.MainActivity;
+import com.rentbud.activities.NewExpenseWizard;
+import com.rentbud.model.ExpenseLogEntry;
 import com.rentbud.wizards.ExpenseWizardPage2;
 import com.rentbud.wizards.IncomeWizardPage2;
 
 import static android.app.Activity.RESULT_OK;
+import static android.support.constraint.Constraints.TAG;
 
 public class ExpenseWizardPage2Fragment extends android.support.v4.app.Fragment {
     private static final String ARG_KEY = "key";
@@ -60,6 +65,13 @@ public class ExpenseWizardPage2Fragment extends android.support.v4.app.Fragment 
         Bundle args = getArguments();
         mKey = args.getString(ARG_KEY);
         mPage = (ExpenseWizardPage2) mCallbacks.onGetPage(mKey);
+        Bundle extras = mPage.getData();
+        if (extras != null) {
+            ExpenseLogEntry expenseToEdit = extras.getParcelable("expenseToEdit");
+            if (expenseToEdit != null) {
+                loadDataForEdit(expenseToEdit);
+            }
+        }
     }
 
     @Override
@@ -135,13 +147,23 @@ public class ExpenseWizardPage2Fragment extends android.support.v4.app.Fragment 
             }
         });
         if (mPage.getData().getString(ExpenseWizardPage2.EXPENSE_RECEIPT_PIC_DATA_KEY) != null) {
-            Glide.with(getContext()).load(mPage.getData().getString(ExpenseWizardPage2.EXPENSE_RECEIPT_PIC_DATA_KEY)).into(receiptPicIV);
+            if (mPage.getData().getString(ExpenseWizardPage2.EXPENSE_RECEIPT_PIC_DATA_KEY).equals("")) {
+                mPage.getData().putString(ExpenseWizardPage2.EXPENSE_WAS_RECEIPT_PIC_ADDED_DATA_KEY, "No");
+                Glide.with(getContext()).load(R.drawable.no_picture).into(receiptPicIV);
+            } else {
+                Glide.with(getContext()).load(mPage.getData().getString(ExpenseWizardPage2.EXPENSE_RECEIPT_PIC_DATA_KEY)).into(receiptPicIV);
+            }
         } else {
             Glide.with(getContext()).load(R.drawable.no_picture).into(receiptPicIV);
             mPage.getData().putString(ExpenseWizardPage2.EXPENSE_RECEIPT_PIC_DATA_KEY, "");
             mPage.getData().putString(ExpenseWizardPage2.EXPENSE_WAS_RECEIPT_PIC_ADDED_DATA_KEY, "No");
         }
-
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                mPage.notifyDataChanged();
+            }
+        });
     }
 
     @Override
@@ -202,6 +224,28 @@ public class ExpenseWizardPage2Fragment extends android.support.v4.app.Fragment 
             if (!menuVisible) {
                 imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
             }
+        }
+    }
+
+    //private void preloadData(Bundle bundle){
+    //
+    //}
+
+    private void loadDataForEdit(ExpenseLogEntry expenseToEdit) {
+        if (!mPage.getData().getBoolean(ExpenseWizardPage2.WAS_PRELOADED)) {
+            mPage.getData().putString(ExpenseWizardPage2.EXPENSE_DESCRIPTION_DATA_KEY, expenseToEdit.getDescription());
+            if (expenseToEdit.getReceiptPic() != null) {
+                if (!expenseToEdit.getReceiptPic().equals("")) {
+                    mPage.getData().putString(ExpenseWizardPage2.EXPENSE_RECEIPT_PIC_DATA_KEY, expenseToEdit.getReceiptPic());
+                    mPage.getData().putString(ExpenseWizardPage2.EXPENSE_WAS_RECEIPT_PIC_ADDED_DATA_KEY, "Yes");
+                } else {
+                    mPage.getData().putString(ExpenseWizardPage2.EXPENSE_WAS_RECEIPT_PIC_ADDED_DATA_KEY, "No");
+                }
+                mPage.getData().putString(ExpenseWizardPage2.EXPENSE_WAS_RECEIPT_PIC_ADDED_DATA_KEY, "No");
+            } else {
+                mPage.getData().putString(ExpenseWizardPage2.EXPENSE_WAS_RECEIPT_PIC_ADDED_DATA_KEY, "No");
+            }
+            mPage.getData().putBoolean(ExpenseWizardPage2.WAS_PRELOADED, true);
         }
     }
 }

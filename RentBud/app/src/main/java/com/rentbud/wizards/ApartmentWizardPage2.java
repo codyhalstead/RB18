@@ -18,21 +18,11 @@ public class ApartmentWizardPage2 extends Page {
     public static final String APARTMENT_NOTES_DATA_KEY = "apartment_notes";
     public static final String APARTMENT_PREFERRED_RENT_COST_FORMATTED_STRING_DATA_KEY = "apartment_preferred_rent_cost_formatted";
     public static final String APARTMENT_PREFERRED_RENT_COST_DATA_KEY = "apartment_preferred_rent_cost";
+    public static final String WAS_PRELOADED = "apartmant_page_2_was_preloaded";
 
     public ApartmentWizardPage2(ModelCallbacks callbacks, String title) {
         super(callbacks, title);
-        Apartment apartment = NewApartmentWizard.apartmentToEdit;
-        // Log.d(TAG, "TenantWizardPage1: " + tenant.getFirstName());
-        if (apartment != null) {
-            mData.putString(APARTMENT_DESCRIPTION_DATA_KEY, apartment.getDescription());
-            mData.putString(APARTMENT_NOTES_DATA_KEY, apartment.getNotes());
-            //TODO preferred rent
-            // BigDecimal amountBD = apartment.getPreferredRentCost;
-            //String formatted = NumberFormat.getCurrencyInstance().format(amountBD);
-            //mData.putString(APARTMENT_PREFERRED_RENT_COST_FORMATTED_STRING_DATA_KEY, apartment.getCity());
-            //mData.putString(APARTMENT_PREFERRED_RENT_COST_DATA_KEY, apartment.getState());
-            this.notifyDataChanged();
-        }
+        mData.putBoolean(WAS_PRELOADED, false);
     }
 
     @Override

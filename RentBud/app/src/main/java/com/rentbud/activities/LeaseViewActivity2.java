@@ -7,18 +7,14 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.Pair;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.LinearLayout;
 
 import com.example.cody.rentbud.R;
 import com.rentbud.fragments.ApartmentListFragment;
@@ -27,38 +23,35 @@ import com.rentbud.fragments.LeaseViewFrag1;
 import com.rentbud.fragments.LeaseViewFrag2;
 import com.rentbud.fragments.TenantListFragment;
 import com.rentbud.model.Lease;
-import com.rentbud.model.Tenant;
 import com.rentbud.sqlite.DatabaseHandler;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class LeaseViewActivity2 extends BaseActivity {
     private Lease lease;
     private DatabaseHandler databaseHandler;
+    ViewPager viewPager;
+    LeaseViewActivity2.ViewPagerAdapter adapter;
+    LinearLayout dateSelectorLL;
+    private LeaseViewFrag1 frag1;
+    private LeaseViewFrag2 frag2;
+    //private LeaseViewFrag3 frag3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setupUserAppTheme(MainActivity.curThemeChoice);
         setContentView(R.layout.activity_lease_view_actual);
-
-        ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
-        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
+        dateSelectorLL = findViewById(R.id.moneyDateSelecterLL);
+        dateSelectorLL.setVisibility(View.GONE);
+        viewPager = (ViewPager) findViewById(R.id.pager);
+        adapter = new ViewPagerAdapter(getSupportFragmentManager());
         this.databaseHandler = new DatabaseHandler(this);
         // Add Fragments to adapter one by one
         Bundle bundle = getIntent().getExtras();
         int leaseID = bundle.getInt("leaseID");
         this.lease = databaseHandler.getLeaseByID(MainActivity.user, leaseID);
-        //Get apartment item
-        //int leaseID = bundle.getInt("leaseID");
-        Fragment frag1 = new LeaseViewFrag1();
-        Fragment frag2 = new LeaseViewFrag2();
-        frag1.setArguments(bundle);
-        frag2.setArguments(bundle);
-        adapter.addFragment(frag1, "Lease Info");
-        adapter.addFragment(frag2, "Payments");
-       // adapter.addFragment(new FragmentThree(), "FRAG3");
+        bundle.putParcelable("lease", lease);
         viewPager.setAdapter(adapter);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
@@ -117,6 +110,34 @@ public class LeaseViewActivity2 extends BaseActivity {
                 LeaseListFragment.leaseListAdapterNeedsRefreshed = true;
                 MainActivity.apartmentList = databaseHandler.getUsersApartmentsIncludingInactive(MainActivity.user);
                 MainActivity.tenantList = databaseHandler.getUsersTenantsIncludingInactive(MainActivity.user);
+                //LeaseViewActivity2.this.finish();
+                showDeleteAllRelatedMoneyAlertDialog();
+            }
+        });
+
+        // create and show the alert dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    public void showDeleteAllRelatedMoneyAlertDialog() {
+        // setup the alert builder
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        //builder.setTitle("AlertDialog");
+        builder.setMessage("Remove all income/expenses related to this lease?");
+
+        // add the buttons
+        builder.setPositiveButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                LeaseViewActivity2.this.finish();
+            }
+        });
+        builder.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+               databaseHandler.setAllExpensesRelatedToLeaseInactive(lease.getId());
+               databaseHandler.setAllIncomeRelatedToLeaseInactive(lease.getId());
                 LeaseViewActivity2.this.finish();
             }
         });
@@ -145,21 +166,34 @@ public class LeaseViewActivity2 extends BaseActivity {
                 if (fragments != null) {
                     for (Fragment fragment : fragments) {
                         if (fragment != null) {
-                            android.support.v4.app.FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                            fragmentTransaction.detach(fragment);
-                            fragmentTransaction.attach(fragment);
-                            fragmentTransaction.commit();
+                            //android.support.v4.app.FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                            //fragmentTransaction.detach(fragment);
+                            //fragmentTransaction.attach(fragment);
+                            //fragmentTransaction.commit();
+                            fragment.onActivityResult(requestCode, resultCode, data);
                         }
+                    }
+                }
+            }
+        } else {
+            List<Fragment> fragments = getSupportFragmentManager().getFragments();
+            if (fragments != null) {
+                for (Fragment fragment : fragments) {
+                    if (fragment != null) {
+                        fragment.onActivityResult(requestCode, resultCode, data);
                     }
                 }
             }
         }
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+    }
+
     // Adapter for the viewpager using FragmentPagerAdapter
-    class ViewPagerAdapter extends FragmentPagerAdapter {
-        private final List<Fragment> mFragmentList = new ArrayList<>();
-        private final List<String> mFragmentTitleList = new ArrayList<>();
+    class ViewPagerAdapter extends FragmentStatePagerAdapter {
 
         public ViewPagerAdapter(FragmentManager manager) {
             super(manager);
@@ -167,22 +201,60 @@ public class LeaseViewActivity2 extends BaseActivity {
 
         @Override
         public Fragment getItem(int position) {
-            return mFragmentList.get(position);
+            Bundle bundle = new Bundle();
+            bundle.putParcelable("lease", lease);
+            switch (position) {
+                case 0:
+                    LeaseViewFrag1 frg1 = new LeaseViewFrag1();
+                    frg1.setArguments(bundle);
+                    return frg1;
+                case 1:
+                    LeaseViewFrag2 frg2 = new LeaseViewFrag2();
+                    frg2.setArguments(bundle);
+                    return frg2;
+                //case 2:
+                //    LeaseViewFrag3 frg3 = new LeaseViewFrag3();
+                //    frg3.setArguments(bundle);
+                //    return frg3;
+                default:
+                    return null;
+            }
         }
 
         @Override
         public int getCount() {
-            return mFragmentList.size();
+            return 2;
         }
 
-        public void addFragment(Fragment fragment, String title) {
-            mFragmentList.add(fragment);
-            mFragmentTitleList.add(title);
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            Fragment createdFragment = (Fragment) super.instantiateItem(container, position);
+            // save the appropriate reference depending on position
+            switch (position) {
+                case 0:
+                    frag1 = (LeaseViewFrag1) createdFragment;
+                    break;
+                case 1:
+                    frag2 = (LeaseViewFrag2) createdFragment;
+                    break;
+                //case 2:
+                //    frag3 = (LeaseViewFrag3) createdFragment;
+                //    break;
+            }
+            return createdFragment;
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
-            return mFragmentTitleList.get(position);
+            switch (position) {
+                case 0:
+                    return "Info";
+                case 1:
+                    return "Payments";
+                // case 2:
+                //     return "Expenses";
+            }
+            return "";
         }
     }
 }

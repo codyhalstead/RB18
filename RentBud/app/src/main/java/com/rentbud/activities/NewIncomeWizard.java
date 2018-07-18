@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,7 +48,7 @@ public class NewIncomeWizard extends BaseActivity implements
 
     private boolean mEditingAfterReview;
 
-    private AbstractWizardModel mWizardModel;// = new IncomeWizardModel(this);
+    private IncomeWizardModel mWizardModel;// = new IncomeWizardModel(this);
 
     private boolean mConsumePageSelectedEvent;
 
@@ -59,23 +60,23 @@ public class NewIncomeWizard extends BaseActivity implements
 
     private DatabaseHandler dbHandler;
     //private MainArrayDataMethods dataMethods;
-    public static PaymentLogEntry incomeToEdit;
+    public PaymentLogEntry incomeToEdit;
 
     public void onCreate(Bundle savedInstanceState) {
         setupUserAppTheme(MainActivity.curThemeChoice);
         setContentView(R.layout.activity_fragment_wizard);
+        mWizardModel = new IncomeWizardModel(this);
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            NewIncomeWizard.incomeToEdit = extras.getParcelable("incomeToEdit");
+            incomeToEdit = extras.getParcelable("incomeToEdit");
+            mWizardModel.preloadData(extras);
         } else {
-            NewIncomeWizard.incomeToEdit = null;
+            incomeToEdit = null;
         }
-        mWizardModel = new IncomeWizardModel(this);
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
             mWizardModel.load(savedInstanceState.getBundle("model"));
         }
-
         mWizardModel.registerListener(this);
         dbHandler = new DatabaseHandler(this);
         //dataMethods = new MainArrayDataMethods();
@@ -128,19 +129,19 @@ public class NewIncomeWizard extends BaseActivity implements
                     int apartmentID = 0;
                     int tenantID = 0;
                     int leaseID = 0;
-                    if(NewExpenseWizard.expenseToEdit != null){
-                        apartmentID = NewExpenseWizard.expenseToEdit.getApartmentID();
-                    }
-                    if(mWizardModel.findByKey("Page3") != null) {
-                        if(mWizardModel.findByKey("Page3").getData().getParcelable(IncomeWizardPage3.INCOME_RELATED_APT_DATA_KEY) != null){
+                    //if(incomeToEdit != null){
+                    //    apartmentID = incomeToEdit.getApartmentID();
+                    //}
+                    if (mWizardModel.findByKey("Page3") != null) {
+                        if (mWizardModel.findByKey("Page3").getData().getParcelable(IncomeWizardPage3.INCOME_RELATED_APT_DATA_KEY) != null) {
                             Apartment apartment = mWizardModel.findByKey("Page3").getData().getParcelable(IncomeWizardPage3.INCOME_RELATED_APT_DATA_KEY);
                             apartmentID = apartment.getId();
                         }
-                        if(mWizardModel.findByKey("Page3").getData().getParcelable(IncomeWizardPage3.INCOME_RELATED_TENANT_DATA_KEY) != null){
+                        if (mWizardModel.findByKey("Page3").getData().getParcelable(IncomeWizardPage3.INCOME_RELATED_TENANT_DATA_KEY) != null) {
                             Tenant tenant = mWizardModel.findByKey("Page3").getData().getParcelable(IncomeWizardPage3.INCOME_RELATED_TENANT_DATA_KEY);
                             tenantID = tenant.getId();
                         }
-                        if(mWizardModel.findByKey("Page3").getData().getParcelable(IncomeWizardPage3.INCOME_RELATED_LEASE_DATA_KEY) != null){
+                        if (mWizardModel.findByKey("Page3").getData().getParcelable(IncomeWizardPage3.INCOME_RELATED_LEASE_DATA_KEY) != null) {
                             Lease lease = mWizardModel.findByKey("Page3").getData().getParcelable(IncomeWizardPage3.INCOME_RELATED_LEASE_DATA_KEY);
                             leaseID = lease.getId();
                         }
@@ -150,21 +151,21 @@ public class NewIncomeWizard extends BaseActivity implements
                     String type = mWizardModel.findByKey("Page1").getData().getString(IncomeWizardPage1.INCOME_TYPE_DATA_KEY);
                     String receiptPic = mWizardModel.findByKey("Page2").getData().getString(IncomeWizardPage2.INCOME_RECEIPT_PIC_DATA_KEY);
 
-                    if (NewIncomeWizard.incomeToEdit != null) {
-                        NewIncomeWizard.incomeToEdit.setDate(date);
-                        NewIncomeWizard.incomeToEdit.setAmount(amount);
-                        NewIncomeWizard.incomeToEdit.setTypeID(typeID);
-                        NewIncomeWizard.incomeToEdit.setTypeLabel(type);
-                        NewIncomeWizard.incomeToEdit.setDescription(description);
-                        NewIncomeWizard.incomeToEdit.setReceiptPic(receiptPic);
-                        NewIncomeWizard.incomeToEdit.setApartmentID(apartmentID);
-                        NewIncomeWizard.incomeToEdit.setTenantID(tenantID);
-                        NewIncomeWizard.incomeToEdit.setLeaseID(leaseID);
+                    if (incomeToEdit != null) {
+                        incomeToEdit.setDate(date);
+                        incomeToEdit.setAmount(amount);
+                        incomeToEdit.setTypeID(typeID);
+                        incomeToEdit.setTypeLabel(type);
+                        incomeToEdit.setDescription(description);
+                        incomeToEdit.setReceiptPic(receiptPic);
+                        incomeToEdit.setApartmentID(apartmentID);
+                        incomeToEdit.setTenantID(tenantID);
+                        incomeToEdit.setLeaseID(leaseID);
 
-                        dbHandler.editPaymentLogEntry(NewIncomeWizard.incomeToEdit);
+                        dbHandler.editPaymentLogEntry(incomeToEdit);
                         //dataMethods.sortMainIncomeArray();
                         Intent data = new Intent();
-                        data.putExtra("editedIncomeID", NewIncomeWizard.incomeToEdit.getId());
+                        data.putExtra("editedIncomeID", incomeToEdit.getId());
                         setResult(RESULT_OK, data);
                     } else {
                         PaymentLogEntry income = new PaymentLogEntry(-1, date, typeID, type, tenantID, leaseID, apartmentID, amount, description, receiptPic);
@@ -210,7 +211,7 @@ public class NewIncomeWizard extends BaseActivity implements
     private void updateBottomBar() {
         int position = mPager.getCurrentItem();
         if (position == mCurrentPageSequence.size()) {
-            if(NewIncomeWizard.incomeToEdit == null) {
+            if (incomeToEdit == null) {
                 mNextButton.setText("Create Income");
             } else {
                 mNextButton.setText("Save Changes");
@@ -301,8 +302,8 @@ public class NewIncomeWizard extends BaseActivity implements
         super.onActivityResult(requestCode, resultCode, data);
 
         List<Fragment> fragments = getSupportFragmentManager().getFragments();
-        if(fragments != null){
-            for(Fragment fragment : fragments){
+        if (fragments != null) {
+            for (Fragment fragment : fragments) {
                 fragment.onActivityResult(requestCode, resultCode, data);
             }
         }

@@ -1,5 +1,6 @@
 package com.rentbud.wizards;
 
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 
@@ -26,29 +27,12 @@ public class LeaseWizardPage1 extends Page{
     //public static final String LEASE_END_DATE_DATA_KEY = "lease_end_date";
     public static final String LEASE_APARTMENT_DATA_KEY = "lease_apartment";
     public static final String LEASE_ARE_DATES_ACCEPTABLE = "lease_are_dates_acceptable";
+    public static final String WAS_PRELOADED = "lease_page_1_was_preloaded";
 
 
     public LeaseWizardPage1(ModelCallbacks callbacks, String title) {
         super(callbacks, title);
-        Lease lease = NewLeaseWizard.leaseToEdit;
-        if(lease != null){
-            SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-            String startDateString = formatter.format(lease.getLeaseStart());
-            String endDateString = formatter.format(lease.getLeaseEnd());
-            mData.putString(LEASE_START_DATE_STRING_DATA_KEY, startDateString);
-            mData.putString(LEASE_END_DATE_STRING_DATA_KEY, endDateString);
-            MainArrayDataMethods dataMethods = new MainArrayDataMethods();
-            Apartment apartment = dataMethods.getCachedApartmentByApartmentID(lease.getApartmentID());
-            String apartmentString = apartment.getStreet1();
-            if(apartment.getStreet2() != null) {
-                apartmentString += " ";
-                apartmentString += apartment.getStreet2();
-            }
-            mData.putString(LEASE_APARTMENT_STRING_DATA_KEY, apartmentString);
-            mData.putParcelable(LEASE_APARTMENT_DATA_KEY, apartment);
-            mData.putBoolean(LEASE_ARE_DATES_ACCEPTABLE, true);
-            this.notifyDataChanged();
-        }
+        mData.putBoolean(WAS_PRELOADED, false);
     }
 
     @Override
@@ -67,5 +51,10 @@ public class LeaseWizardPage1 extends Page{
     public boolean isCompleted() {
         return (!TextUtils.isEmpty(mData.getString(LEASE_START_DATE_STRING_DATA_KEY)) && !TextUtils.isEmpty(mData.getString(LEASE_END_DATE_STRING_DATA_KEY))
         && !TextUtils.isEmpty(mData.getString(LEASE_APARTMENT_STRING_DATA_KEY)) && mData.getBoolean(LEASE_ARE_DATES_ACCEPTABLE));
+    }
+
+    @Override
+    public Bundle getData() {
+        return super.getData();
     }
 }

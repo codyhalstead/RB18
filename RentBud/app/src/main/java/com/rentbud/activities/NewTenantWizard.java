@@ -39,7 +39,7 @@ public class NewTenantWizard extends BaseActivity implements
 
     private boolean mEditingAfterReview;
 
-    private AbstractWizardModel mWizardModel;// = new TenantWizardModel(this);
+    private TenantWizardModel mWizardModel;// = new TenantWizardModel(this);
 
     private boolean mConsumePageSelectedEvent;
 
@@ -51,24 +51,23 @@ public class NewTenantWizard extends BaseActivity implements
 
     private DatabaseHandler dbhandler;
     private MainArrayDataMethods mainArrayDataMethods;
-    public static Tenant tenantToEdit;
+    public Tenant tenantToEdit;
 
     public void onCreate(Bundle savedInstanceState) {
         setupUserAppTheme(MainActivity.curThemeChoice);
         setContentView(R.layout.activity_fragment_wizard);
-
+        mWizardModel = new TenantWizardModel(this);
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            NewTenantWizard.tenantToEdit = extras.getParcelable("tenantToEdit");
+            tenantToEdit = extras.getParcelable("tenantToEdit");
+            mWizardModel.preloadData(extras);
         } else {
-            NewTenantWizard.tenantToEdit = null;
+            tenantToEdit = null;
         }
-        mWizardModel = new TenantWizardModel(this);
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
             mWizardModel.load(savedInstanceState.getBundle("model"));
         }
-
         mWizardModel.registerListener(this);
         dbhandler = new DatabaseHandler(this);
         mainArrayDataMethods = new MainArrayDataMethods();
@@ -118,9 +117,9 @@ public class NewTenantWizard extends BaseActivity implements
                     String notes = mWizardModel.findByKey("Page3").getData().getString(TenantWizardPage3.TENANT_NOTES_DATA_KEY);
                     //Create new Tenant object with input data and add it to the database
 
-                    if (NewTenantWizard.tenantToEdit != null) {
+                    if (tenantToEdit != null) {
                         //Is editing
-                        Tenant tenant = mainArrayDataMethods.getCachedTenantByTenantID(NewTenantWizard.tenantToEdit.getId());
+                        Tenant tenant = mainArrayDataMethods.getCachedTenantByTenantID(tenantToEdit.getId());
                         tenant.setFirstName(firstName);
                         tenant.setLastName(lastName);
                         tenant.setPhone(phone);
@@ -131,7 +130,7 @@ public class NewTenantWizard extends BaseActivity implements
                         tenant.setNotes(notes);
                         dbhandler.editTenant(tenant);
                         Intent data = new Intent();
-                        data.putExtra("editedTenantID", NewTenantWizard.tenantToEdit.getId());
+                        data.putExtra("editedTenantID", tenantToEdit.getId());
                         setResult(RESULT_OK, data);
                     } else {
                         //Is new
@@ -178,7 +177,7 @@ public class NewTenantWizard extends BaseActivity implements
     private void updateBottomBar() {
         int position = mPager.getCurrentItem();
         if (position == mCurrentPageSequence.size()) {
-            if(NewTenantWizard.tenantToEdit == null) {
+            if(tenantToEdit == null) {
                 mNextButton.setText("Create Tenant");
             } else {
                 mNextButton.setText("Save Changes");

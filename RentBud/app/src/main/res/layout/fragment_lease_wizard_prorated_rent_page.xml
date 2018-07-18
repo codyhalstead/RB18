@@ -4,9 +4,9 @@
 
     <TextView style="@style/WizardPageTitle" />
 
-    <ScrollView android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
         android:scrollbarStyle="outsideOverlay">
@@ -14,207 +14,222 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            >
 
-    <TextView style="@style/WizardTitle"
-        android:text="Prorated Payments"
-        />
+            <TextView
+                style="@style/WizardTitle"
+                android:text="Prorated Payments" />
 
-    <TextView
-        android:id="@+id/leaseWizardFirstProratedLabelTV"
-        style="@style/WizardFormLabel"
-        android:text="*First Payment" />
-
-    <EditText
-        android:id="@+id/leaseWizardFirstProratedAmountET"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:background="@drawable/rect_edit"
-        android:gravity="center_vertical"
-        android:text="$0.00"
-        android:hint=""
-        android:paddingEnd="10dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:paddingStart="10dp"
-        android:saveEnabled="false"
-        android:inputType="number"
-        />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:id="@+id/leaseWizardProratedFirstRecommendedPriceLL"
+                android:orientation="vertical"
+                android:id="@+id/leaseWizardProratedFirstLL"
                 >
 
-                <TextView
-                    android:id="@+id/leaseWizardRecommendedPrice1TV"
-                    style="@style/FormText"
-                    android:layout_width="wrap_content"
-                    android:text="Recommended price: " />
 
                 <TextView
-                    android:id="@+id/leaseWizardProratedFirstPaymentAmountRecTV"
-                    style="@style/FormText"
-                    android:layout_width="wrap_content"
-                    android:textColor="@color/step_pager_selected_tab_color"
-                    android:text="$589.90" />
+                    android:id="@+id/leaseWizardFirstProratedLabelTV"
+                    style="@style/WizardFormLabel"
+                    android:text="*First Payment" />
 
+                <EditText
+                    android:id="@+id/leaseWizardFirstProratedAmountET"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:background="@drawable/rect_edit"
+                    android:gravity="center_vertical"
+                    android:hint=""
+                    android:inputType="number"
+                    android:paddingEnd="10dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:paddingStart="10dp"
+                    android:saveEnabled="false"
+                    android:text="$0.00" />
+
+                <LinearLayout
+                    android:id="@+id/leaseWizardProratedFirstRecommendedPriceLL"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/leaseWizardRecommendedPrice1TV"
+                        style="@style/FormText"
+                        android:layout_width="wrap_content"
+                        android:text="Recommended price: " />
+
+                    <TextView
+                        android:id="@+id/leaseWizardProratedFirstPaymentAmountRecTV"
+                        style="@style/FormText"
+                        android:layout_width="wrap_content"
+                        android:text="$589.90"
+                        android:textColor="@color/step_pager_selected_tab_color" />
+
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/leaseWizardProratedFirstDateInfoLL"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/leaseWizardFor1TV"
+                        style="@style/FormText"
+                        android:layout_width="wrap_content"
+                        android:text="For " />
+
+                    <TextView
+                        android:id="@+id/leaseWizardProratedFirstPaymentRangeStartTV"
+                        style="@style/FormText"
+                        android:layout_width="wrap_content"
+                        android:text="2-28-2018"
+                        android:textColor="@color/step_pager_selected_tab_color" />
+
+                    <TextView
+                        android:id="@+id/leaseWizardTo1TV"
+                        style="@style/FormText"
+                        android:layout_width="wrap_content"
+                        android:text=" To " />
+
+                    <TextView
+                        android:id="@+id/leaseWizardProratedFirstPaymentRangeEndTV"
+                        style="@style/FormText"
+                        android:layout_width="wrap_content"
+                        android:text="3-05-2018"
+                        android:textColor="@color/step_pager_selected_tab_color" />
+
+                    <TextView
+                        android:id="@+id/leaseWizardPara1TV"
+                        style="@style/FormText"
+                        android:layout_width="wrap_content"
+                        android:text=" (" />
+
+                    <TextView
+                        android:id="@+id/leaseWizardFirstProratedDayAmountTV"
+                        style="@style/FormText"
+                        android:layout_width="wrap_content"
+                        android:text="5"
+                        android:textColor="@color/step_pager_selected_tab_color" />
+
+                    <TextView
+                        android:id="@+id/leaseWizardParaDays1TV"
+                        style="@style/FormText"
+                        android:layout_width="wrap_content"
+                        android:text=" Days)" />
+
+                </LinearLayout>
 
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="20dp"
-                android:id="@+id/leaseWizardProratedFirstDateInfoLL"
+                android:orientation="vertical"
+                android:id="@+id/leaseWizardProratedLastLL"
                 >
 
                 <TextView
-                    android:id="@+id/leaseWizardFor1TV"
-                    style="@style/FormText"
-                    android:layout_width="wrap_content"
-                    android:text="For " />
+                    android:id="@+id/leaseWizardLastProratedLabelTV"
+                    style="@style/WizardFormLabel"
+                    android:text="*Last Payment" />
 
-                <TextView
-                    android:id="@+id/leaseWizardProratedFirstPaymentRangeStartTV"
-                    style="@style/FormText"
-                    android:layout_width="wrap_content"
-                    android:textColor="@color/step_pager_selected_tab_color"
-                    android:text="2-28-2018" />
+                <EditText
+                    android:id="@+id/leaseWizardLastProratedAmountET"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:background="@drawable/rect_edit"
+                    android:gravity="center_vertical"
+                    android:hint=""
+                    android:inputType="number"
+                    android:paddingEnd="10dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:paddingStart="10dp"
+                    android:saveEnabled="false"
+                    android:text="$0.00" />
 
-                <TextView
-                    android:id="@+id/leaseWizardTo1TV"
-                    style="@style/FormText"
-                    android:layout_width="wrap_content"
-                    android:text=" To " />
+                <LinearLayout
+                    android:id="@+id/leaseWizardProratedLastRecommendedPriceLL"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/leaseWizardProratedFirstPaymentRangeEndTV"
-                    style="@style/FormText"
-                    android:layout_width="wrap_content"
-                    android:textColor="@color/step_pager_selected_tab_color"
-                    android:text="3-05-2018" />
+                    <TextView
+                        android:id="@+id/leaseWizardRecommendedPrice2TV"
+                        style="@style/FormText"
+                        android:layout_width="wrap_content"
+                        android:text="Recommended price: " />
 
-                <TextView
-                    android:id="@+id/leaseWizardPara1TV"
-                    style="@style/FormText"
-                    android:layout_width="wrap_content"
-                    android:text=" (" />
-
-                <TextView
-                    android:id="@+id/leaseWizardFirstProratedDayAmountTV"
-                    style="@style/FormText"
-                    android:layout_width="wrap_content"
-                    android:textColor="@color/step_pager_selected_tab_color"
-                    android:text="5" />
-
-                <TextView
-                    android:id="@+id/leaseWizardParaDays1TV"
-                    style="@style/FormText"
-                    android:layout_width="wrap_content"
-                    android:text=" Days)" />
-
-            </LinearLayout>
-
-    <TextView
-        android:id="@+id/leaseWizardLastProratedLabelTV"
-        style="@style/WizardFormLabel"
-        android:text="*Last Payment" />
-
-    <EditText
-        android:id="@+id/leaseWizardLastProratedAmountET"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:background="@drawable/rect_edit"
-        android:gravity="center_vertical"
-        android:text="$0.00"
-        android:hint=""
-        android:paddingEnd="10dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:paddingStart="10dp"
-        android:saveEnabled="false"
-        android:inputType="number"
-        />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:id="@+id/leaseWizardProratedLastRecommendedPriceLL"
-                >
-
-                <TextView
-                    android:id="@+id/leaseWizardRecommendedPrice2TV"
-                    style="@style/FormText"
-                    android:layout_width="wrap_content"
-                    android:text="Recommended price: " />
-
-                <TextView
-                    android:id="@+id/leaseWizardProratedLastPaymentAmountRecTV"
-                    style="@style/FormText"
-                    android:layout_width="wrap_content"
-                    android:textColor="@color/step_pager_selected_tab_color"
-                    android:text="$1,589.90" />
+                    <TextView
+                        android:id="@+id/leaseWizardProratedLastPaymentAmountRecTV"
+                        style="@style/FormText"
+                        android:layout_width="wrap_content"
+                        android:text="$1,589.90"
+                        android:textColor="@color/step_pager_selected_tab_color" />
 
 
-            </LinearLayout>
+                </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:id="@+id/leaseWizardProratedLastDateInfoLL"
-                android:layout_marginBottom="20dp"
-                >
+                <LinearLayout
+                    android:id="@+id/leaseWizardProratedLastDateInfoLL"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp"
+                    android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/leaseWizardFor2TV"
-                    style="@style/FormText"
-                    android:layout_width="wrap_content"
-                    android:text="For " />
+                    <TextView
+                        android:id="@+id/leaseWizardFor2TV"
+                        style="@style/FormText"
+                        android:layout_width="wrap_content"
+                        android:text="For " />
 
-                <TextView
-                    android:id="@+id/leaseWizardProratedLastPaymentRangeStartTV"
-                    style="@style/FormText"
-                    android:layout_width="wrap_content"
-                    android:textColor="@color/step_pager_selected_tab_color"
-                    android:text="2-05-2019" />
+                    <TextView
+                        android:id="@+id/leaseWizardProratedLastPaymentRangeStartTV"
+                        style="@style/FormText"
+                        android:layout_width="wrap_content"
+                        android:text="2-05-2019"
+                        android:textColor="@color/step_pager_selected_tab_color" />
 
-                <TextView
-                    android:id="@+id/leaseWizardTo2TV"
-                    style="@style/FormText"
-                    android:layout_width="wrap_content"
-                    android:text=" To " />
+                    <TextView
+                        android:id="@+id/leaseWizardTo2TV"
+                        style="@style/FormText"
+                        android:layout_width="wrap_content"
+                        android:text=" To " />
 
-                <TextView
-                    android:id="@+id/leaseWizardProratedLastPaymentRangeEndTV"
-                    style="@style/FormText"
-                    android:layout_width="wrap_content"
-                    android:textColor="@color/step_pager_selected_tab_color"
-                    android:text="2-28-2019" />
+                    <TextView
+                        android:id="@+id/leaseWizardProratedLastPaymentRangeEndTV"
+                        style="@style/FormText"
+                        android:layout_width="wrap_content"
+                        android:text="2-28-2019"
+                        android:textColor="@color/step_pager_selected_tab_color" />
 
-                <TextView
-                    android:id="@+id/leaseWizardPara2TV"
-                    style="@style/FormText"
-                    android:layout_width="wrap_content"
-                    android:text=" (" />
+                    <TextView
+                        android:id="@+id/leaseWizardPara2TV"
+                        style="@style/FormText"
+                        android:layout_width="wrap_content"
+                        android:text=" (" />
 
-                <TextView
-                    android:id="@+id/leaseWizardLastProratedDayAmountTV"
-                    style="@style/FormText"
-                    android:layout_width="wrap_content"
-                    android:textColor="@color/step_pager_selected_tab_color"
-                    android:text="23" />
+                    <TextView
+                        android:id="@+id/leaseWizardLastProratedDayAmountTV"
+                        style="@style/FormText"
+                        android:layout_width="wrap_content"
+                        android:text="23"
+                        android:textColor="@color/step_pager_selected_tab_color" />
 
-                <TextView
-                    android:id="@+id/leaseWizardParaDays2TV"
-                    style="@style/FormText"
-                    android:layout_width="wrap_content"
-                    android:text=" Days)" />
+                    <TextView
+                        android:id="@+id/leaseWizardParaDays2TV"
+                        style="@style/FormText"
+                        android:layout_width="wrap_content"
+                        android:text=" Days)" />
+
+                </LinearLayout>
 
             </LinearLayout>
 

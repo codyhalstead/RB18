@@ -15,18 +15,6 @@
                 android:title="Edit tenant" />
 
             <item
-                android:id="@+id/editStatus"
-                android:title="Edit renting status" />
-
-            <item
-                android:id="@+id/editLease"
-                android:title="Edit lease" />
-
-            <item
-                android:id="@+id/editNotes"
-                android:title="Edit notes" />
-
-            <item
                 android:id="@+id/deleteTenant"
                 android:title="Delete tenant" />
 

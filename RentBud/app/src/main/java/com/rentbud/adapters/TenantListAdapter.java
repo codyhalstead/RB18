@@ -66,7 +66,10 @@ public class TenantListAdapter extends BaseAdapter implements Filterable {
 
     @Override
     public int getCount() {
-        return filteredResults.size();
+        if(filteredResults != null) {
+            return filteredResults.size();
+        }
+        return 0;
     }
 
     @Override
@@ -141,11 +144,18 @@ public class TenantListAdapter extends BaseAdapter implements Filterable {
                     Apartment apartment = dataMethods.getCachedApartmentByApartmentID(currentLease.getApartmentID());
                     if (apartment != null) {
                         viewHolder.apartmentStreet1.setText(apartment.getStreet1());
-                        viewHolder.apartmentStreet2.setText(apartment.getStreet2());
+                        if(apartment.getStreet2() != null) {
+                            viewHolder.apartmentStreet2.setText(apartment.getStreet2());
+                        } else {
+                            viewHolder.apartmentStreet2.setText("");
+                        }
                     } else {
                         viewHolder.apartmentStreet1.setText("");
                         viewHolder.apartmentStreet2.setText("");
                     }
+                } else {
+                    viewHolder.apartmentStreet1.setText("ERROR");
+                    viewHolder.apartmentStreet2.setText("");
                 }
             }
         }
@@ -175,10 +185,14 @@ public class TenantListAdapter extends BaseAdapter implements Filterable {
                 constraint = constraint.toString().toLowerCase();
                 for (int i = 0; i < tenantArray.size(); i++) {
                     Tenant dataNames = tenantArray.get(i);
+                    String phone = "";
+                    if(dataNames.getPhone() != null){
+                        phone = dataNames.getPhone();
+                    }
                     //If users search matches any part of any apartment value, add to new filtered list
                     if (dataNames.getFirstName().toLowerCase().contains(constraint.toString()) ||
                             dataNames.getLastName().toLowerCase().contains(constraint.toString()) ||
-                            dataNames.getPhone().toLowerCase().contains(constraint.toString())) {
+                            phone.toLowerCase().contains(constraint.toString())) {
                         FilteredArrayNames.add(dataNames);
                     }
                 }

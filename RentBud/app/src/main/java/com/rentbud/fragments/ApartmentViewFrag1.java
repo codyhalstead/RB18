@@ -2,6 +2,8 @@ package com.rentbud.fragments;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -16,9 +18,9 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,12 +33,9 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.cody.rentbud.R;
-import com.rentbud.activities.ApartmentViewActivity;
-import com.rentbud.activities.BaseActivity;
 import com.rentbud.activities.MainActivity;
-import com.rentbud.activities.NewApartmentWizard;
-import com.rentbud.activities.NewLeaseFormActivity;
 import com.rentbud.adapters.RecyclerViewAdapter;
+import com.rentbud.helpers.ApartmentTenantViewModel;
 import com.rentbud.helpers.ImageViewDialog;
 import com.rentbud.helpers.MainArrayDataMethods;
 import com.rentbud.model.Apartment;
@@ -50,6 +49,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 import static android.app.Activity.RESULT_OK;
+import static android.support.constraint.Constraints.TAG;
 
 public class ApartmentViewFrag1 extends Fragment {
     Apartment apartment;
@@ -64,7 +64,6 @@ public class ApartmentViewFrag1 extends Fragment {
     String mainPic;
     MainArrayDataMethods dataMethods;
     Lease currentLease;
-
     RecyclerView recyclerView;
     RecyclerViewAdapter adapter;
     ArrayList<String> otherPics;
@@ -100,10 +99,14 @@ public class ApartmentViewFrag1 extends Fragment {
             }
         } else {
             //If new
-            Bundle bundle = getArguments();
+            this.apartment = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getApartment().getValue();
+            this.currentLease = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getLease().getValue();
+            this.primaryTenant = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getPrimaryTenant().getValue();
+            this.secondaryTenants = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getSecondaryTenants().getValue();
+        //    Bundle bundle = getArguments();
             //Get apartment item
-            int apartmentID = bundle.getInt("apartmentID");
-            this.apartment = dataMethods.getCachedApartmentByApartmentID(apartmentID);
+        //    apartment = bundle.getParcelable("apartment");
+            //this.apartment = dataMethods.getCachedApartmentByApartmentID(apartmentID);
             //Get other pics
             if (apartment.getOtherPics() != null) {
                 otherPics = apartment.getOtherPics();
@@ -114,12 +117,22 @@ public class ApartmentViewFrag1 extends Fragment {
             if (apartment.getMainPic() != null) {
                 mainPic = apartment.getMainPic();
             }
-            currentLease = dataMethods.getCachedActiveLeaseByApartmentID(apartmentID);
+        //    currentLease = dataMethods.getCachedActiveLeaseByApartmentID(apartment.getId());
             //Get all tenants
-            Pair<Tenant, ArrayList<Tenant>> tenants = dataMethods.getCachedPrimaryAndSecondaryTenantsByLease(currentLease);
-            this.primaryTenant = tenants.first;
-            this.secondaryTenants = tenants.second;
+        //    Pair<Tenant, ArrayList<Tenant>> tenants = dataMethods.getCachedPrimaryAndSecondaryTenantsByLease(currentLease);
+        //    this.primaryTenant = tenants.first;
+        //    this.secondaryTenants = tenants.second;
         }
+        ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getLease().observe(this, new Observer<Lease>() {
+            @Override
+            public void onChanged(@Nullable Lease changedLease) {
+                currentLease = changedLease;
+                Log.d(TAG, "onChanged: WOAAAAAAAAAAAAAAAAAAAAAAAH");
+                fillTextViews();
+            }
+        });
+
+
         getActivity().setTitle("Apartment View");
     }
 
@@ -347,6 +360,7 @@ public class ApartmentViewFrag1 extends Fragment {
                 street2TV.setVisibility(View.GONE);
             } else {
                 street2TV.setVisibility(View.VISIBLE);
+                street2TV.setText(apartment.getStreet2());
             }
         } else {
             street2TV.setVisibility(View.GONE);
@@ -374,6 +388,8 @@ public class ApartmentViewFrag1 extends Fragment {
             if (currentLease != null) {
                 leaseStartTV.setText(formatter.format(currentLease.getLeaseStart()));
                 leaseEndTV.setText(formatter.format(currentLease.getLeaseEnd()));
+            } else {
+                leaseStartTV.setText("WWWWWWW");
             }
             if (!secondaryTenants.isEmpty()) {
                 secondaryTenantsLL.setVisibility(View.VISIBLE);

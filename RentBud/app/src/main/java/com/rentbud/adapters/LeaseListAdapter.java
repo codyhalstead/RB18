@@ -40,6 +40,7 @@ public class LeaseListAdapter extends BaseAdapter implements Filterable {
     private Context context;
     private String searchText;
     private Date date;
+    private Date todaysDate;
     private ColorStateList highlightColor;
     MainArrayDataMethods dataMethods;
 
@@ -52,6 +53,7 @@ public class LeaseListAdapter extends BaseAdapter implements Filterable {
         this.date = dateToHighlight;
         this.highlightColor = highlightColor;
         this.dataMethods = new MainArrayDataMethods();
+        this.todaysDate = new Date(System.currentTimeMillis());
     }
 
     static class ViewHolder {
@@ -65,7 +67,10 @@ public class LeaseListAdapter extends BaseAdapter implements Filterable {
 
     @Override
     public int getCount() {
-        return filteredResults.size();
+        if(filteredResults != null) {
+            return filteredResults.size();
+        }
+        return 0;
     }
 
     @Override
@@ -124,6 +129,11 @@ public class LeaseListAdapter extends BaseAdapter implements Filterable {
             SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
             viewHolder.leaseStartDateTV.setText(formatter.format(lease.getLeaseStart()));
             viewHolder.leaseEndDateTV.setText(formatter.format(lease.getLeaseEnd()));
+            if(todaysDate.compareTo(lease.getLeaseEnd()) > 0 || todaysDate.compareTo(lease.getLeaseStart()) < 0){
+                convertView.setBackgroundColor(convertView.getResources().getColor(R.color.lightGrey));
+            } else {
+                convertView.setBackgroundColor(convertView.getResources().getColor(R.color.white));
+            }
             if(date != null){
                 if(lease.getLeaseStart().equals(date)){
                     viewHolder.leaseStartDateTV.setTextColor(context.getResources().getColor(R.color.green_colorPrimaryDark));

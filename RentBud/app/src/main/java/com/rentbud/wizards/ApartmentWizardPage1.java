@@ -19,20 +19,11 @@ public class ApartmentWizardPage1 extends Page {
     public static final String APARTMENT_STATE_DATA_KEY = "apartment_state";
     public static final String APARTMENT_STATE_ID_DATA_KEY = "apartment_state_id";
     public static final String APARTMENT_ZIP_DATA_KEY = "apartment_zip";
+    public static final String WAS_PRELOADED = "apartmant_page_1_was_preloaded";
 
     public ApartmentWizardPage1(ModelCallbacks callbacks, String title) {
         super(callbacks, title);
-        Apartment apartment = NewApartmentWizard.apartmentToEdit;
-        // Log.d(TAG, "TenantWizardPage1: " + tenant.getFirstName());
-        if(apartment != null){
-            mData.putString(APARTMENT_ADDRESS_1_DATA_KEY, apartment.getStreet1());
-            mData.putString(APARTMENT_ADDRESS_2_DATA_KEY, apartment.getStreet2());
-            mData.putString(APARTMENT_CITY_DATA_KEY, apartment.getCity());
-            mData.putString(APARTMENT_STATE_DATA_KEY, apartment.getState());
-            mData.putInt(APARTMENT_STATE_ID_DATA_KEY, apartment.getStateID());
-            mData.putString(APARTMENT_ZIP_DATA_KEY, apartment.getZip());
-            this.notifyDataChanged();
-        }
+        mData.putBoolean(WAS_PRELOADED, false);
     }
 
     @Override

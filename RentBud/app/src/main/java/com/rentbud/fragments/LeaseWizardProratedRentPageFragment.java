@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +32,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
+import static android.support.constraint.Constraints.TAG;
+
 public class LeaseWizardProratedRentPageFragment extends android.support.v4.app.Fragment {
     private static final String ARG_KEY = "key";
 
@@ -41,7 +44,7 @@ public class LeaseWizardProratedRentPageFragment extends android.support.v4.app.
             firstProratedStartDateTV, lastProratedStartDateTV, firstProratedEndDateTV, lastProratedEndDateTV,
             firstProratedDayAmountTV, lastProratedDayAmountTV;
     private EditText firstProratedAmountET, lastProratedAmountET;
-    private LinearLayout recommendedFirstPriceLL, recommendedLastPriceLL, firstDateInfoLL, lastDateInfoLL;
+    private LinearLayout recommendedFirstPriceLL, recommendedLastPriceLL, firstDateInfoLL, lastDateInfoLL, firstProratedLL, lastProratedLL;
 
     private ArrayList<String> payments;
     private Date leaseEndDate;
@@ -86,18 +89,30 @@ public class LeaseWizardProratedRentPageFragment extends android.support.v4.app.
         lastProratedEndDateTV = rootView.findViewById(R.id.leaseWizardProratedLastPaymentRangeEndTV);
         firstProratedDayAmountTV = rootView.findViewById(R.id.leaseWizardFirstProratedDayAmountTV);
         lastProratedDayAmountTV = rootView.findViewById(R.id.leaseWizardLastProratedDayAmountTV);
-
+        firstProratedLL = rootView.findViewById(R.id.leaseWizardProratedFirstLL);
         firstProratedAmountET = rootView.findViewById(R.id.leaseWizardFirstProratedAmountET);
-        if (mPage.getData().getString(LeaseWizardProratedRentPage.LEASE_PRORATED_FIRST_PAYMENT_FORMATTED_STRING_DATA_KEY) != null) {
-            firstProratedAmountET.setText(mPage.getData().getString(LeaseWizardProratedRentPage.LEASE_PRORATED_FIRST_PAYMENT_FORMATTED_STRING_DATA_KEY));
+        if(mCallbacks.onGetPage("Page3").getData().getBoolean(LeaseWizardPage3.LEASE_IS_FIRST_PRORATED_REQUIRED_DATA_KEY)) {
+            if (mPage.getData().getString(LeaseWizardProratedRentPage.LEASE_PRORATED_FIRST_PAYMENT_FORMATTED_STRING_DATA_KEY) != null) {
+                firstProratedAmountET.setText(mPage.getData().getString(LeaseWizardProratedRentPage.LEASE_PRORATED_FIRST_PAYMENT_FORMATTED_STRING_DATA_KEY));
+            }
+            firstProratedAmountET.setSelection(firstProratedAmountET.getText().length());
+            mPage.getData().putBoolean(LeaseWizardProratedRentPage.LEASE_PRORATED_FIRST_SHOW_IN_REVIEW_DATA_KEY, true);
+        } else {
+            firstProratedLL.setVisibility(View.GONE);
+            mPage.getData().putBoolean(LeaseWizardProratedRentPage.LEASE_PRORATED_FIRST_SHOW_IN_REVIEW_DATA_KEY, false);
         }
-        firstProratedAmountET.setSelection(firstProratedAmountET.getText().length());
-
+        lastProratedLL = rootView.findViewById(R.id.leaseWizardProratedLastLL);
         lastProratedAmountET = rootView.findViewById(R.id.leaseWizardLastProratedAmountET);
-        if (mPage.getData().getString(LeaseWizardProratedRentPage.LEASE_PRORATED_LAST_PAYMENT_FORMATTED_STRING_DATA_KEY) != null) {
-            lastProratedAmountET.setText(mPage.getData().getString(LeaseWizardProratedRentPage.LEASE_PRORATED_LAST_PAYMENT_FORMATTED_STRING_DATA_KEY));
+        if(mCallbacks.onGetPage("Page3").getData().getBoolean(LeaseWizardPage3.LEASE_IS_LAST_PRORATED_REQUIRED_DATA_KEY)) {
+            if (mPage.getData().getString(LeaseWizardProratedRentPage.LEASE_PRORATED_LAST_PAYMENT_FORMATTED_STRING_DATA_KEY) != null) {
+                lastProratedAmountET.setText(mPage.getData().getString(LeaseWizardProratedRentPage.LEASE_PRORATED_LAST_PAYMENT_FORMATTED_STRING_DATA_KEY));
+            }
+            lastProratedAmountET.setSelection(lastProratedAmountET.getText().length());
+            mPage.getData().putBoolean(LeaseWizardProratedRentPage.LEASE_PRORATED_LAST_SHOW_IN_REVIEW_DATA_KEY, true);
+        } else {
+            lastProratedLL.setVisibility(View.GONE);
+            mPage.getData().putBoolean(LeaseWizardProratedRentPage.LEASE_PRORATED_LAST_SHOW_IN_REVIEW_DATA_KEY, false);
         }
-        lastProratedAmountET.setSelection(lastProratedAmountET.getText().length());
 
         recommendedFirstPriceLL = rootView.findViewById(R.id.leaseWizardProratedFirstRecommendedPriceLL);
         recommendedLastPriceLL = rootView.findViewById(R.id.leaseWizardProratedLastRecommendedPriceLL);

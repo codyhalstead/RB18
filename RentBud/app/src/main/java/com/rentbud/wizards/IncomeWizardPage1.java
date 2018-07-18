@@ -22,22 +22,24 @@ public class IncomeWizardPage1 extends Page {
     public static final String INCOME_AMOUNT_STRING_DATA_KEY = "income_amount";
     public static final String INCOME_TYPE_ID_DATA_KEY = "income_type_id";
     public static final String INCOME_TYPE_DATA_KEY = "income_type";
+    public static final String WAS_PRELOADED = "income_page_1_was_preloaded";
 
     public IncomeWizardPage1(ModelCallbacks callbacks, String title) {
         super(callbacks, title);
-        PaymentLogEntry paymentLogEntry = NewIncomeWizard.incomeToEdit;
-        if(paymentLogEntry != null){
-            SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-            String dateString = formatter.format(paymentLogEntry.getDate());
-            mData.putString(INCOME_DATE_STRING_DATA_KEY, dateString);
-            BigDecimal amountBD = paymentLogEntry.getAmount();
-            String formatted = NumberFormat.getCurrencyInstance().format(amountBD);
-            mData.putString(INCOME_AMOUNT_FORMATTED_STRING_DATA_KEY, formatted);
-            mData.putString(INCOME_AMOUNT_STRING_DATA_KEY, amountBD.toPlainString());
-            mData.putInt(INCOME_TYPE_ID_DATA_KEY, paymentLogEntry.getTypeID());
-            mData.putString(INCOME_TYPE_DATA_KEY, paymentLogEntry.getTypeLabel());
-            this.notifyDataChanged();
-        }
+        mData.putBoolean(WAS_PRELOADED, false);
+        //PaymentLogEntry paymentLogEntry = NewIncomeWizard.incomeToEdit;
+        //if(paymentLogEntry != null){
+        //    SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+        //    String dateString = formatter.format(paymentLogEntry.getDate());
+        //    mData.putString(INCOME_DATE_STRING_DATA_KEY, dateString);
+        //    BigDecimal amountBD = paymentLogEntry.getAmount();
+        //    String formatted = NumberFormat.getCurrencyInstance().format(amountBD);
+        //    mData.putString(INCOME_AMOUNT_FORMATTED_STRING_DATA_KEY, formatted);
+        //    mData.putString(INCOME_AMOUNT_STRING_DATA_KEY, amountBD.toPlainString());
+        //    mData.putInt(INCOME_TYPE_ID_DATA_KEY, paymentLogEntry.getTypeID());
+        //    mData.putString(INCOME_TYPE_DATA_KEY, paymentLogEntry.getTypeLabel());
+        //    this.notifyDataChanged();
+        //}
     }
 
     @Override

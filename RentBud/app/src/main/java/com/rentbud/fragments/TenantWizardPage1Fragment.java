@@ -3,6 +3,7 @@ package com.rentbud.fragments;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.Selection;
 import android.text.TextWatcher;
@@ -18,6 +19,7 @@ import android.widget.TextView;
 import com.example.android.wizardpager.wizard.ui.PageFragmentCallbacks;
 import com.example.cody.rentbud.R;
 import com.rentbud.activities.NewTenantWizard;
+import com.rentbud.model.Tenant;
 import com.rentbud.wizards.TenantWizardPage1;
 
 public class TenantWizardPage1Fragment  extends android.support.v4.app.Fragment {
@@ -32,6 +34,7 @@ public class TenantWizardPage1Fragment  extends android.support.v4.app.Fragment 
     private boolean deletingHyphen;
     private int hyphenStart;
     private boolean deletingBackward;
+    private boolean isEdit;
 
 
     public static TenantWizardPage1Fragment create(String key) {
@@ -53,6 +56,15 @@ public class TenantWizardPage1Fragment  extends android.support.v4.app.Fragment 
         Bundle args = getArguments();
         mKey = args.getString(ARG_KEY);
         mPage = (TenantWizardPage1) mCallbacks.onGetPage(mKey);
+        isEdit = false;
+        Bundle extras = mPage.getData();
+        if (extras != null) {
+            Tenant tenantToEdit = extras.getParcelable("tenantToEdit");
+            if (tenantToEdit != null) {
+                loadDataForEdit(tenantToEdit);
+                isEdit = true;
+            }
+        }
     }
 
     @Override
@@ -90,7 +102,7 @@ public class TenantWizardPage1Fragment  extends android.support.v4.app.Fragment 
         emailET.setSelection(emailET.getText().length());
 
         newTenantHeaderTV = (rootView).findViewById(R.id.tenantWizardPageOneHeader);
-        if(NewTenantWizard.tenantToEdit != null){
+        if(isEdit){
             newTenantHeaderTV.setText("Edit Tenant Info");
         }
 
@@ -166,6 +178,12 @@ public class TenantWizardPage1Fragment  extends android.support.v4.app.Fragment 
             @Override
             public void afterTextChanged(Editable editable) {
                 mPage.getData().putString(TenantWizardPage1.TENANT_EMAIL_DATA_KEY, editable.toString());
+                mPage.notifyDataChanged();
+            }
+        });
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
                 mPage.notifyDataChanged();
             }
         });
@@ -248,6 +266,20 @@ public class TenantWizardPage1Fragment  extends android.support.v4.app.Fragment 
             }
         };
         return textWatcher;
+    }
+
+    private void loadDataForEdit(Tenant tenantToEdit) {
+        if (!mPage.getData().getBoolean(TenantWizardPage1.WAS_PRELOADED)) {
+            //First name
+            mPage.getData().putString(TenantWizardPage1.TENANT_FIRST_NAME_DATA_KEY, tenantToEdit.getFirstName());
+            //Last name
+            mPage.getData().putString(TenantWizardPage1.TENANT_LAST_NAME_DATA_KEY, tenantToEdit.getLastName());
+            //Phone
+            mPage.getData().putString(TenantWizardPage1.TENANT_PHONE_DATA_KEY, tenantToEdit.getPhone());
+            //Email
+            mPage.getData().putString(TenantWizardPage1.TENANT_EMAIL_DATA_KEY, tenantToEdit.getEmail());
+            mPage.getData().putBoolean(TenantWizardPage1.WAS_PRELOADED, true);
+        }
     }
 
 }

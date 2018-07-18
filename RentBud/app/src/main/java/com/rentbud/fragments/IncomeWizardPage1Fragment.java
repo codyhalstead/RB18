@@ -25,6 +25,7 @@ import com.example.cody.rentbud.R;
 import com.rentbud.activities.MainActivity;
 import com.rentbud.activities.NewIncomeWizard;
 import com.rentbud.helpers.NewItemCreatorDialog;
+import com.rentbud.model.PaymentLogEntry;
 import com.rentbud.wizards.ExpenseWizardPage1;
 import com.rentbud.wizards.IncomeWizardPage1;
 import com.rentbud.sqlite.DatabaseHandler;
@@ -56,6 +57,7 @@ public class IncomeWizardPage1Fragment extends android.support.v4.app.Fragment {
     private BigDecimal amount;
     private Date incomeDate;
     private DatabaseHandler dbHandler;
+    boolean isEdit;
 
     public static IncomeWizardPage1Fragment create(String key) {
         Bundle args = new Bundle();
@@ -78,6 +80,23 @@ public class IncomeWizardPage1Fragment extends android.support.v4.app.Fragment {
         mPage = (IncomeWizardPage1) mCallbacks.onGetPage(mKey);
         amount = new BigDecimal(0);
         dbHandler = new DatabaseHandler(getContext());
+        isEdit = false;
+        Bundle extras = mPage.getData();
+        if (extras != null) {
+            PaymentLogEntry incomeToEdit = extras.getParcelable("incomeToEdit");
+            if (incomeToEdit != null) {
+                loadDataForEdit(incomeToEdit);
+                isEdit = true;
+            } else {
+                preloadData(extras);
+            }
+        } else {
+            incomeDate = null;
+            amount = new BigDecimal(0);
+            String formatted = NumberFormat.getCurrencyInstance().format(amount);
+            mPage.getData().putString(IncomeWizardPage1.INCOME_AMOUNT_FORMATTED_STRING_DATA_KEY, formatted);
+            mPage.getData().putString(IncomeWizardPage1.INCOME_AMOUNT_STRING_DATA_KEY, amount.toPlainString());
+        }
     }
 
     @Override
@@ -87,7 +106,7 @@ public class IncomeWizardPage1Fragment extends android.support.v4.app.Fragment {
         (rootView.findViewById(android.R.id.title)).setVisibility(View.GONE);
 
         dateTV = rootView.findViewById(R.id.incomeWizardDateTV);
-        if(mPage.getData().getString(IncomeWizardPage1.INCOME_DATE_STRING_DATA_KEY) != null) {
+        if (mPage.getData().getString(IncomeWizardPage1.INCOME_DATE_STRING_DATA_KEY) != null) {
             String dateString = mPage.getData().getString(IncomeWizardPage1.INCOME_DATE_STRING_DATA_KEY);
             DateFormat formatFrom = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
             try {
@@ -99,7 +118,7 @@ public class IncomeWizardPage1Fragment extends android.support.v4.app.Fragment {
         }
 
         amountET = rootView.findViewById(R.id.incomeWizardAmountET);
-        if(mPage.getData().getString(IncomeWizardPage1.INCOME_AMOUNT_FORMATTED_STRING_DATA_KEY) != null) {
+        if (mPage.getData().getString(IncomeWizardPage1.INCOME_AMOUNT_FORMATTED_STRING_DATA_KEY) != null) {
             amountET.setText(mPage.getData().getString(IncomeWizardPage1.INCOME_AMOUNT_FORMATTED_STRING_DATA_KEY));
         }
         amountET.setSelection(amountET.getText().length());
@@ -110,7 +129,7 @@ public class IncomeWizardPage1Fragment extends android.support.v4.app.Fragment {
         addNewTypeBtn = rootView.findViewById(R.id.incomeWizardAddNewTypeBtn);
 
         newIncomeHeaderTV = rootView.findViewById(R.id.incomeWizardPageOneHeader);
-        if(NewIncomeWizard.incomeToEdit != null){
+        if (isEdit) {
             newIncomeHeaderTV.setText("Edit Income Info");
         }
 
@@ -211,7 +230,7 @@ public class IncomeWizardPage1Fragment extends android.support.v4.app.Fragment {
             public void onClick(View view) {
                 NewItemCreatorDialog dialog = new NewItemCreatorDialog(getContext());
                 dialog.show();
-                dialog.setDialogResult(new NewItemCreatorDialog.NewItemDialogResult(){
+                dialog.setDialogResult(new NewItemCreatorDialog.NewItemDialogResult() {
                     @Override
                     public void finish(String string) {
                         dbHandler.addNewIncomeType(string);
@@ -223,12 +242,12 @@ public class IncomeWizardPage1Fragment extends android.support.v4.app.Fragment {
                 });
             }
         });
-        if(mPage.getData().getString(IncomeWizardPage1.INCOME_AMOUNT_STRING_DATA_KEY) == null) {
-            String formatted = NumberFormat.getCurrencyInstance().format(amount);
-            mPage.getData().putString(IncomeWizardPage1.INCOME_AMOUNT_FORMATTED_STRING_DATA_KEY, formatted);
-            mPage.getData().putString(IncomeWizardPage1.INCOME_AMOUNT_STRING_DATA_KEY, amount.toPlainString());
-        }
-        if(mPage.getData().getString(IncomeWizardPage1.INCOME_TYPE_DATA_KEY) != null){
+        //if(mPage.getData().getString(IncomeWizardPage1.INCOME_AMOUNT_STRING_DATA_KEY) == null) {
+        //    String formatted = NumberFormat.getCurrencyInstance().format(amount);
+        //    mPage.getData().putString(IncomeWizardPage1.INCOME_AMOUNT_FORMATTED_STRING_DATA_KEY, formatted);
+        //    mPage.getData().putString(IncomeWizardPage1.INCOME_AMOUNT_STRING_DATA_KEY, amount.toPlainString());
+        //}
+        if (mPage.getData().getString(IncomeWizardPage1.INCOME_TYPE_DATA_KEY) != null) {
             int spinnerPosition = adapter.getPosition(mPage.getData().getString(IncomeWizardPage1.INCOME_TYPE_DATA_KEY));
             typeSpinner.setSelection(spinnerPosition);
             //typeSpinner.setSelection(mPage.getData().getInt(IncomeWizardPage1.INCOME_TYPE_ID_DATA_KEY));
@@ -292,13 +311,83 @@ public class IncomeWizardPage1Fragment extends android.support.v4.app.Fragment {
         this.typeSpinner.setAdapter(adapter);
     }
 
-    public void updateIncomeTypeSpinner(){
+    public void updateIncomeTypeSpinner() {
         List<String> spinnerArray = new ArrayList<>();
         for (Map.Entry<String, Integer> entry : MainActivity.incomeTypeLabels.entrySet()) {
             spinnerArray.add(entry.getKey());
         }
         adapter.clear();
         adapter.addAll(spinnerArray);
+    }
+
+    private void preloadDate(Bundle bundle) {
+        if (mPage.getData().getString(IncomeWizardPage1.INCOME_DATE_STRING_DATA_KEY) != null) {
+            //If date exists (Was reloaded)
+            String dateString = mPage.getData().getString(IncomeWizardPage1.INCOME_DATE_STRING_DATA_KEY);
+            DateFormat formatFrom = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+            try {
+                incomeDate = formatFrom.parse(dateString);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        } else if (bundle.getString("preloadedDate") != null) {
+            //Date does not exist, check if need to preload
+            String dateString = bundle.getString("preloadedDate");
+            mPage.getData().putString(IncomeWizardPage1.INCOME_DATE_STRING_DATA_KEY, dateString);
+            DateFormat formatFrom = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+            try {
+                incomeDate = formatFrom.parse(dateString);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        } else {
+            incomeDate = null;
+        }
+    }
+
+    private void preloadAmount(Bundle bundle) {
+        if (mPage.getData().getString(IncomeWizardPage1.INCOME_AMOUNT_STRING_DATA_KEY) != null) {
+            amount = new BigDecimal(mPage.getData().getString(IncomeWizardPage1.INCOME_AMOUNT_STRING_DATA_KEY)).setScale(2, BigDecimal.ROUND_FLOOR).divide(new BigDecimal(100), BigDecimal.ROUND_FLOOR);
+        } else {
+            amount = new BigDecimal(0);
+            String formatted = NumberFormat.getCurrencyInstance().format(amount);
+            mPage.getData().putString(IncomeWizardPage1.INCOME_AMOUNT_FORMATTED_STRING_DATA_KEY, formatted);
+            mPage.getData().putString(IncomeWizardPage1.INCOME_AMOUNT_STRING_DATA_KEY, amount.toPlainString());
+        }
+    }
+
+    private void preloadType(Bundle bundle) {
+        //if( mPage.getData().getString(ExpenseWizardPage1.EXPENSE_TYPE_DATA_KEY) != null){
+
+        //} else {
+
+        //}
+    }
+
+    private void preloadData(Bundle bundle) {
+        preloadDate(bundle);
+        preloadAmount(bundle);
+        preloadType(bundle);
+    }
+
+    private void loadDataForEdit(PaymentLogEntry incomeToEdit) {
+        if (!mPage.getData().getBoolean(IncomeWizardPage1.WAS_PRELOADED)) {
+            //Date
+            SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+            String dateString = formatter.format(incomeToEdit.getDate());
+            mPage.getData().putString(IncomeWizardPage1.INCOME_DATE_STRING_DATA_KEY, dateString);
+            incomeDate = incomeToEdit.getDate();
+            //Amount
+            BigDecimal amountBD = incomeToEdit.getAmount();
+            String formatted = NumberFormat.getCurrencyInstance().format(amountBD);
+            mPage.getData().putString(IncomeWizardPage1.INCOME_AMOUNT_FORMATTED_STRING_DATA_KEY, formatted);
+            mPage.getData().putString(IncomeWizardPage1.INCOME_AMOUNT_STRING_DATA_KEY, amountBD.toPlainString());
+            amount = incomeToEdit.getAmount();
+            //Type
+            mPage.getData().putInt(IncomeWizardPage1.INCOME_TYPE_ID_DATA_KEY, incomeToEdit.getTypeID());
+            mPage.getData().putString(IncomeWizardPage1.INCOME_TYPE_DATA_KEY, incomeToEdit.getTypeLabel());
+            mPage.getData().putBoolean(ExpenseWizardPage1.WAS_PRELOADED, true);
+        }
     }
 
 }

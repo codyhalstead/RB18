@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,7 +28,10 @@ import com.rentbud.adapters.IncomeListAdapter;
 import com.rentbud.model.PaymentLogEntry;
 import com.rentbud.sqlite.DatabaseHandler;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DateFormat;
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -35,12 +39,14 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
+import static android.support.constraint.Constraints.TAG;
+
 /**
  * Created by Cody on 3/23/2018.
  */
 
 public class IncomeListFragment extends android.support.v4.app.Fragment implements AdapterView.OnItemClickListener, View.OnClickListener {
-    TextView noIncomeTV;
+    TextView noIncomeTV, totalAmountTV, totalAmountLabelTV;
     EditText searchBarET;
     Button dateRangeStartBtn, dateRangeEndBtn;
     IncomeListAdapter incomeListAdapter;
@@ -51,6 +57,7 @@ public class IncomeListFragment extends android.support.v4.app.Fragment implemen
     private DatePickerDialog.OnDateSetListener dateSetFilterStartListener, dateSetFilterEndListener;
     private DatabaseHandler db;
     private ArrayList<PaymentLogEntry> currentFilteredIncome;
+    private BigDecimal total;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -67,6 +74,8 @@ public class IncomeListFragment extends android.support.v4.app.Fragment implemen
         this.dateRangeStartBtn.setOnClickListener(this);
         this.dateRangeEndBtn = view.findViewById(R.id.moneyListDateRangeEndBtn);
         this.dateRangeEndBtn.setOnClickListener(this);
+        this.totalAmountLabelTV = view.findViewById(R.id.moneyListTotalAmountLabelTV);
+        this.totalAmountTV = view.findViewById(R.id.moneyListTotalAmountTV);
         this.listView = view.findViewById(R.id.mainMoneyListView);
         this.db = new DatabaseHandler(getContext());
         if(savedInstanceState != null) {
@@ -97,6 +106,10 @@ public class IncomeListFragment extends android.support.v4.app.Fragment implemen
             } else {
                 this.currentFilteredIncome = new ArrayList<>();
             }
+            if (savedInstanceState.getString("totalString") != null) {
+                String totalString = savedInstanceState.getString("totalString");
+                this.total = new BigDecimal(totalString);
+            }
         } else {
             Date endDate = Calendar.getInstance().getTime();
             Calendar calendar = Calendar.getInstance();
@@ -110,7 +123,7 @@ public class IncomeListFragment extends android.support.v4.app.Fragment implemen
             SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
             dateRangeStartBtn.setText(formatter.format(filterDateStart));
             dateRangeEndBtn.setText(formatter.format(filterDateEnd));
-
+            total = getTotal(currentFilteredIncome);
         }
         setUpdateSelectedDateListeners();
         getActivity().setTitle("Income View");
@@ -121,6 +134,13 @@ public class IncomeListFragment extends android.support.v4.app.Fragment implemen
         this.accentColor = getActivity().getResources().getColorStateList(colorValue.resourceId);
         setUpListAdapter();
         setUpSearchBar();
+        setTotalTV();
+        incomeListAdapter.setOnDataChangeListener(new IncomeListAdapter.OnDataChangeListener() {
+            public void onDataChanged(ArrayList<PaymentLogEntry> filteredResults) {
+                total = getTotal(filteredResults);
+                setTotalTV();
+            }
+        });
     }
 
     @Override
@@ -139,7 +159,7 @@ public class IncomeListFragment extends android.support.v4.app.Fragment implemen
 
                 incomeListAdapter.updateResults(currentFilteredIncome);
                 incomeListAdapterNeedsRefreshed = false;
-                //incomeListAdapter.getFilter().filter("");
+                //moneyListAdapter.getFilter().filter("");
                 searchBarET.setText(searchBarET.getText());
                 searchBarET.setSelection(searchBarET.getText().length());
             }
@@ -154,13 +174,15 @@ public class IncomeListFragment extends android.support.v4.app.Fragment implemen
                 //When user changed the Text
                 if (incomeListAdapter != null) {
                     incomeListAdapter.getFilter().filter(cs);
-
                 }
             }
 
             @Override
             public void afterTextChanged(Editable editable) {
                 //apartmentListAdapter.notifyDataSetChanged();
+                //moneyListAdapter.notifyDataSetChanged();
+                //total = getTotal(moneyListAdapter.getFilteredResults());
+                //setTotalTV();
             }
 
             @Override
@@ -170,6 +192,8 @@ public class IncomeListFragment extends android.support.v4.app.Fragment implemen
             }
         });
     }
+
+
 
     private void setUpListAdapter() {
         if (currentFilteredIncome != null) {
@@ -259,6 +283,8 @@ public class IncomeListFragment extends android.support.v4.app.Fragment implemen
                 dateRangeStartBtn.setText(formatter.format(filterDateStart));
                 incomeListAdapter.updateResults(currentFilteredIncome);
                 incomeListAdapter.getFilter().filter(searchBarET.getText());
+                //total = getTotal(moneyListAdapter.getFilteredResults());
+                //setTotalTV();
             }
         };
         dateSetFilterEndListener = new DatePickerDialog.OnDateSetListener() {
@@ -286,6 +312,8 @@ public class IncomeListFragment extends android.support.v4.app.Fragment implemen
                 dateRangeEndBtn.setText(formatter.format(filterDateEnd));
                 incomeListAdapter.updateResults(currentFilteredIncome);
                 incomeListAdapter.getFilter().filter(searchBarET.getText());
+               // total = getTotal(moneyListAdapter.getFilteredResults());
+                //setTotalTV();
             }
         };
     }
@@ -303,7 +331,33 @@ public class IncomeListFragment extends android.support.v4.app.Fragment implemen
         if (currentFilteredIncome != null) {
             outState.putParcelableArrayList("filteredIncome", currentFilteredIncome);
         }
+        if(total != null){
+            String totalString = total.toPlainString();
+            outState.putString("totalString", totalString);
+        }
     }
 
+    private BigDecimal getTotal(ArrayList<PaymentLogEntry> filteredIncomeArray) {
+        BigDecimal total = new BigDecimal(0);
+        if (filteredIncomeArray != null) {
+            if (!filteredIncomeArray.isEmpty()) {
+                for (int i = 0; i < filteredIncomeArray.size(); i++) {
+                    total = total.add(filteredIncomeArray.get(i).getAmount());
+                }
+            }
+        }
+        return total;
+    }
+
+    private void setTotalTV() {
+        totalAmountTV.setTextColor(getActivity().getResources().getColor(R.color.green_colorPrimaryDark));
+        if (total != null) {
+            BigDecimal displayVal = total.setScale(2, RoundingMode.HALF_EVEN);
+            NumberFormat usdCostFormat = NumberFormat.getCurrencyInstance(Locale.US);
+            usdCostFormat.setMinimumFractionDigits(2);
+            usdCostFormat.setMaximumFractionDigits(2);
+            totalAmountTV.setText(usdCostFormat.format(displayVal.doubleValue()));
+        }
+    }
 
 }

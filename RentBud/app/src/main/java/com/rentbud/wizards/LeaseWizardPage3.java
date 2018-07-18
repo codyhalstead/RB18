@@ -37,20 +37,20 @@ public class LeaseWizardPage3 extends Page {
 
     public LeaseWizardPage3(ModelCallbacks callbacks, String title) {
         super(callbacks, title);
-        Lease lease = NewLeaseWizard.leaseToEdit;
-        if(lease != null){
-            BigDecimal rentCost = lease.getMonthlyRentCost();
-            String formattedRentCost = NumberFormat.getCurrencyInstance().format(rentCost);
-            mData.putString(LEASE_RENT_COST_FORMATTED_STRING_DATA_KEY, formattedRentCost);
-           // mData.putString(LEASE_PAYMENT_FREQUENCY_STRING_DATA_KEY, );
-            //mData.putString(LEASE_DUE_DATE_STRING_DATA_KEY, );
-            mData.putString(LEASE_RENT_COST_DATA_KEY, rentCost.toPlainString());
-            //mData.putInt(LEASE_PAYMENT_FREQUENCY_DATA_KEY,); //Todo
-            mData.putInt(LEASE_DUE_DATE_DATA_KEY, lease.getPaymentDay());
-            //mData.putStringArrayList(LEASE_PAYMENT_DATES_ARRAY_DATA_KEY, );
-            //mData.putBoolean(LEASE_NEED_BRANCH, );
-            this.notifyDataChanged();
-        }
+        //Lease lease = NewLeaseWizard.leaseToEdit;
+        //if(lease != null){
+        //    BigDecimal rentCost = lease.getMonthlyRentCost();
+        //    String formattedRentCost = NumberFormat.getCurrencyInstance().format(rentCost);
+        //    mData.putString(LEASE_RENT_COST_FORMATTED_STRING_DATA_KEY, formattedRentCost);
+        //   // mData.putString(LEASE_PAYMENT_FREQUENCY_STRING_DATA_KEY, );
+        //    //mData.putString(LEASE_DUE_DATE_STRING_DATA_KEY, );
+        //    mData.putString(LEASE_RENT_COST_DATA_KEY, rentCost.toPlainString());
+        //    //mData.putInt(LEASE_PAYMENT_FREQUENCY_DATA_KEY,); //Todo
+        //    mData.putInt(LEASE_DUE_DATE_DATA_KEY, lease.getPaymentDay());
+        //    //mData.putStringArrayList(LEASE_PAYMENT_DATES_ARRAY_DATA_KEY, );
+        //    mData.putBoolean(LEASE_NEED_BRANCH, );
+        //    this.notifyDataChanged();
+        //}
     }
     protected ArrayList<String> mChoices = new ArrayList<String>();
     private List<Branch> mBranches = new ArrayList<>();

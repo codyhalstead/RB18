@@ -17,6 +17,7 @@ import android.widget.TextView;
 import com.example.cody.rentbud.R;
 import com.rentbud.helpers.MainArrayDataMethods;
 import com.rentbud.model.ExpenseLogEntry;
+import com.rentbud.model.PaymentLogEntry;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -38,6 +39,7 @@ public class ExpenseListAdapter extends BaseAdapter implements Filterable {
     private ColorStateList highlightColor;
     MainArrayDataMethods dataMethods;
     private Date todaysDate;
+    ExpenseListAdapter.OnDataChangeListener mOnDataChangeListener;
 
     public ExpenseListAdapter(Context context, ArrayList<ExpenseLogEntry> expenseArray, ColorStateList highlightColor) {
         super();
@@ -50,6 +52,10 @@ public class ExpenseListAdapter extends BaseAdapter implements Filterable {
         this.todaysDate = new Date(System.currentTimeMillis());
     }
 
+    public void setOnDataChangeListener(ExpenseListAdapter.OnDataChangeListener onDataChangeListener){
+        mOnDataChangeListener = onDataChangeListener;
+    }
+
     static class ViewHolder {
         TextView amountTV;
         TextView dateTV;
@@ -59,7 +65,10 @@ public class ExpenseListAdapter extends BaseAdapter implements Filterable {
 
     @Override
     public int getCount() {
-        return filteredResults.size();
+        if(filteredResults != null) {
+            return filteredResults.size();
+        }
+        return 0;
     }
 
     @Override
@@ -99,11 +108,13 @@ public class ExpenseListAdapter extends BaseAdapter implements Filterable {
             usdCostFormat.setMinimumFractionDigits(2);
             usdCostFormat.setMaximumFractionDigits(2);
 
-            viewHolder.amountTV.setText("-" + usdCostFormat.format(displayVal.doubleValue()));
+            viewHolder.amountTV.setText(usdCostFormat.format(displayVal.doubleValue()));
             SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
             viewHolder.dateTV.setText(formatter.format(expense.getDate()));
             if( todaysDate.compareTo(expense.getDate()) < 0){
-                viewHolder.amountTV.setTextColor(context.getResources().getColor(R.color.text_light));
+                convertView.setBackgroundColor(convertView.getResources().getColor(R.color.lightGrey));
+            } else {
+                convertView.setBackgroundColor(convertView.getResources().getColor(R.color.white));
             }
             viewHolder.typeTV.setText(expense.getTypeLabel());
 
@@ -159,9 +170,16 @@ public class ExpenseListAdapter extends BaseAdapter implements Filterable {
             @Override
             protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
                 filteredResults = (ArrayList<ExpenseLogEntry>) filterResults.values;
+                if(mOnDataChangeListener != null){
+                    mOnDataChangeListener.onDataChanged(filteredResults);
+                }
                 notifyDataSetChanged();
             }
         };
+    }
+
+    public interface OnDataChangeListener{
+        void onDataChanged(ArrayList<ExpenseLogEntry> filteredExpenses);
     }
 
     //Retrieve filtered results

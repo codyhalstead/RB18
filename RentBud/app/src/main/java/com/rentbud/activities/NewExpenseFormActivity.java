@@ -155,7 +155,7 @@ public class NewExpenseFormActivity extends BaseActivity {
                 //Create new Tenant object with input data and add it to the database
                 //Set result success, close this activity
                 if (!isEdit) {
-                    ExpenseLogEntry expense = new ExpenseLogEntry(id, expenseDate, currentAmount, 0, description, typeID, typeLabel, null);
+                    ExpenseLogEntry expense = new ExpenseLogEntry(id, expenseDate, currentAmount, 0, 0, 0, description, typeID, typeLabel, null);
                     databaseHandler.addExpenseLogEntry(expense, MainActivity.user.getId());
                     //MainActivity5.expenseList = databaseHandler.getUsersExpenses(MainActivity5.user);
                     setResult(RESULT_OK);

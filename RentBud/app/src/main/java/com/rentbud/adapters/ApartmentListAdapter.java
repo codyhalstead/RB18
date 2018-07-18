@@ -83,7 +83,10 @@ public class ApartmentListAdapter extends BaseAdapter implements Filterable {
 
     @Override
     public int getCount() {
-        return filteredResults.size();
+        if(filteredResults != null) {
+            return filteredResults.size();
+        }
+        return 0;
     }
 
     @Override

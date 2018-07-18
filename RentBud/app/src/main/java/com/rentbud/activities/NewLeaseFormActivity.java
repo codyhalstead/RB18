@@ -370,7 +370,7 @@ public class NewLeaseFormActivity extends BaseActivity implements View.OnClickLi
                 dialog4.show();
                 dialog4.setDialogResult(new TenantOrApartmentChooserDialog.OnTenantChooserDialogResult() {
                     @Override
-                    public void finish(Tenant tenantResult, Apartment apartmentResult) {
+                    public void finish(Tenant tenantResult, Apartment apartmentResult, Lease leaseResult) {
                         if (apartment != null) {
                             availableApartments.add(apartment);
                         }
@@ -414,7 +414,7 @@ public class NewLeaseFormActivity extends BaseActivity implements View.OnClickLi
                 dialog3.show();
                 dialog3.setDialogResult(new TenantOrApartmentChooserDialog.OnTenantChooserDialogResult() {
                     @Override
-                    public void finish(Tenant tenantResult, Apartment apartmentResult) {
+                    public void finish(Tenant tenantResult, Apartment apartmentResult, Lease leaseResult) {
                         if (primaryTenant != null) {
                             availableTenants.add(primaryTenant);
                         }
@@ -432,7 +432,7 @@ public class NewLeaseFormActivity extends BaseActivity implements View.OnClickLi
                 dialog5.show();
                 dialog5.setDialogResult(new TenantOrApartmentChooserDialog.OnTenantChooserDialogResult() {
                     @Override
-                    public void finish(Tenant tenantResult, Apartment apartmentResult) {
+                    public void finish(Tenant tenantResult, Apartment apartmentResult, Lease leaseResult) {
                         secondaryTenants.add(tenantResult);
                         availableTenants.remove(tenantResult);
                         setSecondaryTenantsTV();
@@ -446,7 +446,7 @@ public class NewLeaseFormActivity extends BaseActivity implements View.OnClickLi
                     dialog6.show();
                     dialog6.setDialogResult(new TenantOrApartmentChooserDialog.OnTenantChooserDialogResult() {
                         @Override
-                        public void finish(Tenant tenantResult, Apartment apartmentResult) {
+                        public void finish(Tenant tenantResult, Apartment apartmentResult, Lease leaseResult) {
                             secondaryTenants.remove(tenantResult);
                             availableTenants.add(tenantResult);
                             setSecondaryTenantsTV();
@@ -482,7 +482,7 @@ public class NewLeaseFormActivity extends BaseActivity implements View.OnClickLi
                         //BigDecimal depositWithheld = new BigDecimal(depositWithheldString);
 
                         Lease lease = new Lease(0, primaryTenant.getId(), secondaryTenantIDs, apartment.getId(), leaseStartDate, leaseEndDate,
-                                paymentDay, rentCost, deposit, depositWithheld, "");
+                                paymentDay, rentCost, deposit, "");
                         if (isEdit) {
                             lease.setId(this.currentLease.getId());
                             db.editLease(lease);
@@ -587,7 +587,7 @@ public class NewLeaseFormActivity extends BaseActivity implements View.OnClickLi
         this.leaseEndDate = currentLease.getLeaseEnd();
         this.rentCost = currentLease.getMonthlyRentCost();
         this.deposit = currentLease.getDeposit();
-        this.depositWithheld = currentLease.getDepositWithheld();
+        //this.depositWithheld = currentLease.getDepositWithheld();
     }
 
     public void setUpForNewLeaseWithPassedSecondaryTenant(Tenant passedTenant) {
@@ -668,7 +668,7 @@ public class NewLeaseFormActivity extends BaseActivity implements View.OnClickLi
         this.leaseEndDate = currentLease.getLeaseEnd();
         this.rentCost = currentLease.getMonthlyRentCost();
         this.deposit = currentLease.getDeposit();
-        this.depositWithheld = currentLease.getDepositWithheld();
+        //this.depositWithheld = currentLease.getDepositWithheld();
     }
 
     private void setUpForNewLeaseWithPassedApartment(Apartment passedApartment) {
@@ -768,7 +768,7 @@ public class NewLeaseFormActivity extends BaseActivity implements View.OnClickLi
         this.leaseEndDate = currentLease.getLeaseEnd();
         this.rentCost = currentLease.getMonthlyRentCost();
         this.deposit = currentLease.getDeposit();
-        this.depositWithheld = currentLease.getDepositWithheld();
+        //this.depositWithheld = currentLease.getDepositWithheld();
     }
 
     public Tenant findPassedTenant(int tenantID) {
@@ -838,13 +838,13 @@ public class NewLeaseFormActivity extends BaseActivity implements View.OnClickLi
     private void setDepositWithheldET() {
         //currentAmount = expenseToEdit.getAmount();
         //rentCostET.setText(currentLease.getMonthlyRentCost().toPlainString());
-        String s = currentLease.getDepositWithheld().toPlainString();
-        if (s.isEmpty()) return;
+        //String s = currentLease.getDepositWithheld().toPlainString();
+        //if (s.isEmpty()) return;
         //String cleanString = s.replaceAll("[$,.]", "");
         // rentCost = new BigDecimal(cleanString).setScale(2, BigDecimal.ROUND_FLOOR).divide(new BigDecimal(100), BigDecimal.ROUND_FLOOR);
-        String formatted = NumberFormat.getCurrencyInstance().format(depositWithheld);
-        depositWithheldET.setText(formatted);
-        depositWithheldET.setSelection(formatted.length());
+        //String formatted = NumberFormat.getCurrencyInstance().format(depositWithheld);
+        //depositWithheldET.setText(formatted);
+        //depositWithheldET.setSelection(formatted.length());
     }
 
     private void enableDepositWithheldET() {
@@ -862,16 +862,16 @@ public class NewLeaseFormActivity extends BaseActivity implements View.OnClickLi
 
             @Override
             public void afterTextChanged(Editable editable) {
-                if (depositWithheldET == null) return;
-                String s = editable.toString();
-                if (s.isEmpty()) return;
-                depositWithheldET.removeTextChangedListener(this);
-                String cleanString = s.replaceAll("[$,.]", "");
-                depositWithheld = new BigDecimal(cleanString).setScale(2, BigDecimal.ROUND_FLOOR).divide(new BigDecimal(100), BigDecimal.ROUND_FLOOR);
-                String formatted = NumberFormat.getCurrencyInstance().format(depositWithheld);
-                depositWithheldET.setText(formatted);
-                depositWithheldET.setSelection(formatted.length());
-                depositWithheldET.addTextChangedListener(this);
+                //if (depositWithheldET == null) return;
+                //String s = editable.toString();
+                //if (s.isEmpty()) return;
+                //depositWithheldET.removeTextChangedListener(this);
+                //String cleanString = s.replaceAll("[$,.]", "");
+                //depositWithheld = new BigDecimal(cleanString).setScale(2, BigDecimal.ROUND_FLOOR).divide(new BigDecimal(100), BigDecimal.ROUND_FLOOR);
+                //String formatted = NumberFormat.getCurrencyInstance().format(depositWithheld);
+                //depositWithheldET.setText(formatted);
+                //depositWithheldET.setSelection(formatted.length());
+                //depositWithheldET.addTextChangedListener(this);
             }
         });
     }

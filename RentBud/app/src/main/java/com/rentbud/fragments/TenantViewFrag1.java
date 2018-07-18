@@ -1,6 +1,7 @@
 package com.rentbud.fragments;
 
 import android.app.AlertDialog;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -21,6 +22,7 @@ import com.rentbud.activities.BaseActivity;
 import com.rentbud.activities.MainActivity;
 import com.rentbud.activities.NewLeaseFormActivity;
 import com.rentbud.activities.NewTenantWizard;
+import com.rentbud.helpers.ApartmentTenantViewModel;
 import com.rentbud.helpers.MainArrayDataMethods;
 import com.rentbud.model.Apartment;
 import com.rentbud.model.Lease;
@@ -34,7 +36,7 @@ import java.util.Locale;
 import static android.app.Activity.RESULT_OK;
 
 public class TenantViewFrag1 extends Fragment {
-    Tenant tenant;
+    Tenant tenantViewed, primaryTenant;
     ArrayList<Tenant> otherTenants;
     TextView firstNameTV, lastNameTV, renterStatusTV, phoneTV, leaseStartTV, leaseEndTV, notesTV, apartmentAddressTV, apartmentAddress2TV,
             leaseHolderTypeTV, emailTV, emergencyFirstNameTV, emergencyLastNameTV, getEmergencyPhoneTV;
@@ -54,81 +56,88 @@ public class TenantViewFrag1 extends Fragment {
         dataMethods = new MainArrayDataMethods();
         otherTenants = new ArrayList<>();
         if (savedInstanceState != null) {
-            tenant = savedInstanceState.getParcelable("tenant");
+            tenantViewed = savedInstanceState.getParcelable("tenant");
             apartment = savedInstanceState.getParcelable("apartment");
             currentLease = savedInstanceState.getParcelable("currentLease");
         } else {
-            Bundle bundle = getArguments();
-            int tenantID = bundle.getInt("tenantID");
-            tenant = dataMethods.getCachedTenantByTenantID(tenantID);
-            currentLease = dataMethods.getCachedActiveLeaseByTenantID(tenantID);
+            this.apartment = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getApartment().getValue();
+            this.currentLease = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getLease().getValue();
+            this.tenantViewed = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getViewedTenant().getValue();
+            this.otherTenants = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getSecondaryTenants().getValue();
+            //currentLease = dataMethods.getCachedActiveLeaseByTenantID(tenant.getId());
             //   int apartmentID = dataMethods.getCachedApartmentByApartmentID(currentLease.getApartmentID());
-            if (!tenant.getHasLease()) {
-                this.tenant = dataMethods.getCachedTenantByTenantID(tenantID);
-                this.apartment = null;
-            } else {
-                Pair<Tenant, ArrayList<Tenant>> tenants = dataMethods.getCachedSelectedTenantAndRoomMatesByLease(currentLease, tenantID);
-                this.tenant = tenants.first;
-                this.otherTenants = tenants.second;
-                this.apartment = dataMethods.getCachedApartmentByApartmentID(currentLease.getApartmentID());
-            }
+
         }
         getActivity().setTitle("Tenant View");
     }
 
 
     public void fillTextViews() {
-        firstNameTV.setText(tenant.getFirstName());
-        lastNameTV.setText(tenant.getLastName());
-        phoneTV.setText(tenant.getPhone());
-        emailTV.setText(tenant.getTenantEmail());
-        emergencyFirstNameTV.setText(tenant.getEmergencyFirstName());
-        emergencyLastNameTV.setText(tenant.getEmergencyLastName());
-        getEmergencyPhoneTV.setText(tenant.getEmergencyPhone());
-        if (!tenant.getHasLease()) {
-            renterStatusTV.setText("Not Currently Renting");
-            editLeaseBtn.setText("Create Lease");
-            apartmentAddressTV.setText("");
-            apartmentAddress2TV.setVisibility(View.GONE);
-            leaseLL.setVisibility(View.GONE);
-            leaseHolderTypeTV.setVisibility(View.GONE);
-
-        } else {
-            renterStatusTV.setText("Renting");
-            editLeaseBtn.setText("Edit Lease");
-            if (apartment != null) {
-                apartmentAddressTV.setText(apartment.getStreet1());
-                if(apartment.getStreet2() != null) {
-                    if (apartment.getStreet2().equals("")) {
-                        apartmentAddress2TV.setVisibility(View.GONE);
-                    } else {
-                        apartmentAddress2TV.setVisibility(View.VISIBLE);
-                        apartmentAddress2TV.setText(apartment.getStreet2());
-                    }
-                } else {
-                    apartmentAddress2TV.setVisibility(View.GONE);
-                }
-            }
-            if (tenant.getId() == currentLease.getPrimaryTenantID()) {
-                leaseHolderTypeTV.setText("Primary Tenant");
-            } else {
-                leaseHolderTypeTV.setText("Secondary Tenant");
-            }
-            if (currentLease.getLeaseStart() != null) {
-                leaseLL.setVisibility(View.VISIBLE);
-                leaseHolderTypeTV.setVisibility(View.VISIBLE);
-
-                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-                leaseStartTV.setText(formatter.format(currentLease.getLeaseStart()));
-                leaseEndTV.setText(formatter.format(currentLease.getLeaseEnd()));
-
-
-            } else {
+        if(tenantViewed != null) {
+            firstNameTV.setText(tenantViewed.getFirstName());
+            lastNameTV.setText(tenantViewed.getLastName());
+            phoneTV.setText(tenantViewed.getPhone());
+            emailTV.setText(tenantViewed.getTenantEmail());
+            emergencyFirstNameTV.setText(tenantViewed.getEmergencyFirstName());
+            emergencyLastNameTV.setText(tenantViewed.getEmergencyLastName());
+            getEmergencyPhoneTV.setText(tenantViewed.getEmergencyPhone());
+            if (!tenantViewed.getHasLease()) {
+                renterStatusTV.setText("Not Currently Renting");
+                editLeaseBtn.setText("Create Lease");
+                apartmentAddressTV.setText("");
+                apartmentAddress2TV.setVisibility(View.GONE);
                 leaseLL.setVisibility(View.GONE);
                 leaseHolderTypeTV.setVisibility(View.GONE);
+
+            } else {
+                renterStatusTV.setText("Renting");
+                editLeaseBtn.setText("Edit Lease");
+                if (apartment != null) {
+                    apartmentAddressTV.setText(apartment.getStreet1());
+                    if (apartment.getStreet2() != null) {
+                        if (apartment.getStreet2().equals("")) {
+                            apartmentAddress2TV.setVisibility(View.GONE);
+                        } else {
+                            apartmentAddress2TV.setVisibility(View.VISIBLE);
+                            apartmentAddress2TV.setText(apartment.getStreet2());
+                        }
+                    } else {
+                        apartmentAddress2TV.setVisibility(View.GONE);
+                    }
+                } else {
+                    apartmentAddressTV.setText("Error Loading Lease");
+                    apartmentAddress2TV.setVisibility(View.GONE);
+                    renterStatusTV.setText("");
+                }
+                if (currentLease != null) {
+                    if (tenantViewed.getId() == currentLease.getPrimaryTenantID()) {
+                        leaseHolderTypeTV.setText("Primary Tenant");
+                    } else {
+                        leaseHolderTypeTV.setText("Secondary Tenant");
+                    }
+                    if (currentLease.getLeaseStart() != null) {
+                        leaseLL.setVisibility(View.VISIBLE);
+                        leaseHolderTypeTV.setVisibility(View.VISIBLE);
+
+                        SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+                        leaseStartTV.setText(formatter.format(currentLease.getLeaseStart()));
+                        leaseEndTV.setText(formatter.format(currentLease.getLeaseEnd()));
+
+
+                    } else {
+                        leaseLL.setVisibility(View.GONE);
+                        leaseHolderTypeTV.setVisibility(View.GONE);
+                    }
+                } else {
+                    leaseLL.setVisibility(View.GONE);
+                    leaseHolderTypeTV.setVisibility(View.VISIBLE);
+                    leaseHolderTypeTV.setText("");
+                    leaseStartTV.setText("");
+                    leaseEndTV.setText("");
+                }
             }
+            notesTV.setText(tenantViewed.getNotes());
         }
-        notesTV.setText(tenant.getNotes());
     }
 
     @Override
@@ -160,44 +169,14 @@ public class TenantViewFrag1 extends Fragment {
         return rootView;
     }
 
-    public void showNewLeaseAlertDialog(View view) {
-        // setup the alert builder
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        //builder.setTitle("AlertDialog");
-        builder.setMessage("Will this be the primary tenant?");
 
-        // add the buttons
-        builder.setPositiveButton("No", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                Intent intent = new Intent(getContext(), NewLeaseFormActivity.class);
-                //Uses filtered results to match what is on screen
-                intent.putExtra("secondaryTenant", tenant);
-                startActivityForResult(intent, MainActivity.REQUEST_NEW_LEASE_FORM);
-                ;
-            }
-        });
-        builder.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                Intent intent = new Intent(getContext(), NewLeaseFormActivity.class);
-                //Uses filtered results to match what is on screen
-                intent.putExtra("primaryTenant", tenant);
-                startActivityForResult(intent, MainActivity.REQUEST_NEW_LEASE_FORM);
-            }
-        });
-
-        // create and show the alert dialog
-        AlertDialog dialog = builder.create();
-        dialog.show();
-    }
 
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         //Save the fragment's instance
         super.onSaveInstanceState(outState);
-        outState.putParcelable("tenant", tenant);
+        outState.putParcelable("tenant", tenantViewed);
         if (apartment != null) {
             outState.putParcelable("apartment", apartment);
         }
@@ -222,10 +201,10 @@ public class TenantViewFrag1 extends Fragment {
         builder.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                databaseHandler.setTenantInactive(tenant);
-                MainActivity.tenantList.remove(tenant);
+                databaseHandler.setTenantInactive(tenantViewed);
+                MainActivity.tenantList.remove(tenantViewed);
                 if(currentLease != null) {
-                    if (tenant.getId() == currentLease.getPrimaryTenantID()) {
+                    if (tenantViewed.getId() == currentLease.getPrimaryTenantID()) {
                         //     tenant.setIsPrimary(false);
                         //     for (int x = 0; x < otherTenants.size(); x++) {
                         //         otherTenants.get(x).setApartmentID(0);
@@ -244,8 +223,8 @@ public class TenantViewFrag1 extends Fragment {
                 //TODO
                 dataMethods.sortMainApartmentArray();
                 //MainActivity5.apartmentList = databaseHandler.getUsersApartments(MainActivity5.user);
-                TenantListFragment.tenantListAdapterNeedsRefreshed = true;
-                ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
+                //TenantListFragment.tenantListAdapterNeedsRefreshed = true;
+                //ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
                 getActivity().finish();
             }
         });

@@ -15,6 +15,7 @@ import android.widget.Scroller;
 
 import com.example.android.wizardpager.wizard.ui.PageFragmentCallbacks;
 import com.example.cody.rentbud.R;
+import com.rentbud.model.Apartment;
 import com.rentbud.wizards.ApartmentWizardPage1;
 import com.rentbud.wizards.ApartmentWizardPage2;
 
@@ -50,6 +51,13 @@ public class ApartmentWizardPage2Fragment extends android.support.v4.app.Fragmen
         mKey = args.getString(ARG_KEY);
         mPage = (ApartmentWizardPage2) mCallbacks.onGetPage(mKey);
         preferredRent = new BigDecimal(0);
+        Bundle extras = mPage.getData();
+        if (extras != null) {
+            Apartment apartmentToEdit = extras.getParcelable("apartmentToEdit");
+            if (apartmentToEdit != null) {
+                loadDataForEdit(apartmentToEdit);
+            }
+        }
     }
 
     @Override
@@ -186,6 +194,22 @@ public class ApartmentWizardPage2Fragment extends android.support.v4.app.Fragmen
             if (!menuVisible) {
                 imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
             }
+        }
+    }
+
+    private void loadDataForEdit(Apartment apartmentToEdit) {
+        if (!mPage.getData().getBoolean(ApartmentWizardPage2.WAS_PRELOADED)) {
+            //Rent cost
+            //TODO
+            //preferredRent = apartmentToEdit.getPreferredRentCost();
+            //String formatted = NumberFormat.getCurrencyInstance().format(preferredRent);
+            //mPage.getData().putString(ApartmentWizardPage2.APARTMENT_PREFERRED_RENT_COST_FORMATTED_STRING_DATA_KEY, formatted);
+            //mPage.getData().putString(ApartmentWizardPage2.APARTMENT_PREFERRED_RENT_COST_DATA_KEY, preferredRent.toPlainString());
+            //Description
+            mPage.getData().putString(ApartmentWizardPage2.APARTMENT_DESCRIPTION_DATA_KEY, apartmentToEdit.getDescription());
+            //Notes
+            mPage.getData().putString(ApartmentWizardPage2.APARTMENT_NOTES_DATA_KEY, apartmentToEdit.getNotes());
+            mPage.getData().putBoolean(ApartmentWizardPage2.WAS_PRELOADED, true);
         }
     }
 }

@@ -19,8 +19,8 @@ import com.rentbud.model.User;
 
 public class HomeFragment extends android.support.v4.app.Fragment {
 
-    ImageView profilePic;
-    TextView usernameTV, emailbox, passbox;
+    //ImageView profilePic;
+    //TextView usernameTV, emailbox, passbox;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -33,22 +33,22 @@ public class HomeFragment extends android.support.v4.app.Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         //super.onCreate(savedInstanceState);
-        this.usernameTV = view.findViewById(R.id.usernameTextView);
-        this.passbox = view.findViewById(R.id.password);
-        this.emailbox = view.findViewById(R.id.email);
-        this.profilePic = view.findViewById(R.id.homeProfilePic);
+        //this.usernameTV = view.findViewById(R.id.usernameTextView);
+        //this.passbox = view.findViewById(R.id.password);
+        //this.emailbox = view.findViewById(R.id.email);
+        //this.profilePic = view.findViewById(R.id.homeProfilePic);
         getActivity().setTitle("Home");
         setTextBoxes(MainActivity.user.getName(), MainActivity.user.getEmail(), MainActivity.user.getPassword());
         //If user has a profile pic, set that pic
         if (MainActivity.user.getProfilePic() != null && !MainActivity.user.getProfilePic().isEmpty()) {
-            profilePic.setImageURI(Uri.parse(MainActivity.user.getProfilePic()));
+            //profilePic.setImageURI(Uri.parse(MainActivity.user.getProfilePic()));
         }
     }
 
     public void setTextBoxes(String name, String email, String password) {
         //Sets user info to text boxes, TEMPORARY
-        this.usernameTV.setText(name);
-        this.emailbox.setText(email);
-        this.passbox.setText(password);
+        //this.usernameTV.setText(name);
+        //this.emailbox.setText(email);
+        //this.passbox.setText(password);
     }
 }

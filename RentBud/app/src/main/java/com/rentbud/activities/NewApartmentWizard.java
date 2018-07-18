@@ -41,7 +41,7 @@ public class NewApartmentWizard extends BaseActivity implements
 
     private boolean mEditingAfterReview;
 
-    private AbstractWizardModel mWizardModel;// = new ApartmentWizardModel(this);
+    private ApartmentWizardModel mWizardModel;// = new ApartmentWizardModel(this);
 
     private boolean mConsumePageSelectedEvent;
 
@@ -53,24 +53,23 @@ public class NewApartmentWizard extends BaseActivity implements
 
     private DatabaseHandler dbhandler;
     private MainArrayDataMethods mainArrayDataMethods;
-    public static Apartment apartmentToEdit;
+    public Apartment apartmentToEdit;
 
     public void onCreate(Bundle savedInstanceState) {
         setupUserAppTheme(MainActivity.curThemeChoice);
         setContentView(R.layout.activity_fragment_wizard);
-
+        mWizardModel = new ApartmentWizardModel(this);
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            NewApartmentWizard.apartmentToEdit = extras.getParcelable("apartmentToEdit");
+            apartmentToEdit = extras.getParcelable("apartmentToEdit");
+            mWizardModel.preloadData(extras);
         } else {
-            NewApartmentWizard.apartmentToEdit = null;
+            apartmentToEdit = null;
         }
-        mWizardModel = new ApartmentWizardModel(this);
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
             mWizardModel.load(savedInstanceState.getBundle("model"));
         }
-
         mWizardModel.registerListener(this);
         dbhandler = new DatabaseHandler(this);
         mainArrayDataMethods = new MainArrayDataMethods();
@@ -121,8 +120,8 @@ public class NewApartmentWizard extends BaseActivity implements
                     String mainPic = mWizardModel.findByKey("Page3").getData().getString(ApartmentWizardPage3.APARTMENT_MAIN_PIC_DATA_KEY);
                     ArrayList<String> otherPics = mWizardModel.findByKey("Page3").getData().getStringArrayList(ApartmentWizardPage3.APARTMENT_OTHER_PICS_DATA_KEY);
                     //Create new Tenant object with input data and add it to the database
-                    if(NewApartmentWizard.apartmentToEdit != null){
-                        Apartment apartment = mainArrayDataMethods.getCachedApartmentByApartmentID(NewApartmentWizard.apartmentToEdit.getId());
+                    if(apartmentToEdit != null){
+                        Apartment apartment = mainArrayDataMethods.getCachedApartmentByApartmentID(apartmentToEdit.getId());
                         apartment.setStreet1(street1);
                         apartment.setStreet2(street2);
                         apartment.setCity(city);
@@ -136,7 +135,7 @@ public class NewApartmentWizard extends BaseActivity implements
                         //TODO handle changing otherPics in the database, will not do currently
                         dbhandler.editApartment(apartment, MainActivity.user.getId());
                         Intent data = new Intent();
-                        data.putExtra("editedApartmentID", NewApartmentWizard.apartmentToEdit.getId());
+                        data.putExtra("editedApartmentID", apartmentToEdit.getId());
                         setResult(RESULT_OK, data);
                     } else {
                         Apartment apartment = new Apartment(-1, street1, street2, city, stateID, state, zip, description, false,
@@ -183,7 +182,7 @@ public class NewApartmentWizard extends BaseActivity implements
     private void updateBottomBar() {
         int position = mPager.getCurrentItem();
         if (position == mCurrentPageSequence.size()) {
-            if(NewApartmentWizard.apartmentToEdit == null) {
+            if(apartmentToEdit == null) {
                 mNextButton.setText("Create Apartment");
             } else {
                 mNextButton.setText("Save Changes");

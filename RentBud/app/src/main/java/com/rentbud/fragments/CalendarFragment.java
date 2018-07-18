@@ -53,6 +53,7 @@ public class CalendarFragment extends android.support.v4.app.Fragment {
     private HashMap<String, Integer> incomeDatesHM = new HashMap<>();
     private DatabaseHandler databaseHandler;
     private ArrayList<CaldroidGridAdapter> adapters;
+    int selectedMonth, selectedYear;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -122,6 +123,8 @@ public class CalendarFragment extends android.support.v4.app.Fragment {
         setUpFindDateBtnListener();
         setUpGoToTodayBtnListener();
         adapters = caldroidFragment.getDatePagerAdapters();
+        selectedMonth = 1;
+        selectedYear = 1;
     }
 
     @Override
@@ -183,6 +186,24 @@ public class CalendarFragment extends android.support.v4.app.Fragment {
         });
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        DateTime startRange = new DateTime(selectedYear, selectedMonth, 1, 0, 0);
+        DateTime endRange = new DateTime(selectedYear, selectedMonth, 28, 0, 0);
+        startRange = startRange.minusDays(14);
+        endRange = endRange.plusDays(14);
+        expenseDatesHM = databaseHandler.getExpensesHMForCalendar(startRange, endRange, MainActivity.user);
+        incomeDatesHM = databaseHandler.getIncomeHMForCalendar(startRange, endRange, MainActivity.user);
+        leaseEndDatesHM = databaseHandler.getLeaseEndHMForCalendar(startRange, endRange, MainActivity.user);
+        leaseStartDatesHM = databaseHandler.getLeaseStartHMForCalendar(startRange, endRange, MainActivity.user);
+        caldroidFragment.setEventIcons(leaseStartDatesHM, leaseEndDatesHM, expenseDatesHM, incomeDatesHM);
+        for(int i = 0; i < adapters.size(); i++){
+            CustomCalendarAdapter c = (CustomCalendarAdapter) adapters.get(i);
+            c.updateDateData(leaseStartDatesHM, leaseEndDatesHM, expenseDatesHM, incomeDatesHM);
+        }
+    }
+
     private void setUpCaldroidListener() {
         //Caldroid listener()
         caldroidFragment.setCaldroidListener(new CaldroidListener() {
@@ -197,7 +218,8 @@ public class CalendarFragment extends android.support.v4.app.Fragment {
 
             @Override
             public void onChangeMonth(int month, int year) {
-                //TODO query db for real data
+                selectedYear = year;
+                selectedMonth = month;
                 DateTime startRange = new DateTime(year, month, 1, 0, 0);
                 DateTime endRange = new DateTime(year, month, 28, 0, 0);
                 startRange = startRange.minusDays(14);

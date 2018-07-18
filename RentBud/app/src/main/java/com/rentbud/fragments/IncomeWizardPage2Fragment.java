@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -26,6 +27,9 @@ import com.bumptech.glide.Glide;
 import com.example.android.wizardpager.wizard.ui.PageFragmentCallbacks;
 import com.example.cody.rentbud.R;
 import com.rentbud.activities.MainActivity;
+import com.rentbud.model.ExpenseLogEntry;
+import com.rentbud.model.PaymentLogEntry;
+import com.rentbud.wizards.ExpenseWizardPage2;
 import com.rentbud.wizards.IncomeWizardPage2;
 
 import static android.app.Activity.RESULT_OK;
@@ -59,6 +63,19 @@ public class IncomeWizardPage2Fragment extends android.support.v4.app.Fragment {
         Bundle args = getArguments();
         mKey = args.getString(ARG_KEY);
         mPage = (IncomeWizardPage2) mCallbacks.onGetPage(mKey);
+        Bundle extras = mPage.getData();
+        if (extras != null) {
+            PaymentLogEntry incomeToEdit = extras.getParcelable("incomeToEdit");
+            if (incomeToEdit != null) {
+                loadDataForEdit(incomeToEdit);
+            } else {
+                mPage.getData().putString(IncomeWizardPage2.INCOME_RECEIPT_PIC_DATA_KEY, "");
+                mPage.getData().putString(IncomeWizardPage2.INCOME_WAS_RECEIPT_PIC_ADDED_DATA_KEY, "No");
+            }
+        } else {
+            mPage.getData().putString(IncomeWizardPage2.INCOME_RECEIPT_PIC_DATA_KEY, "");
+            mPage.getData().putString(IncomeWizardPage2.INCOME_WAS_RECEIPT_PIC_ADDED_DATA_KEY, "No");
+        }
     }
 
     @Override
@@ -134,12 +151,23 @@ public class IncomeWizardPage2Fragment extends android.support.v4.app.Fragment {
             }
         });
         if (mPage.getData().getString(IncomeWizardPage2.INCOME_RECEIPT_PIC_DATA_KEY) != null) {
-            Glide.with(getContext()).load(mPage.getData().getString(IncomeWizardPage2.INCOME_RECEIPT_PIC_DATA_KEY)).into(receiptPicIV);
+            if(mPage.getData().getString(IncomeWizardPage2.INCOME_RECEIPT_PIC_DATA_KEY).equals("")){
+                Glide.with(getContext()).load(R.drawable.no_picture).into(receiptPicIV);
+                mPage.getData().putString(IncomeWizardPage2.INCOME_WAS_RECEIPT_PIC_ADDED_DATA_KEY, "No");
+            } else {
+                Glide.with(getContext()).load(mPage.getData().getString(IncomeWizardPage2.INCOME_RECEIPT_PIC_DATA_KEY)).into(receiptPicIV);
+            }
         } else {
             Glide.with(getContext()).load(R.drawable.no_picture).into(receiptPicIV);
             mPage.getData().putString(IncomeWizardPage2.INCOME_RECEIPT_PIC_DATA_KEY, "");
             mPage.getData().putString(IncomeWizardPage2.INCOME_WAS_RECEIPT_PIC_ADDED_DATA_KEY, "No");
         }
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                mPage.notifyDataChanged();
+            }
+        });
     }
 
     @Override
@@ -199,6 +227,31 @@ public class IncomeWizardPage2Fragment extends android.support.v4.app.Fragment {
                     Context.INPUT_METHOD_SERVICE);
             if (!menuVisible) {
                 imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
+            }
+        }
+    }
+
+
+    //private void preloadData(Bundle bundle){
+    //
+    //}
+
+    private void loadDataForEdit(PaymentLogEntry IncomeToEdit) {
+        if (!mPage.getData().getBoolean(IncomeWizardPage2.WAS_PRELOADED)) {
+            if (IncomeToEdit != null) {
+                mPage.getData().putString(IncomeWizardPage2.INCOME_DESCRIPTION_DATA_KEY, IncomeToEdit.getDescription());
+                if (IncomeToEdit.getReceiptPic() != null) {
+                    if (!IncomeToEdit.getReceiptPic().equals("")) {
+                        mPage.getData().putString(IncomeWizardPage2.INCOME_RECEIPT_PIC_DATA_KEY, IncomeToEdit.getReceiptPic());
+                        mPage.getData().putString(IncomeWizardPage2.INCOME_WAS_RECEIPT_PIC_ADDED_DATA_KEY, "Yes");
+                    } else {
+                        mPage.getData().putString(IncomeWizardPage2.INCOME_WAS_RECEIPT_PIC_ADDED_DATA_KEY, "No");
+                    }
+                    mPage.getData().putString(IncomeWizardPage2.INCOME_WAS_RECEIPT_PIC_ADDED_DATA_KEY, "No");
+                } else {
+                    mPage.getData().putString(IncomeWizardPage2.INCOME_WAS_RECEIPT_PIC_ADDED_DATA_KEY, "No");
+                }
+                mPage.getData().putBoolean(ExpenseWizardPage2.WAS_PRELOADED, true);
             }
         }
     }

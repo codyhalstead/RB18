@@ -24,6 +24,7 @@ import com.example.android.wizardpager.wizard.model.PageList;
 import com.example.android.wizardpager.wizard.model.SingleFixedChoicePage;
 
 import android.content.Context;
+import android.os.Bundle;
 
 public class SandwichWizardModel extends AbstractWizardModel {
     public SandwichWizardModel(Context context) {
@@ -76,4 +77,10 @@ public class SandwichWizardModel extends AbstractWizardModel {
                         .setRequired(true)
         );
     }
+
+    //Modified by Cody{
+    public void preloadData(Bundle bundle){
+
+    }
+    //}
 }

@@ -8,6 +8,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,9 +26,11 @@ import com.example.cody.rentbud.R;
 import com.rentbud.activities.MainActivity;
 import com.rentbud.activities.NewExpenseWizard;
 import com.rentbud.helpers.NewItemCreatorDialog;
+import com.rentbud.model.ExpenseLogEntry;
 import com.rentbud.wizards.ApartmentWizardPage1;
 import com.rentbud.wizards.ExpenseWizardPage1;
 import com.rentbud.sqlite.DatabaseHandler;
+import com.rentbud.wizards.ExpenseWizardPage3;
 import com.rentbud.wizards.IncomeWizardPage1;
 import com.rentbud.wizards.LeaseWizardPage1;
 
@@ -42,6 +45,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import static android.support.constraint.Constraints.TAG;
 
 public class ExpenseWizardPage1Fragment extends android.support.v4.app.Fragment {
     private static final String ARG_KEY = "key";
@@ -58,6 +63,7 @@ public class ExpenseWizardPage1Fragment extends android.support.v4.app.Fragment 
     private BigDecimal amount;
     private Date expenseDate;
     private DatabaseHandler dbHandler;
+    boolean isEdit;
 
     public static ExpenseWizardPage1Fragment create(String key) {
         Bundle args = new Bundle();
@@ -78,8 +84,25 @@ public class ExpenseWizardPage1Fragment extends android.support.v4.app.Fragment 
         Bundle args = getArguments();
         mKey = args.getString(ARG_KEY);
         mPage = (ExpenseWizardPage1) mCallbacks.onGetPage(mKey);
-        amount = new BigDecimal(0);
+        //amount = new BigDecimal(0);
         dbHandler = new DatabaseHandler(getContext());
+        isEdit = false;
+        Bundle extras = mPage.getData();
+        if (extras != null) {
+            ExpenseLogEntry expenseToEdit = extras.getParcelable("expenseToEdit");
+            if (expenseToEdit != null) {
+                loadDataForEdit(expenseToEdit);
+                isEdit = true;
+            } else {
+                preloadData(extras);
+            }
+        } else {
+            expenseDate = null;
+            amount = new BigDecimal(0);
+            String formatted = NumberFormat.getCurrencyInstance().format(amount);
+            mPage.getData().putString(ExpenseWizardPage1.EXPENSE_AMOUNT_FORMATTED_STRING_DATA_KEY, formatted);
+            mPage.getData().putString(ExpenseWizardPage1.EXPENSE_AMOUNT_STRING_DATA_KEY, amount.toPlainString());
+        }
     }
 
     @Override
@@ -89,7 +112,7 @@ public class ExpenseWizardPage1Fragment extends android.support.v4.app.Fragment 
         (rootView.findViewById(android.R.id.title)).setVisibility(View.GONE);
 
         dateTV = rootView.findViewById(R.id.expenseWizardDateTV);
-        if(mPage.getData().getString(ExpenseWizardPage1.EXPENSE_DATE_STRING_DATA_KEY) != null) {
+        if (mPage.getData().getString(ExpenseWizardPage1.EXPENSE_DATE_STRING_DATA_KEY) != null) {
             String dateString = mPage.getData().getString(ExpenseWizardPage1.EXPENSE_DATE_STRING_DATA_KEY);
             DateFormat formatFrom = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
             try {
@@ -101,7 +124,7 @@ public class ExpenseWizardPage1Fragment extends android.support.v4.app.Fragment 
         }
 
         amountET = rootView.findViewById(R.id.expenseWizardAmountET);
-        if(mPage.getData().getString(ExpenseWizardPage1.EXPENSE_AMOUNT_FORMATTED_STRING_DATA_KEY) != null) {
+        if (mPage.getData().getString(ExpenseWizardPage1.EXPENSE_AMOUNT_FORMATTED_STRING_DATA_KEY) != null) {
             amountET.setText(mPage.getData().getString(ExpenseWizardPage1.EXPENSE_AMOUNT_FORMATTED_STRING_DATA_KEY));
         }
         amountET.setSelection(amountET.getText().length());
@@ -112,7 +135,7 @@ public class ExpenseWizardPage1Fragment extends android.support.v4.app.Fragment 
         addNewTypeBtn = rootView.findViewById(R.id.expenseWizardAddNewTypeBtn);
 
         newExpenseHeaderTV = rootView.findViewById(R.id.expenseWizardPageOneHeader);
-        if(NewExpenseWizard.expenseToEdit != null){
+        if (isEdit) {
             newExpenseHeaderTV.setText("Edit Expense Info");
         }
 
@@ -213,7 +236,7 @@ public class ExpenseWizardPage1Fragment extends android.support.v4.app.Fragment 
             public void onClick(View view) {
                 NewItemCreatorDialog dialog = new NewItemCreatorDialog(getContext());
                 dialog.show();
-                dialog.setDialogResult(new NewItemCreatorDialog.NewItemDialogResult(){
+                dialog.setDialogResult(new NewItemCreatorDialog.NewItemDialogResult() {
                     @Override
                     public void finish(String string) {
                         dbHandler.addNewExpenseType(string);
@@ -225,12 +248,12 @@ public class ExpenseWizardPage1Fragment extends android.support.v4.app.Fragment 
                 });
             }
         });
-        if(mPage.getData().getString(ExpenseWizardPage1.EXPENSE_AMOUNT_STRING_DATA_KEY) == null) {
-            String formatted = NumberFormat.getCurrencyInstance().format(amount);
-            mPage.getData().putString(ExpenseWizardPage1.EXPENSE_AMOUNT_FORMATTED_STRING_DATA_KEY, formatted);
-            mPage.getData().putString(ExpenseWizardPage1.EXPENSE_AMOUNT_STRING_DATA_KEY, amount.toPlainString());
-        }
-        if(mPage.getData().getString(ExpenseWizardPage1.EXPENSE_TYPE_DATA_KEY) != null){
+        //if (mPage.getData().getString(ExpenseWizardPage1.EXPENSE_AMOUNT_STRING_DATA_KEY) == null) {
+        //    String formatted = NumberFormat.getCurrencyInstance().format(amount);
+        //    mPage.getData().putString(ExpenseWizardPage1.EXPENSE_AMOUNT_FORMATTED_STRING_DATA_KEY, formatted);
+        //    mPage.getData().putString(ExpenseWizardPage1.EXPENSE_AMOUNT_STRING_DATA_KEY, amount.toPlainString());
+        //}
+        if (mPage.getData().getString(ExpenseWizardPage1.EXPENSE_TYPE_DATA_KEY) != null) {
             int spinnerPosition = adapter.getPosition(mPage.getData().getString(ExpenseWizardPage1.EXPENSE_TYPE_DATA_KEY));
             typeSpinner.setSelection(spinnerPosition);
         }
@@ -293,7 +316,7 @@ public class ExpenseWizardPage1Fragment extends android.support.v4.app.Fragment 
         this.typeSpinner.setAdapter(adapter);
     }
 
-    public void updateExpenseTypeSpinner(){
+    public void updateExpenseTypeSpinner() {
         List<String> spinnerArray = new ArrayList<>();
         for (Map.Entry<String, Integer> entry : MainActivity.expenseTypeLabels.entrySet()) {
             spinnerArray.add(entry.getKey());
@@ -302,4 +325,75 @@ public class ExpenseWizardPage1Fragment extends android.support.v4.app.Fragment 
         adapter.addAll(spinnerArray);
     }
 
+    private void preloadDate(Bundle bundle) {
+        if (mPage.getData().getString(ExpenseWizardPage1.EXPENSE_DATE_STRING_DATA_KEY) != null) {
+            //If date exists (Was reloaded)
+            String dateString = mPage.getData().getString(ExpenseWizardPage1.EXPENSE_DATE_STRING_DATA_KEY);
+            DateFormat formatFrom = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+            try {
+                expenseDate = formatFrom.parse(dateString);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        } else if (bundle.getString("preloadedDate") != null) {
+            //Date does not exist, check if need to preload
+            String dateString = bundle.getString("preloadedDate");
+            mPage.getData().putString(ExpenseWizardPage1.EXPENSE_DATE_STRING_DATA_KEY, dateString);
+            DateFormat formatFrom = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+            try {
+                expenseDate = formatFrom.parse(dateString);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        } else {
+            expenseDate = null;
+        }
+    }
+
+    private void preloadAmount(Bundle bundle) {
+        if (mPage.getData().getString(ExpenseWizardPage1.EXPENSE_AMOUNT_STRING_DATA_KEY) != null) {
+            amount = new BigDecimal(mPage.getData().getString(ExpenseWizardPage1.EXPENSE_AMOUNT_STRING_DATA_KEY)).setScale(2, BigDecimal.ROUND_FLOOR).divide(new BigDecimal(100), BigDecimal.ROUND_FLOOR);
+        } else {
+            amount = new BigDecimal(0);
+            String formatted = NumberFormat.getCurrencyInstance().format(amount);
+            mPage.getData().putString(ExpenseWizardPage1.EXPENSE_AMOUNT_FORMATTED_STRING_DATA_KEY, formatted);
+            mPage.getData().putString(ExpenseWizardPage1.EXPENSE_AMOUNT_STRING_DATA_KEY, amount.toPlainString());
+        }
+    }
+
+    private void preloadType(Bundle bundle) {
+        //if( mPage.getData().getString(ExpenseWizardPage1.EXPENSE_TYPE_DATA_KEY) != null){
+
+        //} else {
+
+        //}
+    }
+
+    private void preloadData(Bundle bundle) {
+        preloadDate(bundle);
+        preloadAmount(bundle);
+        preloadType(bundle);
+    }
+
+    private void loadDataForEdit(ExpenseLogEntry expenseToEdit) {
+        if (!mPage.getData().getBoolean(ExpenseWizardPage1.WAS_PRELOADED)) {
+            //Date
+            SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+            String dateString = formatter.format(expenseToEdit.getDate());
+            mPage.getData().putString(ExpenseWizardPage1.EXPENSE_DATE_STRING_DATA_KEY, dateString);
+            expenseDate = expenseToEdit.getDate();
+            //Amount
+            BigDecimal amountBD = expenseToEdit.getAmount();
+            String formatted = NumberFormat.getCurrencyInstance().format(amountBD);
+            mPage.getData().putString(ExpenseWizardPage1.EXPENSE_AMOUNT_FORMATTED_STRING_DATA_KEY, formatted);
+            mPage.getData().putString(ExpenseWizardPage1.EXPENSE_AMOUNT_STRING_DATA_KEY, amountBD.toPlainString());
+            amount = expenseToEdit.getAmount();
+            //Type
+            mPage.getData().putInt(ExpenseWizardPage1.EXPENSE_TYPE_ID_DATA_KEY, expenseToEdit.getTypeID());
+            mPage.getData().putString(ExpenseWizardPage1.EXPENSE_TYPE_DATA_KEY, expenseToEdit.getTypeLabel());
+            mPage.getData().putBoolean(ExpenseWizardPage1.WAS_PRELOADED, true);
+        } else {
+            preloadData(mPage.getData());
+        }
+    }
 }

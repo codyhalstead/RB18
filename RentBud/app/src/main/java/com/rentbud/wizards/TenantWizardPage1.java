@@ -20,18 +20,20 @@ public class TenantWizardPage1 extends Page {
     public static final String TENANT_LAST_NAME_DATA_KEY = "tenant_last_name";
     public static final String TENANT_PHONE_DATA_KEY = "tenant_phone";
     public static final String TENANT_EMAIL_DATA_KEY = "tenant_email";
+    public static final String WAS_PRELOADED = "tenant_page_1_was_preloaded";
 
     public TenantWizardPage1(ModelCallbacks callbacks, String title) {
         super(callbacks, title);
-        Tenant tenant = NewTenantWizard.tenantToEdit;
+        mData.putBoolean(WAS_PRELOADED, false);
+        //Tenant tenant = NewTenantWizard.tenantToEdit;
        // Log.d(TAG, "TenantWizardPage1: " + tenant.getFirstName());
-        if(tenant != null){
-            mData.putString(TENANT_FIRST_NAME_DATA_KEY, tenant.getFirstName());
-            mData.putString(TENANT_LAST_NAME_DATA_KEY, tenant.getLastName());
-            mData.putString(TENANT_PHONE_DATA_KEY, tenant.getPhone());
-            mData.putString(TENANT_EMAIL_DATA_KEY, tenant.getEmail());
-            this.notifyDataChanged();
-        }
+        //if(tenant != null){
+        //    mData.putString(TENANT_FIRST_NAME_DATA_KEY, tenant.getFirstName());
+        //    mData.putString(TENANT_LAST_NAME_DATA_KEY, tenant.getLastName());
+        //    mData.putString(TENANT_PHONE_DATA_KEY, tenant.getPhone());
+        //    mData.putString(TENANT_EMAIL_DATA_KEY, tenant.getEmail());
+        //    this.notifyDataChanged();
+       // }
     }
 
     @Override

@@ -64,7 +64,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_marginBottom="40dp"
+        android:layout_marginBottom="70dp"
         android:layout_marginRight="30dp"
         android:onClick="apartmentFABClick"
         app:srcCompat="@drawable/ic_add_white_24dp"
@@ -86,7 +86,10 @@
         android:id="@+id/mainapartmentListView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/apartmentListBarBorder">
+        android:layout_below="@+id/apartmentListBarBorder"
+        android:paddingBottom="160dp"
+        android:clipToPadding="false"
+        >
 
     </ListView>
 

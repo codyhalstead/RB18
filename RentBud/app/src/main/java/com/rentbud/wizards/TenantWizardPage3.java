@@ -13,15 +13,17 @@ import java.util.ArrayList;
 
 public class TenantWizardPage3 extends Page {
     public static final String TENANT_NOTES_DATA_KEY = "tenant_notes";
+    public static final String WAS_PRELOADED = "tenant_page_3_was_preloaded";
 
     public TenantWizardPage3(ModelCallbacks callbacks, String title) {
         super(callbacks, title);
-        Tenant tenant = NewTenantWizard.tenantToEdit;
+        mData.putBoolean(WAS_PRELOADED, false);
+        //Tenant tenant = NewTenantWizard.tenantToEdit;
         // Log.d(TAG, "TenantWizardPage1: " + tenant.getFirstName());
-        if(tenant != null){
-            mData.putString(TENANT_NOTES_DATA_KEY, tenant.getNotes());
-            this.notifyDataChanged();
-        }
+        //if(tenant != null){
+        //    mData.putString(TENANT_NOTES_DATA_KEY, tenant.getNotes());
+        //    this.notifyDataChanged();
+        //}
     }
 
 

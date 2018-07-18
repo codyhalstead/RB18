@@ -13,6 +13,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,12 +27,17 @@ import com.example.android.wizardpager.wizard.ui.PageFragmentCallbacks;
 import com.example.cody.rentbud.R;
 import com.rentbud.activities.MainActivity;
 import com.rentbud.adapters.RecyclerViewAdapter;
+import com.rentbud.model.Apartment;
+import com.rentbud.model.ExpenseLogEntry;
+import com.rentbud.wizards.ApartmentWizardPage2;
 import com.rentbud.wizards.ApartmentWizardPage3;
+import com.rentbud.wizards.ExpenseWizardPage2;
 
 import java.io.File;
 import java.util.ArrayList;
 
 import static android.app.Activity.RESULT_OK;
+import static android.support.constraint.Constraints.TAG;
 
 public class ApartmentWizardPage3Fragment extends android.support.v4.app.Fragment {
     private static final String ARG_KEY = "key";
@@ -67,6 +73,21 @@ public class ApartmentWizardPage3Fragment extends android.support.v4.app.Fragmen
         mPage = (ApartmentWizardPage3) mCallbacks.onGetPage(mKey);
         otherPics = new ArrayList<>();
         numberOfOtherPics = 0;
+        Bundle extras = mPage.getData();
+        if (extras != null) {
+            Apartment apartmentToEdit = extras.getParcelable("apartmentToEdit");
+            if (apartmentToEdit != null) {
+                loadDataForEdit(apartmentToEdit);
+            } else {
+                mPage.getData().putString(ApartmentWizardPage3.APARTMENT_MAIN_PIC_DATA_KEY, "");
+                mPage.getData().putString(ApartmentWizardPage3.APARTMENT_WAS_MAIN_PIC_ADDED_DATA_KEY, "No");
+                mPage.getData().putInt(ApartmentWizardPage3.APARTMENT_AMOUNT_OF_OTHER_PICS_DATA_KEY, numberOfOtherPics);
+            }
+        } else {
+            mPage.getData().putString(ApartmentWizardPage3.APARTMENT_MAIN_PIC_DATA_KEY, "");
+            mPage.getData().putString(ApartmentWizardPage3.APARTMENT_WAS_MAIN_PIC_ADDED_DATA_KEY, "No");
+            mPage.getData().putInt(ApartmentWizardPage3.APARTMENT_AMOUNT_OF_OTHER_PICS_DATA_KEY, numberOfOtherPics);
+        }
     }
 
     @Override
@@ -148,21 +169,24 @@ public class ApartmentWizardPage3Fragment extends android.support.v4.app.Fragmen
                 }
             }
         });
-
-        if(mPage.getData().getStringArrayList(ApartmentWizardPage3.APARTMENT_OTHER_PICS_DATA_KEY) != null){
-            otherPics = mPage.getData().getStringArrayList(ApartmentWizardPage3.APARTMENT_OTHER_PICS_DATA_KEY);
-            numberOfOtherPics = mPage.getData().getInt(ApartmentWizardPage3.APARTMENT_AMOUNT_OF_OTHER_PICS_DATA_KEY);
-        } else {
-            mPage.getData().putInt(ApartmentWizardPage3.APARTMENT_AMOUNT_OF_OTHER_PICS_DATA_KEY, numberOfOtherPics);
-        }
-
         if (mPage.getData().getString(ApartmentWizardPage3.APARTMENT_MAIN_PIC_DATA_KEY) != null) {
-            Glide.with(getContext()).load(mPage.getData().getString(ApartmentWizardPage3.APARTMENT_MAIN_PIC_DATA_KEY)).into(mainPicIV);
+            if(mPage.getData().getString(ApartmentWizardPage3.APARTMENT_MAIN_PIC_DATA_KEY).equals("")){
+                Glide.with(getContext()).load(R.drawable.blank_home_pic).into(mainPicIV);
+            } else {
+                Glide.with(getContext()).load(mPage.getData().getString(ApartmentWizardPage3.APARTMENT_MAIN_PIC_DATA_KEY)).into(mainPicIV);
+            }
         } else {
             Glide.with(getContext()).load(R.drawable.blank_home_pic).into(mainPicIV);
             mPage.getData().putString(ApartmentWizardPage3.APARTMENT_MAIN_PIC_DATA_KEY, "");
             mPage.getData().putString(ApartmentWizardPage3.APARTMENT_WAS_MAIN_PIC_ADDED_DATA_KEY, "No");
         }
+
+        //if(mPage.getData().getStringArrayList(ApartmentWizardPage3.APARTMENT_OTHER_PICS_DATA_KEY) != null){
+        //    otherPics = mPage.getData().getStringArrayList(ApartmentWizardPage3.APARTMENT_OTHER_PICS_DATA_KEY);
+        //    numberOfOtherPics = mPage.getData().getInt(ApartmentWizardPage3.APARTMENT_AMOUNT_OF_OTHER_PICS_DATA_KEY);
+        //} else {
+        //    mPage.getData().putInt(ApartmentWizardPage3.APARTMENT_AMOUNT_OF_OTHER_PICS_DATA_KEY, numberOfOtherPics);
+        //}
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         adapter = new RecyclerViewAdapter(otherPics, getContext());
@@ -266,5 +290,32 @@ public class ApartmentWizardPage3Fragment extends android.support.v4.app.Fragmen
                 imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
             }
         }
+    }
+
+    private void loadDataForEdit(Apartment apartmentToEdit) {
+        if (!mPage.getData().getBoolean(ApartmentWizardPage3.WAS_PRELOADED)) {
+        //Main pic
+        if (apartmentToEdit.getMainPic() != null) {
+            if (!apartmentToEdit.getMainPic().equals("")) {
+                mPage.getData().putString(ApartmentWizardPage3.APARTMENT_MAIN_PIC_DATA_KEY, apartmentToEdit.getMainPic());
+                mPage.getData().putString(ApartmentWizardPage3.APARTMENT_WAS_MAIN_PIC_ADDED_DATA_KEY, "Yes");
+            } else {
+                mPage.getData().putString(ApartmentWizardPage3.APARTMENT_WAS_MAIN_PIC_ADDED_DATA_KEY, "No");
+            }
+            //mPage.getData().putString(ApartmentWizardPage3.APARTMENT_WAS_MAIN_PIC_ADDED_DATA_KEY, "No");
+        } else {
+            mPage.getData().putString(ApartmentWizardPage3.APARTMENT_WAS_MAIN_PIC_ADDED_DATA_KEY, "No");
+        }
+        //Other pics
+        if (apartmentToEdit.getOtherPics() != null) {
+            this.otherPics = apartmentToEdit.getOtherPics();
+            mPage.getData().putStringArrayList(ApartmentWizardPage3.APARTMENT_OTHER_PICS_DATA_KEY, otherPics);
+            mPage.getData().putInt(ApartmentWizardPage3.APARTMENT_AMOUNT_OF_OTHER_PICS_DATA_KEY, otherPics.size());
+        } else {
+            mPage.getData().putStringArrayList(ApartmentWizardPage3.APARTMENT_OTHER_PICS_DATA_KEY, otherPics);
+            mPage.getData().putInt(ApartmentWizardPage3.APARTMENT_AMOUNT_OF_OTHER_PICS_DATA_KEY, otherPics.size());
+        }
+        mPage.getData().putBoolean(ApartmentWizardPage3.WAS_PRELOADED, true);
+    }
     }
 }

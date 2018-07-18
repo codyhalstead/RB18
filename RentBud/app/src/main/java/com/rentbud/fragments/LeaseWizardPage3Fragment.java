@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import com.example.android.wizardpager.wizard.ui.PageFragmentCallbacks;
 import com.example.cody.rentbud.R;
+import com.rentbud.model.Lease;
 import com.rentbud.wizards.LeaseWizardPage1;
 import com.rentbud.wizards.LeaseWizardPage2;
 import com.rentbud.wizards.LeaseWizardPage3;
@@ -47,7 +48,7 @@ public class LeaseWizardPage3Fragment extends android.support.v4.app.Fragment {
     private Spinner paymentFrequencySpinner, paymentDateSpinner;
     private int regular, prorated, paymentDay, paymentFrequency;
     private ArrayList<String> paymentDates;
-    private Boolean isFirstLoad;
+    private Boolean isFirstLoad, isEdit;
 
     Date leaseStartDate, leaseEndDate;
 
@@ -75,6 +76,19 @@ public class LeaseWizardPage3Fragment extends android.support.v4.app.Fragment {
         paymentDay = 1;
         paymentFrequency = 1;
         isFirstLoad = true;
+        //isEdit = false;
+        //Bundle extras = mPage.getData();
+        //if (extras != null) {
+        //    Lease leaseToEdit = extras.getParcelable("leaseToEdit");
+        //    if (leaseToEdit != null) {
+        //        loadDataForEdit(leaseToEdit);
+        //        isEdit = true;
+        //    } else {
+        //        preloadData(extras);
+        //    }
+        //} else {
+
+        //}
     }
 
     @Override
@@ -124,7 +138,9 @@ public class LeaseWizardPage3Fragment extends android.support.v4.app.Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+        if (mPage.getData().getInt(LeaseWizardPage3.LEASE_DUE_DATE_DATA_KEY) != 0) {
+            paymentDay = mPage.getData().getInt(LeaseWizardPage3.LEASE_DUE_DATE_DATA_KEY);
+        }
         rentCostET.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -227,7 +243,6 @@ public class LeaseWizardPage3Fragment extends android.support.v4.app.Fragment {
             }
         });
         //paymentDay = 20;
-
         figurePayments(leaseStartDate, leaseEndDate, paymentDay, paymentFrequency);
         paymentsAmountTV.setText(prorated + regular + "");
         proratedPaymentsAmountTV.setText(prorated + "");
@@ -270,49 +285,88 @@ public class LeaseWizardPage3Fragment extends android.support.v4.app.Fragment {
         LocalDate startDate = new LocalDate(leaseStartDate);
         LocalDate endDate = new LocalDate(leaseEndDate);
         paymentDates.clear();
-
         LocalDate payment = new LocalDate(startDate.getYear(), startDate.getMonthOfYear(), paymentDay);
-        paymentDates.add(startDate.toString("yyyy-MM-dd"));
-        if (startDate.isBefore(payment)) {
-            prorated++;
-            //payment = payment.plusMonths(1);
-            mPage.getData().putBoolean(LeaseWizardPage3.LEASE_IS_FIRST_PRORATED_REQUIRED_DATA_KEY, true);
-            Log.d(TAG, "figurePayments: INITIAL PAYMENT ---- " + startDate + " --> " + payment + " PRO");
-        } else if (startDate.isEqual(payment)) {
+        if (startDate.plusMonths(paymentFrequency).isAfter(endDate)) {
+            //Not full cycle, need 2 prorated
+            if (payment.isAfter(startDate)) {
+                prorated = prorated + 2;
+                mPage.getData().putBoolean(LeaseWizardPage3.LEASE_IS_FIRST_PRORATED_REQUIRED_DATA_KEY, true);
+                mPage.getData().putBoolean(LeaseWizardPage3.LEASE_IS_LAST_PRORATED_REQUIRED_DATA_KEY, true);
+                paymentDates.add(startDate.toString("yyyy-MM-dd"));
+                paymentDates.add(payment.toString("yyyy-MM-dd"));
+                //paymentDates.add(endDate.toString("yyyy-MM-dd"));
+                Log.d(TAG, "figurePayments: INITIAL PAYMENT ---- " + startDate + " --> " + payment + " PRO");
+                Log.d(TAG, "figurePayments: FINAL PAYMENT ---- " + payment + " --> " + endDate + " PRO");
+            } else if(payment.plusMonths(paymentFrequency).isBefore(endDate)){
+                payment = payment.plusMonths(paymentFrequency);
+                prorated = prorated + 2;
+                mPage.getData().putBoolean(LeaseWizardPage3.LEASE_IS_FIRST_PRORATED_REQUIRED_DATA_KEY, true);
+                mPage.getData().putBoolean(LeaseWizardPage3.LEASE_IS_LAST_PRORATED_REQUIRED_DATA_KEY, true);
+                paymentDates.add(startDate.toString("yyyy-MM-dd"));
+                paymentDates.add(payment.toString("yyyy-MM-dd"));
+                //paymentDates.add(endDate.toString("yyyy-MM-dd"));
+                Log.d(TAG, "figurePayments: INITIAL PAYMENT ---- " + startDate + " --> " + payment + " PRO");
+                Log.d(TAG, "figurePayments: FINAL PAYMENT ---- " + payment + " --> " + endDate + " PRO");
+            } else {
+                prorated++;
+                mPage.getData().putBoolean(LeaseWizardPage3.LEASE_IS_FIRST_PRORATED_REQUIRED_DATA_KEY, true);
+                mPage.getData().putBoolean(LeaseWizardPage3.LEASE_IS_LAST_PRORATED_REQUIRED_DATA_KEY, false);
+                paymentDates.add(startDate.toString("yyyy-MM-dd"));
+                paymentDates.add(endDate.toString("yyyy-MM-dd"));
+                //paymentDates.add(endDate.toString("yyyy-MM-dd"));
+                Log.d(TAG, "figurePayments: INITIAL AND FINAL PAYMENT ---- " + startDate + " --> " + endDate + " PRO");
+            }
+        } else if (startDate.isEqual(payment) && endDate.isEqual(payment.plusMonths(paymentFrequency))) {
+            //Full cycle, but only 1. 1 regular payment
             regular++;
-            payment = payment.plusMonths(paymentFrequency);
-            payment = keepPaymentDayConsistentForEndOfMonth(paymentDay, payment);
             mPage.getData().putBoolean(LeaseWizardPage3.LEASE_IS_FIRST_PRORATED_REQUIRED_DATA_KEY, false);
-            Log.d(TAG, "figurePayments: INITIAL PAYMENT ---- " + startDate + " --> " + payment);
-        } else {
-            payment = payment.plusMonths(paymentFrequency);
-            payment = keepPaymentDayConsistentForEndOfMonth(paymentDay, payment);
-            prorated++;
-            mPage.getData().putBoolean(LeaseWizardPage3.LEASE_IS_FIRST_PRORATED_REQUIRED_DATA_KEY, true);
-            Log.d(TAG, "figurePayments: INITIAL PAYMENT ---- " + startDate + " --> " + payment + " PRO");
-        }
-
-        while (payment.isBefore(endDate.minusMonths(paymentFrequency))) {
-            regular++;
-            LocalDate pdate = payment;
-            paymentDates.add(pdate.toString("yyyy-MM-dd"));
-            payment = payment.plusMonths(paymentFrequency);
-            payment = keepPaymentDayConsistentForEndOfMonth(paymentDay, payment);
-            Log.d(TAG, "figurePayments: PAYMENT ---- " + pdate + " --> " + payment);
-        }
-
-        if (payment.plusMonths(paymentFrequency).equals(endDate)) {
-            regular++;
-            paymentDates.add(payment.toString("yyyy-MM-dd"));
-            Log.d(TAG, "figurePayments: FINAL PAYMENT ---- " + payment + " --> " + endDate);
             mPage.getData().putBoolean(LeaseWizardPage3.LEASE_IS_LAST_PRORATED_REQUIRED_DATA_KEY, false);
+            paymentDates.add(startDate.toString("yyyy-MM-dd"));
+            //paymentDates.add(endDate.toString("yyyy-MM-dd"));
+            Log.d(TAG, "figurePayments: INITIAL AND FINAL PAYMENT ---- " + startDate + " --> " + endDate);
         } else {
-            prorated++;
-            paymentDates.add(payment.toString("yyyy-MM-dd"));
-            Log.d(TAG, "figurePayments: FINAL PAYMENT ---- " + payment + " --> " + endDate + " PRO");
-            mPage.getData().putBoolean(LeaseWizardPage3.LEASE_IS_LAST_PRORATED_REQUIRED_DATA_KEY, true);
+            Log.d(TAG, "figurePayments: ELSEAAAAAAAAAAAAAAAAAAAAA");
+            paymentDates.add(startDate.toString("yyyy-MM-dd"));
+            if (startDate.isBefore(payment)) {
+                prorated++;
+                //payment = payment.plusMonths(1);
+                mPage.getData().putBoolean(LeaseWizardPage3.LEASE_IS_FIRST_PRORATED_REQUIRED_DATA_KEY, true);
+                Log.d(TAG, "figurePayments: INITIAL PAYMENT ---- " + startDate + " --> " + payment + " PRO");
+            } else if (startDate.isEqual(payment)) {
+                regular++;
+                payment = payment.plusMonths(paymentFrequency);
+                payment = keepPaymentDayConsistentForEndOfMonth(paymentDay, payment);
+                mPage.getData().putBoolean(LeaseWizardPage3.LEASE_IS_FIRST_PRORATED_REQUIRED_DATA_KEY, false);
+                Log.d(TAG, "figurePayments: INITIAL PAYMENT ---- " + startDate + " --> " + payment);
+            } else {
+                payment = payment.plusMonths(paymentFrequency);
+                payment = keepPaymentDayConsistentForEndOfMonth(paymentDay, payment);
+                prorated++;
+                mPage.getData().putBoolean(LeaseWizardPage3.LEASE_IS_FIRST_PRORATED_REQUIRED_DATA_KEY, true);
+                Log.d(TAG, "figurePayments: INITIAL PAYMENT ---- " + startDate + " --> " + payment + " PRO");
+            }
+
+            while (payment.isBefore(endDate.minusMonths(paymentFrequency))) {
+                regular++;
+                LocalDate pdate = payment;
+                paymentDates.add(pdate.toString("yyyy-MM-dd"));
+                payment = payment.plusMonths(paymentFrequency);
+                payment = keepPaymentDayConsistentForEndOfMonth(paymentDay, payment);
+                Log.d(TAG, "figurePayments: PAYMENT ---- " + pdate + " --> " + payment);
+            }
+            if (payment.plusMonths(paymentFrequency).equals(endDate)){ //|| startDate.plusMonths(1).isAfter(payment)) {
+                regular++;
+                paymentDates.add(payment.toString("yyyy-MM-dd"));
+                Log.d(TAG, "figurePayments: FINAL PAYMENT ---- " + payment + " --> " + endDate);
+                mPage.getData().putBoolean(LeaseWizardPage3.LEASE_IS_LAST_PRORATED_REQUIRED_DATA_KEY, false);
+            } else {
+                prorated++;
+                paymentDates.add(payment.toString("yyyy-MM-dd"));
+                Log.d(TAG, "figurePayments: FINAL PAYMENT ---- " + payment + " --> " + endDate + " PRO");
+                mPage.getData().putBoolean(LeaseWizardPage3.LEASE_IS_LAST_PRORATED_REQUIRED_DATA_KEY, true);
+            }
+            //paymentDates.add(endDate.toString("yyyy-MM-dd"));
         }
-        //paymentDates.add(endDate.toString("yyyy-MM-dd"));
         mPage.getData().putStringArrayList(LeaseWizardPage3.LEASE_PAYMENT_DATES_ARRAY_DATA_KEY, paymentDates);
         if (prorated > 0) {
             mPage.getData().putString(LeaseWizardPage3.LEASE_NEED_BRANCH, "Yes");
@@ -346,5 +400,4 @@ public class LeaseWizardPage3Fragment extends android.support.v4.app.Fragment {
         }
         return payment;
     }
-
 }

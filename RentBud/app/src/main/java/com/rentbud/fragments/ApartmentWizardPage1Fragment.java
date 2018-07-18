@@ -6,6 +6,7 @@ import android.content.Context;
 
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
@@ -25,6 +26,7 @@ import com.example.cody.rentbud.R;
 import com.rentbud.activities.MainActivity;
 import com.rentbud.activities.NewApartmentWizard;
 import com.rentbud.activities.NewTenantWizard;
+import com.rentbud.model.Apartment;
 import com.rentbud.wizards.ApartmentWizardPage1;
 import com.rentbud.wizards.LeaseWizardPage2;
 
@@ -42,6 +44,7 @@ public class ApartmentWizardPage1Fragment extends android.support.v4.app.Fragmen
     private EditText addressLine1ET, addressLine2ET, cityET, zipET;
     private Spinner stateSpinner;
     private ArrayAdapter<String> adapter;
+    private boolean isEdit;
 
     public static ApartmentWizardPage1Fragment create(String key) {
         Bundle args = new Bundle();
@@ -62,6 +65,15 @@ public class ApartmentWizardPage1Fragment extends android.support.v4.app.Fragmen
         Bundle args = getArguments();
         mKey = args.getString(ARG_KEY);
         mPage = (ApartmentWizardPage1) mCallbacks.onGetPage(mKey);
+        isEdit = false;
+        Bundle extras = mPage.getData();
+        if (extras != null) {
+            Apartment apartmentToEdit = extras.getParcelable("apartmentToEdit");
+            if (apartmentToEdit != null) {
+                loadDataForEdit(apartmentToEdit);
+                isEdit = true;
+            }
+        }
     }
 
     @Override
@@ -102,7 +114,7 @@ public class ApartmentWizardPage1Fragment extends android.support.v4.app.Fragmen
         stateSpinner.setSelection(mPage.getData().getInt(ApartmentWizardPage1.APARTMENT_STATE_ID_DATA_KEY));
 
         newApartmentHeader = rootView.findViewById(R.id.apartmentWizardPageOneHeader);
-        if(NewApartmentWizard.apartmentToEdit != null){
+        if (isEdit) {
             newApartmentHeader.setText("Edit Apt. Info");
         }
 
@@ -221,7 +233,7 @@ public class ApartmentWizardPage1Fragment extends android.support.v4.app.Fragmen
 
             }
         });
-        if(mPage.getData().getString(ApartmentWizardPage1.APARTMENT_STATE_DATA_KEY) != null){
+        if (mPage.getData().getString(ApartmentWizardPage1.APARTMENT_STATE_DATA_KEY) != null) {
             int spinnerPosition = adapter.getPosition(mPage.getData().getString(ApartmentWizardPage1.APARTMENT_STATE_DATA_KEY));
             stateSpinner.setSelection(spinnerPosition);
             //typeSpinner.setSelection(mPage.getData().getInt(IncomeWizardPage1.INCOME_TYPE_ID_DATA_KEY));
@@ -260,6 +272,25 @@ public class ApartmentWizardPage1Fragment extends android.support.v4.app.Fragmen
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         //Set ArrayAdapter to stateSpinner
         this.stateSpinner.setAdapter(adapter);
+    }
+
+    private void loadDataForEdit(Apartment apartmentToEdit) {
+        if (!mPage.getData().getBoolean(ApartmentWizardPage1.WAS_PRELOADED)) {
+            //Address line 1
+            mPage.getData().putString(ApartmentWizardPage1.APARTMENT_ADDRESS_1_DATA_KEY, apartmentToEdit.getStreet1());
+            //Address line 2
+            if (apartmentToEdit.getStreet2() != null) {
+                mPage.getData().putString(ApartmentWizardPage1.APARTMENT_ADDRESS_2_DATA_KEY, apartmentToEdit.getStreet2());
+            }
+            //City
+            mPage.getData().putString(ApartmentWizardPage1.APARTMENT_CITY_DATA_KEY, apartmentToEdit.getCity());
+            //State
+            mPage.getData().putInt(ApartmentWizardPage1.APARTMENT_STATE_ID_DATA_KEY, apartmentToEdit.getStateID());
+            mPage.getData().putString(ApartmentWizardPage1.APARTMENT_STATE_DATA_KEY, apartmentToEdit.getState());
+            //ZIP
+            mPage.getData().putString(ApartmentWizardPage1.APARTMENT_ZIP_DATA_KEY, apartmentToEdit.getZip());
+            mPage.getData().putBoolean(ApartmentWizardPage1.WAS_PRELOADED, true);
+        }
     }
 }
 

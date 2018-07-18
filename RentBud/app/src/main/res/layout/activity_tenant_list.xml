@@ -57,7 +57,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_marginBottom="40dp"
+        android:layout_marginBottom="70dp"
         android:layout_marginRight="30dp"
         android:onClick="tenantFABClick"
         app:srcCompat="@drawable/ic_add_white_24dp"
@@ -79,7 +79,10 @@
         android:id="@+id/maintenantListView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/tenantSearchToolbar">
+        android:layout_below="@+id/tenantSearchToolbar"
+        android:paddingBottom="160dp"
+        android:clipToPadding="false"
+        >
 
     </ListView>
 

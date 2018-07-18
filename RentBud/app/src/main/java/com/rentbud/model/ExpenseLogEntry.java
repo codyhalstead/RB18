@@ -12,14 +12,18 @@ import java.util.Date;
 
 public class ExpenseLogEntry extends MoneyLogEntry {
     private int apartmentID;
+    private int leaseID;
+    private int tenantID;
     private int typeID;
     private String typeLabel;
     private String receiptPic;
 
-    public ExpenseLogEntry(int id, Date expenseDate, BigDecimal amount, int apartmentID, String description, int typeID, String typeLabel,
+    public ExpenseLogEntry(int id, Date expenseDate, BigDecimal amount, int apartmentID, int leaseID, int tenantID, String description, int typeID, String typeLabel,
             String receiptPic) {
         super(id, expenseDate, amount, description);
         this.apartmentID = apartmentID;
+        this.leaseID = leaseID;
+        this.tenantID = tenantID;
         this.typeID = typeID;
         this.typeLabel = typeLabel;
         this.receiptPic = receiptPic;
@@ -34,6 +38,8 @@ public class ExpenseLogEntry extends MoneyLogEntry {
     public void writeToParcel(Parcel parcel, int i) {
         super.writeToParcel(parcel, i);
         parcel.writeInt(this.apartmentID);
+        parcel.writeInt(this.leaseID);
+        parcel.writeInt(this.tenantID);
         parcel.writeInt(this.typeID);
         parcel.writeString(this.typeLabel);
         if (this.receiptPic != null) {
@@ -47,6 +53,8 @@ public class ExpenseLogEntry extends MoneyLogEntry {
     protected ExpenseLogEntry(Parcel in) {
         super(in);
         this.apartmentID = in.readInt();
+        this.leaseID = in.readInt();
+        this.tenantID = in.readInt();
         this.typeID = in.readInt();
         this.typeLabel = in.readString();
         int size = in.readInt();
@@ -103,4 +111,19 @@ public class ExpenseLogEntry extends MoneyLogEntry {
         this.typeLabel = typeLabel;
     }
 
+    public int getLeaseID() {
+        return leaseID;
+    }
+
+    public void setLeaseID(int leaseID) {
+        this.leaseID = leaseID;
+    }
+
+    public int getTenantID() {
+        return tenantID;
+    }
+
+    public void setTenantID(int tenantID) {
+        this.tenantID = tenantID;
+    }
 }

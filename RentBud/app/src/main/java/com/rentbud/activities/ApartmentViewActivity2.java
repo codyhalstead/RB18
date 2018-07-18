@@ -2,48 +2,70 @@ package com.rentbud.activities;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Color;
-import android.net.Uri;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
-import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.DatePicker;
+import android.widget.LinearLayout;
 
-import com.bumptech.glide.Glide;
 import com.example.cody.rentbud.R;
 import com.rentbud.fragments.ApartmentListFragment;
 import com.rentbud.fragments.ApartmentViewFrag1;
-import com.rentbud.fragments.ApartmentViewFrag2;
 import com.rentbud.fragments.ApartmentViewFrag3;
-import com.rentbud.fragments.ExpenseListFragment;
-import com.rentbud.fragments.LeaseViewFrag1;
-import com.rentbud.fragments.LeaseViewFrag2;
+import com.rentbud.fragments.ApartmentViewFrag2;
 import com.rentbud.fragments.TenantListFragment;
+import com.rentbud.helpers.ApartmentTenantViewModel;
 import com.rentbud.helpers.MainArrayDataMethods;
 import com.rentbud.model.Apartment;
+import com.rentbud.model.Lease;
 import com.rentbud.model.Tenant;
 import com.rentbud.sqlite.DatabaseHandler;
 
-import java.io.File;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
-public class ApartmentViewActivity2 extends BaseActivity {
+public class ApartmentViewActivity2 extends BaseActivity implements View.OnClickListener,
+        ApartmentViewFrag3.OnLeaseDataChangedListener,
+        ApartmentViewFrag2.OnMoneyDataChangedListener {
     Apartment apartment;
     MainArrayDataMethods dataMethods;
     DatabaseHandler databaseHandler;
+    ViewPager.OnPageChangeListener mPageChangeListener;
+    ViewPager viewPager;
+    ApartmentViewActivity2.ViewPagerAdapter adapter;
+    LinearLayout dateSelectorLL;
+    Date filterDateStart, filterDateEnd;
+    Tenant primaryTenant;
+    ArrayList<Tenant> secondaryTenants;
+    Lease currentLease;
+
+    private DatePickerDialog.OnDateSetListener dateSetFilterStartListener, dateSetFilterEndListener;
+    Button dateRangeStartBtn, dateRangeEndBtn;
+    private ApartmentViewFrag1 frag1;
+    private ApartmentViewFrag2 frag2;
+    private ApartmentViewFrag3 frag3;
+    private ApartmentTenantViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,36 +73,119 @@ public class ApartmentViewActivity2 extends BaseActivity {
         setupUserAppTheme(MainActivity.curThemeChoice);
         setContentView(R.layout.activity_lease_view_actual);
 
-        ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
-        ApartmentViewActivity2.ViewPagerAdapter adapter = new ApartmentViewActivity2.ViewPagerAdapter(getSupportFragmentManager());
+        dateSelectorLL = findViewById(R.id.moneyDateSelecterLL);
+        dateSelectorLL.setVisibility(View.GONE);
+        this.dateRangeStartBtn = findViewById(R.id.moneyListDateRangeStartBtn);
+        this.dateRangeStartBtn.setOnClickListener(this);
+        this.dateRangeEndBtn = findViewById(R.id.moneyListDateRangeEndBtn);
+        this.dateRangeEndBtn.setOnClickListener(this);
 
+        viewPager = (ViewPager) findViewById(R.id.pager);
+        //viewPager.setOffscreenPageLimit(2);
+        adapter = new ApartmentViewActivity2.ViewPagerAdapter(getSupportFragmentManager());
         // Add Fragments to adapter one by one
-        //this.dataMethods = new MainArrayDataMethods();
         this.databaseHandler = new DatabaseHandler(this);
+        this.dataMethods = new MainArrayDataMethods();
         Bundle bundle = getIntent().getExtras();
         int apartmentID = bundle.getInt("apartmentID");
-        this.apartment = dataMethods.getCachedApartmentByApartmentID(apartmentID);
+        this.apartment = databaseHandler.getApartmentByID(apartmentID, MainActivity.user);
         bundle.putParcelable("apartment", apartment);
+        viewModel = ViewModelProviders.of(this).get(ApartmentTenantViewModel.class);
+        viewModel.init();
+        viewModel.setApartment(apartment);
+        currentLease = dataMethods.getCachedActiveLeaseByApartmentID(apartment.getId());
+        secondaryTenants = new ArrayList<>();
+        if(currentLease != null){
+            primaryTenant = databaseHandler.getTenantByID(currentLease.getPrimaryTenantID(), MainActivity.user);
+            ArrayList<Integer> secondaryTenantIDs = currentLease.getSecondaryTenantIDs();
+            for (int i = 0; i < secondaryTenantIDs.size(); i++) {
+                Tenant secondaryTenant = databaseHandler.getTenantByID(secondaryTenantIDs.get(i), MainActivity.user);
+                secondaryTenants.add(secondaryTenant);
+            }
+        }
+        viewModel.setLease(currentLease);
+        viewModel.setPrimaryTenant(primaryTenant);
+        viewModel.setSecondaryTenants(secondaryTenants);
         //Get apartment item
         //int leaseID = bundle.getInt("leaseID");
-        Fragment frag1 = new ApartmentViewFrag1();
-        Fragment frag2 = new ApartmentViewFrag2();
-        Fragment frag3 = new ApartmentViewFrag3();
-        frag1.setArguments(bundle);
-        frag2.setArguments(bundle);
-        frag3.setArguments(bundle);
-        adapter.addFragment(frag1, "Apartment Info");
-        adapter.addFragment(frag2, "Expenses");
-        adapter.addFragment(frag3, "Income");
+        if (savedInstanceState != null) {
+            if (savedInstanceState.getString("filterDateStart") != null) {
+                SimpleDateFormat formatTo = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+                DateFormat formatFrom = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
+                try {
+                    Date startDate = formatFrom.parse(savedInstanceState.getString("filterDateStart"));
+                    this.filterDateStart = startDate;
+                    this.dateRangeStartBtn.setText(formatTo.format(startDate));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (savedInstanceState.getString("filterDateEnd") != null) {
+                SimpleDateFormat formatTo = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+                DateFormat formatFrom = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
+                try {
+                    Date endDate = formatFrom.parse(savedInstanceState.getString("filterDateEnd"));
+                    this.filterDateEnd = endDate;
+                    this.dateRangeEndBtn.setText(formatTo.format(endDate));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+        } else {
+            Date endDate = Calendar.getInstance().getTime();
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(endDate);
+            calendar.add(Calendar.YEAR, -1);
+            Date startDate = calendar.getTime();
+            this.filterDateEnd = endDate;
+            this.filterDateStart = startDate;
+        }
+        //ApartmentViewFrag3 ap2 = (ApartmentViewFrag3) frag2;
+        //ap2.updateDates();
+        //((ApartmentViewFrag3) frag2).updateDates();
         // adapter.addFragment(new FragmentThree(), "FRAG3");
         viewPager.setAdapter(adapter);
+        viewModel.setMoneyArray(databaseHandler.getIncomeAndExpensesByApartmentIDWithinDates(MainActivity.user, apartment.getId(), filterDateStart, filterDateEnd));
+        viewModel.setLeaseArray(databaseHandler.getUsersLeasesForApartment(MainActivity.user, apartment.getId()));
+
+        //this.currentFilteredExpenses = db.getUsersExpensesWithinDates(MainActivity.user, startDate, endDate );
+
+        SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+        dateRangeStartBtn.setText(formatter.format(filterDateStart));
+        dateRangeEndBtn.setText(formatter.format(filterDateEnd));
+
+        mPageChangeListener = new ViewPager.OnPageChangeListener() {
+
+            @Override
+            public void onPageScrollStateChanged(int arg0) {
+                // TODO Auto-generated method stub
+
+            }
+
+            @Override
+            public void onPageScrolled(int arg0, float arg1, int arg2) {
+                // TODO Auto-generated method stub
+
+            }
+
+            @Override
+            public void onPageSelected(int pos) {
+                if (pos == 0 || pos == 2) {
+                    dateSelectorLL.setVisibility(View.GONE);
+                } else {
+                    dateSelectorLL.setVisibility(View.VISIBLE);
+                }
+            }
+
+        };
+        viewPager.addOnPageChangeListener(mPageChangeListener);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setSelectedTabIndicatorColor(Color.parseColor("#000000"));
         tabLayout.setTabTextColors(Color.parseColor("#ffffff"), Color.parseColor("#4d4c4b"));
         tabLayout.setupWithViewPager(viewPager);
         setupBasicToolbar();
-        toolbar.setTitle("Date View");
+        setUpdateSelectedDateListeners();
     }
 
     @Override
@@ -169,56 +274,115 @@ public class ApartmentViewActivity2 extends BaseActivity {
         dialog.show();
     }
 
+    private void setUpdateSelectedDateListeners() {
+        dateSetFilterStartListener = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+                //Once user selects date from date picker pop-up,
+                Calendar cal = Calendar.getInstance();
+                cal.set(Calendar.YEAR, year);
+                cal.set(Calendar.MONTH, month);
+                cal.set(Calendar.DATE, day);
+                cal.set(Calendar.HOUR_OF_DAY, 0);
+                cal.set(Calendar.MINUTE, 0);
+                cal.set(Calendar.SECOND, 0);
+                cal.set(Calendar.MILLISECOND, 0);
+                filterDateStart = cal.getTime();
+                //currentFilteredExpenses = db.getUsersExpensesWithinDates(MainActivity.user, filterDateStart, filterDateEnd);
+                //if(currentFilteredExpenses.isEmpty()){
+                //    noExpensesTV.setVisibility(View.VISIBLE);
+                //    noExpensesTV.setText("No Current Expenses");
+                //} else {
+                //    noExpensesTV.setVisibility(View.GONE);
+                //    noExpensesTV.setText("No Current Expenses");
+                //}
+                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+                dateRangeStartBtn.setText(formatter.format(filterDateStart));
+
+                updateFragmentDates();
+                //expenseListAdapter.updateResults(currentFilteredExpenses);
+                //expenseListAdapter.getFilter().filter(searchBarET.getText());
+            }
+        };
+        dateSetFilterEndListener = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+                //Once user selects date from date picker pop-up,
+                Calendar cal = Calendar.getInstance();
+                cal.set(Calendar.YEAR, year);
+                cal.set(Calendar.MONTH, month);
+                cal.set(Calendar.DATE, day);
+                cal.set(Calendar.HOUR_OF_DAY, 0);
+                cal.set(Calendar.MINUTE, 0);
+                cal.set(Calendar.SECOND, 0);
+                cal.set(Calendar.MILLISECOND, 0);
+                filterDateEnd = cal.getTime();
+                //currentFilteredExpenses = db.getUsersExpensesWithinDates(MainActivity.user, filterDateStart, filterDateEnd);
+                //if(currentFilteredExpenses.isEmpty()){
+                //    noExpensesTV.setVisibility(View.VISIBLE);
+                //    noExpensesTV.setText("No Current Expenses");
+                //} else {
+                //    noExpensesTV.setVisibility(View.GONE);
+                //    noExpensesTV.setText("No Current Expenses");
+                //}
+                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+                dateRangeEndBtn.setText(formatter.format(filterDateEnd));
+
+                updateFragmentDates();
+                //expenseListAdapter.notifyDataSetChanged();
+                //expenseListAdapter.updateResults(currentFilteredExpenses);
+                //expenseListAdapter.getFilter().filter(searchBarET.getText());
+            }
+        };
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d("TAG", "onActivityResult: AHHHHHHHHHHHHHHHHHHHHHHHHHHH" + requestCode);
         //Uses apartment form to edit data
         if (requestCode == MainActivity.REQUEST_NEW_APARTMENT_FORM) {
             //If successful(not cancelled, passed validation)
             if (resultCode == RESULT_OK) {
                 //Re-query cached apartment array to update cache and refresh current textViews to display new data. Re-query to sort list
 
-                int apartmentID = data.getIntExtra("editedApartmentID", 0);
-                this.apartment = dataMethods.getCachedApartmentByApartmentID(apartmentID);
+                //int apartmentID = data.getIntExtra("editedApartmentID", 0);
+                this.apartment = databaseHandler.getApartmentByID(apartment.getId(), MainActivity.user);
+                viewModel.setApartment(apartment);
                 //fillTextViews();
-                ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
+                //ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
                 List<Fragment> fragments = getSupportFragmentManager().getFragments();
                 if (fragments != null) {
                     for (Fragment fragment : fragments) {
                         if (fragment != null) {
-                            android.support.v4.app.FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                            fragmentTransaction.detach(fragment);
-                            fragmentTransaction.attach(fragment);
-                            fragmentTransaction.commit();
+                            fragment.onActivityResult(requestCode, resultCode, data);
                         }
                     }
                 }
             }
         }
-        if (requestCode == MainActivity.REQUEST_NEW_EXPENSE_FORM) {
-            Log.d("TAG", "onActivityResult: AHHHHHHHHHHHHHHHHHHHHHHHHHHH");
-            //If successful(not cancelled, passed validation)
-            if (resultCode == RESULT_OK) {
-                //Re-query cached apartment array to update cache and refresh current fragment to display new data
-                //int expenseID = data.getIntExtra("editedExpenseID", 0);
-                //this.expense = databaseHandler.getExpenseLogEntryByID(expenseID, MainActivity.user);
-                //fillTextViews();
-                Log.d("TAG", "onActivityResult: AHHHHHHHHHHHHHHHHHHHHHHHHHHH");
-                ExpenseListFragment.expenseListAdapterNeedsRefreshed = true;
-                List<Fragment> fragments = getSupportFragmentManager().getFragments();
-                if (fragments != null) {
-                    for (Fragment fragment : fragments) {
-                        if (fragment != null) {
-                            android.support.v4.app.FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                            fragmentTransaction.detach(fragment);
-                            fragmentTransaction.attach(fragment);
-                            fragmentTransaction.commit();
-                        }
-                    }
-                }
-            }
-        } else {
+        //if (requestCode == MainActivity.REQUEST_NEW_EXPENSE_FORM) {
+        //    //If successful(not cancelled, passed validation)
+        //    if (resultCode == RESULT_OK) {
+        //        //Re-query cached apartment array to update cache and refresh current fragment to display new data
+        //        //int expenseID = data.getIntExtra("editedExpenseID", 0);
+        //        //this.expense = databaseHandler.getExpenseLogEntryByID(expenseID, MainActivity.user);
+        //        //fillTextViews();
+        //        Log.d("TAG", "onActivityResult: FUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU");
+        //        ExpenseListFragment.expenseListAdapterNeedsRefreshed = true;
+        //        List<Fragment> fragments = getSupportFragmentManager().getFragments();
+        //        if (fragments != null) {
+        //            for (Fragment fragment : fragments) {
+        //                if (fragment != null) {
+        //                    android.support.v4.app.FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        //                    fragmentTransaction.detach(fragment);
+        //                    fragmentTransaction.attach(fragment);
+        //                    fragmentTransaction.commit();
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
+        else {
             List<Fragment> fragments = getSupportFragmentManager().getFragments();
             if (fragments != null) {
                 for (Fragment fragment : fragments) {
@@ -290,10 +454,86 @@ public class ApartmentViewActivity2 extends BaseActivity {
         //}
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
+        if (filterDateStart != null) {
+            outState.putString("filterDateStart", formatter.format(filterDateStart));
+        }
+        if (filterDateEnd != null) {
+            outState.putString("filterDateEnd", formatter.format(filterDateEnd));
+        }
+        //getSupportFragmentManager().putFragment(outState, "frag1",  (adapter.getItem(0)));
+        //getSupportFragmentManager().putFragment(outState, "frag2",  (adapter.getItem(1)));
+        //getSupportFragmentManager().putFragment(outState, "frag3",  (adapter.getItem(2)));
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+
+            case R.id.moneyListDateRangeStartBtn:
+                Calendar cal = Calendar.getInstance();
+                if (filterDateStart != null) {
+                    cal.setTime(filterDateStart);
+                }
+                int year = cal.get(Calendar.YEAR);
+                int month = cal.get(Calendar.MONTH);
+                int day = cal.get(Calendar.DAY_OF_MONTH);
+                DatePickerDialog dialog = new DatePickerDialog(this, android.R.style.Theme_Holo_Light_Dialog_MinWidth, dateSetFilterStartListener, year, month, day);
+                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                dialog.show();
+                break;
+
+            case R.id.moneyListDateRangeEndBtn:
+                Calendar cal2 = Calendar.getInstance();
+                if (filterDateEnd != null) {
+                    cal2.setTime(filterDateEnd);
+                }
+                int year2 = cal2.get(Calendar.YEAR);
+                int month2 = cal2.get(Calendar.MONTH);
+                int day2 = cal2.get(Calendar.DAY_OF_MONTH);
+                DatePickerDialog dialog2 = new DatePickerDialog(this, android.R.style.Theme_Holo_Light_Dialog_MinWidth, dateSetFilterEndListener, year2, month2, day2);
+                dialog2.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                dialog2.show();
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    private void updateFragmentDates() {
+        if (frag2 != null) {
+            frag2.updateData();
+        }
+        if (frag3 != null) {
+            frag3.updateData();
+        }
+    }
+
+    @Override
+    public void onLeaseDataChanged() {
+        this.apartment = databaseHandler.getApartmentByID(apartment.getId(), MainActivity.user);
+        viewModel.setApartment(apartment);
+        //viewModel.setLease(null); //TODO update lease
+        viewModel.setLeaseArray(databaseHandler.getUsersLeasesForApartment(MainActivity.user, apartment.getId()));
+        viewModel.setMoneyArray(databaseHandler.getIncomeAndExpensesByApartmentIDWithinDates(MainActivity.user, apartment.getId(), filterDateStart, filterDateEnd));
+        frag2.updateData();
+        frag3.updateData();
+    }
+
+    @Override
+    public void onMoneyDataChanged() {
+        viewModel.setMoneyArray(databaseHandler.getIncomeAndExpensesByApartmentIDWithinDates(MainActivity.user, apartment.getId(), filterDateStart, filterDateEnd));
+        frag2.updateData();
+    }
+
     // Adapter for the viewpager using FragmentPagerAdapter
-    class ViewPagerAdapter extends FragmentPagerAdapter {
-        private final List<Fragment> mFragmentList = new ArrayList<>();
-        private final List<String> mFragmentTitleList = new ArrayList<>();
+    class ViewPagerAdapter extends FragmentStatePagerAdapter {
+        //private final List<Fragment> mFragmentList = new ArrayList<>();
+        //private final List<String> mFragmentTitleList = new ArrayList<>();
 
         public ViewPagerAdapter(FragmentManager manager) {
             super(manager);
@@ -301,22 +541,65 @@ public class ApartmentViewActivity2 extends BaseActivity {
 
         @Override
         public Fragment getItem(int position) {
-            return mFragmentList.get(position);
+            Bundle bundle = new Bundle();
+            bundle.putParcelable("apartment", apartment);
+            switch (position) {
+                case 0:
+                    ApartmentViewFrag1 frg1 = new ApartmentViewFrag1();
+                    frg1.setArguments(bundle);
+                    return frg1;
+                case 1:
+                    ApartmentViewFrag2 frg2 = new ApartmentViewFrag2();
+                    frg2.setArguments(bundle);
+                    return frg2;
+                case 2:
+                    ApartmentViewFrag3 frg3 = new ApartmentViewFrag3();
+                    frg3.setArguments(bundle);
+                    return frg3;
+                default:
+                    return null;
+            }
         }
 
         @Override
         public int getCount() {
-            return mFragmentList.size();
-        }
-
-        public void addFragment(Fragment fragment, String title) {
-            mFragmentList.add(fragment);
-            mFragmentTitleList.add(title);
+            return 3;
         }
 
         @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            Fragment createdFragment = (Fragment) super.instantiateItem(container, position);
+            // save the appropriate reference depending on position
+            switch (position) {
+                case 0:
+                    frag1 = (ApartmentViewFrag1) createdFragment;
+                    break;
+                case 1:
+                    frag2 = (ApartmentViewFrag2) createdFragment;
+                    break;
+                case 2:
+                    frag3 = (ApartmentViewFrag3) createdFragment;
+                    break;
+            }
+            return createdFragment;
+        }
+
+        //public void addFragment(Fragment fragment, String title) {
+        //    mFragmentList.add(fragment);
+        //    mFragmentTitleList.add(title);
+        //}
+
+        @Override
         public CharSequence getPageTitle(int position) {
-            return mFragmentTitleList.get(position);
+            switch (position) {
+                case 0:
+                    return "Info";
+                case 1:
+                    return "Payments";
+                case 2:
+                    return "History";
+            }
+            return "";
         }
     }
 }

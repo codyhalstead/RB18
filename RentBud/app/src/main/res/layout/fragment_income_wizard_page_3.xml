@@ -72,16 +72,17 @@
                 android:id="@+id/incomeWizardLeaseLinkingTV"
                 style="@style/FormText"
                 android:layout_width="match_parent"
-                android:layout_height="40dp"
+                android:layout_height="80dp"
                 android:layout_marginBottom="20dp"
                 android:background="@drawable/rect_edit"
-                android:gravity="center_vertical"
+                android:paddingTop="10dp"
                 android:hint="Click to add lease, leave blank if not"
                 android:paddingEnd="10dp"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
                 android:paddingStart="10dp"
-                android:saveEnabled="false" />
+                android:saveEnabled="false"
+                />
 
             <TextView
                 style="@style/FormText"

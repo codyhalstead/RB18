@@ -16,6 +16,7 @@ import android.widget.Scroller;
 
 import com.example.android.wizardpager.wizard.ui.PageFragmentCallbacks;
 import com.example.cody.rentbud.R;
+import com.rentbud.model.Tenant;
 import com.rentbud.wizards.TenantWizardPage1;
 import com.rentbud.wizards.TenantWizardPage2;
 
@@ -51,6 +52,13 @@ public class TenantWizardPage2Fragment extends android.support.v4.app.Fragment {
         Bundle args = getArguments();
         mKey = args.getString(ARG_KEY);
         mPage = (TenantWizardPage2) mCallbacks.onGetPage(mKey);
+        Bundle extras = mPage.getData();
+        if (extras != null) {
+            Tenant tenantToEdit = extras.getParcelable("tenantToEdit");
+            if (tenantToEdit != null) {
+                loadDataForEdit(tenantToEdit);
+            }
+        }
     }
 
     @Override
@@ -160,7 +168,7 @@ public class TenantWizardPage2Fragment extends android.support.v4.app.Fragment {
         this.emerPhoneET.addTextChangedListener(createPhoneNumberTextWatcher());
     }
 
-    private TextWatcher createPhoneNumberTextWatcher(){
+    private TextWatcher createPhoneNumberTextWatcher() {
         TextWatcher textWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -217,5 +225,17 @@ public class TenantWizardPage2Fragment extends android.support.v4.app.Fragment {
         };
         return textWatcher;
     }
+
+    private void loadDataForEdit(Tenant tenantToEdit) {
+        if (!mPage.getData().getBoolean(TenantWizardPage2.WAS_PRELOADED)) {
+        //E.First name
+        mPage.getData().putString(TenantWizardPage2.TENANT_EMERGENCY_FIRST_NAME_DATA_KEY, tenantToEdit.getEmergencyFirstName());
+        //E.Last name
+        mPage.getData().putString(TenantWizardPage2.TENANT_EMERGENCY_LAST_NAME_DATA_KEY, tenantToEdit.getEmergencyLastName());
+        //E.Phone
+        mPage.getData().putString(TenantWizardPage2.TENANT_EMERGENCY_PHONE_DATA_KEY, tenantToEdit.getEmergencyPhone());
+        mPage.getData().putBoolean(TenantWizardPage2.WAS_PRELOADED, true);
+    }
+}
 
 }

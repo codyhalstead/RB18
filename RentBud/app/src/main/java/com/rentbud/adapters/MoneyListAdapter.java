@@ -57,7 +57,10 @@ public class MoneyListAdapter extends BaseAdapter implements Filterable {
 
     @Override
     public int getCount() {
-        return filteredResults.size();
+        if(filteredResults != null) {
+            return filteredResults.size();
+        }
+        return 0;
     }
 
     @Override
@@ -99,12 +102,14 @@ public class MoneyListAdapter extends BaseAdapter implements Filterable {
             SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
             viewHolder.dateTV.setText(formatter.format(moneyEntry.getDate()));
             if( todaysDate.compareTo(moneyEntry.getDate()) < 0){
-                viewHolder.amountTV.setTextColor(context.getResources().getColor(R.color.text_light));
+                convertView.setBackgroundColor(convertView.getResources().getColor(R.color.lightGrey));
+            } else {
+                convertView.setBackgroundColor(convertView.getResources().getColor(R.color.white));
             }
 
             if(moneyEntry instanceof ExpenseLogEntry){
                 ExpenseLogEntry expense = (ExpenseLogEntry)moneyEntry;
-                viewHolder.amountTV.setText("-" + usdCostFormat.format(displayVal.doubleValue()));
+                viewHolder.amountTV.setText(usdCostFormat.format(displayVal.doubleValue()));
                 viewHolder.typeTV.setText(expense.getTypeLabel());
                 viewHolder.amountTV.setTextColor(context.getResources().getColor(R.color.red));
             } else if(moneyEntry instanceof PaymentLogEntry){

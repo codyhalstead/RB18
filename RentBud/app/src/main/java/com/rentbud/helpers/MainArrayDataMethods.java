@@ -4,12 +4,15 @@ import android.content.Context;
 import android.support.annotation.Nullable;
 import android.util.Pair;
 
+import com.example.android.wizardpager.wizard.model.AbstractWizardModel;
 import com.rentbud.activities.MainActivity;
 import com.rentbud.model.Apartment;
 import com.rentbud.model.ExpenseLogEntry;
 import com.rentbud.model.Lease;
+import com.rentbud.model.MoneyLogEntry;
 import com.rentbud.model.PaymentLogEntry;
 import com.rentbud.model.Tenant;
+import com.rentbud.model.TypeTotal;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -173,7 +176,7 @@ public class MainArrayDataMethods {
                     return comp;
                 } else {
                     String s1 = tenant.getFirstName();
-                    String s2 = tenant.getFirstName();
+                    String s2 = t1.getFirstName();
                     comp = s1.compareTo(s2);
                     if (comp != 0) {
                         return comp;
@@ -183,6 +186,63 @@ public class MainArrayDataMethods {
                         return os1.compareTo(os2);
                     }
                 }
+            }
+        });
+    }
+
+    public ArrayList<MoneyLogEntry> sortMoneyByDate(ArrayList<MoneyLogEntry> moneyLogEntries){
+        Collections.sort(moneyLogEntries, new Comparator<MoneyLogEntry>() {
+            @Override
+            public int compare(MoneyLogEntry moneyLogEntry, MoneyLogEntry t1) {
+                return moneyLogEntry.getDate().compareTo(t1.getDate());
+            }
+        });
+        return moneyLogEntries;
+    }
+
+    public void sortLeaseArrayByStartDateAsc(ArrayList<Lease> leases){
+        Collections.sort(leases, new Comparator<Lease>() {
+            @Override
+            public int compare(Lease lease, Lease t1) {
+                return lease.getLeaseStart().compareTo(t1.getLeaseStart());
+            }
+        });
+    }
+
+    public void sortTenantArrayAlphabetically(ArrayList<Tenant> tenants){
+        Collections.sort(tenants, new Comparator<Tenant>() {
+            @Override
+            public int compare(Tenant tenant, Tenant t1) {
+                String s1 = tenant.getFirstName();
+                String s2 = t1.getFirstName();
+                 int comp = s1.compareTo(s2);
+                if (comp != 0) {
+                    return comp;
+                } else {
+                    String os1 = tenant.getLastName();
+                    String os2 = t1.getLastName();
+                    return os1.compareTo(os2);
+                }
+            }
+        });
+    }
+
+    public void sortApartmentArrayAlphabetically(ArrayList<Apartment> apartments){
+        Collections.sort(apartments, new Comparator<Apartment>() {
+            @Override
+            public int compare(Apartment apartment, Apartment t1) {
+                String s1 = apartment.getCity();
+                String s2 = t1.getCity();
+                return s1.compareTo(s2);
+            }
+        });
+    }
+
+    public void sortTypeTotalsArrayByTotalAmountDesc(ArrayList<TypeTotal> typeTotals){
+        Collections.sort(typeTotals, new Comparator<TypeTotal>() {
+            @Override
+            public int compare(TypeTotal typeTotal, TypeTotal t1) {
+                return t1.getTotalAmount().compareTo(typeTotal.getTotalAmount());
             }
         });
     }

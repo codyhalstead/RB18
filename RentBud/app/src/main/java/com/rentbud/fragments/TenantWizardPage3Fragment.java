@@ -13,6 +13,7 @@ import android.widget.EditText;
 
 import com.example.android.wizardpager.wizard.ui.PageFragmentCallbacks;
 import com.example.cody.rentbud.R;
+import com.rentbud.model.Tenant;
 import com.rentbud.wizards.TenantWizardPage1;
 import com.rentbud.wizards.TenantWizardPage3;
 
@@ -44,6 +45,13 @@ public class TenantWizardPage3Fragment extends android.support.v4.app.Fragment {
         Bundle args = getArguments();
         mKey = args.getString(ARG_KEY);
         mPage = (TenantWizardPage3) mCallbacks.onGetPage(mKey);
+        Bundle extras = mPage.getData();
+        if (extras != null) {
+            Tenant tenantToEdit = extras.getParcelable("tenantToEdit");
+            if (tenantToEdit != null) {
+                loadDataForEdit(tenantToEdit);
+            }
+        }
     }
 
     @Override
@@ -111,6 +119,14 @@ public class TenantWizardPage3Fragment extends android.support.v4.app.Fragment {
             if (!menuVisible) {
                 imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
             }
+        }
+    }
+
+    private void loadDataForEdit(Tenant tenantToEdit) {
+        if (!mPage.getData().getBoolean(TenantWizardPage3.WAS_PRELOADED)) {
+            //Notes
+            mPage.getData().putString(TenantWizardPage3.TENANT_NOTES_DATA_KEY, tenantToEdit.getNotes());
+            mPage.getData().putBoolean(TenantWizardPage3.WAS_PRELOADED, true);
         }
     }
 }

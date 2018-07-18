@@ -44,6 +44,10 @@ public abstract class AbstractWizardModel implements ModelCallbacks {
      */
     protected abstract PageList onNewRootPageList();
 
+    //Modified by Cody {
+    public abstract void preloadData(Bundle bundle);
+    //}
+
     @Override
     public void onPageDataChanged(Page page) {
         // can't use for each because of concurrent modification (review fragment

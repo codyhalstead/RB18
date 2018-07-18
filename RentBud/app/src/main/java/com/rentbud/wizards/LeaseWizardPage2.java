@@ -1,5 +1,6 @@
 package com.rentbud.wizards;
 
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -24,47 +25,19 @@ public class LeaseWizardPage2 extends Page {
     public static final String LEASE_PRIMARY_TENANT_STRING_DATA_KEY = "lease_primary_tenant_string";
     public static final String LEASE_SECONDARY_TENANTS_STRING_DATA_KEY = "lease_secondary_tenants_string";
     public static final String LEASE_DEPOSIT_FORMATTED_STRING_DATA_KEY = "lease_deposit_string";
-    public static final String LEASE_DEPOSIT_WITHHELD_FORMATTED_STRING_DATA_KEY = "lease_deposit_withheld_string";
+    //public static final String LEASE_DEPOSIT_WITHHELD_FORMATTED_STRING_DATA_KEY = "lease_deposit_withheld_string";
 
     public static final String LEASE_PRIMARY_TENANT_DATA_KEY = "lease_primary_tenant";
     public static final String LEASE_SECONDARY_TENANTS_DATA_KEY = "lease_secondary_tenants";
     public static final String LEASE_DEPOSIT_STRING_DATA_KEY = "lease_deposit";
-    public static final String LEASE_DEPOSIT_WITHHELD_STRING_DATA_KEY = "lease_deposit_withheld";
+    public static final String WAS_PRELOADED = "lease_page_2_was_preloaded";
+    //public static final String LEASE_DEPOSIT_WITHHELD_STRING_DATA_KEY = "lease_deposit_withheld";
+    private boolean isEdit;
 
-    public LeaseWizardPage2(ModelCallbacks callbacks, String title) {
+    public LeaseWizardPage2(ModelCallbacks callbacks, String title, boolean isEdit) {
         super(callbacks, title);
-        Lease lease = NewLeaseWizard.leaseToEdit;
-        if(lease != null){
-            MainArrayDataMethods dataMethods = new MainArrayDataMethods();
-
-            Pair<Tenant, ArrayList<Tenant>> tenants = dataMethods.getCachedPrimaryAndSecondaryTenantsByLease(lease);
-            Tenant primaryTenant = tenants.first;
-            ArrayList<Tenant> secondaryTenants= tenants.second;
-
-            //Tenant primaryTenant = dataMethods.getCachedTenantByTenantID(lease.getPrimaryTenantID());
-            String primaryTenantString = primaryTenant.getFirstName();
-            primaryTenantString += " ";
-            primaryTenantString += primaryTenant.getLastName();
-            String secondaryTenantsString = "";
-            for (int i = 0; i < secondaryTenants.size(); i++) {
-                secondaryTenantsString += (secondaryTenants.get(i).getFirstName() +
-                        " " + secondaryTenants.get(i).getLastName() +
-                        "\n");
-            }
-            BigDecimal deposit = lease.getDeposit();
-            String formattedDeposit = NumberFormat.getCurrencyInstance().format(deposit);
-            BigDecimal depositWithheld = lease.getDepositWithheld();
-            String formattedDepositWithheld = NumberFormat.getCurrencyInstance().format(depositWithheld);
-            mData.putString(LEASE_PRIMARY_TENANT_STRING_DATA_KEY, primaryTenantString);
-            mData.putString(LEASE_SECONDARY_TENANTS_STRING_DATA_KEY, secondaryTenantsString);
-            mData.putString(LEASE_DEPOSIT_FORMATTED_STRING_DATA_KEY, formattedDeposit);
-            mData.putString(LEASE_DEPOSIT_WITHHELD_FORMATTED_STRING_DATA_KEY, formattedDepositWithheld);
-            mData.putParcelable(LEASE_PRIMARY_TENANT_DATA_KEY, primaryTenant);
-            mData.putParcelableArrayList(LEASE_SECONDARY_TENANTS_DATA_KEY, secondaryTenants);
-            mData.putString(LEASE_DEPOSIT_STRING_DATA_KEY, deposit.toPlainString());
-            mData.putString(LEASE_DEPOSIT_WITHHELD_STRING_DATA_KEY, depositWithheld.toPlainString());
-            this.notifyDataChanged();
-        }
+        this.isEdit = isEdit;
+        mData.putBoolean(WAS_PRELOADED, false);
     }
 
     @Override
@@ -76,8 +49,10 @@ public class LeaseWizardPage2 extends Page {
     public void getReviewItems(ArrayList<ReviewItem> dest) {
         dest.add(new ReviewItem("Primary Tenant", mData.getString(LEASE_PRIMARY_TENANT_STRING_DATA_KEY), getKey(), -1));
         dest.add(new ReviewItem("Other Tenants", mData.getString(LEASE_SECONDARY_TENANTS_STRING_DATA_KEY), getKey(), -1));
-        dest.add(new ReviewItem("Deposit", mData.getString(LEASE_DEPOSIT_FORMATTED_STRING_DATA_KEY), getKey(), -1));
-        dest.add(new ReviewItem("Deposit Withheld", mData.getString(LEASE_DEPOSIT_WITHHELD_FORMATTED_STRING_DATA_KEY), getKey(), -1));
+        if(!isEdit) {
+            dest.add(new ReviewItem("Deposit", mData.getString(LEASE_DEPOSIT_FORMATTED_STRING_DATA_KEY), getKey(), -1));
+        }
+        //dest.add(new ReviewItem("Deposit Withheld", mData.getString(LEASE_DEPOSIT_WITHHELD_FORMATTED_STRING_DATA_KEY), getKey(), -1));
     }
 
     @Override

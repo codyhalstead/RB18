@@ -217,7 +217,7 @@ public class CustomCalendarAdapter extends CaldroidGridAdapter {
         leaseEndDatesHM = leaseEndDatesAndAmounts;
         expenseDatesHM = expenseDatesAndAmounts;
         incomeDatesHM = incomeDatesAndAmounts;
-        //TODO
+        this.notifyDataSetChanged();
     }
 
 }

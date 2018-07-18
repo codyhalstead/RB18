@@ -338,6 +338,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 fragment = new LeaseListFragment();
                 isHomeFragDisplayed = false;
                 isLeaseFragDisplayed = true;
+                break;
 
             case R.id.nav_totals:
                 fragment = new TotalsFragment();

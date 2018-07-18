@@ -107,6 +107,7 @@
 
             <TextView style="@style/WizardTitle"
                 android:text="Deposit"
+                android:id="@+id/leaseWizardDepositHeaderTV"
                 />
 
             <TextView

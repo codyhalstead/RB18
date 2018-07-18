@@ -26,6 +26,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Locale;
 
+import static android.app.Activity.RESULT_OK;
+
 public class LeaseViewFrag1 extends Fragment {
     Lease lease;
     TextView apartmentStreet1TV, apartmentStreet2TV, apartmentCityTV, apartmentStateTV, apartmentZIPTV, primaryTenantFirstNameTV,
@@ -66,17 +68,15 @@ public class LeaseViewFrag1 extends Fragment {
             //If new
             Bundle bundle = getArguments();
             //Get apartment item
-            int leaseID = bundle.getInt("leaseID");
-            this.lease = databaseHandler.getLeaseByID(MainActivity.user, leaseID);
-            this.apartment = dataMethods.getCachedApartmentByApartmentID(lease.getApartmentID());
-            Pair<Tenant, ArrayList<Tenant>> tenants = dataMethods.getCachedPrimaryAndSecondaryTenantsByLease(lease);
-            this.primaryTenant = tenants.first;
-            this.secondaryTenants = tenants.second;
-            if(primaryTenant == null){
-                primaryTenant = databaseHandler.getTenantByID(lease.getPrimaryTenantID(), MainActivity.user);
-            }
-            if(apartment == null){
-                apartment = databaseHandler.getApartmentByID(lease.getApartmentID(), MainActivity.user);
+            // int leaseID = bundle.getInt("leaseID");
+            this.lease = bundle.getParcelable("lease");
+            this.apartment = databaseHandler.getApartmentByID(lease.getApartmentID(), MainActivity.user);
+            this.primaryTenant = databaseHandler.getTenantByID(lease.getPrimaryTenantID(), MainActivity.user);
+            secondaryTenants = new ArrayList<>();
+            ArrayList<Integer> secondaryTenantIDs = lease.getSecondaryTenantIDs();
+            for (int i = 0; i < secondaryTenantIDs.size(); i++) {
+                Tenant secondaryTenant = databaseHandler.getTenantByID(secondaryTenantIDs.get(i), MainActivity.user);
+                secondaryTenants.add(secondaryTenant);
             }
         }
         getActivity().setTitle("Lease View");
@@ -84,7 +84,7 @@ public class LeaseViewFrag1 extends Fragment {
     }
 
     private void fillTextViews() {
-        if(apartment != null) {
+        if (apartment != null) {
             apartmentStreet1TV.setText(apartment.getStreet1());
             if (apartment.getStreet2() != null) {
                 if (apartment.getStreet2().equals("")) {
@@ -110,7 +110,7 @@ public class LeaseViewFrag1 extends Fragment {
             apartmentStateTV.setText("");
             apartmentZIPTV.setText("");
         }
-        if(primaryTenant != null) {
+        if (primaryTenant != null) {
             primaryTenantFirstNameTV.setText(primaryTenant.getFirstName());
             primaryTenantLastNameTV.setText(primaryTenant.getLastName());
             primaryTenantPhoneTV.setText(primaryTenant.getPhone());
@@ -183,24 +183,31 @@ public class LeaseViewFrag1 extends Fragment {
         }
     }
 
-    //  @Override
-    //  public void onActivityResult(int requestCode, int resultCode, Intent data) {
-    //      super.onActivityResult(requestCode, resultCode, data);
-    //      if (requestCode == MainActivity.REQUEST_NEW_LEASE_FORM) {
-    //          //If successful(not cancelled, passed validation)
-    //          if (resultCode == RESULT_OK) {
-    //Re-query cached apartment array to update cache and refresh current fragment to display new data
-    //int leaseID = data.getIntExtra("editedLeaseID", 0);
-    //              this.lease = databaseHandler.getLeaseByID(MainActivity.user, lease.getId());
-    //              this.apartment = dataMethods.getCachedApartmentByApartmentID(lease.getApartmentID());
-    //              Pair<Tenant, ArrayList<Tenant>> tenants = dataMethods.getCachedPrimaryAndSecondaryTenantsByLease(lease);
-    //              this.primaryTenant = tenants.first;
-    //              this.secondaryTenants = tenants.second;
-    //              fillTextViews();
-    //              LeaseListFragment.leaseListAdapterNeedsRefreshed = true;
-    //          }
-    //      }
-    //  }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == MainActivity.REQUEST_NEW_LEASE_FORM) {
+            //If successful(not cancelled, passed validation)
+            if (resultCode == RESULT_OK) {
+                //Re - query cached apartment array to update cache and refresh current fragment to display new data
+                int leaseID = data.getIntExtra("editedLeaseID", 0);
+                this.lease = databaseHandler.getLeaseByID(MainActivity.user, lease.getId());
+                //this.apartment = dataMethods.getCachedApartmentByApartmentID(lease.getApartmentID());
+                //Pair<Tenant, ArrayList<Tenant>> tenants = dataMethods.getCachedPrimaryAndSecondaryTenantsByLease(lease);
+                //this.primaryTenant = tenants.first;
+                //this.secondaryTenants = tenants.second;
+                this.apartment = databaseHandler.getApartmentByID(lease.getApartmentID(), MainActivity.user);
+                this.primaryTenant = databaseHandler.getTenantByID(lease.getPrimaryTenantID(), MainActivity.user);
+                ArrayList<Integer> secondaryTenantIDs = lease.getSecondaryTenantIDs();
+                for (int i = 0; i < secondaryTenantIDs.size(); i++) {
+                    Tenant secondaryTenant = databaseHandler.getTenantByID(secondaryTenantIDs.get(i), MainActivity.user);
+                    secondaryTenants.add(secondaryTenant);
+                }
+                fillTextViews();
+                LeaseListFragment.leaseListAdapterNeedsRefreshed = true;
+            }
+        }
+    }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {

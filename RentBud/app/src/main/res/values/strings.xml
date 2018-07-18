@@ -34,10 +34,12 @@
     <string-array name="DBIncomeLookupTypes_array">
         <item>Rent</item>
         <item>Late Fee</item>
+        <item>Deposit</item>
     </string-array>
 
     <string-array name="DBExpenseLookupTypes_array">
         <item>Utility</item>
+        <item>Deposit Returned</item>
         <item>Renovation</item>
         <item>Repairs</item>
     </string-array>

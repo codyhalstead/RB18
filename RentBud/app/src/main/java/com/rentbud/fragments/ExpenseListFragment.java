@@ -31,9 +31,13 @@ import com.rentbud.adapters.ApartmentListAdapter;
 import com.rentbud.adapters.ExpenseListAdapter;
 import com.rentbud.model.Apartment;
 import com.rentbud.model.ExpenseLogEntry;
+import com.rentbud.model.PaymentLogEntry;
 import com.rentbud.sqlite.DatabaseHandler;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DateFormat;
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -48,7 +52,7 @@ import static android.content.ContentValues.TAG;
  */
 
 public class ExpenseListFragment extends android.support.v4.app.Fragment implements AdapterView.OnItemClickListener, View.OnClickListener {
-    TextView noExpensesTV;
+    TextView noExpensesTV, totalAmountTV, totalAmountLabelTV;
     EditText searchBarET;
     ExpenseListAdapter expenseListAdapter;
     ColorStateList accentColor;
@@ -59,6 +63,7 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
     private DatePickerDialog.OnDateSetListener dateSetFilterStartListener, dateSetFilterEndListener;
     private DatabaseHandler db;
     private ArrayList<ExpenseLogEntry> currentFilteredExpenses;
+    private BigDecimal total;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -75,6 +80,8 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
         this.dateRangeStartBtn.setOnClickListener(this);
         this.dateRangeEndBtn = view.findViewById(R.id.moneyListDateRangeEndBtn);
         this.dateRangeEndBtn.setOnClickListener(this);
+        this.totalAmountLabelTV = view.findViewById(R.id.moneyListTotalAmountLabelTV);
+        this.totalAmountTV = view.findViewById(R.id.moneyListTotalAmountTV);
         this.listView = view.findViewById(R.id.mainMoneyListView);
         this.db = new DatabaseHandler(getContext());
         if(savedInstanceState != null) {
@@ -105,6 +112,10 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
             } else {
                 this.currentFilteredExpenses = new ArrayList<>();
             }
+            if (savedInstanceState.getString("totalString") != null) {
+                String totalString = savedInstanceState.getString("totalString");
+                this.total = new BigDecimal(totalString);
+            }
         } else {
             Date endDate = Calendar.getInstance().getTime();
             Calendar calendar = Calendar.getInstance();
@@ -118,7 +129,7 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
             SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
             dateRangeStartBtn.setText(formatter.format(filterDateStart));
             dateRangeEndBtn.setText(formatter.format(filterDateEnd));
-
+            total = getTotal(currentFilteredExpenses);
         }
         setUpdateSelectedDateListeners();
         getActivity().setTitle("Expense View");
@@ -129,6 +140,13 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
         this.accentColor = getActivity().getResources().getColorStateList(colorValue.resourceId);
         setUpListAdapter();
         setUpSearchBar();
+        setTotalTV();
+        expenseListAdapter.setOnDataChangeListener(new ExpenseListAdapter.OnDataChangeListener() {
+            public void onDataChanged(ArrayList<ExpenseLogEntry> filteredResults) {
+                total = getTotal(filteredResults);
+                setTotalTV();
+            }
+        });
     }
 
     @Override
@@ -146,7 +164,7 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
                 }
                 expenseListAdapter.updateResults(this.currentFilteredExpenses);
                 expenseListAdapterNeedsRefreshed = false;
-                //expenseListAdapter.getFilter().filter("");
+                //leaseListAdapter.getFilter().filter("");
                 searchBarET.setText(searchBarET.getText());
                 searchBarET.setSelection(searchBarET.getText().length());
             }
@@ -309,6 +327,33 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
         }
         if (currentFilteredExpenses != null) {
             outState.putParcelableArrayList("filteredExpenses", currentFilteredExpenses);
+        }
+        if(total != null){
+            String totalString = total.toPlainString();
+            outState.putString("totalString", totalString);
+        }
+    }
+
+    private BigDecimal getTotal(ArrayList<ExpenseLogEntry> filteredExpenseArray) {
+        BigDecimal total = new BigDecimal(0);
+        if (filteredExpenseArray != null) {
+            if (!filteredExpenseArray.isEmpty()) {
+                for (int i = 0; i < filteredExpenseArray.size(); i++) {
+                    total = total.add(filteredExpenseArray.get(i).getAmount());
+                }
+            }
+        }
+        return total;
+    }
+
+    private void setTotalTV() {
+        totalAmountTV.setTextColor(getActivity().getResources().getColor(R.color.red));
+        if (total != null) {
+            BigDecimal displayVal = total.setScale(2, RoundingMode.HALF_EVEN);
+            NumberFormat usdCostFormat = NumberFormat.getCurrencyInstance(Locale.US);
+            usdCostFormat.setMinimumFractionDigits(2);
+            usdCostFormat.setMaximumFractionDigits(2);
+            totalAmountTV.setText("-" + usdCostFormat.format(displayVal.doubleValue()));
         }
     }
 

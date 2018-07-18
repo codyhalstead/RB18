@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -55,6 +56,7 @@ public class IncomeViewActivity extends BaseActivity {
             //Get apartment item
             int incomeID = bundle.getInt("incomeID");
             this.income = databaseHandler.getPaymentLogEntryByID(incomeID, MainActivity.user);
+            Log.d("TAG", "onCreate: " + income.getTenantID());
             if (income.getReceiptPic() != null) {
                 this.receiptPic = income.getReceiptPic();
             }

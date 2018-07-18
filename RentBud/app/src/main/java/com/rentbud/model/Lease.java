@@ -21,11 +21,11 @@ public class Lease implements Parcelable {
     private int paymentDay;
     private BigDecimal monthlyRentCost;
     private BigDecimal deposit;
-    private BigDecimal depositWithheld;
+    //private BigDecimal depositWithheld;
     private String notes;
 
     public Lease(int id, int primaryTenantID, ArrayList<Integer> secondaryTenantIDs, int apartmentID, Date leaseStart, Date leaseEnd, int paymentDay,
-                 BigDecimal monthlyRentCost, BigDecimal deposit, BigDecimal depositWithheld, String notes) {
+                 BigDecimal monthlyRentCost, BigDecimal deposit, String notes) {
         this.id = id;
         this.primaryTenantID = primaryTenantID;
         this.secondaryTenantIDs = secondaryTenantIDs;
@@ -35,7 +35,7 @@ public class Lease implements Parcelable {
         this.paymentDay = paymentDay;
         this.monthlyRentCost = monthlyRentCost;
         this.deposit = deposit;
-        this.depositWithheld = depositWithheld;
+        //this.depositWithheld = depositWithheld;
         this.notes = notes;
     }
 
@@ -72,7 +72,7 @@ public class Lease implements Parcelable {
         parcel.writeString(amountString);
         amountString = this.deposit.toPlainString();
         parcel.writeString(amountString);
-        amountString = depositWithheld.toPlainString();
+        //amountString = depositWithheld.toPlainString();
         parcel.writeString(amountString);
         parcel.writeString(this.notes);
     }
@@ -105,7 +105,7 @@ public class Lease implements Parcelable {
         amountString = parcel.readString();
         this.deposit = new BigDecimal(amountString);
         amountString = parcel.readString();
-        this.depositWithheld = new BigDecimal(amountString);
+        //this.depositWithheld = new BigDecimal(amountString);
         this.notes = parcel.readString();
     }
 
@@ -197,13 +197,13 @@ public class Lease implements Parcelable {
         this.deposit = deposit;
     }
 
-    public BigDecimal getDepositWithheld() {
-        return depositWithheld;
-    }
+    //public BigDecimal getDepositWithheld() {
+    //    return depositWithheld;
+    //}
 
-    public void setDepositWithheld(BigDecimal depositWithheld) {
-        this.depositWithheld = depositWithheld;
-    }
+    //public void setDepositWithheld(BigDecimal depositWithheld) {
+    //    this.depositWithheld = depositWithheld;
+    //}
 
     public String getNotes() {
         return notes;

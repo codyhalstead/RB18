@@ -44,6 +44,47 @@
                 android:saveEnabled="false" />
 
             <TextView
+                android:id="@+id/expenseWizardTenantLinkingLabelTV"
+                style="@style/WizardFormLabel"
+                android:text="Is Expense Related To A Tenant?" />
+
+            <TextView
+                android:id="@+id/expenseWizardTenantLinkingTV"
+                style="@style/FormText"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/rect_edit"
+                android:gravity="center_vertical"
+                android:hint="Click to add tenant, leave blank if not"
+                android:paddingEnd="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingStart="10dp"
+                android:saveEnabled="false" />
+
+            <TextView
+                android:id="@+id/expenseWizardLeaseLinkingLabelTV"
+                style="@style/WizardFormLabel"
+                android:text="Is Expense Related to a Lease?" />
+
+            <TextView
+                android:id="@+id/expenseWizardLeaseLinkingTV"
+                style="@style/FormText"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/rect_edit"
+                android:paddingTop="10dp"
+                android:hint="Click to add lease, leave blank if not"
+                android:paddingEnd="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingStart="10dp"
+                android:saveEnabled="false"
+                />
+
+            <TextView
                 style="@style/FormText"
                 android:id="@+id/expenseWizardHintTV"
                 android:layout_width="wrap_content"
