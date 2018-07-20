@@ -117,20 +117,10 @@ public class TenantOrApartmentChooserDialog extends Dialog implements AdapterVie
     }
 
     private void setUpTenantListAdapter() {
-        if (availableTenants != null) {
-            if (!availableTenants.isEmpty()) {
-                //If MainActivity5.tenantList is not null or empty, set apartment list adapter
-                tenantListAdapter = new TenantDialogListAdapter(context, availableTenants, accentColor);
-                listView.setAdapter(tenantListAdapter);
-                listView.setOnItemClickListener(this);
-            } else {
-                //If MainActivity5.tenantList is not null but is empty, show empty list text
-                emptyListTV.setVisibility(View.VISIBLE);
-            }
-        } else {
-            //If MainActivity5.tenantList is null show empty list text
-            emptyListTV.setVisibility(View.VISIBLE);
-        }
+        tenantListAdapter = new TenantDialogListAdapter(context, availableTenants, accentColor);
+        listView.setAdapter(tenantListAdapter);
+        listView.setOnItemClickListener(this);
+        this.listView.setEmptyView(emptyListTV);
     }
 
     public void changeCancelBtnText(String string){
@@ -138,34 +128,17 @@ public class TenantOrApartmentChooserDialog extends Dialog implements AdapterVie
     }
 
     private void setUpApartmentListAdapter() {
-        if (availableApartments != null) {
-            if (!availableApartments.isEmpty()) {
-                apartmentListAdapter = new ApartmentDialogListAdapter(context, availableApartments, accentColor);
-                listView.setAdapter(apartmentListAdapter);
-                listView.setOnItemClickListener(this);
-            } else {
-                emptyListTV.setVisibility(View.VISIBLE);
-            }
-        } else {
-            emptyListTV.setVisibility(View.VISIBLE);
-        }
+        apartmentListAdapter = new ApartmentDialogListAdapter(context, availableApartments, accentColor);
+        listView.setAdapter(apartmentListAdapter);
+        listView.setOnItemClickListener(this);
+        this.listView.setEmptyView(emptyListTV);
     }
 
     private void setUpLeaseListAdapter() {
-        if (availableLeases != null) {
-            if (!availableLeases.isEmpty()) {
-                //If MainActivity5.tenantList is not null or empty, set apartment list adapter
-                leaseListAdapter = new LeaseDialogListAdapter(context, availableLeases, accentColor);
-                listView.setAdapter(leaseListAdapter);
-                listView.setOnItemClickListener(this);
-            } else {
-                //If MainActivity5.tenantList is not null but is empty, show empty list text
-                emptyListTV.setVisibility(View.VISIBLE);
-            }
-        } else {
-            //If MainActivity5.tenantList is null show empty list text
-            emptyListTV.setVisibility(View.VISIBLE);
-        }
+        leaseListAdapter = new LeaseDialogListAdapter(context, availableLeases, accentColor);
+        listView.setAdapter(leaseListAdapter);
+        listView.setOnItemClickListener(this);
+        this.listView.setEmptyView(emptyListTV);
     }
 
 

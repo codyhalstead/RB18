@@ -19,8 +19,11 @@ import com.rentbud.fragments.DateViewFrag2;
 import com.rentbud.helpers.ApartmentTenantViewModel;
 import com.rentbud.sqlite.DatabaseHandler;
 
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -39,6 +42,7 @@ public class SingleDateViewActivity extends BaseActivity implements DateViewFrag
     private ApartmentTenantViewModel viewModel;
     private DateViewFrag1 frag1;
     private DateViewFrag2 frag2;
+    private Boolean wasLeaseEdited, wasIncomeEdited, wasExpenseEdited;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -56,6 +60,15 @@ public class SingleDateViewActivity extends BaseActivity implements DateViewFrag
         dateTV.setText(formatter.format(date));
         setupBasicToolbar();
 
+        if (savedInstanceState != null) {
+            wasLeaseEdited = savedInstanceState.getBoolean("was_lease_edited");
+            wasIncomeEdited = savedInstanceState.getBoolean("was_income_edited");
+            wasExpenseEdited = savedInstanceState.getBoolean("was_expense_edited");
+        } else {
+            wasLeaseEdited = false;
+            wasIncomeEdited = false;
+            wasExpenseEdited = false;
+        }
         viewModel = ViewModelProviders.of(this).get(ApartmentTenantViewModel.class);
         viewModel.init();
         viewModel.setDate(date);
@@ -69,7 +82,31 @@ public class SingleDateViewActivity extends BaseActivity implements DateViewFrag
         tabLayout.setupWithViewPager(viewPager);
         setupBasicToolbar();
         toolbar.setTitle("Date View");
+        if (wasLeaseEdited || wasIncomeEdited || wasExpenseEdited) {
+            setResultToEdited();
+        } else {
+            setResult(RESULT_OK);
+        }
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (wasLeaseEdited || wasIncomeEdited || wasExpenseEdited) {
+            setResultToEdited();
+        } else {
+            setResult(RESULT_OK);
+        }
+    }
+
+    private void setResultToEdited() {
+        Intent intent = new Intent();
+        intent.putExtra("was_lease_edited", wasLeaseEdited);
+        intent.putExtra("was_income_edited", wasIncomeEdited);
+        intent.putExtra("was_expense_edited", wasExpenseEdited);
+        setResult(MainActivity.RESULT_DATA_WAS_MODIFIED, intent);
+    }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -87,8 +124,11 @@ public class SingleDateViewActivity extends BaseActivity implements DateViewFrag
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        outState.putBoolean("was_lease_edited", wasLeaseEdited);
+        outState.putBoolean("was_income_edited", wasIncomeEdited);
+        outState.putBoolean("was_expense_edited", wasExpenseEdited);
     }
 
     @Override
@@ -98,11 +138,32 @@ public class SingleDateViewActivity extends BaseActivity implements DateViewFrag
     }
 
     @Override
+    public void onIncomeDataChanged() {
+        wasIncomeEdited = true;
+        setResultToEdited();
+    }
+
+    @Override
+    public void onExpenseDataChanged() {
+        wasExpenseEdited = true;
+        setResultToEdited();
+    }
+
+    @Override
     public void onLeaseDataChanged() {
         viewModel.setLeaseArray(databaseHandler.getLeasesStartingOrEndingOnDate(MainActivity.user, date));
         viewModel.setMoneyArray(databaseHandler.getIncomeAndExpensesForDate(MainActivity.user, date));
         frag1.updateData();
         frag2.updateData();
+        wasLeaseEdited = true;
+        setResultToEdited();
+    }
+
+    @Override
+    public void onLeasePaymentsChanged(){
+        wasExpenseEdited = true;
+        wasIncomeEdited = true;
+        setResultToEdited();
     }
 
     // Adapter for the viewpager using FragmentPagerAdapter

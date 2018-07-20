@@ -118,6 +118,7 @@ public class DateViewFrag2 extends android.support.v4.app.Fragment implements Ad
 
     public interface OnLeaseDataChangedListener{
         void onLeaseDataChanged();
+        void onLeasePaymentsChanged();
     }
 
     @Override
@@ -132,6 +133,12 @@ public class DateViewFrag2 extends android.support.v4.app.Fragment implements Ad
             throw new ClassCastException(activity.toString()
                     + " must implement OnLeaseDataChangedListener");
         }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mCallback = null;
     }
 
     private void setUpListAdapter() {
@@ -229,6 +236,7 @@ public class DateViewFrag2 extends android.support.v4.app.Fragment implements Ad
                 db.setAllExpensesRelatedToLeaseInactive(selectedLease.getId());
                 db.setAllIncomeRelatedToLeaseInactive(selectedLease.getId());
                 mCallback.onLeaseDataChanged();
+                mCallback.onLeasePaymentsChanged();
             }
         });
 
@@ -247,6 +255,7 @@ public class DateViewFrag2 extends android.support.v4.app.Fragment implements Ad
                 //leaseListAdapter.updateResults(currentFilteredLeases);
                 //leaseListAdapter.notifyDataSetChanged();
                 mCallback.onLeaseDataChanged();
+                mCallback.onLeasePaymentsChanged();
             }
         }
     }

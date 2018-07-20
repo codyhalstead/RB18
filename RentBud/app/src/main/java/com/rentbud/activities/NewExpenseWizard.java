@@ -167,7 +167,7 @@ public class NewExpenseWizard extends BaseActivity implements
                     } else {
                         ExpenseLogEntry expense = new ExpenseLogEntry(-1, date, amount, apartmentID, leaseID, tenantID, description, typeID, type, receiptPic);
                         dbHandler.addExpenseLogEntry(expense, MainActivity.user.getId());
-                        ExpenseListFragment.expenseListAdapterNeedsRefreshed = true;
+                        //ExpenseListFragment.expenseListAdapterNeedsRefreshed = true;
                         setResult(RESULT_OK);
                     }
                     finish();

@@ -1,6 +1,7 @@
 package com.rentbud.activities;
 
 import android.app.AlertDialog;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -16,6 +17,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,7 +32,9 @@ import com.rentbud.fragments.IncomeListFragment;
 import com.rentbud.fragments.LeaseListFragment;
 import com.rentbud.fragments.TenantListFragment;
 import com.rentbud.fragments.TotalsFragment;
+import com.rentbud.helpers.ApartmentTenantViewModel;
 import com.rentbud.helpers.MainArrayDataMethods;
+import com.rentbud.helpers.MainViewModel;
 import com.rentbud.model.Apartment;
 import com.rentbud.model.Lease;
 import com.rentbud.model.Tenant;
@@ -38,9 +42,15 @@ import com.rentbud.model.User;
 import com.rentbud.sqlite.DatabaseHandler;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.TreeMap;
 
-public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener,
+        LeaseListFragment.OnDatesChangedListener,
+        ExpenseListFragment.OnDatesChangedListener,
+        IncomeListFragment.OnDatesChangedListener,
+        TotalsFragment.OnDatesChangedListener {
     //Request codes
     public static final int REQUEST_SIGNIN = 77;
     public static final int REQUEST_GALLERY_FOR_MAIN_PIC = 20;
@@ -50,6 +60,14 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     public static final int REQUEST_NEW_LEASE_FORM = 38;
     public static final int REQUEST_NEW_EXPENSE_FORM = 39;
     public static final int REQUEST_NEW_INCOME_FORM = 40;
+    public static final int REQUEST_LEASE_VIEW = 41;
+    public static final int REQUEST_APARTMENT_VIEW = 42;
+    public static final int REQUEST_TENANT_VIEW = 43;
+    public static final int REQUEST_INCOME_VIEW = 44;
+    public static final int REQUEST_EXPENSE_VIEW = 45;
+    public static final int REQUEST_CALENDAR_VIEW = 46;
+
+    public static final int RESULT_DATA_WAS_MODIFIED = 80;
     //Fragment tag
     public static final String CURRENT_FRAG_TAG = "current_frag_tag";
     //initialized with initializeVariables()
@@ -77,6 +95,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     public static TreeMap<String, Integer> expenseTypeLabels;
     public static TreeMap<String, Integer> incomeTypeLabels;
     public static TreeMap<String, Integer> eventTypeLabels;
+    //public Date filterDateStart, filterDateEnd;
+    public MainViewModel viewModel;
 
     int testTenants = 0;
     int testApartments = 0;
@@ -112,6 +132,23 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
             //Cache users data into arrayLists
             cacheUsersDB();
+            viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
+            if (viewModel.getCachedApartments() == null) {
+                viewModel.init();
+                //viewModel.setCachedApartments(dbHandler.getUsersApartments(MainActivity.user));
+                //viewModel.setCachedTenants(dbHandler.getUsersTenants(MainActivity.user));
+                Date endDate = Calendar.getInstance().getTime();
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(endDate);
+                calendar.add(Calendar.YEAR, -1);
+                Date startDate = calendar.getTime();
+                viewModel.setStartDateRange(startDate);
+                viewModel.setEndDateRange(endDate);
+                viewModel.setCachedExpenses(dbHandler.getUsersExpensesWithinDates(MainActivity.user, startDate, endDate));
+                viewModel.setCachedIncome(dbHandler.getUsersIncomeWithinDates(MainActivity.user, startDate, endDate));
+                viewModel.setCachedLeases(dbHandler.getUsersActiveLeasesWithinDates(MainActivity.user, startDate, endDate));
+            }
+
             //TODO change caching so it doesn't re-cache on phone flip
         }
     }
@@ -187,8 +224,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             //If successful(not cancelled, passed validation)
             if (resultCode == RESULT_OK) {
                 //Re-query cached apartment array to update cache and refresh current fragment to display new data
-                dataMethods.sortMainApartmentArray();
-                refreshFragView();
+                MainActivity.apartmentList = dbHandler.getUsersApartmentsIncludingInactive(MainActivity.user);
+                //refreshFragView();
             }
         }
         //NewTenantFormActivity result
@@ -196,14 +233,15 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             //If successful(not cancelled, passed validation)
             if (resultCode == RESULT_OK) {
                 //Re-query cached tenant array to update cache and refresh current fragment to display new data
-                dataMethods.sortMainTenantArray();
-                refreshFragView();
+                MainActivity.tenantList = dbHandler.getUsersTenantsIncludingInactive(MainActivity.user);
+                //refreshFragView();
             }
         }
         if (requestCode == REQUEST_NEW_EXPENSE_FORM) {
             //If successful(not cancelled, passed validation)
             if (resultCode == RESULT_OK) {
                 //Re-query cached tenant array to update cache and refresh current fragment to display new data
+                viewModel.setCachedExpenses(dbHandler.getUsersExpensesWithinDates(MainActivity.user, viewModel.getStartDateRangeDate().getValue(), viewModel.getEndDateRangeDate().getValue()));
                 //dataMethods.sortMainExpenseArray();
                 //refreshFragView();
             }
@@ -211,9 +249,108 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         if (requestCode == REQUEST_NEW_INCOME_FORM) {
             //If successful(not cancelled, passed validation)
             if (resultCode == RESULT_OK) {
+                viewModel.setCachedIncome(dbHandler.getUsersIncomeWithinDates(MainActivity.user, viewModel.getStartDateRangeDate().getValue(), viewModel.getEndDateRangeDate().getValue()));
                 //Re-query cached tenant array to update cache and refresh current fragment to display new data
                 //dataMethods.sortMainIncomeArray();
                 //refreshFragView();
+            }
+        }
+        if (requestCode == REQUEST_NEW_LEASE_FORM) {
+            //If successful(not cancelled, passed validation)
+            if (resultCode == RESULT_OK) {
+                viewModel.setCachedLeases(dbHandler.getUsersActiveLeasesWithinDates(MainActivity.user, viewModel.getStartDateRangeDate().getValue(), viewModel.getEndDateRangeDate().getValue()));
+                viewModel.setCachedIncome(dbHandler.getUsersIncomeWithinDates(MainActivity.user, viewModel.getStartDateRangeDate().getValue(), viewModel.getEndDateRangeDate().getValue()));
+                viewModel.setCachedExpenses(dbHandler.getUsersExpensesWithinDates(MainActivity.user, viewModel.getStartDateRangeDate().getValue(), viewModel.getEndDateRangeDate().getValue()));
+                MainActivity.tenantList = dbHandler.getUsersTenantsIncludingInactive(MainActivity.user);
+                MainActivity.tenantList = dbHandler.getUsersTenantsIncludingInactive(MainActivity.user);
+                //Re-query cached tenant array to update cache and refresh current fragment to display new data
+                //dataMethods.sortMainIncomeArray();
+                //refreshFragView();
+            }
+        }
+        if (requestCode == REQUEST_INCOME_VIEW) {
+            if (resultCode == RESULT_DATA_WAS_MODIFIED) {
+                viewModel.setCachedIncome(dbHandler.getUsersIncomeWithinDates(MainActivity.user, viewModel.getStartDateRangeDate().getValue(), viewModel.getEndDateRangeDate().getValue()));
+            }
+        }
+        if (requestCode == REQUEST_EXPENSE_VIEW) {
+            if (resultCode == RESULT_DATA_WAS_MODIFIED) {
+                viewModel.setCachedExpenses(dbHandler.getUsersExpensesWithinDates(MainActivity.user, viewModel.getStartDateRangeDate().getValue(), viewModel.getEndDateRangeDate().getValue()));
+            }
+        }
+        if (requestCode == REQUEST_LEASE_VIEW) {
+            if (resultCode == RESULT_DATA_WAS_MODIFIED) {
+                if (data.getExtras().getBoolean("was_lease_edited")) {
+                    viewModel.setCachedLeases(dbHandler.getUsersActiveLeasesWithinDates(MainActivity.user, viewModel.getStartDateRangeDate().getValue(), viewModel.getEndDateRangeDate().getValue()));
+                    MainActivity.tenantList = dbHandler.getUsersTenantsIncludingInactive(MainActivity.user);
+                    MainActivity.apartmentList = dbHandler.getUsersApartmentsIncludingInactive(MainActivity.user);
+                }
+                if (data.getExtras().getBoolean("was_income_edited")) {
+                    viewModel.setCachedIncome(dbHandler.getUsersIncomeWithinDates(MainActivity.user, viewModel.getStartDateRangeDate().getValue(), viewModel.getEndDateRangeDate().getValue()));
+                }
+                if (data.getExtras().getBoolean("was_expense_edited")) {
+                    viewModel.setCachedExpenses(dbHandler.getUsersExpensesWithinDates(MainActivity.user, viewModel.getStartDateRangeDate().getValue(), viewModel.getEndDateRangeDate().getValue()));
+                }
+            }
+        }
+        if (requestCode == REQUEST_TENANT_VIEW) {
+            if (resultCode == RESULT_DATA_WAS_MODIFIED) {
+                boolean wasTenantListRefreshed = false;
+                if (data.getExtras().getBoolean("was_lease_edited")) {
+                    viewModel.setCachedLeases(dbHandler.getUsersActiveLeasesWithinDates(MainActivity.user, viewModel.getStartDateRangeDate().getValue(), viewModel.getEndDateRangeDate().getValue()));
+                    MainActivity.apartmentList = dbHandler.getUsersApartmentsIncludingInactive(MainActivity.user);
+                    MainActivity.tenantList = dbHandler.getUsersTenantsIncludingInactive(MainActivity.user);
+                    wasTenantListRefreshed = true;
+                }
+                if (data.getExtras().getBoolean("was_income_edited")) {
+                    viewModel.setCachedIncome(dbHandler.getUsersIncomeWithinDates(MainActivity.user, viewModel.getStartDateRangeDate().getValue(), viewModel.getEndDateRangeDate().getValue()));
+                }
+                if (data.getExtras().getBoolean("was_expense_edited")) {
+                    viewModel.setCachedExpenses(dbHandler.getUsersExpensesWithinDates(MainActivity.user, viewModel.getStartDateRangeDate().getValue(), viewModel.getEndDateRangeDate().getValue()));
+                }
+                if (data.getExtras().getBoolean("was_tenant_edited")) {
+                    if (!wasTenantListRefreshed) {
+                        MainActivity.tenantList = dbHandler.getUsersTenantsIncludingInactive(MainActivity.user);
+                    }
+                }
+            }
+        }
+        if (requestCode == REQUEST_APARTMENT_VIEW) {
+            if (resultCode == RESULT_DATA_WAS_MODIFIED) {
+                boolean wasApartmentListRefreshed = false;
+                if (data.getExtras().getBoolean("was_lease_edited")) {
+                    viewModel.setCachedLeases(dbHandler.getUsersActiveLeasesWithinDates(MainActivity.user, viewModel.getStartDateRangeDate().getValue(), viewModel.getEndDateRangeDate().getValue()));
+                    MainActivity.apartmentList = dbHandler.getUsersApartmentsIncludingInactive(MainActivity.user);
+                    MainActivity.tenantList = dbHandler.getUsersTenantsIncludingInactive(MainActivity.user);
+                    wasApartmentListRefreshed = true;
+                }
+                if (data.getExtras().getBoolean("was_income_edited")) {
+                    viewModel.setCachedIncome(dbHandler.getUsersIncomeWithinDates(MainActivity.user, viewModel.getStartDateRangeDate().getValue(), viewModel.getEndDateRangeDate().getValue()));
+                }
+                if (data.getExtras().getBoolean("was_expense_edited")) {
+                    viewModel.setCachedExpenses(dbHandler.getUsersExpensesWithinDates(MainActivity.user, viewModel.getStartDateRangeDate().getValue(), viewModel.getEndDateRangeDate().getValue()));
+                }
+                if (data.getExtras().getBoolean("was_apartment_edited")) {
+                    if (!wasApartmentListRefreshed) {
+                        MainActivity.apartmentList = dbHandler.getUsersApartmentsIncludingInactive(MainActivity.user);
+                    }
+                }
+            }
+        }
+        if (requestCode == REQUEST_CALENDAR_VIEW) {
+            if (resultCode == RESULT_DATA_WAS_MODIFIED) {
+                if (data.getExtras().getBoolean("was_lease_edited")) {
+                    viewModel.setCachedLeases(dbHandler.getUsersActiveLeasesWithinDates(MainActivity.user, viewModel.getStartDateRangeDate().getValue(), viewModel.getEndDateRangeDate().getValue()));
+                    MainActivity.apartmentList = dbHandler.getUsersApartmentsIncludingInactive(MainActivity.user);
+                    MainActivity.tenantList = dbHandler.getUsersTenantsIncludingInactive(MainActivity.user);
+                }
+                if (data.getExtras().getBoolean("was_income_edited")) {
+                    viewModel.setCachedIncome(dbHandler.getUsersIncomeWithinDates(MainActivity.user, viewModel.getStartDateRangeDate().getValue(), viewModel.getEndDateRangeDate().getValue()));
+                }
+                if (data.getExtras().getBoolean("was_expense_edited")) {
+                    Log.d("TAG", "onActivityResult: AHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
+                    viewModel.setCachedExpenses(dbHandler.getUsersExpensesWithinDates(MainActivity.user, viewModel.getStartDateRangeDate().getValue(), viewModel.getEndDateRangeDate().getValue()));
+                }
             }
         }
     }
@@ -226,8 +363,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         editor.putString("last_user_password", "");
         editor.apply();
         MainActivity.user = null;
-        MainActivity.apartmentList.clear();
-        MainActivity.tenantList.clear();
+        //MainActivity.apartmentList.clear();
+        //MainActivity.tenantList.clear();
         MainActivity.currentLeasesList.clear();
         //MainActivity5.incomeList.clear();
         //MainActivity5.expenseList.clear();
@@ -296,6 +433,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         Bundle bundle = new Bundle();
         isExpenseFragDisplayed = false;
         isLeaseFragDisplayed = false;
+        isHomeFragDisplayed = false;
         switch (id) {
 
             case R.id.nav_home:
@@ -308,41 +446,34 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             case R.id.nav_calendar:
                 //Calendar fragment
                 fragment = new CalendarFragment();
-                isHomeFragDisplayed = false;
                 break;
 
             case R.id.nav_apartment:
                 //Apartment list fragment
                 fragment = new ApartmentListFragment();
-                isHomeFragDisplayed = false;
                 break;
 
             case R.id.nav_tenant:
                 //Tenant list fragment
                 fragment = new TenantListFragment();
-                isHomeFragDisplayed = false;
                 break;
 
             case R.id.nav_income:
                 fragment = new IncomeListFragment();
-                isHomeFragDisplayed = false;
                 break;
 
             case R.id.nav_expenses:
                 fragment = new ExpenseListFragment();
-                isHomeFragDisplayed = false;
                 isExpenseFragDisplayed = true;
                 break;
 
             case R.id.nav_lease:
                 fragment = new LeaseListFragment();
-                isHomeFragDisplayed = false;
                 isLeaseFragDisplayed = true;
                 break;
 
             case R.id.nav_totals:
                 fragment = new TotalsFragment();
-                isHomeFragDisplayed = false;
                 break;
         }
         if (fragment != null) {
@@ -390,11 +521,11 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         if (isExpenseFragDisplayed) {
             Intent intent = new Intent(this, NewExpenseWizard.class);
             startActivityForResult(intent, REQUEST_NEW_EXPENSE_FORM);
-        } else if(isLeaseFragDisplayed) {
-           // showNewOrOldLeaseAlertDialog(view);
+        } else if (isLeaseFragDisplayed) {
+            // showNewOrOldLeaseAlertDialog(view);
             Intent intent = new Intent(MainActivity.this, NewLeaseWizard.class);
             startActivityForResult(intent, MainActivity.REQUEST_NEW_LEASE_FORM);
-        }else {
+        } else {
             Intent intent = new Intent(this, NewIncomeWizard.class);
             startActivityForResult(intent, REQUEST_NEW_INCOME_FORM);
         }
@@ -407,30 +538,30 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         //builder.setMessage("Is this lease current, or completed and for record keeping?");
 
         // add the buttons
-       // builder.setPositiveButton("Current", new DialogInterface.OnClickListener() {
-       //     @Override
-       //     public void onClick(DialogInterface dialogInterface, int i) {
-                //Intent intent = new Intent(MainActivity.this, NewLeaseFormActivity.class);
-                //Uses filtered results to match what is on screen
-                //intent.putExtra("isLeaseForHistory", false);
-                //startActivityForResult(intent, MainActivity.REQUEST_NEW_LEASE_FORM);
-                Intent intent = new Intent(MainActivity.this, NewLeaseWizard.class);
-                startActivityForResult(intent, MainActivity.REQUEST_NEW_LEASE_FORM);
-       //     }
-       // });
-       // builder.setNegativeButton("Completed", new DialogInterface.OnClickListener() {
-       //     @Override
-       //     public void onClick(DialogInterface dialogInterface, int i) {
-       //         Intent intent = new Intent(MainActivity.this, NewLeaseFormActivity.class);
-                //Uses filtered results to match what is on screen
-       //         intent.putExtra("isLeaseForHistory", true);
-       //         startActivityForResult(intent, MainActivity.REQUEST_NEW_LEASE_FORM);
-       //     }
-       // });
+        // builder.setPositiveButton("Current", new DialogInterface.OnClickListener() {
+        //     @Override
+        //     public void onClick(DialogInterface dialogInterface, int i) {
+        //Intent intent = new Intent(MainActivity.this, NewLeaseFormActivity.class);
+        //Uses filtered results to match what is on screen
+        //intent.putExtra("isLeaseForHistory", false);
+        //startActivityForResult(intent, MainActivity.REQUEST_NEW_LEASE_FORM);
+        Intent intent = new Intent(MainActivity.this, NewLeaseWizard.class);
+        startActivityForResult(intent, MainActivity.REQUEST_NEW_LEASE_FORM);
+        //     }
+        // });
+        // builder.setNegativeButton("Completed", new DialogInterface.OnClickListener() {
+        //     @Override
+        //     public void onClick(DialogInterface dialogInterface, int i) {
+        //         Intent intent = new Intent(MainActivity.this, NewLeaseFormActivity.class);
+        //Uses filtered results to match what is on screen
+        //         intent.putExtra("isLeaseForHistory", true);
+        //         startActivityForResult(intent, MainActivity.REQUEST_NEW_LEASE_FORM);
+        //     }
+        // });
 
         // create and show the alert dialog
-       // AlertDialog dialog = builder.create();
-       // dialog.show();
+        // AlertDialog dialog = builder.create();
+        // dialog.show();
     }
 
     private void refreshFragView() {
@@ -515,18 +646,18 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         //MainActivity5.incomeList = dbHandler.getUsersIncomeWithinDates(MainActivity5.user, startDate, endDate);
     }
 
-    public static void updateApartmentList(ArrayList<Apartment> apartmentList) {
-        MainActivity.apartmentList.clear();
-        for (int i = 0; i < apartmentList.size(); i++) {
-            MainActivity.apartmentList.add(apartmentList.get(i));
-        }
-    }
+    //public static void updateApartmentList(ArrayList<Apartment> apartmentList) {
+    //    MainActivity.apartmentList.clear();
+    //    for (int i = 0; i < apartmentList.size(); i++) {
+    //        MainActivity.apartmentList.add(apartmentList.get(i));
+    //    }
+    //}
 
     public void add100Tenants(View view) {
         int i = 0;
         while (i < 100) {
             Tenant tenant = new Tenant(-1, "Frank", "Lascelles " + testTenants, "563-598-8965", "snappydude@hotmail.com", "Matt",
-                    "Thurston", "568-785-8956",  false, "Is frank " + testTenants, true);
+                    "Thurston", "568-785-8956", false, "Is frank " + testTenants, true);
             dbHandler.addNewTenant(tenant, user.getId());
             testTenants++;
             i++;
@@ -544,10 +675,44 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }
     }
 
-    public void leaseSample(View view) {
-        Intent intent = new Intent(MainActivity.this, LeaseViewActivity2.class);
-        intent.putExtra("leaseID", 10);
-        startActivity(intent);
+
+    @Override
+    public void onLeaseListDatesChanged(Date dateStart, Date dateEnd, LeaseListFragment fragment) {
+        viewModel.setStartDateRange(dateStart);
+        viewModel.setEndDateRange(dateEnd);
+        viewModel.setCachedLeases(dbHandler.getUsersActiveLeasesWithinDates(MainActivity.user, dateStart, dateEnd));
+        viewModel.setCachedIncome(dbHandler.getUsersIncomeWithinDates(MainActivity.user, dateStart, dateEnd));
+        viewModel.setCachedExpenses(dbHandler.getUsersExpensesWithinDates(MainActivity.user, dateStart, dateEnd));
+        fragment.updateData(viewModel.getCachedLeases().getValue());
+    }
+
+    @Override
+    public void onExpenseListDatesChanged(Date dateStart, Date dateEnd, ExpenseListFragment fragment) {
+        viewModel.setStartDateRange(dateStart);
+        viewModel.setEndDateRange(dateEnd);
+        viewModel.setCachedLeases(dbHandler.getUsersActiveLeasesWithinDates(MainActivity.user, dateStart, dateEnd));
+        viewModel.setCachedIncome(dbHandler.getUsersIncomeWithinDates(MainActivity.user, dateStart, dateEnd));
+        viewModel.setCachedExpenses(dbHandler.getUsersExpensesWithinDates(MainActivity.user, dateStart, dateEnd));
+        fragment.updateData(viewModel.getCachedExpenses().getValue());
+    }
+
+    @Override
+    public void onIncomeListDatesChanged(Date dateStart, Date dateEnd, IncomeListFragment fragment) {
+        viewModel.setStartDateRange(dateStart);
+        viewModel.setEndDateRange(dateEnd);
+        viewModel.setCachedLeases(dbHandler.getUsersActiveLeasesWithinDates(MainActivity.user, dateStart, dateEnd));
+        viewModel.setCachedIncome(dbHandler.getUsersIncomeWithinDates(MainActivity.user, dateStart, dateEnd));
+        viewModel.setCachedExpenses(dbHandler.getUsersExpensesWithinDates(MainActivity.user, dateStart, dateEnd));
+        fragment.updateData(viewModel.getCachedIncome().getValue());
+    }
+
+    @Override
+    public void onTotalsListDatesChanged(Date dateStart, Date dateEnd, TotalsFragment fragment) {
+        viewModel.setStartDateRange(dateStart);
+        viewModel.setEndDateRange(dateEnd);
+        viewModel.setCachedLeases(dbHandler.getUsersActiveLeasesWithinDates(MainActivity.user, dateStart, dateEnd));
+        viewModel.setCachedIncome(dbHandler.getUsersIncomeWithinDates(MainActivity.user, dateStart, dateEnd));
+        viewModel.setCachedExpenses(dbHandler.getUsersExpensesWithinDates(MainActivity.user, dateStart, dateEnd));
     }
 
     //public void add100Expenses(View view) {
@@ -559,5 +724,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     //  i++;
     // }
     //}
+
 
 }

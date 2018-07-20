@@ -1,6 +1,8 @@
 package com.rentbud.fragments;
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -25,21 +27,17 @@ import com.example.cody.rentbud.R;
 import com.rentbud.activities.IncomeViewActivity;
 import com.rentbud.activities.MainActivity;
 import com.rentbud.adapters.IncomeListAdapter;
+import com.rentbud.helpers.MainViewModel;
 import com.rentbud.model.PaymentLogEntry;
-import com.rentbud.sqlite.DatabaseHandler;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.DateFormat;
 import java.text.NumberFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-
-import static android.support.constraint.Constraints.TAG;
 
 /**
  * Created by Cody on 3/23/2018.
@@ -52,12 +50,14 @@ public class IncomeListFragment extends android.support.v4.app.Fragment implemen
     IncomeListAdapter incomeListAdapter;
     ColorStateList accentColor;
     ListView listView;
-    public static boolean incomeListAdapterNeedsRefreshed;
+    //public static boolean incomeListAdapterNeedsRefreshed;
     Date filterDateStart, filterDateEnd;
     private DatePickerDialog.OnDateSetListener dateSetFilterStartListener, dateSetFilterEndListener;
-    private DatabaseHandler db;
-    private ArrayList<PaymentLogEntry> currentFilteredIncome;
+    //private DatabaseHandler db;
+    //private ArrayList<PaymentLogEntry> currentFilteredIncome;
     private BigDecimal total;
+    private OnDatesChangedListener mCallback;
+    private boolean needsRefreshedOnResume;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -77,57 +77,17 @@ public class IncomeListFragment extends android.support.v4.app.Fragment implemen
         this.totalAmountLabelTV = view.findViewById(R.id.moneyListTotalAmountLabelTV);
         this.totalAmountTV = view.findViewById(R.id.moneyListTotalAmountTV);
         this.listView = view.findViewById(R.id.mainMoneyListView);
-        this.db = new DatabaseHandler(getContext());
-        if(savedInstanceState != null) {
-            if (savedInstanceState.getString("filterDateStart") != null) {
-                SimpleDateFormat formatTo = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-                DateFormat formatFrom = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
-                try {
-                    Date startDate = formatFrom.parse(savedInstanceState.getString("filterDateStart"));
-                    this.filterDateStart = startDate;
-                    this.dateRangeStartBtn.setText(formatTo.format(startDate));
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (savedInstanceState.getString("filterDateEnd") != null) {
-                SimpleDateFormat formatTo = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-                DateFormat formatFrom = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
-                try {
-                    Date endDate = formatFrom.parse(savedInstanceState.getString("filterDateEnd"));
-                    this.filterDateEnd = endDate;
-                    this.dateRangeEndBtn.setText(formatTo.format(endDate));
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-            }
-            if(savedInstanceState.getParcelableArrayList("filteredIncome") != null){
-                this.currentFilteredIncome = savedInstanceState.getParcelableArrayList("filteredIncome");
-            } else {
-                this.currentFilteredIncome = new ArrayList<>();
-            }
-            if (savedInstanceState.getString("totalString") != null) {
-                String totalString = savedInstanceState.getString("totalString");
-                this.total = new BigDecimal(totalString);
-            }
-        } else {
-            Date endDate = Calendar.getInstance().getTime();
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(endDate);
-            calendar.add(Calendar.YEAR, -1);
-            Date startDate = calendar.getTime();
+        // this.db = new DatabaseHandler(getContext());
 
-            this.currentFilteredIncome = db.getUsersIncomeWithinDates(MainActivity.user, startDate, endDate);
-            this.filterDateEnd = endDate;
-            this.filterDateStart = startDate;
-            SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-            dateRangeStartBtn.setText(formatter.format(filterDateStart));
-            dateRangeEndBtn.setText(formatter.format(filterDateEnd));
-            total = getTotal(currentFilteredIncome);
-        }
+        this.filterDateEnd = ViewModelProviders.of(getActivity()).get(MainViewModel.class).getEndDateRangeDate().getValue();
+        this.filterDateStart = ViewModelProviders.of(getActivity()).get(MainViewModel.class).getStartDateRangeDate().getValue();
+        SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+        dateRangeStartBtn.setText(formatter.format(filterDateStart));
+        dateRangeEndBtn.setText(formatter.format(filterDateEnd));
+        total = getTotal(ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedIncome().getValue());
         setUpdateSelectedDateListeners();
         getActivity().setTitle("Income View");
-        ExpenseListFragment.expenseListAdapterNeedsRefreshed = false;
+        //ExpenseListFragment.expenseListAdapterNeedsRefreshed = false;
         //Get current theme accent color, which is passed into the list adapter for search highlighting
         TypedValue colorValue = new TypedValue();
         getActivity().getTheme().resolveAttribute(R.attr.colorAccent, colorValue, true);
@@ -141,29 +101,38 @@ public class IncomeListFragment extends android.support.v4.app.Fragment implemen
                 setTotalTV();
             }
         });
+        needsRefreshedOnResume = false;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        if (IncomeListFragment.incomeListAdapterNeedsRefreshed) {
-            //searchBarET.setText("");
-            if(this.incomeListAdapter != null){
-                this.currentFilteredIncome = db.getUsersIncomeWithinDates(MainActivity.user, filterDateStart, filterDateEnd);
-                if(currentFilteredIncome.isEmpty()){
-                    noIncomeTV.setVisibility(View.VISIBLE);
-                    noIncomeTV.setText("No Current Income");
-                } else {
-                    noIncomeTV.setVisibility(View.GONE);
-                }
-
-                incomeListAdapter.updateResults(currentFilteredIncome);
-                incomeListAdapterNeedsRefreshed = false;
-                //moneyListAdapter.getFilter().filter("");
-                searchBarET.setText(searchBarET.getText());
-                searchBarET.setSelection(searchBarET.getText().length());
-            }
+        //  if (IncomeListFragment.incomeListAdapterNeedsRefreshed) {
+        //      //searchBarET.setText("");
+        //      if(this.incomeListAdapter != null){
+        //          if(ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedIncome().getValue().isEmpty()){
+        //              noIncomeTV.setVisibility(View.VISIBLE);
+        //              noIncomeTV.setText("No Current Income");
+        //          } else {
+        //              noIncomeTV.setVisibility(View.GONE);
+        //          }
+        if (needsRefreshedOnResume) {
+            incomeListAdapter.updateResults(ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedIncome().getValue());
+            searchBarET.setText(searchBarET.getText());
+            searchBarET.setSelection(searchBarET.getText().length());
+           // incomeListAdapter.getFilter().filter(searchBarET.getText());
+            //expenseListAdapter.getFilter().filter("");
+            //total = getTotal(ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedIncome().getValue());
+            //setTotalTV();
         }
+        needsRefreshedOnResume = true;
+        //        incomeListAdapter.updateResults(ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedIncome().getValue());
+        //        incomeListAdapterNeedsRefreshed = false;
+        //moneyListAdapter.getFilter().filter("");
+        //        searchBarET.setText(searchBarET.getText());
+        //        searchBarET.setSelection(searchBarET.getText().length());
+        //  }
+        //}
     }
 
     private void setUpSearchBar() {
@@ -194,21 +163,12 @@ public class IncomeListFragment extends android.support.v4.app.Fragment implemen
     }
 
 
-
     private void setUpListAdapter() {
-        if (currentFilteredIncome != null) {
-            incomeListAdapter = new IncomeListAdapter(getActivity(), currentFilteredIncome, accentColor);
-            listView.setAdapter(incomeListAdapter);
-            listView.setOnItemClickListener(this);
-            if (currentFilteredIncome.isEmpty()) {
-                noIncomeTV.setVisibility(View.VISIBLE);
-                noIncomeTV.setText("No Current Income");
-            }
-        } else {
-            //If MainActivity5.expenseList is null show empty list text
-            noIncomeTV.setVisibility(View.VISIBLE);
-            noIncomeTV.setText("Error Loading Income");
-        }
+        incomeListAdapter = new IncomeListAdapter(getActivity(), ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedIncome().getValue(), accentColor);
+        listView.setAdapter(incomeListAdapter);
+        listView.setOnItemClickListener(this);
+        noIncomeTV.setText("No Income To Display");
+        this.listView.setEmptyView(noIncomeTV);
     }
 
     @Override
@@ -218,7 +178,7 @@ public class IncomeListFragment extends android.support.v4.app.Fragment implemen
         //Uses filtered results to match what is on screen
         PaymentLogEntry income = incomeListAdapter.getFilteredResults().get(i);
         intent.putExtra("incomeID", income.getId());
-        startActivity(intent);
+        getActivity().startActivityForResult(intent, MainActivity.REQUEST_INCOME_VIEW);
     }
 
 
@@ -228,7 +188,8 @@ public class IncomeListFragment extends android.support.v4.app.Fragment implemen
 
             case R.id.moneyListDateRangeStartBtn:
                 Calendar cal = Calendar.getInstance();
-                if(filterDateStart != null) {
+                //needsRefreshedOnResume = false;
+                if (filterDateStart != null) {
                     cal.setTime(filterDateStart);
                 }
                 int year = cal.get(Calendar.YEAR);
@@ -241,7 +202,8 @@ public class IncomeListFragment extends android.support.v4.app.Fragment implemen
 
             case R.id.moneyListDateRangeEndBtn:
                 Calendar cal2 = Calendar.getInstance();
-                if(filterDateEnd != null) {
+                //needsRefreshedOnResume = false;
+                if (filterDateEnd != null) {
                     cal2.setTime(filterDateEnd);
                 }
                 int year2 = cal2.get(Calendar.YEAR);
@@ -255,6 +217,30 @@ public class IncomeListFragment extends android.support.v4.app.Fragment implemen
             default:
                 break;
         }
+    }
+
+    public interface OnDatesChangedListener {
+        void onIncomeListDatesChanged(Date dateStart, Date dateEnd, IncomeListFragment fragment);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        // This makes sure that the container activity has implemented
+        // the callback interface. If not, it throws an exception
+        try {
+            mCallback = (OnDatesChangedListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement OnIncomeDatesChangedListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mCallback = null;
     }
 
     private void setUpdateSelectedDateListeners() {
@@ -271,18 +257,19 @@ public class IncomeListFragment extends android.support.v4.app.Fragment implemen
                 cal.set(Calendar.SECOND, 0);
                 cal.set(Calendar.MILLISECOND, 0);
                 filterDateStart = cal.getTime();
-                currentFilteredIncome = db.getUsersIncomeWithinDates(MainActivity.user, filterDateStart, filterDateEnd);
-                if(currentFilteredIncome.isEmpty()){
-                    noIncomeTV.setVisibility(View.VISIBLE);
-                    noIncomeTV.setText("No Current Income");
-                } else {
-                    noIncomeTV.setVisibility(View.GONE);
-                    noIncomeTV.setText("No Current Income");
-                }
+                //currentFilteredIncome = db.getUsersIncomeWithinDates(MainActivity.user, filterDateStart, filterDateEnd);
+                //if(currentFilteredIncome.isEmpty()){
+                //    noIncomeTV.setVisibility(View.VISIBLE);
+                //    noIncomeTV.setText("No Current Income");
+                //} else {
+                //    noIncomeTV.setVisibility(View.GONE);
+                //    noIncomeTV.setText("No Current Income");
+                // }
                 SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
                 dateRangeStartBtn.setText(formatter.format(filterDateStart));
-                incomeListAdapter.updateResults(currentFilteredIncome);
-                incomeListAdapter.getFilter().filter(searchBarET.getText());
+                mCallback.onIncomeListDatesChanged(filterDateStart, filterDateEnd, IncomeListFragment.this);
+                //incomeListAdapter.updateResults(currentFilteredIncome);
+                //incomeListAdapter.getFilter().filter(searchBarET.getText());
                 //total = getTotal(moneyListAdapter.getFilteredResults());
                 //setTotalTV();
             }
@@ -300,19 +287,20 @@ public class IncomeListFragment extends android.support.v4.app.Fragment implemen
                 cal.set(Calendar.SECOND, 0);
                 cal.set(Calendar.MILLISECOND, 0);
                 filterDateEnd = cal.getTime();
-                currentFilteredIncome = db.getUsersIncomeWithinDates(MainActivity.user, filterDateStart, filterDateEnd);
-                if(currentFilteredIncome.isEmpty()){
-                    noIncomeTV.setVisibility(View.VISIBLE);
-                    noIncomeTV.setText("No Current Income");
-                } else {
-                    noIncomeTV.setVisibility(View.GONE);
-                    noIncomeTV.setText("No Current Income");
-                }
+                //currentFilteredIncome = db.getUsersIncomeWithinDates(MainActivity.user, filterDateStart, filterDateEnd);
+                //if(currentFilteredIncome.isEmpty()){
+                //    noIncomeTV.setVisibility(View.VISIBLE);
+                //    noIncomeTV.setText("No Current Income");
+                //} else {
+                //    noIncomeTV.setVisibility(View.GONE);
+                //    noIncomeTV.setText("No Current Income");
+                //}
                 SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
                 dateRangeEndBtn.setText(formatter.format(filterDateEnd));
-                incomeListAdapter.updateResults(currentFilteredIncome);
-                incomeListAdapter.getFilter().filter(searchBarET.getText());
-               // total = getTotal(moneyListAdapter.getFilteredResults());
+                mCallback.onIncomeListDatesChanged(filterDateStart, filterDateEnd, IncomeListFragment.this);
+                //incomeListAdapter.updateResults(currentFilteredIncome);
+                //incomeListAdapter.getFilter().filter(searchBarET.getText());
+                // total = getTotal(moneyListAdapter.getFilteredResults());
                 //setTotalTV();
             }
         };
@@ -321,20 +309,7 @@ public class IncomeListFragment extends android.support.v4.app.Fragment implemen
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
-        if (filterDateStart != null) {
-            outState.putString("filterDateStart", formatter.format(filterDateStart));
-        }
-        if (filterDateEnd != null) {
-            outState.putString("filterDateEnd", formatter.format(filterDateEnd));
-        }
-        if (currentFilteredIncome != null) {
-            outState.putParcelableArrayList("filteredIncome", currentFilteredIncome);
-        }
-        if(total != null){
-            String totalString = total.toPlainString();
-            outState.putString("totalString", totalString);
-        }
+
     }
 
     private BigDecimal getTotal(ArrayList<PaymentLogEntry> filteredIncomeArray) {
@@ -358,6 +333,12 @@ public class IncomeListFragment extends android.support.v4.app.Fragment implemen
             usdCostFormat.setMaximumFractionDigits(2);
             totalAmountTV.setText(usdCostFormat.format(displayVal.doubleValue()));
         }
+    }
+
+    public void updateData(ArrayList<PaymentLogEntry> incomeList) {
+        incomeListAdapter.updateResults(incomeList);
+        incomeListAdapter.getFilter().filter(searchBarET.getText());
+        incomeListAdapter.notifyDataSetChanged();
     }
 
 }

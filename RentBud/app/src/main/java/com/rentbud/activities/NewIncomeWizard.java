@@ -170,7 +170,7 @@ public class NewIncomeWizard extends BaseActivity implements
                     } else {
                         PaymentLogEntry income = new PaymentLogEntry(-1, date, typeID, type, tenantID, leaseID, apartmentID, amount, description, receiptPic);
                         dbHandler.addPaymentLogEntry(income, MainActivity.user.getId());
-                        IncomeListFragment.incomeListAdapterNeedsRefreshed = true;
+                       // IncomeListFragment.incomeListAdapterNeedsRefreshed = true;
                         setResult(RESULT_OK);
                     }
                     //Create new Tenant object with input data and add it to the database

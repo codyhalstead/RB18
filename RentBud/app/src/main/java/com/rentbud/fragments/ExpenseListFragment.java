@@ -1,7 +1,8 @@
 package com.rentbud.fragments;
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
-import android.app.Fragment;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -23,29 +24,20 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.cody.rentbud.R;
-import com.rentbud.activities.ApartmentViewActivity;
 import com.rentbud.activities.ExpenseViewActivity;
 import com.rentbud.activities.MainActivity;
-import com.rentbud.activities.NewLeaseFormActivity;
-import com.rentbud.adapters.ApartmentListAdapter;
 import com.rentbud.adapters.ExpenseListAdapter;
-import com.rentbud.model.Apartment;
+import com.rentbud.helpers.MainViewModel;
 import com.rentbud.model.ExpenseLogEntry;
-import com.rentbud.model.PaymentLogEntry;
-import com.rentbud.sqlite.DatabaseHandler;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.DateFormat;
 import java.text.NumberFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-
-import static android.content.ContentValues.TAG;
 
 /**
  * Created by Cody on 3/23/2018.
@@ -58,12 +50,14 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
     ColorStateList accentColor;
     ListView listView;
     Button dateRangeStartBtn, dateRangeEndBtn;
-    public static boolean expenseListAdapterNeedsRefreshed;
+    //public static boolean expenseListAdapterNeedsRefreshed;
     Date filterDateStart, filterDateEnd;
     private DatePickerDialog.OnDateSetListener dateSetFilterStartListener, dateSetFilterEndListener;
-    private DatabaseHandler db;
-    private ArrayList<ExpenseLogEntry> currentFilteredExpenses;
+    //private DatabaseHandler db;
+    //private ArrayList<ExpenseLogEntry> currentFilteredExpenses;
     private BigDecimal total;
+    private OnDatesChangedListener mCallback;
+    private boolean needsRefreshedOnResume;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -83,57 +77,18 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
         this.totalAmountLabelTV = view.findViewById(R.id.moneyListTotalAmountLabelTV);
         this.totalAmountTV = view.findViewById(R.id.moneyListTotalAmountTV);
         this.listView = view.findViewById(R.id.mainMoneyListView);
-        this.db = new DatabaseHandler(getContext());
-        if(savedInstanceState != null) {
-            if (savedInstanceState.getString("filterDateStart") != null) {
-                SimpleDateFormat formatTo = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-                DateFormat formatFrom = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
-                try {
-                    Date startDate = formatFrom.parse(savedInstanceState.getString("filterDateStart"));
-                    this.filterDateStart = startDate;
-                    this.dateRangeStartBtn.setText(formatTo.format(startDate));
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (savedInstanceState.getString("filterDateEnd") != null) {
-                SimpleDateFormat formatTo = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-                DateFormat formatFrom = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
-                try {
-                    Date endDate = formatFrom.parse(savedInstanceState.getString("filterDateEnd"));
-                    this.filterDateEnd = endDate;
-                    this.dateRangeEndBtn.setText(formatTo.format(endDate));
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-            }
-            if(savedInstanceState.getParcelableArrayList("filteredExpenses") != null){
-                this.currentFilteredExpenses = savedInstanceState.getParcelableArrayList("filteredExpenses");
-            } else {
-                this.currentFilteredExpenses = new ArrayList<>();
-            }
-            if (savedInstanceState.getString("totalString") != null) {
-                String totalString = savedInstanceState.getString("totalString");
-                this.total = new BigDecimal(totalString);
-            }
-        } else {
-            Date endDate = Calendar.getInstance().getTime();
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(endDate);
-            calendar.add(Calendar.YEAR, -1);
-            Date startDate = calendar.getTime();
+        //this.db = new DatabaseHandler(getContext());
 
-            this.currentFilteredExpenses = db.getUsersExpensesWithinDates(MainActivity.user, startDate, endDate );
-            this.filterDateEnd = endDate;
-            this.filterDateStart = startDate;
-            SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-            dateRangeStartBtn.setText(formatter.format(filterDateStart));
-            dateRangeEndBtn.setText(formatter.format(filterDateEnd));
-            total = getTotal(currentFilteredExpenses);
-        }
+
+        this.filterDateEnd = ViewModelProviders.of(getActivity()).get(MainViewModel.class).getEndDateRangeDate().getValue();
+        this.filterDateStart = ViewModelProviders.of(getActivity()).get(MainViewModel.class).getStartDateRangeDate().getValue();
+        SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+        dateRangeStartBtn.setText(formatter.format(filterDateStart));
+        dateRangeEndBtn.setText(formatter.format(filterDateEnd));
+        total = getTotal(ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedExpenses().getValue());
         setUpdateSelectedDateListeners();
         getActivity().setTitle("Expense View");
-        ExpenseListFragment.expenseListAdapterNeedsRefreshed = false;
+        //ExpenseListFragment.expenseListAdapterNeedsRefreshed = false;
         //Get current theme accent color, which is passed into the list adapter for search highlighting
         TypedValue colorValue = new TypedValue();
         getActivity().getTheme().resolveAttribute(R.attr.colorAccent, colorValue, true);
@@ -147,28 +102,39 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
                 setTotalTV();
             }
         });
+        needsRefreshedOnResume = false;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        if (ExpenseListFragment.expenseListAdapterNeedsRefreshed) {
-            //searchBarET.setText("");
-            if(this.expenseListAdapter != null){
-                this.currentFilteredExpenses = db.getUsersExpensesWithinDates(MainActivity.user, filterDateStart, filterDateEnd);
-                if(currentFilteredExpenses.isEmpty()){
-                    noExpensesTV.setVisibility(View.VISIBLE);
-                    noExpensesTV.setText("No Current Expenses");
-                } else {
-                    noExpensesTV.setVisibility(View.GONE);
-                }
-                expenseListAdapter.updateResults(this.currentFilteredExpenses);
-                expenseListAdapterNeedsRefreshed = false;
-                //leaseListAdapter.getFilter().filter("");
-                searchBarET.setText(searchBarET.getText());
-                searchBarET.setSelection(searchBarET.getText().length());
-            }
+        //if (ExpenseListFragment.expenseListAdapterNeedsRefreshed) {
+        //    //searchBarET.setText("");
+        //    if (this.expenseListAdapter != null) {
+        //        //this.currentFilteredExpenses = db.getUsersExpensesWithinDates(MainActivity.user, filterDateStart, filterDateEnd);
+        //        if (ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedExpenses().getValue().isEmpty()) {
+        //            noExpensesTV.setVisibility(View.VISIBLE);
+        //            noExpensesTV.setText("No Current Expenses");
+        if (needsRefreshedOnResume) {
+            expenseListAdapter.updateResults(ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedExpenses().getValue());
+            searchBarET.setText(searchBarET.getText());
+            searchBarET.setSelection(searchBarET.getText().length());
+            //expenseListAdapter.getFilter().filter("");
+        //    total = getTotal(ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedExpenses().getValue());
+        //    setTotalTV();
         }
+        needsRefreshedOnResume = true;
+        //        } else {
+        //            noExpensesTV.setVisibility(View.GONE);
+        //        }
+        //        expenseListAdapter.updateResults(ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedExpenses().getValue());
+        //        expenseListAdapterNeedsRefreshed = false;
+        //leaseListAdapter.getFilter().filter("");
+        //        searchBarET.setText(searchBarET.getText());
+        //       searchBarET.setSelection(searchBarET.getText().length());
+        //expenseListAdapter.notifyDataSetChanged();
+        //    }
+        //}
     }
 
     private void setUpSearchBar() {
@@ -197,19 +163,21 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
     }
 
     private void setUpListAdapter() {
-        if (currentFilteredExpenses != null) {
-            expenseListAdapter = new ExpenseListAdapter(getActivity(), currentFilteredExpenses, accentColor);
-            listView.setAdapter(expenseListAdapter);
-            listView.setOnItemClickListener(this);
-            if (currentFilteredExpenses.isEmpty()) {
-                noExpensesTV.setVisibility(View.VISIBLE);
-                noExpensesTV.setText("No Current Expenses");
-            }
-        } else {
-            //If MainActivity5.expenseList is null show empty list text
-            noExpensesTV.setVisibility(View.VISIBLE);
-            noExpensesTV.setText("Error Loading Expenses");
-        }
+        //if (ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedExpenses().getValue() != null) {
+        expenseListAdapter = new ExpenseListAdapter(getActivity(), ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedExpenses().getValue(), accentColor);
+        listView.setAdapter(expenseListAdapter);
+        listView.setOnItemClickListener(this);
+        noExpensesTV.setText("No Expenses To Display");
+        this.listView.setEmptyView(noExpensesTV);
+        //if (ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedExpenses().getValue().isEmpty()) {
+        //    noExpensesTV.setVisibility(View.VISIBLE);
+        //
+        //}
+        // } else {
+        //If MainActivity5.expenseList is null show empty list text
+        //     noExpensesTV.setVisibility(View.VISIBLE);
+        //     noExpensesTV.setText("Error Loading Expenses");
+        // }
     }
 
     @Override
@@ -219,7 +187,7 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
         //Uses filtered results to match what is on screen
         ExpenseLogEntry expense = expenseListAdapter.getFilteredResults().get(i);
         intent.putExtra("expenseID", expense.getId());
-        startActivity(intent);
+        getActivity().startActivityForResult(intent, MainActivity.REQUEST_EXPENSE_VIEW);
     }
 
     @Override
@@ -228,7 +196,7 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
 
             case R.id.moneyListDateRangeStartBtn:
                 Calendar cal = Calendar.getInstance();
-                if(filterDateStart != null) {
+                if (filterDateStart != null) {
                     cal.setTime(filterDateStart);
                 }
                 int year = cal.get(Calendar.YEAR);
@@ -241,7 +209,7 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
 
             case R.id.moneyListDateRangeEndBtn:
                 Calendar cal2 = Calendar.getInstance();
-                if(filterDateEnd != null) {
+                if (filterDateEnd != null) {
                     cal2.setTime(filterDateEnd);
                 }
                 int year2 = cal2.get(Calendar.YEAR);
@@ -255,6 +223,30 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
             default:
                 break;
         }
+    }
+
+    public interface OnDatesChangedListener {
+        void onExpenseListDatesChanged(Date dateStart, Date dateEnd, ExpenseListFragment fragment);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        // This makes sure that the container activity has implemented
+        // the callback interface. If not, it throws an exception
+        try {
+            mCallback = (OnDatesChangedListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement OnExpenseDatesChangedListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mCallback = null;
     }
 
     private void setUpdateSelectedDateListeners() {
@@ -271,18 +263,19 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
                 cal.set(Calendar.SECOND, 0);
                 cal.set(Calendar.MILLISECOND, 0);
                 filterDateStart = cal.getTime();
-                currentFilteredExpenses = db.getUsersExpensesWithinDates(MainActivity.user, filterDateStart, filterDateEnd);
-                if(currentFilteredExpenses.isEmpty()){
-                    noExpensesTV.setVisibility(View.VISIBLE);
-                    noExpensesTV.setText("No Current Expenses");
-                } else {
-                    noExpensesTV.setVisibility(View.GONE);
-                    noExpensesTV.setText("No Current Expenses");
-                }
+                //currentFilteredExpenses = db.getUsersExpensesWithinDates(MainActivity.user, filterDateStart, filterDateEnd);
+                //if(currentFilteredExpenses.isEmpty()){
+                //    noExpensesTV.setVisibility(View.VISIBLE);
+                //    noExpensesTV.setText("No Current Expenses");
+                //} else {
+                //    noExpensesTV.setVisibility(View.GONE);
+                //    noExpensesTV.setText("No Current Expenses");
+                //}
                 SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
                 dateRangeStartBtn.setText(formatter.format(filterDateStart));
-                expenseListAdapter.updateResults(currentFilteredExpenses);
-                expenseListAdapter.getFilter().filter(searchBarET.getText());
+                mCallback.onExpenseListDatesChanged(filterDateStart, filterDateEnd, ExpenseListFragment.this);
+                //expenseListAdapter.updateResults(currentFilteredExpenses);
+                //expenseListAdapter.getFilter().filter(searchBarET.getText());
             }
         };
         dateSetFilterEndListener = new DatePickerDialog.OnDateSetListener() {
@@ -298,19 +291,20 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
                 cal.set(Calendar.SECOND, 0);
                 cal.set(Calendar.MILLISECOND, 0);
                 filterDateEnd = cal.getTime();
-                currentFilteredExpenses = db.getUsersExpensesWithinDates(MainActivity.user, filterDateStart, filterDateEnd);
-                if(currentFilteredExpenses.isEmpty()){
-                    noExpensesTV.setVisibility(View.VISIBLE);
-                    noExpensesTV.setText("No Current Expenses");
-                } else {
-                    noExpensesTV.setVisibility(View.GONE);
-                    noExpensesTV.setText("No Current Expenses");
-                }
+                //currentFilteredExpenses = db.getUsersExpensesWithinDates(MainActivity.user, filterDateStart, filterDateEnd);
+                //if(currentFilteredExpenses.isEmpty()){
+                //    noExpensesTV.setVisibility(View.VISIBLE);
+                //    noExpensesTV.setText("No Current Expenses");
+                //} else {
+                //    noExpensesTV.setVisibility(View.GONE);
+                //    noExpensesTV.setText("No Current Expenses");
+                //}
                 SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
                 dateRangeEndBtn.setText(formatter.format(filterDateEnd));
-                expenseListAdapter.notifyDataSetChanged();
-                expenseListAdapter.updateResults(currentFilteredExpenses);
-                expenseListAdapter.getFilter().filter(searchBarET.getText());
+                mCallback.onExpenseListDatesChanged(filterDateStart, filterDateEnd, ExpenseListFragment.this);
+                //expenseListAdapter.notifyDataSetChanged();
+                //expenseListAdapter.updateResults(currentFilteredExpenses);
+                //expenseListAdapter.getFilter().filter(searchBarET.getText());
             }
         };
     }
@@ -318,20 +312,7 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
-        if (filterDateStart != null) {
-            outState.putString("filterDateStart", formatter.format(filterDateStart));
-        }
-        if (filterDateEnd != null) {
-            outState.putString("filterDateEnd", formatter.format(filterDateEnd));
-        }
-        if (currentFilteredExpenses != null) {
-            outState.putParcelableArrayList("filteredExpenses", currentFilteredExpenses);
-        }
-        if(total != null){
-            String totalString = total.toPlainString();
-            outState.putString("totalString", totalString);
-        }
+
     }
 
     private BigDecimal getTotal(ArrayList<ExpenseLogEntry> filteredExpenseArray) {
@@ -353,8 +334,15 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
             NumberFormat usdCostFormat = NumberFormat.getCurrencyInstance(Locale.US);
             usdCostFormat.setMinimumFractionDigits(2);
             usdCostFormat.setMaximumFractionDigits(2);
-            totalAmountTV.setText("-" + usdCostFormat.format(displayVal.doubleValue()));
+            totalAmountTV.setText(usdCostFormat.format(displayVal.doubleValue()));
         }
+    }
+
+    public void updateData(ArrayList<ExpenseLogEntry> expenseList) {
+        expenseListAdapter.updateResults(expenseList);
+        expenseListAdapter.getFilter().filter(searchBarET.getText());
+        expenseListAdapter.notifyDataSetChanged();
+        Log.d("TAG", "updateData: WHATTHEF");
     }
 
 }

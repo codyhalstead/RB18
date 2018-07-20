@@ -213,7 +213,7 @@ public class CalendarFragment extends android.support.v4.app.Fragment {
                 //Launch SingleDateViewActivity and pass the dates information
                 Intent intent = new Intent(getActivity(), SingleDateViewActivity.class);
                 intent.putExtra("date", date);
-                startActivity(intent);
+                getActivity().startActivityForResult(intent, MainActivity.REQUEST_CALENDAR_VIEW);
             }
 
             @Override

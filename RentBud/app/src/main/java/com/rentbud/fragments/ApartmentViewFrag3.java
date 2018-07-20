@@ -151,6 +151,7 @@ public class ApartmentViewFrag3 extends android.support.v4.app.Fragment implemen
 
     public interface OnLeaseDataChangedListener{
         void onLeaseDataChanged();
+        void onLeasePaymentsChanged();
     }
 
     @Override
@@ -165,6 +166,12 @@ public class ApartmentViewFrag3 extends android.support.v4.app.Fragment implemen
             throw new ClassCastException(activity.toString()
                     + " must implement OnLeaseDataChangedListener");
         }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mCallback = null;
     }
 
 
@@ -271,6 +278,7 @@ public class ApartmentViewFrag3 extends android.support.v4.app.Fragment implemen
                 db.setAllExpensesRelatedToLeaseInactive(selectedLease.getId());
                 db.setAllIncomeRelatedToLeaseInactive(selectedLease.getId());
                 mCallback.onLeaseDataChanged();
+                mCallback.onLeasePaymentsChanged();
             }
         });
 
@@ -289,6 +297,7 @@ public class ApartmentViewFrag3 extends android.support.v4.app.Fragment implemen
                 //leaseListAdapter.updateResults(currentFilteredLeases);
                 //leaseListAdapter.notifyDataSetChanged();
                 mCallback.onLeaseDataChanged();
+                mCallback.onLeasePaymentsChanged();
                 //ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
                 //total = getTotal();
                 //setTotalTV();

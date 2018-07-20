@@ -10,6 +10,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,7 +28,7 @@ import com.rentbud.sqlite.DatabaseHandler;
 
 import java.util.List;
 
-public class LeaseViewActivity2 extends BaseActivity {
+public class LeaseViewActivity2 extends BaseActivity implements LeaseViewFrag2.OnMoneyDataChangedListener {
     private Lease lease;
     private DatabaseHandler databaseHandler;
     ViewPager viewPager;
@@ -35,6 +36,7 @@ public class LeaseViewActivity2 extends BaseActivity {
     LinearLayout dateSelectorLL;
     private LeaseViewFrag1 frag1;
     private LeaseViewFrag2 frag2;
+    private boolean wasLeaseEdited, wasIncomeEdited, wasExpenseEdited;
     //private LeaseViewFrag3 frag3;
 
     @Override
@@ -53,13 +55,26 @@ public class LeaseViewActivity2 extends BaseActivity {
         this.lease = databaseHandler.getLeaseByID(MainActivity.user, leaseID);
         bundle.putParcelable("lease", lease);
         viewPager.setAdapter(adapter);
-
+        if (savedInstanceState != null) {
+            wasLeaseEdited = savedInstanceState.getBoolean("was_lease_edited");
+            wasIncomeEdited = savedInstanceState.getBoolean("was_income_edited");
+            wasExpenseEdited = savedInstanceState.getBoolean("was_expense_edited");
+        } else {
+            wasLeaseEdited = false;
+            wasIncomeEdited = false;
+            wasExpenseEdited = false;
+        }
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setSelectedTabIndicatorColor(Color.parseColor("#000000"));
         tabLayout.setTabTextColors(Color.parseColor("#ffffff"), Color.parseColor("#4d4c4b"));
         tabLayout.setupWithViewPager(viewPager);
         setupBasicToolbar();
         toolbar.setTitle("Lease View");
+        if (wasLeaseEdited || wasIncomeEdited || wasExpenseEdited) {
+            setResultToEdited();
+        } else {
+            setResult(RESULT_OK);
+        }
     }
 
     @Override
@@ -76,6 +91,9 @@ public class LeaseViewActivity2 extends BaseActivity {
             case R.id.editLease:
                 Intent intent = new Intent(this, NewLeaseWizard.class);
                 intent.putExtra("leaseToEdit", lease);
+                wasLeaseEdited = true;
+                setResultToEdited();
+                setResult(MainActivity.RESULT_DATA_WAS_MODIFIED);
                 startActivityForResult(intent, MainActivity.REQUEST_NEW_LEASE_FORM);
                 return true;
 
@@ -105,9 +123,9 @@ public class LeaseViewActivity2 extends BaseActivity {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 databaseHandler.setLeaseInactive(lease);
-                TenantListFragment.tenantListAdapterNeedsRefreshed = true;
-                ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
-                LeaseListFragment.leaseListAdapterNeedsRefreshed = true;
+               // TenantListFragment.tenantListAdapterNeedsRefreshed = true;
+                // ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
+              //  LeaseListFragment.leaseListAdapterNeedsRefreshed = true;
                 MainActivity.apartmentList = databaseHandler.getUsersApartmentsIncludingInactive(MainActivity.user);
                 MainActivity.tenantList = databaseHandler.getUsersTenantsIncludingInactive(MainActivity.user);
                 //LeaseViewActivity2.this.finish();
@@ -120,6 +138,24 @@ public class LeaseViewActivity2 extends BaseActivity {
         dialog.show();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (wasLeaseEdited || wasIncomeEdited || wasExpenseEdited) {
+            setResultToEdited();
+        } else {
+            setResult(RESULT_OK);
+        }
+    }
+
+    private void setResultToEdited() {
+        Intent intent = new Intent();
+        intent.putExtra("was_lease_edited", wasLeaseEdited);
+        intent.putExtra("was_income_edited", wasIncomeEdited);
+        intent.putExtra("was_expense_edited", wasExpenseEdited);
+        setResult(MainActivity.RESULT_DATA_WAS_MODIFIED, intent);
+    }
+
     public void showDeleteAllRelatedMoneyAlertDialog() {
         // setup the alert builder
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -130,14 +166,20 @@ public class LeaseViewActivity2 extends BaseActivity {
         builder.setPositiveButton("No", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
+                wasLeaseEdited = true;
+                setResultToEdited();
                 LeaseViewActivity2.this.finish();
             }
         });
         builder.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-               databaseHandler.setAllExpensesRelatedToLeaseInactive(lease.getId());
-               databaseHandler.setAllIncomeRelatedToLeaseInactive(lease.getId());
+                databaseHandler.setAllExpensesRelatedToLeaseInactive(lease.getId());
+                databaseHandler.setAllIncomeRelatedToLeaseInactive(lease.getId());
+                wasLeaseEdited = true;
+                wasExpenseEdited = true;
+                wasIncomeEdited = true;
+                setResultToEdited();
                 LeaseViewActivity2.this.finish();
             }
         });
@@ -150,6 +192,7 @@ public class LeaseViewActivity2 extends BaseActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        setResult(MainActivity.RESULT_DATA_WAS_MODIFIED);
         if (requestCode == MainActivity.REQUEST_NEW_LEASE_FORM) {
             //If successful(not cancelled, passed validation)
             if (resultCode == RESULT_OK) {
@@ -161,7 +204,7 @@ public class LeaseViewActivity2 extends BaseActivity {
                 //this.primaryTenant = tenants.first;
                 //this.secondaryTenants = tenants.second;
                 //fillTextViews();
-                LeaseListFragment.leaseListAdapterNeedsRefreshed = true;
+                //LeaseListFragment.leaseListAdapterNeedsRefreshed = true;
                 List<Fragment> fragments = getSupportFragmentManager().getFragments();
                 if (fragments != null) {
                     for (Fragment fragment : fragments) {
@@ -175,6 +218,7 @@ public class LeaseViewActivity2 extends BaseActivity {
                     }
                 }
             }
+
         } else {
             List<Fragment> fragments = getSupportFragmentManager().getFragments();
             if (fragments != null) {
@@ -190,6 +234,21 @@ public class LeaseViewActivity2 extends BaseActivity {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        outState.putBoolean("was_lease_edited", wasLeaseEdited);
+        outState.putBoolean("was_income_edited", wasIncomeEdited);
+        outState.putBoolean("was_expense_edited", wasExpenseEdited);
+    }
+
+    @Override
+    public void onIncomeDataChanged() {
+        wasIncomeEdited = true;
+        setResultToEdited();
+    }
+
+    @Override
+    public void onExpenseDataChanged() {
+        wasExpenseEdited = true;
+        setResultToEdited();
     }
 
     // Adapter for the viewpager using FragmentPagerAdapter
@@ -212,10 +271,6 @@ public class LeaseViewActivity2 extends BaseActivity {
                     LeaseViewFrag2 frg2 = new LeaseViewFrag2();
                     frg2.setArguments(bundle);
                     return frg2;
-                //case 2:
-                //    LeaseViewFrag3 frg3 = new LeaseViewFrag3();
-                //    frg3.setArguments(bundle);
-                //    return frg3;
                 default:
                     return null;
             }

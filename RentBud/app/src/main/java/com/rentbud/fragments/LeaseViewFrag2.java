@@ -1,5 +1,6 @@
 package com.rentbud.fragments;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -62,6 +63,7 @@ public class LeaseViewFrag2 extends android.support.v4.app.Fragment implements A
     private Lease lease;
     private MoneyLogEntry selectedMoney;
     FloatingActionButton fab;
+    private OnMoneyDataChangedListener mCallback;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -119,16 +121,41 @@ public class LeaseViewFrag2 extends android.support.v4.app.Fragment implements A
     @Override
     public void onResume() {
         super.onResume();
-        if (IncomeListFragment.incomeListAdapterNeedsRefreshed) {
-            if (this.moneyListAdapter != null) {
-                //   incomeListAdapterNeedsRefreshed = false;
-                moneyListAdapter.getFilter().filter("");
-            }
-        }
+        //if (IncomeListFragment.incomeListAdapterNeedsRefreshed) {
+        //    if (this.moneyListAdapter != null) {
+        //        //   incomeListAdapterNeedsRefreshed = false;
+        //        moneyListAdapter.getFilter().filter("");
+        //    }
+        //}
     }
 
     private void setUpSearchBar() {
 
+    }
+
+    public interface OnMoneyDataChangedListener{
+        void onIncomeDataChanged();
+        void onExpenseDataChanged();
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        // This makes sure that the container activity has implemented
+        // the callback interface. If not, it throws an exception
+        try {
+            mCallback = (OnMoneyDataChangedListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement OnLeaseDataChangedListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mCallback = null;
     }
 
     private void setUpListAdapter() {
@@ -161,11 +188,13 @@ public class LeaseViewFrag2 extends android.support.v4.app.Fragment implements A
                         //On listView row click, launch ApartmentViewActivity passing the rows data into it.
                         selectedMoney = moneyListAdapter.getFilteredResults().get(position);
                         if (selectedMoney instanceof PaymentLogEntry) {
+                            mCallback.onIncomeDataChanged();
                             Intent intent = new Intent(getActivity(), NewIncomeWizard.class);
                             PaymentLogEntry selectedIncome = (PaymentLogEntry) selectedMoney;
                             intent.putExtra("incomeToEdit", selectedIncome);
                             startActivityForResult(intent, MainActivity.REQUEST_NEW_INCOME_FORM);
                         } else {
+                            mCallback.onExpenseDataChanged();
                             Intent intent = new Intent(getActivity(), NewExpenseWizard.class);
                             ExpenseLogEntry selectedExpense = (ExpenseLogEntry) selectedMoney;
                             intent.putExtra("expenseToEdit", selectedExpense);
@@ -197,7 +226,8 @@ public class LeaseViewFrag2 extends android.support.v4.app.Fragment implements A
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     db.setPaymentLogEntryInactive((PaymentLogEntry) selectedMoney);
-                    IncomeListFragment.incomeListAdapterNeedsRefreshed = true;
+                    mCallback.onIncomeDataChanged();
+                   // IncomeListFragment.incomeListAdapterNeedsRefreshed = true;
                     getFilteredMoney();
                     moneyListAdapter.updateResults(currentFilteredMoney);
                     moneyListAdapter.notifyDataSetChanged();
@@ -211,7 +241,8 @@ public class LeaseViewFrag2 extends android.support.v4.app.Fragment implements A
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     db.setExpenseInactive((ExpenseLogEntry) selectedMoney);
-                    ExpenseListFragment.expenseListAdapterNeedsRefreshed = true;
+                    mCallback.onExpenseDataChanged();
+                   // ExpenseListFragment.expenseListAdapterNeedsRefreshed = true;
                     getFilteredMoney();
                     moneyListAdapter.updateResults(currentFilteredMoney);
                     moneyListAdapter.notifyDataSetChanged();
@@ -265,6 +296,7 @@ public class LeaseViewFrag2 extends android.support.v4.app.Fragment implements A
                 getFilteredMoney();
                 moneyListAdapter.updateResults(currentFilteredMoney);
                 moneyListAdapter.notifyDataSetChanged();
+                mCallback.onIncomeDataChanged();
                 total = getTotal();
                 setTotalTV();
             }
@@ -275,6 +307,7 @@ public class LeaseViewFrag2 extends android.support.v4.app.Fragment implements A
                 getFilteredMoney();
                 moneyListAdapter.updateResults(currentFilteredMoney);
                 moneyListAdapter.notifyDataSetChanged();
+                mCallback.onExpenseDataChanged();
                 total = getTotal();
                 setTotalTV();
             }

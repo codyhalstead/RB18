@@ -141,7 +141,7 @@ public class NewTenantWizard extends BaseActivity implements
                         setResult(RESULT_OK);
                     }
                     mainArrayDataMethods.sortMainTenantArray();
-                    TenantListFragment.tenantListAdapterNeedsRefreshed = true;
+                    //TenantListFragment.tenantListAdapterNeedsRefreshed = true;
                     finish();
                 } else {
                     if (mEditingAfterReview) {

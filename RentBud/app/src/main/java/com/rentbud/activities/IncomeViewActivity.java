@@ -36,6 +36,7 @@ public class IncomeViewActivity extends BaseActivity {
     MainArrayDataMethods dataMethods;
     ImageView receiptPicIV;
     String receiptPic;
+    Boolean wasEdited;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -50,17 +51,19 @@ public class IncomeViewActivity extends BaseActivity {
                 this.income = savedInstanceState.getParcelable("income");
                 this.receiptPic = income.getReceiptPic();
             }
+            wasEdited = savedInstanceState.getBoolean("was_edited");
         } else {
             //If new
             Bundle bundle = getIntent().getExtras();
+            wasEdited = false;
             //Get apartment item
             int incomeID = bundle.getInt("incomeID");
             this.income = databaseHandler.getPaymentLogEntryByID(incomeID, MainActivity.user);
-            Log.d("TAG", "onCreate: " + income.getTenantID());
             if (income.getReceiptPic() != null) {
                 this.receiptPic = income.getReceiptPic();
             }
         }
+        Log.d("TAG", "onCreate: " + wasEdited);
         this.dateTV = findViewById(R.id.incomeViewDateTV);
         this.amountTV = findViewById(R.id.incomeViewAmountTV);
         this.typeTV = findViewById(R.id.incomeViewTypeTV);
@@ -73,6 +76,11 @@ public class IncomeViewActivity extends BaseActivity {
             receiptPicIV.setVisibility(View.GONE);
         }
         setupBasicToolbar();
+        if(wasEdited) {
+            setResult(MainActivity.RESULT_DATA_WAS_MODIFIED);
+        } else {
+            setResult(RESULT_OK);
+        }
     }
 
     private void fillTextViews() {
@@ -104,6 +112,8 @@ public class IncomeViewActivity extends BaseActivity {
             case R.id.editIncome:
                 Intent intent = new Intent(this, NewIncomeWizard.class);
                 intent.putExtra("incomeToEdit", income);
+                wasEdited = true;
+                setResult(MainActivity.RESULT_DATA_WAS_MODIFIED);
                 startActivityForResult(intent, MainActivity.REQUEST_NEW_INCOME_FORM);
                 return true;
 
@@ -133,7 +143,8 @@ public class IncomeViewActivity extends BaseActivity {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 databaseHandler.setPaymentLogEntryInactive(income);
-                IncomeListFragment.incomeListAdapterNeedsRefreshed = true;
+                //IncomeListFragment.incomeListAdapterNeedsRefreshed = true;
+                setResult(MainActivity.RESULT_DATA_WAS_MODIFIED);
                 IncomeViewActivity.this.finish();
             }
         });
@@ -153,7 +164,7 @@ public class IncomeViewActivity extends BaseActivity {
                 int incomeID = data.getIntExtra("editedIncomeID", 0);
                 this.income = databaseHandler.getPaymentLogEntryByID(incomeID, MainActivity.user);
                 fillTextViews();
-                IncomeListFragment.incomeListAdapterNeedsRefreshed = true;
+                //IncomeListFragment.incomeListAdapterNeedsRefreshed = true;
             }
         }
     }
@@ -163,5 +174,6 @@ public class IncomeViewActivity extends BaseActivity {
         //Save the fragment's instance
         super.onSaveInstanceState(outState);
         outState.putParcelable("income", income);
+        outState.putBoolean("was_edited", wasEdited);
     }
 }

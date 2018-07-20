@@ -39,7 +39,7 @@ public class ExpenseListAdapter extends BaseAdapter implements Filterable {
     private ColorStateList highlightColor;
     MainArrayDataMethods dataMethods;
     private Date todaysDate;
-    ExpenseListAdapter.OnDataChangeListener mOnDataChangeListener;
+    OnDataChangeListener mOnDataChangeListener;
 
     public ExpenseListAdapter(Context context, ArrayList<ExpenseLogEntry> expenseArray, ColorStateList highlightColor) {
         super();

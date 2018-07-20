@@ -35,6 +35,7 @@ public class ExpenseViewActivity extends BaseActivity {
     DatabaseHandler databaseHandler;
     String receiptPic;
     MainArrayDataMethods dataMethods;
+    Boolean wasEdited;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -49,9 +50,11 @@ public class ExpenseViewActivity extends BaseActivity {
                 this.expense = savedInstanceState.getParcelable("expense");
                 this.receiptPic = expense.getReceiptPic();
             }
+            wasEdited = savedInstanceState.getBoolean("was_edited");
         } else {
             //If new
             Bundle bundle = getIntent().getExtras();
+            wasEdited = false;
             //Get apartment item
             int expenseID = bundle.getInt("expenseID");
             this.expense = databaseHandler.getExpenseLogEntryByID(expenseID, MainActivity.user);
@@ -71,6 +74,11 @@ public class ExpenseViewActivity extends BaseActivity {
             receiptPicIV.setVisibility(View.GONE);
         }
         setupBasicToolbar();
+        if(wasEdited) {
+            setResult(MainActivity.RESULT_DATA_WAS_MODIFIED);
+        } else {
+            setResult(RESULT_OK);
+        }
     }
 
     private void fillTextViews() {
@@ -101,6 +109,8 @@ public class ExpenseViewActivity extends BaseActivity {
             case R.id.editExpense:
                 Intent intent = new Intent(this, NewExpenseWizard.class);
                 intent.putExtra("expenseToEdit", expense);
+                wasEdited = true;
+                setResult(MainActivity.RESULT_DATA_WAS_MODIFIED);
                 startActivityForResult(intent, MainActivity.REQUEST_NEW_EXPENSE_FORM);
                 return true;
 
@@ -130,7 +140,8 @@ public class ExpenseViewActivity extends BaseActivity {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 databaseHandler.setExpenseInactive(expense);
-                ExpenseListFragment.expenseListAdapterNeedsRefreshed = true;
+               // ExpenseListFragment.expenseListAdapterNeedsRefreshed = true;
+                setResult(MainActivity.RESULT_DATA_WAS_MODIFIED);
                 ExpenseViewActivity.this.finish();
             }
         });
@@ -150,7 +161,7 @@ public class ExpenseViewActivity extends BaseActivity {
                 int expenseID = data.getIntExtra("editedExpenseID", 0);
                 this.expense = databaseHandler.getExpenseLogEntryByID(expenseID, MainActivity.user);
                 fillTextViews();
-                ExpenseListFragment.expenseListAdapterNeedsRefreshed = true;
+               // ExpenseListFragment.expenseListAdapterNeedsRefreshed = true;
             }
         }
     }
@@ -160,5 +171,6 @@ public class ExpenseViewActivity extends BaseActivity {
         //Save the fragment's instance
         super.onSaveInstanceState(outState);
         outState.putParcelable("expense", expense);
+        outState.putBoolean("was_edited", wasEdited);
     }
 }

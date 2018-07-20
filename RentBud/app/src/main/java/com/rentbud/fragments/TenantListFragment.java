@@ -41,7 +41,8 @@ public class TenantListFragment extends Fragment implements AdapterView.OnItemCl
     ColorStateList accentColor;
     ListView listView;
     MainArrayDataMethods dataMethods;
-    public static boolean tenantListAdapterNeedsRefreshed;
+    //public static boolean tenantListAdapterNeedsRefreshed;
+    private boolean needsRefreshedOnResume;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -58,41 +59,59 @@ public class TenantListFragment extends Fragment implements AdapterView.OnItemCl
         this.listView = view.findViewById(R.id.maintenantListView);
         getActivity().setTitle("Tenant View");
         dataMethods = new MainArrayDataMethods();
-        TenantListFragment.tenantListAdapterNeedsRefreshed = false;
+        //TenantListFragment.tenantListAdapterNeedsRefreshed = false;
         //Get current theme accent color, which is passed into the list adapter for search highlighting
         TypedValue colorValue = new TypedValue();
         getActivity().getTheme().resolveAttribute(R.attr.colorAccent, colorValue, true);
         accentColor = getActivity().getResources().getColorStateList(colorValue.resourceId);
         setUpListAdapter();
         setUpSearchBar();
+        needsRefreshedOnResume = false;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        if (TenantListFragment.tenantListAdapterNeedsRefreshed) {
-            //searchBarET.setText("");
-            if (this.tenantListAdapter != null) {
-                if (MainActivity.tenantList != null) {
-                    ArrayList<Tenant> activeTenantArray = new ArrayList<>();
-                    for (int i = 0; i < MainActivity.tenantList.size(); i++) {
-                        if (MainActivity.tenantList.get(i).isActive()) {
-                            activeTenantArray.add(MainActivity.tenantList.get(i));
-                        }
-                    }
-                    if(activeTenantArray.isEmpty()){
-                        noTenantsTV.setVisibility(View.VISIBLE);
-                        noTenantsTV.setText("No Current Tenants");
-                    } else {
-                        noTenantsTV.setVisibility(View.GONE);
-                    }
-                    this.tenantListAdapter.updateResults(activeTenantArray);
+     //   if (TenantListFragment.tenantListAdapterNeedsRefreshed) {
+     //       //searchBarET.setText("");
+     //       if (this.tenantListAdapter != null) {
+     //           if (MainActivity.tenantList != null) {
+     //               ArrayList<Tenant> activeTenantArray = new ArrayList<>();
+     //               for (int i = 0; i < MainActivity.tenantList.size(); i++) {
+     //                   if (MainActivity.tenantList.get(i).isActive()) {
+     //                       activeTenantArray.add(MainActivity.tenantList.get(i));
+     //                   }
+     //               }
+     //               if(activeTenantArray.isEmpty()){
+     //                   noTenantsTV.setVisibility(View.VISIBLE);
+     ///                   noTenantsTV.setText("No Current Tenants");
+     //               } else {
+     //                   noTenantsTV.setVisibility(View.GONE);
+     //               }
+     //               this.tenantListAdapter.updateResults(activeTenantArray);
+     //           }
+     //           searchBarET.setText(searchBarET.getText());
+     //           searchBarET.setSelection(searchBarET.getText().length());
+     //           TenantListFragment.tenantListAdapterNeedsRefreshed = false;
+     //       }
+     //   }
+        if (needsRefreshedOnResume) {
+            ArrayList<Tenant> activeTenantArray = new ArrayList<>();
+            for (int i = 0; i < MainActivity.tenantList.size(); i++) {
+                if (MainActivity.tenantList.get(i).isActive()) {
+                    activeTenantArray.add(MainActivity.tenantList.get(i));
                 }
-                searchBarET.setText(searchBarET.getText());
-                searchBarET.setSelection(searchBarET.getText().length());
-                TenantListFragment.tenantListAdapterNeedsRefreshed = false;
             }
+            tenantListAdapter.updateResults(activeTenantArray);
+            searchBarET.setText(searchBarET.getText());
+            searchBarET.setSelection(searchBarET.getText().length());
+            // incomeListAdapter.getFilter().filter(searchBarET.getText());
+            //expenseListAdapter.getFilter().filter("");
+            //total = getTotal(ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedIncome().getValue());
+            //setTotalTV();
         }
+        needsRefreshedOnResume = true;
+
     }
 
     @Override
@@ -104,7 +123,7 @@ public class TenantListFragment extends Fragment implements AdapterView.OnItemCl
         //    Lease currentLease = dataMethods.getCachedActiveLeaseByTenantID(tenant.getId());
         intent.putExtra("tenantID", tenant.getId());
         //    intent.putExtra("apartmentID", currentLease.getApartmentID());
-        startActivity(intent);
+        getActivity().startActivityForResult(intent, MainActivity.REQUEST_TENANT_VIEW);
     }
 
     private void setUpSearchBar() {
@@ -133,28 +152,16 @@ public class TenantListFragment extends Fragment implements AdapterView.OnItemCl
     }
 
     private void setUpListAdapter() {
-        if (MainActivity.tenantList != null) {
-            ArrayList<Tenant> activeTenantArray = new ArrayList<>();
-            for (int i = 0; i < MainActivity.tenantList.size(); i++) {
-                if (MainActivity.tenantList.get(i).isActive()) {
-                    activeTenantArray.add(MainActivity.tenantList.get(i));
-                }
+        ArrayList<Tenant> activeTenantArray = new ArrayList<>();
+        for (int i = 0; i < MainActivity.tenantList.size(); i++) {
+            if (MainActivity.tenantList.get(i).isActive()) {
+                activeTenantArray.add(MainActivity.tenantList.get(i));
             }
-            tenantListAdapter = new TenantListAdapter(getActivity(), activeTenantArray, accentColor);
-            listView.setAdapter(tenantListAdapter);
-            listView.setOnItemClickListener(this);
-            if (!MainActivity.tenantList.isEmpty()) {
-                //If MainActivity5.tenantList is not null or empty, set apartment list adapter
-
-            } else {
-                //If MainActivity5.tenantList is not null but is empty, show empty list text
-                noTenantsTV.setVisibility(View.VISIBLE);
-                noTenantsTV.setText("No Current Tenants");
-            }
-        } else {
-            //If MainActivity5.tenantList is null show empty list text
-            noTenantsTV.setVisibility(View.VISIBLE);
-            noTenantsTV.setText("Error Loading Tenants");
         }
+        tenantListAdapter = new TenantListAdapter(getActivity(), activeTenantArray, accentColor);
+        listView.setAdapter(tenantListAdapter);
+        listView.setOnItemClickListener(this);
+        noTenantsTV.setText("No Tenants To Display");
+        this.listView.setEmptyView(noTenantsTV);
     }
 }

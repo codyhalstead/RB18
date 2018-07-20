@@ -45,6 +45,7 @@ public class ApartmentViewFrag2 extends android.support.v4.app.Fragment implemen
     public ApartmentViewFrag2() {
         // Required empty public constructor
     }
+
     TextView noIncomeTV, totalAmountTV, totalAmountLabelTV;
     FloatingActionButton fab;
     //  EditText searchBarET;
@@ -92,8 +93,8 @@ public class ApartmentViewFrag2 extends android.support.v4.app.Fragment implemen
         //    }
         //    if (savedInstanceState.getString("startDateRange") != null) {
         ///        DateFormat formatFrom = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
-         //       try {
-         //           Date startDate = formatFrom.parse(savedInstanceState.getString("startDateRange"));
+        //       try {
+        //           Date startDate = formatFrom.parse(savedInstanceState.getString("startDateRange"));
         //            startDateRange = startDate;
         //        } catch (ParseException e) {
         //            e.printStackTrace();
@@ -110,14 +111,14 @@ public class ApartmentViewFrag2 extends android.support.v4.app.Fragment implemen
         //    }
 
         //} else {
-            this.apartment = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getApartment().getValue();
-            //endDateRange = Calendar.getInstance().getTime();
-            //Calendar calendar = Calendar.getInstance();
-            //calendar.setTime(endDateRange);
-            //calendar.add(Calendar.YEAR, -1);
-            //startDateRange = calendar.getTime();
-            //this.currentFilteredMoney = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue();
-            total = getTotal();
+        this.apartment = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getApartment().getValue();
+        //endDateRange = Calendar.getInstance().getTime();
+        //Calendar calendar = Calendar.getInstance();
+        //calendar.setTime(endDateRange);
+        //calendar.add(Calendar.YEAR, -1);
+        //startDateRange = calendar.getTime();
+        //this.currentFilteredMoney = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue();
+        total = getTotal();
         //}
         this.fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -143,18 +144,20 @@ public class ApartmentViewFrag2 extends android.support.v4.app.Fragment implemen
         super.onResume();
         //if (IncomeListFragment.incomeListAdapterNeedsRefreshed) {
         //    if (this.moneyListAdapter != null) {
-                //   incomeListAdapterNeedsRefreshed = false;
-                //moneyListAdapter.getFilter().filter("");
+        //   incomeListAdapterNeedsRefreshed = false;
+        //moneyListAdapter.getFilter().filter("");
         //    }
-       // }
+        // }
     }
 
     private void setUpSearchBar() {
 
     }
 
-    public interface OnMoneyDataChangedListener{
+    public interface OnMoneyDataChangedListener {
         void onMoneyDataChanged();
+        void onIncomeDataChanged();
+        void onExpenseDataChanged();
     }
 
     @Override
@@ -169,6 +172,12 @@ public class ApartmentViewFrag2 extends android.support.v4.app.Fragment implemen
             throw new ClassCastException(activity.toString()
                     + " must implement OnLeaseDataChangedListener");
         }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mCallback = null;
     }
 
     private void setUpListAdapter() {
@@ -201,11 +210,13 @@ public class ApartmentViewFrag2 extends android.support.v4.app.Fragment implemen
                         //On listView row click, launch ApartmentViewActivity passing the rows data into it.
                         selectedMoney = moneyListAdapter.getFilteredResults().get(position);
                         if (selectedMoney instanceof PaymentLogEntry) {
+                            //mCallback.onIncomeDataChanged();
                             Intent intent = new Intent(getActivity(), NewIncomeWizard.class);
                             PaymentLogEntry selectedIncome = (PaymentLogEntry) selectedMoney;
                             intent.putExtra("incomeToEdit", selectedIncome);
                             startActivityForResult(intent, MainActivity.REQUEST_NEW_INCOME_FORM);
                         } else {
+                            //mCallback.onExpenseDataChanged();
                             Intent intent = new Intent(getActivity(), NewExpenseWizard.class);
                             ExpenseLogEntry selectedExpense = (ExpenseLogEntry) selectedMoney;
                             intent.putExtra("expenseToEdit", selectedExpense);
@@ -241,6 +252,7 @@ public class ApartmentViewFrag2 extends android.support.v4.app.Fragment implemen
                     //currentFilteredMoney = db.getIncomeAndExpensesByApartmentIDWithinDates(MainActivity.user, apartment.getId(), startDateRange, endDateRange);
                     //moneyListAdapter.updateResults(currentFilteredMoney);
                     mCallback.onMoneyDataChanged();
+                    mCallback.onIncomeDataChanged();
                     //moneyListAdapter.notifyDataSetChanged();
                     total = getTotal();
                     setTotalTV();
@@ -252,10 +264,11 @@ public class ApartmentViewFrag2 extends android.support.v4.app.Fragment implemen
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     db.setExpenseInactive((ExpenseLogEntry) selectedMoney);
-                    ExpenseListFragment.expenseListAdapterNeedsRefreshed = true;
+                   // ExpenseListFragment.expenseListAdapterNeedsRefreshed = true;
                     //currentFilteredMoney = db.getIncomeAndExpensesByApartmentIDWithinDates(MainActivity.user, apartment.getId(), startDateRange, endDateRange);
                     //moneyListAdapter.updateResults(currentFilteredMoney);
                     mCallback.onMoneyDataChanged();
+                    mCallback.onExpenseDataChanged();
                     //moneyListAdapter.notifyDataSetChanged();
                     total = getTotal();
                     setTotalTV();
@@ -308,6 +321,7 @@ public class ApartmentViewFrag2 extends android.support.v4.app.Fragment implemen
                 //moneyListAdapter.updateResults(currentFilteredMoney);
                 //moneyListAdapter.notifyDataSetChanged();
                 mCallback.onMoneyDataChanged();
+                mCallback.onIncomeDataChanged();
                 total = getTotal();
                 setTotalTV();
             }
@@ -319,6 +333,7 @@ public class ApartmentViewFrag2 extends android.support.v4.app.Fragment implemen
                 //moneyListAdapter.updateResults(currentFilteredMoney);
                 //moneyListAdapter.notifyDataSetChanged();
                 mCallback.onMoneyDataChanged();
+                mCallback.onExpenseDataChanged();
                 total = getTotal();
                 setTotalTV();
             }
@@ -337,23 +352,23 @@ public class ApartmentViewFrag2 extends android.support.v4.app.Fragment implemen
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-       // SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
-       // if (currentFilteredMoney != null) {
-       //     outState.putParcelableArrayList("filteredMoney", currentFilteredMoney);
-       // }
-       // if(startDateRange != null){
-       //     outState.putString("startDateRange", formatter.format(startDateRange));
-       // }
-       // if(endDateRange != null){
-       //     outState.putString("endDateRange", formatter.format(endDateRange));
-       // }
-       // if(apartment != null){
-       //     outState.putParcelable("apartment", apartment);
-       // }
-       // if(total != null){
-       //     String totalString = total.toPlainString();
-       //     outState.putString("totalString", totalString);
-       // }
+        // SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
+        // if (currentFilteredMoney != null) {
+        //     outState.putParcelableArrayList("filteredMoney", currentFilteredMoney);
+        // }
+        // if(startDateRange != null){
+        //     outState.putString("startDateRange", formatter.format(startDateRange));
+        // }
+        // if(endDateRange != null){
+        //     outState.putString("endDateRange", formatter.format(endDateRange));
+        // }
+        // if(apartment != null){
+        //     outState.putParcelable("apartment", apartment);
+        // }
+        // if(total != null){
+        //     String totalString = total.toPlainString();
+        //     outState.putString("totalString", totalString);
+        // }
     }
 
     private BigDecimal getTotal() {
@@ -383,7 +398,7 @@ public class ApartmentViewFrag2 extends android.support.v4.app.Fragment implemen
         }
     }
 
-    public void updateData(){
+    public void updateData() {
         moneyListAdapter.updateResults(ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue());
         moneyListAdapter.notifyDataSetChanged();
         this.total = getTotal();

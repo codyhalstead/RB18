@@ -145,7 +145,7 @@ public class NewApartmentWizard extends BaseActivity implements
                         setResult(RESULT_OK);
                     }
                     mainArrayDataMethods.sortMainApartmentArray();
-                    ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
+                    //ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
                     finish();
 
                 } else {

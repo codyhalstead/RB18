@@ -204,7 +204,7 @@ public class LeaseViewFrag1 extends Fragment {
                     secondaryTenants.add(secondaryTenant);
                 }
                 fillTextViews();
-                LeaseListFragment.leaseListAdapterNeedsRefreshed = true;
+               // LeaseListFragment.leaseListAdapterNeedsRefreshed = true;
             }
         }
     }

@@ -201,7 +201,7 @@ public class ApartmentViewFrag1 extends Fragment {
                                     mainPicIV.setImageDrawable(getResources().getDrawable(R.drawable.blank_home_pic));
                                     mainPic = null;
                                     apartment.setMainPic(null);
-                                    ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
+                                    //ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
                                     return true;
 
                                 case R.id.changePic:
@@ -289,7 +289,7 @@ public class ApartmentViewFrag1 extends Fragment {
                 int apartmentID = data.getIntExtra("editedApartmentID", 0);
                 this.apartment = dataMethods.getCachedApartmentByApartmentID(apartmentID);
                 fillTextViews();
-                ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
+                //ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
             }
         }
         if (requestCode == MainActivity.REQUEST_GALLERY_FOR_MAIN_PIC) {
@@ -311,7 +311,7 @@ public class ApartmentViewFrag1 extends Fragment {
                 this.mainPic = filePath;
                 databaseHandler.changeApartmentMainPic(this.apartment);
                 //MainActivity5.apartmentList = databaseHandler.getUsersApartments(MainActivity5.user);
-                ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
+                //ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
             }
         }
         if (requestCode == MainActivity.REQUEST_GALLERY_FOR_OTHER_PICS) {
@@ -348,7 +348,7 @@ public class ApartmentViewFrag1 extends Fragment {
                 this.secondaryTenants = tenants.second;
                 //this.secondaryTenants = data.getParcelableArrayListExtra("updatedSecondaryTenants");
                 fillTextViews();
-                ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
+               // ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
             }
         }
     }
@@ -457,8 +457,8 @@ public class ApartmentViewFrag1 extends Fragment {
                     dataMethods.sortMainTenantArray();
                 }
                 MainActivity.apartmentList.remove(apartment);
-                TenantListFragment.tenantListAdapterNeedsRefreshed = true;
-                ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
+                //TenantListFragment.tenantListAdapterNeedsRefreshed = true;
+                //ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
                 getActivity().finish();
             }
         });

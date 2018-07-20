@@ -499,9 +499,9 @@ public class NewLeaseFormActivity extends BaseActivity implements View.OnClickLi
                         dataMethods.sortMainTenantArray();
                         MainActivity.currentLeasesList = db.getUsersActiveLeases(MainActivity.user);
                         //MainActivity5.apartmentList = db.getUsersApartments(MainActivity5.user);
-                        ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
-                        TenantListFragment.tenantListAdapterNeedsRefreshed = true;
-                        LeaseListFragment.leaseListAdapterNeedsRefreshed = true;
+                        //ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
+                       // TenantListFragment.tenantListAdapterNeedsRefreshed = true;
+                       // LeaseListFragment.leaseListAdapterNeedsRefreshed = true;
                         setResult(RESULT_OK, data);
                         finish();
                     }

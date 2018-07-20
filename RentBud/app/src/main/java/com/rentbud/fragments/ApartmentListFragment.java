@@ -1,5 +1,6 @@
 package com.rentbud.fragments;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
@@ -39,7 +40,8 @@ public class ApartmentListFragment extends Fragment implements AdapterView.OnIte
     ApartmentListAdapter apartmentListAdapter;
     ColorStateList accentColor;
     ListView listView;
-    public static boolean apartmentListAdapterNeedsRefreshed;
+    //public static boolean apartmentListAdapterNeedsRefreshed;
+    private boolean needsRefreshedOnResume;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -54,41 +56,54 @@ public class ApartmentListFragment extends Fragment implements AdapterView.OnIte
         this.searchBarET = view.findViewById(R.id.apartmentListSearchET);
         this.listView = view.findViewById(R.id.mainapartmentListView);
         getActivity().setTitle("Apartment View");
-        ApartmentListFragment.apartmentListAdapterNeedsRefreshed = false;
+        //ApartmentListFragment.apartmentListAdapterNeedsRefreshed = false;
         //Get current theme accent color, which is passed into the list adapter for search highlighting
         TypedValue colorValue = new TypedValue();
         getActivity().getTheme().resolveAttribute(R.attr.colorAccent, colorValue, true);
         this.accentColor = getActivity().getResources().getColorStateList(colorValue.resourceId);
         setUpListAdapter();
         setUpSearchBar();
+        needsRefreshedOnResume = false;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        if (ApartmentListFragment.apartmentListAdapterNeedsRefreshed) {
-            //searchBarET.setText("");
-            if (this.apartmentListAdapter != null) {
-                if (MainActivity.tenantList != null) {
-                    ArrayList<Apartment> activeApartmentArray = new ArrayList<>();
-                    for (int i = 0; i < MainActivity.apartmentList.size(); i++) {
-                        if (MainActivity.apartmentList.get(i).isActive()) {
-                            activeApartmentArray.add(MainActivity.apartmentList.get(i));
-                        }
-                    }
-                    if(activeApartmentArray.isEmpty()){
-                        noApartmentsTV.setVisibility(View.VISIBLE);
-                        noApartmentsTV.setText("No Current Apartments");
-                    } else {
-                        noApartmentsTV.setVisibility(View.GONE);
-                    }
-                    this.apartmentListAdapter.updateResults(activeApartmentArray);
+        // if (ApartmentListFragment.apartmentListAdapterNeedsRefreshed) {
+        //searchBarET.setText("");
+        //    if (this.apartmentListAdapter != null) {
+        //        if (MainActivity.tenantList != null) {
+        //            ArrayList<Apartment> activeApartmentArray = new ArrayList<>();
+        //            for (int i = 0; i < MainActivity.apartmentList.size(); i++) {
+        //                if (MainActivity.apartmentList.get(i).isActive()) {
+        //                    activeApartmentArray.add(MainActivity.apartmentList.get(i));
+        //                }
+        //            }
+        //            if(activeApartmentArray.isEmpty()){
+        //                noApartmentsTV.setVisibility(View.VISIBLE);
+        //                noApartmentsTV.setText("No Current Apartments");
+        //            } else {
+        //                noApartmentsTV.setVisibility(View.GONE);
+        //            }
+        //            this.apartmentListAdapter.updateResults(activeApartmentArray);
+        //        }
+        //        searchBarET.setText(searchBarET.getText());
+        //        searchBarET.setSelection(searchBarET.getText().length());
+        //        ApartmentListFragment.apartmentListAdapterNeedsRefreshed = false;
+        //   }
+        // }
+        if (needsRefreshedOnResume) {
+            ArrayList<Apartment> activeApartmentArray = new ArrayList<>();
+            for (int i = 0; i < MainActivity.apartmentList.size(); i++) {
+                if (MainActivity.apartmentList.get(i).isActive()) {
+                    activeApartmentArray.add(MainActivity.apartmentList.get(i));
                 }
-                searchBarET.setText(searchBarET.getText());
-                searchBarET.setSelection(searchBarET.getText().length());
-                ApartmentListFragment.apartmentListAdapterNeedsRefreshed = false;
             }
+            apartmentListAdapter.updateResults(activeApartmentArray);
+            searchBarET.setText(searchBarET.getText());
+            searchBarET.setSelection(searchBarET.getText().length());
         }
+        needsRefreshedOnResume = true;
     }
 
     @Override
@@ -98,7 +113,7 @@ public class ApartmentListFragment extends Fragment implements AdapterView.OnIte
         //Uses filtered results to match what is on screen
         Apartment apartment = apartmentListAdapter.getFilteredResults().get(i);
         intent.putExtra("apartmentID", apartment.getId());
-        startActivity(intent);
+        getActivity().startActivityForResult(intent, MainActivity.REQUEST_APARTMENT_VIEW);
     }
 
     @Override
@@ -132,29 +147,17 @@ public class ApartmentListFragment extends Fragment implements AdapterView.OnIte
     }
 
     private void setUpListAdapter() {
-        if (MainActivity.apartmentList != null) {
-            ArrayList<Apartment> activeApartmentArray = new ArrayList<>();
-            for(int i = 0; i < MainActivity.apartmentList.size(); i++){
-                if(MainActivity.apartmentList.get(i).isActive()){
-                    activeApartmentArray.add(MainActivity.apartmentList.get(i));
-                }
+        ArrayList<Apartment> activeApartmentArray = new ArrayList<>();
+        for (int i = 0; i < MainActivity.apartmentList.size(); i++) {
+            if (MainActivity.apartmentList.get(i).isActive()) {
+                activeApartmentArray.add(MainActivity.apartmentList.get(i));
             }
-            apartmentListAdapter = new ApartmentListAdapter(getActivity(), activeApartmentArray, accentColor);
-            listView.setAdapter(apartmentListAdapter);
-            listView.setOnItemClickListener(this);
-            if (!MainActivity.apartmentList.isEmpty()) {
-                //If MainActivity5.apartmentList is not null or empty, set apartment list adapter
-
-            } else {
-                //If MainActivity5.apartmentList is not null but is empty, show empty list text
-                noApartmentsTV.setVisibility(View.VISIBLE);
-                noApartmentsTV.setText("No Current Apartments");
-            }
-        } else {
-            //If MainActivity5.apartmentList is null show empty list text
-            noApartmentsTV.setVisibility(View.VISIBLE);
-            noApartmentsTV.setText("Error Loading Apartments");
         }
+        apartmentListAdapter = new ApartmentListAdapter(getActivity(), activeApartmentArray, accentColor);
+        listView.setAdapter(apartmentListAdapter);
+        listView.setOnItemClickListener(this);
+        noApartmentsTV.setText("No Apartments To Display");
+        this.listView.setEmptyView(noApartmentsTV);
     }
 
 }

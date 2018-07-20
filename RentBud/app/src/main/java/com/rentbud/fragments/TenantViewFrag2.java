@@ -114,12 +114,12 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
     @Override
     public void onResume() {
         super.onResume();
-        if (IncomeListFragment.incomeListAdapterNeedsRefreshed) {
-            if (this.moneyListAdapter != null) {
+        //if (IncomeListFragment.incomeListAdapterNeedsRefreshed) {
+        //    if (this.moneyListAdapter != null) {
                 //   incomeListAdapterNeedsRefreshed = false;
-                moneyListAdapter.getFilter().filter("");
-            }
-        }
+        //        moneyListAdapter.getFilter().filter("");
+        //    }
+        //}
     }
 
     private void setUpSearchBar() {
@@ -128,6 +128,8 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
 
     public interface OnMoneyDataChangedListener {
         void onMoneyDataChanged();
+        void onIncomeDataChanged();
+        void onExpenseDataChanged();
     }
 
     @Override
@@ -142,6 +144,12 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
             throw new ClassCastException(activity.toString()
                     + " must implement OnMoneyDataChangedListener");
         }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mCallback = null;
     }
 
     private void setUpListAdapter() {
@@ -174,11 +182,13 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
                         //On listView row click, launch ApartmentViewActivity passing the rows data into it.
                         selectedMoney = moneyListAdapter.getFilteredResults().get(position);
                         if (selectedMoney instanceof PaymentLogEntry) {
+                           // mCallback.onIncomeDataChanged();
                             Intent intent = new Intent(getActivity(), NewIncomeWizard.class);
                             PaymentLogEntry selectedIncome = (PaymentLogEntry) selectedMoney;
                             intent.putExtra("incomeToEdit", selectedIncome);
                             startActivityForResult(intent, MainActivity.REQUEST_NEW_INCOME_FORM);
                         } else {
+                          //  mCallback.onExpenseDataChanged();
                             Intent intent = new Intent(getActivity(), NewExpenseWizard.class);
                             ExpenseLogEntry selectedExpense = (ExpenseLogEntry) selectedMoney;
                             intent.putExtra("expenseToEdit", selectedExpense);
@@ -215,6 +225,7 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
                     //moneyListAdapter.updateResults(currentFilteredMoney);
                     //moneyListAdapter.notifyDataSetChanged();
                     mCallback.onMoneyDataChanged();
+                    mCallback.onIncomeDataChanged();
                     total = getTotal();
                     setTotalTV();
                 }
@@ -230,6 +241,7 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
                     //moneyListAdapter.updateResults(currentFilteredMoney);
                     //moneyListAdapter.notifyDataSetChanged();
                     mCallback.onMoneyDataChanged();
+                    mCallback.onExpenseDataChanged();
                     total = getTotal();
                     setTotalTV();
                 }
@@ -281,6 +293,7 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
                 //moneyListAdapter.updateResults(currentFilteredMoney);
                 //moneyListAdapter.notifyDataSetChanged();
                 mCallback.onMoneyDataChanged();
+                mCallback.onIncomeDataChanged();
                 total = getTotal();
                 setTotalTV();
             }
@@ -292,6 +305,7 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
                 //moneyListAdapter.updateResults(currentFilteredMoney);
                 //moneyListAdapter.notifyDataSetChanged();
                 mCallback.onMoneyDataChanged();
+                mCallback.onExpenseDataChanged();
                 total = getTotal();
                 setTotalTV();
             }

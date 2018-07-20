@@ -173,7 +173,7 @@ public class LeaseViewActivity extends BaseActivity {
                 this.primaryTenant = tenants.first;
                 this.secondaryTenants = tenants.second;
                 fillTextViews();
-                LeaseListFragment.leaseListAdapterNeedsRefreshed = true;
+                //LeaseListFragment.leaseListAdapterNeedsRefreshed = true;
             }
         }
     }

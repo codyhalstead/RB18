@@ -1,6 +1,8 @@
 package com.rentbud.fragments;
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.res.ColorStateList;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
@@ -21,6 +23,7 @@ import com.rentbud.activities.MainActivity;
 import com.rentbud.adapters.IncomeListAdapter;
 import com.rentbud.adapters.TotalsListAdapter;
 import com.rentbud.helpers.MainArrayDataMethods;
+import com.rentbud.helpers.MainViewModel;
 import com.rentbud.model.TypeTotal;
 import com.rentbud.sqlite.DatabaseHandler;
 
@@ -42,6 +45,7 @@ public class TotalsFragment extends android.support.v4.app.Fragment implements A
     ListView listView;
     MainArrayDataMethods dataMethods;
     private DatePickerDialog.OnDateSetListener dateSetFilterStartListener, dateSetFilterEndListener;
+    private OnDatesChangedListener mCallback;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -60,46 +64,18 @@ public class TotalsFragment extends android.support.v4.app.Fragment implements A
         this.listView = view.findViewById(R.id.totalsListView);
         db = new DatabaseHandler(getActivity());
         dataMethods = new MainArrayDataMethods();
+        this.filterDateEnd = ViewModelProviders.of(getActivity()).get(MainViewModel.class).getEndDateRangeDate().getValue();
+        this.filterDateStart = ViewModelProviders.of(getActivity()).get(MainViewModel.class).getStartDateRangeDate().getValue();
+        SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+        dateRangeStartBtn.setText(formatter.format(filterDateStart));
+        dateRangeEndBtn.setText(formatter.format(filterDateEnd));
         if (savedInstanceState != null) {
-            if (savedInstanceState.getString("filterDateStart") != null) {
-                SimpleDateFormat formatTo = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-                DateFormat formatFrom = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
-                try {
-                    Date startDate = formatFrom.parse(savedInstanceState.getString("filterDateStart"));
-                    this.filterDateStart = startDate;
-                    this.dateRangeStartBtn.setText(formatTo.format(startDate));
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (savedInstanceState.getString("filterDateEnd") != null) {
-                SimpleDateFormat formatTo = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-                DateFormat formatFrom = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
-                try {
-                    Date endDate = formatFrom.parse(savedInstanceState.getString("filterDateEnd"));
-                    this.filterDateEnd = endDate;
-                    this.dateRangeEndBtn.setText(formatTo.format(endDate));
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-            }
             if(savedInstanceState.getParcelableArrayList("filteredTotals") != null){
                 this.typeTotals = savedInstanceState.getParcelableArrayList("filteredTotals");
             } else {
                 this.typeTotals = new ArrayList<>();
             }
         } else {
-            Date endDate = Calendar.getInstance().getTime();
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(endDate);
-            calendar.add(Calendar.YEAR, -1);
-            Date startDate = calendar.getTime();
-
-            this.filterDateEnd = endDate;
-            this.filterDateStart = startDate;
-            SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-            dateRangeStartBtn.setText(formatter.format(filterDateStart));
-            dateRangeEndBtn.setText(formatter.format(filterDateEnd));
             typeTotals = new ArrayList<>();
             typeTotals.addAll(db.getTotalForExpenseTypesWithinDates(MainActivity.user, MainActivity.expenseTypeLabels, filterDateStart, filterDateEnd));
             typeTotals.addAll(db.getTotalForIncomeTypesWithinDates(MainActivity.user, MainActivity.incomeTypeLabels, filterDateStart, filterDateEnd));
@@ -172,6 +148,30 @@ public class TotalsFragment extends android.support.v4.app.Fragment implements A
         }
     }
 
+    public interface OnDatesChangedListener {
+        void onTotalsListDatesChanged(Date dateStart, Date dateEnd, TotalsFragment fragment);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        // This makes sure that the container activity has implemented
+        // the callback interface. If not, it throws an exception
+        try {
+            mCallback = (OnDatesChangedListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement OnTotalsDatesChangedListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mCallback = null;
+    }
+
     private void setUpdateSelectedDateListeners() {
         dateSetFilterStartListener = new DatePickerDialog.OnDateSetListener() {
             @Override
@@ -192,6 +192,7 @@ public class TotalsFragment extends android.support.v4.app.Fragment implements A
                 dataMethods.sortTypeTotalsArrayByTotalAmountDesc(typeTotals);
                 SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
                 dateRangeStartBtn.setText(formatter.format(filterDateStart));
+                mCallback.onTotalsListDatesChanged(filterDateStart, filterDateEnd, TotalsFragment.this);
                 //totalsListAdapter.updateResults(typeTotals);
                 totalsListAdapter.notifyDataSetChanged();
             }
@@ -215,6 +216,7 @@ public class TotalsFragment extends android.support.v4.app.Fragment implements A
                 dataMethods.sortTypeTotalsArrayByTotalAmountDesc(typeTotals);
                 SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
                 dateRangeEndBtn.setText(formatter.format(filterDateEnd));
+                mCallback.onTotalsListDatesChanged(filterDateStart, filterDateEnd, TotalsFragment.this);
                 //totalsListAdapter.updateResults(typeTotals);
                 totalsListAdapter.notifyDataSetChanged();
             }
@@ -224,13 +226,6 @@ public class TotalsFragment extends android.support.v4.app.Fragment implements A
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
-        if (filterDateStart != null) {
-            outState.putString("filterDateStart", formatter.format(filterDateStart));
-        }
-        if (filterDateEnd != null) {
-            outState.putString("filterDateEnd", formatter.format(filterDateEnd));
-        }
         if (typeTotals != null) {
             outState.putParcelableArrayList("filteredTotals", typeTotals);
         }

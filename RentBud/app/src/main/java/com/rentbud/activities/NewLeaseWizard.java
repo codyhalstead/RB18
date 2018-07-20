@@ -211,9 +211,9 @@ public class NewLeaseWizard extends BaseActivity implements
                     dataMethods.sortMainTenantArray();
                     MainActivity.currentLeasesList = dbhandler.getUsersActiveLeases(MainActivity.user);
                     //MainActivity5.apartmentList = db.getUsersApartments(MainActivity5.user);
-                    ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
-                    TenantListFragment.tenantListAdapterNeedsRefreshed = true;
-                    LeaseListFragment.leaseListAdapterNeedsRefreshed = true;
+                    //ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
+                   // TenantListFragment.tenantListAdapterNeedsRefreshed = true;
+                    //LeaseListFragment.leaseListAdapterNeedsRefreshed = true;
                     finish();
 
                 } else {

@@ -59,6 +59,7 @@ public class ApartmentViewActivity2 extends BaseActivity implements View.OnClick
     Tenant primaryTenant;
     ArrayList<Tenant> secondaryTenants;
     Lease currentLease;
+    private Boolean wasLeaseEdited, wasIncomeEdited, wasExpenseEdited, wasApartmentEdited;
 
     private DatePickerDialog.OnDateSetListener dateSetFilterStartListener, dateSetFilterEndListener;
     Button dateRangeStartBtn, dateRangeEndBtn;
@@ -131,6 +132,10 @@ public class ApartmentViewActivity2 extends BaseActivity implements View.OnClick
                     e.printStackTrace();
                 }
             }
+            wasLeaseEdited = savedInstanceState.getBoolean("was_lease_edited");
+            wasIncomeEdited = savedInstanceState.getBoolean("was_income_edited");
+            wasExpenseEdited = savedInstanceState.getBoolean("was_expense_edited");
+            wasApartmentEdited = savedInstanceState.getBoolean("was_apartment_edited");
         } else {
             Date endDate = Calendar.getInstance().getTime();
             Calendar calendar = Calendar.getInstance();
@@ -139,6 +144,10 @@ public class ApartmentViewActivity2 extends BaseActivity implements View.OnClick
             Date startDate = calendar.getTime();
             this.filterDateEnd = endDate;
             this.filterDateStart = startDate;
+            wasLeaseEdited = false;
+            wasIncomeEdited = false;
+            wasExpenseEdited = false;
+            wasApartmentEdited = false;
         }
         //ApartmentViewFrag3 ap2 = (ApartmentViewFrag3) frag2;
         //ap2.updateDates();
@@ -186,6 +195,11 @@ public class ApartmentViewActivity2 extends BaseActivity implements View.OnClick
         tabLayout.setupWithViewPager(viewPager);
         setupBasicToolbar();
         setUpdateSelectedDateListeners();
+        if (wasLeaseEdited || wasIncomeEdited || wasExpenseEdited || wasApartmentEdited) {
+            setResultToEdited();
+        } else {
+            setResult(RESULT_OK);
+        }
     }
 
     @Override
@@ -196,12 +210,33 @@ public class ApartmentViewActivity2 extends BaseActivity implements View.OnClick
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        if (wasLeaseEdited || wasIncomeEdited || wasExpenseEdited || wasApartmentEdited) {
+            setResultToEdited();
+        } else {
+            setResult(RESULT_OK);
+        }
+    }
+
+    private void setResultToEdited() {
+        Intent intent = new Intent();
+        intent.putExtra("was_lease_edited", wasLeaseEdited);
+        intent.putExtra("was_income_edited", wasIncomeEdited);
+        intent.putExtra("was_expense_edited", wasExpenseEdited);
+        intent.putExtra("was_apartment_edited", wasApartmentEdited);
+        setResult(MainActivity.RESULT_DATA_WAS_MODIFIED, intent);
+    }
+
+    @Override
     //Handle option menu actions
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.editApartment:
                 Intent intent = new Intent(this, NewApartmentWizard.class);
                 intent.putExtra("apartmentToEdit", apartment);
+                wasApartmentEdited = true;
+                setResultToEdited();
                 startActivityForResult(intent, MainActivity.REQUEST_NEW_APARTMENT_FORM);
                 return true;
 
@@ -247,24 +282,9 @@ public class ApartmentViewActivity2 extends BaseActivity implements View.OnClick
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 databaseHandler.setApartmentInactive(apartment);
-                if (apartment.isRented()) {
-                    //TODO update lease
-                    //primaryTenant.setApartmentID(0);
-                    //primaryTenant.setLeaseStart(null);
-                    //primaryTenant.setLeaseEnd(null);
-                    //databaseHandler.editTenant(primaryTenant);
-                    //for (int x = 0; x < secondaryTenants.size(); x++) {
-                    //    secondaryTenants.get(x).setApartmentID(0);
-                    //    secondaryTenants.get(x).setLeaseStart(null);
-                    //    secondaryTenants.get(x).setLeaseEnd(null);
-                    //    databaseHandler.editTenant(secondaryTenants.get(x));
-                    //}
-                    apartment.setRented(false);
-                    dataMethods.sortMainTenantArray();
-                }
-                MainActivity.apartmentList.remove(apartment);
-                TenantListFragment.tenantListAdapterNeedsRefreshed = true;
-                ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
+                wasApartmentEdited = true;
+                setResultToEdited();
+               // ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
                 ApartmentViewActivity2.this.finish();
             }
         });
@@ -464,6 +484,10 @@ public class ApartmentViewActivity2 extends BaseActivity implements View.OnClick
         if (filterDateEnd != null) {
             outState.putString("filterDateEnd", formatter.format(filterDateEnd));
         }
+        outState.putBoolean("was_lease_edited", wasLeaseEdited);
+        outState.putBoolean("was_income_edited", wasIncomeEdited);
+        outState.putBoolean("was_expense_edited", wasExpenseEdited);
+        outState.putBoolean("was_apartment_edited", wasApartmentEdited);
         //getSupportFragmentManager().putFragment(outState, "frag1",  (adapter.getItem(0)));
         //getSupportFragmentManager().putFragment(outState, "frag2",  (adapter.getItem(1)));
         //getSupportFragmentManager().putFragment(outState, "frag3",  (adapter.getItem(2)));
@@ -522,12 +546,33 @@ public class ApartmentViewActivity2 extends BaseActivity implements View.OnClick
         viewModel.setMoneyArray(databaseHandler.getIncomeAndExpensesByApartmentIDWithinDates(MainActivity.user, apartment.getId(), filterDateStart, filterDateEnd));
         frag2.updateData();
         frag3.updateData();
+        wasLeaseEdited = true;
+        setResultToEdited();
+    }
+
+    @Override
+    public void onLeasePaymentsChanged(){
+        wasExpenseEdited = true;
+        wasIncomeEdited = true;
+        setResultToEdited();
     }
 
     @Override
     public void onMoneyDataChanged() {
         viewModel.setMoneyArray(databaseHandler.getIncomeAndExpensesByApartmentIDWithinDates(MainActivity.user, apartment.getId(), filterDateStart, filterDateEnd));
         frag2.updateData();
+    }
+
+    @Override
+    public void onIncomeDataChanged() {
+        wasIncomeEdited = true;
+        setResultToEdited();
+    }
+
+    @Override
+    public void onExpenseDataChanged() {
+        wasExpenseEdited = true;
+        setResultToEdited();
     }
 
     // Adapter for the viewpager using FragmentPagerAdapter

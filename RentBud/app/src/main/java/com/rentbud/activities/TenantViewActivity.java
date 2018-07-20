@@ -134,7 +134,7 @@ public class TenantViewActivity extends BaseActivity {
                 //int tenantID  = data.getIntExtra("editedTenantID", 0);
                 this.tenant = dataMethods.getCachedTenantByTenantID(tenant.getId());
                 fillTextViews();
-                TenantListFragment.tenantListAdapterNeedsRefreshed = true;
+               // TenantListFragment.tenantListAdapterNeedsRefreshed = true;
             }
         }
         if (requestCode == MainActivity.REQUEST_NEW_LEASE_FORM) {
@@ -154,7 +154,7 @@ public class TenantViewActivity extends BaseActivity {
                 }
             }
             fillTextViews();
-            TenantListFragment.tenantListAdapterNeedsRefreshed = true;
+           // TenantListFragment.tenantListAdapterNeedsRefreshed = true;
         }
     }
 
@@ -313,8 +313,8 @@ public class TenantViewActivity extends BaseActivity {
                 //TODO
                 dataMethods.sortMainApartmentArray();
                 //MainActivity5.apartmentList = databaseHandler.getUsersApartments(MainActivity5.user);
-                TenantListFragment.tenantListAdapterNeedsRefreshed = true;
-                ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
+                //TenantListFragment.tenantListAdapterNeedsRefreshed = true;
+                //ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
                 TenantViewActivity.this.finish();
             }
         });

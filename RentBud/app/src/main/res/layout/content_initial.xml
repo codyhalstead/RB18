@@ -32,14 +32,6 @@
             android:onClick="add100Apartments"
             />
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/mainExtraBtn"
-            android:layout_below="@+id/add100ApartmentsBtn"
-            android:text="lease tab sample"
-            android:onClick="leaseSample"
-            />
 
     </LinearLayout>
 </ScrollView>

@@ -114,12 +114,12 @@ public class DateViewFrag1 extends android.support.v4.app.Fragment implements Ad
     @Override
     public void onResume() {
         super.onResume();
-        if (IncomeListFragment.incomeListAdapterNeedsRefreshed) {
-            if (this.moneyListAdapter != null) {
-                //   incomeListAdapterNeedsRefreshed = false;
-                moneyListAdapter.getFilter().filter("");
-            }
-        }
+       // if (IncomeListFragment.incomeListAdapterNeedsRefreshed) {
+       //     if (this.moneyListAdapter != null) {
+       //         //   incomeListAdapterNeedsRefreshed = false;
+       //         moneyListAdapter.getFilter().filter("");
+       //     }
+       // }
     }
 
     private void setUpSearchBar() {
@@ -128,6 +128,8 @@ public class DateViewFrag1 extends android.support.v4.app.Fragment implements Ad
 
     public interface OnMoneyDataChangedListener {
         void onMoneyDataChanged();
+        void onIncomeDataChanged();
+        void onExpenseDataChanged();
     }
 
     @Override
@@ -142,6 +144,12 @@ public class DateViewFrag1 extends android.support.v4.app.Fragment implements Ad
             throw new ClassCastException(activity.toString()
                     + " must implement OnMoneyDataChangedListener");
         }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mCallback = null;
     }
 
     private void setUpListAdapter() {
@@ -215,6 +223,7 @@ public class DateViewFrag1 extends android.support.v4.app.Fragment implements Ad
                     //moneyListAdapter.updateResults(currentFilteredIncomeAndExpenses);
                     //moneyListAdapter.notifyDataSetChanged();
                     mCallback.onMoneyDataChanged();
+                    mCallback.onIncomeDataChanged();
                     total = getTotal();
                     setTotalTV();
                 }
@@ -230,6 +239,7 @@ public class DateViewFrag1 extends android.support.v4.app.Fragment implements Ad
                    // moneyListAdapter.updateResults(currentFilteredIncomeAndExpenses);
                    // moneyListAdapter.notifyDataSetChanged();
                     mCallback.onMoneyDataChanged();
+                    mCallback.onExpenseDataChanged();
                     total = getTotal();
                     setTotalTV();
                 }
@@ -283,6 +293,7 @@ public class DateViewFrag1 extends android.support.v4.app.Fragment implements Ad
                 //moneyListAdapter.updateResults(currentFilteredIncomeAndExpenses);
                 //moneyListAdapter.notifyDataSetChanged();
                 mCallback.onMoneyDataChanged();
+                mCallback.onExpenseDataChanged();
                 total = getTotal();
                 setTotalTV();
             }
@@ -294,6 +305,7 @@ public class DateViewFrag1 extends android.support.v4.app.Fragment implements Ad
                 //moneyListAdapter.updateResults(currentFilteredIncomeAndExpenses);
                 //moneyListAdapter.notifyDataSetChanged();
                 mCallback.onMoneyDataChanged();
+                mCallback.onIncomeDataChanged();
                 total = getTotal();
                 setTotalTV();
             }
