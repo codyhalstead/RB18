@@ -52,21 +52,15 @@ public class TenantViewFrag3 extends android.support.v4.app.Fragment implements 
     TextView noIncomeTV;
     FloatingActionButton fab;
     LinearLayout totalBarLL;
-    //  EditText searchBarET;
-    //  Button dateRangeStartBtn, dateRangeEndBtn;
     LeaseListAdapter leaseListAdapter;
     ColorStateList accentColor;
     ListView listView;
-    //Date startDateRange, endDateRange;
-    //public static boolean incomeListAdapterNeedsRefreshed;
-    //  Date filterDateStart, filterDateEnd;
-    //  private DatePickerDialog.OnDateSetListener dateSetFilterStartListener, dateSetFilterEndListener;
     private DatabaseHandler db;
-   // private ArrayList<Lease> currentFilteredLeases;
     private Lease selectedLease;
     private Tenant tenant;
     private OnLeaseDataChangedListener mCallback;
-    //private BigDecimal total;
+    private AlertDialog dialog;
+    private PopupMenu popupMenu;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -95,7 +89,6 @@ public class TenantViewFrag3 extends android.support.v4.app.Fragment implements 
             }
         });
         //Get apartment item
-        setUpdateSelectedDateListeners();
         // getActivity().setTitle("Income View");
         // ExpenseListFragment.expenseListAdapterNeedsRefreshed = false;
         //Get current theme accent color, which is passed into the list adapter for search highlighting
@@ -147,23 +140,15 @@ public class TenantViewFrag3 extends android.support.v4.app.Fragment implements 
             leaseListAdapter = new LeaseListAdapter(getActivity(), ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getLeaseArray().getValue(), accentColor, null);
             listView.setAdapter(leaseListAdapter);
             listView.setOnItemClickListener(this);
-            if (ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getLeaseArray().getValue().isEmpty()) {
-                //     noIncomeTV.setVisibility(View.VISIBLE);
-                //    noIncomeTV.setText("No Current Income");
-            }
-        } else {
-            //If MainActivity5.expenseList is null show empty list text
-            //  noIncomeTV.setVisibility(View.VISIBLE);
-            //  noIncomeTV.setText("Error Loading Income");
         }
     }
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        PopupMenu popup = new PopupMenu(getActivity(), view);
-        MenuInflater inflater = popup.getMenuInflater();
+        popupMenu = new PopupMenu(getActivity(), view);
+        MenuInflater inflater = popupMenu.getMenuInflater();
         final int position = i;
-        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 switch (item.getItemId()) {
@@ -188,41 +173,33 @@ public class TenantViewFrag3 extends android.support.v4.app.Fragment implements 
                 }
             }
         });
-        inflater.inflate(R.menu.expense_income_click_menu, popup.getMenu());
-        popup.show();
+        inflater.inflate(R.menu.expense_income_click_menu, popupMenu.getMenu());
+        popupMenu.show();
     }
 
     public void showDeleteConfirmationAlertDialog() {
         // setup the alert builder
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         //builder.setTitle("AlertDialog");
-        builder.setMessage("Are you sure you want to remove this lease?");
+        builder.setMessage(R.string.lease_deletion_confirmation);
 
         // add the buttons
-        builder.setPositiveButton("No", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
 
             }
         });
-        builder.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 db.setLeaseInactive(selectedLease);
-                //LeaseListFragment.leaseListAdapterNeedsRefreshed = true;
-
-                //currentFilteredLeases = db.getUsersLeasesForApartment(MainActivity.user, apartment.getId());
-                //leaseListAdapter.updateResults(currentFilteredLeases);
-                //   leaseListAdapter.notifyDataSetChanged();
-                //total = getTotal();
-                //setTotalTV();
-                //ExpenseViewActivity.this.finish();
                 showDeleteAllRelatedMoneyAlertDialog();
             }
         });
 
         // create and show the alert dialog
-        AlertDialog dialog = builder.create();
+        dialog = builder.create();
         dialog.show();
     }
 
@@ -230,16 +207,16 @@ public class TenantViewFrag3 extends android.support.v4.app.Fragment implements 
         // setup the alert builder
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         //builder.setTitle("AlertDialog");
-        builder.setMessage("Remove all income/expenses related to this lease?");
+        builder.setMessage(R.string.lease_related_money_deletion_confirmation);
 
         // add the buttons
-        builder.setPositiveButton("No", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 mCallback.onLeaseDataChanged();
             }
         });
-        builder.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 db.setAllExpensesRelatedToLeaseInactive(selectedLease.getId());
@@ -250,7 +227,7 @@ public class TenantViewFrag3 extends android.support.v4.app.Fragment implements 
         });
 
         // create and show the alert dialog
-        AlertDialog dialog = builder.create();
+        dialog = builder.create();
         dialog.show();
     }
 
@@ -273,11 +250,18 @@ public class TenantViewFrag3 extends android.support.v4.app.Fragment implements 
     }
 
     @Override
-    public void onClick(View view) {
-
+    public void onPause() {
+        super.onPause();
+        if(popupMenu != null){
+            popupMenu.dismiss();
+        }
+        if(dialog != null){
+            dialog.dismiss();
+        }
     }
 
-    private void setUpdateSelectedDateListeners() {
+    @Override
+    public void onClick(View view) {
 
     }
 

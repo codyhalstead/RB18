@@ -179,7 +179,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 style="@style/FormLabel"
-                android:text="Lease Information" />
+                android:text="Active Lease Information" />
 
             <LinearLayout
                 android:layout_width="match_parent"

@@ -106,9 +106,10 @@ public class CustomCalendarAdapter extends CaldroidGridAdapter {
                 leaseBeginLL.setVisibility(View.VISIBLE);
                 amount = leaseStartDatesHM.get(date.toString());
                 if (amount <= 99) {
-                    leaseBeginAmountTV.setText("" + amount);
+                    String amountString = amount + "";
+                    leaseBeginAmountTV.setText(amountString);
                 } else {
-                    leaseBeginAmountTV.setText("99+");
+                    leaseBeginAmountTV.setText(R.string.over99);
                 }
                 spacer1.setVisibility(View.GONE);
             } else {
@@ -121,9 +122,10 @@ public class CustomCalendarAdapter extends CaldroidGridAdapter {
                 leaseEndLL.setVisibility(View.VISIBLE);
                 amount = leaseEndDatesHM.get(date.toString());
                 if (amount <= 99) {
-                    leaseEndAmountTV.setText("" + amount);
+                    String amountString = amount + "";
+                    leaseEndAmountTV.setText(amountString);
                 } else {
-                    leaseEndAmountTV.setText("99+");
+                    leaseEndAmountTV.setText(R.string.over99);
                 }
                 spacer2.setVisibility(View.GONE);
             } else {
@@ -136,9 +138,10 @@ public class CustomCalendarAdapter extends CaldroidGridAdapter {
                 expenseLL.setVisibility(View.VISIBLE);
                 amount = expenseDatesHM.get(date.toString());
                 if (amount <= 99) {
-                    expenseAmountTV.setText("" + amount);
+                    String amountString = amount + "";
+                    expenseAmountTV.setText(amountString);
                 } else {
-                    expenseAmountTV.setText("99+");
+                    expenseAmountTV.setText(R.string.over99);
                 }
                 spacer3.setVisibility(View.GONE);
             } else {
@@ -151,9 +154,10 @@ public class CustomCalendarAdapter extends CaldroidGridAdapter {
                 incomeLL.setVisibility(View.VISIBLE);
                 amount =  incomeDatesHM.get(date.toString());
                 if (amount <= 99) {
-                    incomeAmountTV.setText("" + amount);
+                    String amountString = amount + "";
+                    incomeAmountTV.setText(amountString);
                 } else {
-                    incomeAmountTV.setText("99+");
+                    incomeAmountTV.setText(R.string.over99);
                 }
                 spacer4.setVisibility(View.GONE);
             } else {
@@ -198,7 +202,8 @@ public class CustomCalendarAdapter extends CaldroidGridAdapter {
             }
         }
         //Set text
-        dateTV.setText("" + dateTime.getDay());
+        String dateTimeString = "" + dateTime.getDay();
+        dateTV.setText(dateTimeString);
         //tv2.setText("");
         // Somehow after setBackgroundResource, the padding collapse.
         // This is to recover the padding

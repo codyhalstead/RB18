@@ -57,21 +57,16 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
 
     TextView noIncomeTV, totalAmountTV, totalAmountLabelTV;
     FloatingActionButton fab;
-    //  EditText searchBarET;
-    //  Button dateRangeStartBtn, dateRangeEndBtn;
     MoneyListAdapter moneyListAdapter;
     ColorStateList accentColor;
     ListView listView;
-    //Date startDateRange, endDateRange;
-    //public static boolean incomeListAdapterNeedsRefreshed;
-    //  Date filterDateStart, filterDateEnd;
-    //  private DatePickerDialog.OnDateSetListener dateSetFilterStartListener, dateSetFilterEndListener;
     private DatabaseHandler db;
-    //private ArrayList<MoneyLogEntry> currentFilteredMoney;
     private MoneyLogEntry selectedMoney;
     private Tenant tenant;
     private BigDecimal total;
     private OnMoneyDataChangedListener mCallback;
+    private AlertDialog dialog;
+    private PopupMenu popupMenu;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -98,8 +93,6 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
                 showNewIncomeOrExpenseAlertDialog();
             }
         });
-        //Get apartment item
-        setUpdateSelectedDateListeners();
         // getActivity().setTitle("Income View");
         // ExpenseListFragment.expenseListAdapterNeedsRefreshed = false;
         //Get current theme accent color, which is passed into the list adapter for search highlighting
@@ -114,12 +107,7 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
     @Override
     public void onResume() {
         super.onResume();
-        //if (IncomeListFragment.incomeListAdapterNeedsRefreshed) {
-        //    if (this.moneyListAdapter != null) {
-                //   incomeListAdapterNeedsRefreshed = false;
-        //        moneyListAdapter.getFilter().filter("");
-        //    }
-        //}
+
     }
 
     private void setUpSearchBar() {
@@ -154,26 +142,18 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
 
     private void setUpListAdapter() {
         if (ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue() != null) {
-            moneyListAdapter = new MoneyListAdapter(getActivity(), ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue(), accentColor);
+            moneyListAdapter = new MoneyListAdapter(getActivity(), ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue(), accentColor, null);
             listView.setAdapter(moneyListAdapter);
             listView.setOnItemClickListener(this);
-            if (ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue().isEmpty()) {
-                //     noIncomeTV.setVisibility(View.VISIBLE);
-                //    noIncomeTV.setText("No Current Income");
-            }
-        } else {
-            //If MainActivity5.expenseList is null show empty list text
-            //  noIncomeTV.setVisibility(View.VISIBLE);
-            //  noIncomeTV.setText("Error Loading Income");
         }
     }
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        PopupMenu popup = new PopupMenu(getActivity(), view);
-        MenuInflater inflater = popup.getMenuInflater();
+        popupMenu = new PopupMenu(getActivity(), view);
+        MenuInflater inflater = popupMenu.getMenuInflater();
         final int position = i;
-        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 switch (item.getItemId()) {
@@ -207,16 +187,16 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
                 }
             }
         });
-        inflater.inflate(R.menu.expense_income_click_menu, popup.getMenu());
-        popup.show();
+        inflater.inflate(R.menu.expense_income_click_menu, popupMenu.getMenu());
+        popupMenu.show();
     }
 
     public void showDeleteConfirmationAlertDialog() {
         // setup the alert builder
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         if (selectedMoney instanceof PaymentLogEntry) {
-            builder.setMessage("Are you sure you want to remove this income?");
-            builder.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
+            builder.setMessage(R.string.income_deletion_confirmation);
+            builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     db.setPaymentLogEntryInactive((PaymentLogEntry) selectedMoney);
@@ -231,8 +211,8 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
                 }
             });
         } else {
-            builder.setMessage("Are you sure you want to remove this expense?");
-            builder.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
+            builder.setMessage(R.string.expense_deletion_confirmation);
+            builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     db.setExpenseInactive((ExpenseLogEntry) selectedMoney);
@@ -248,21 +228,21 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
             });
         }
         // add the buttons
-        builder.setPositiveButton("No", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
 
             }
         });
         // create and show the alert dialog
-        AlertDialog dialog = builder.create();
+        dialog = builder.create();
         dialog.show();
     }
 
     public void showNewIncomeOrExpenseAlertDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage("Add new Income or Expense?");
-        builder.setNegativeButton("Income", new DialogInterface.OnClickListener() {
+        builder.setMessage(R.string.add_new_income_or_expense);
+        builder.setPositiveButton(R.string.income, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 Intent intent = new Intent(getActivity(), NewIncomeWizard.class);
@@ -270,7 +250,7 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
                 startActivityForResult(intent, MainActivity.REQUEST_NEW_INCOME_FORM);
             }
         });
-        builder.setPositiveButton("Expense", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(R.string.expense, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 Intent intent = new Intent(getActivity(), NewExpenseWizard.class);
@@ -279,7 +259,7 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
             }
         });
         // create and show the alert dialog
-        AlertDialog dialog = builder.create();
+        dialog = builder.create();
         dialog.show();
     }
 
@@ -313,34 +293,24 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
     }
 
     @Override
-    public void onClick(View view) {
-
+    public void onPause() {
+        super.onPause();
+        if(popupMenu != null){
+            popupMenu.dismiss();
+        }
+        if(dialog != null){
+            dialog.dismiss();
+        }
     }
 
-    private void setUpdateSelectedDateListeners() {
+    @Override
+    public void onClick(View view) {
 
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        //SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
-        //if (currentFilteredMoney != null) {
-        //    outState.putParcelableArrayList("filteredMoney", currentFilteredMoney);
-       // }
-       // if (startDateRange != null) {
-        //    outState.putString("startDateRange", formatter.format(startDateRange));
-        //}
-        //if (endDateRange != null) {
-        //    outState.putString("endDateRange", formatter.format(endDateRange));
-        //}
-        //if (tenant != null) {
-        //    outState.putParcelable("tenant", tenant);
-       // }
-        //if (total != null) {
-        //    String totalString = total.toPlainString();
-        //    outState.putString("totalString", totalString);
-       // }
     }
 
     private BigDecimal getTotal() {

@@ -1,11 +1,13 @@
 package com.rentbud.wizards;
 
+import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 
 import com.example.android.wizardpager.wizard.model.ModelCallbacks;
 import com.example.android.wizardpager.wizard.model.Page;
 import com.example.android.wizardpager.wizard.model.ReviewItem;
+import com.example.cody.rentbud.R;
 import com.rentbud.activities.NewIncomeWizard;
 import com.rentbud.fragments.IncomeWizardPage1Fragment;
 import com.rentbud.model.PaymentLogEntry;
@@ -23,9 +25,11 @@ public class IncomeWizardPage1 extends Page {
     public static final String INCOME_TYPE_ID_DATA_KEY = "income_type_id";
     public static final String INCOME_TYPE_DATA_KEY = "income_type";
     public static final String WAS_PRELOADED = "income_page_1_was_preloaded";
+    private Context context;
 
-    public IncomeWizardPage1(ModelCallbacks callbacks, String title) {
+    public IncomeWizardPage1(ModelCallbacks callbacks, String title, Context context) {
         super(callbacks, title);
+        this.context = context;
         mData.putBoolean(WAS_PRELOADED, false);
         //PaymentLogEntry paymentLogEntry = NewIncomeWizard.incomeToEdit;
         //if(paymentLogEntry != null){
@@ -49,9 +53,9 @@ public class IncomeWizardPage1 extends Page {
 
     @Override
     public void getReviewItems(ArrayList<ReviewItem> dest) {
-        dest.add(new ReviewItem("Date", mData.getString(INCOME_DATE_STRING_DATA_KEY), getKey(), -1));
-        dest.add(new ReviewItem("Amount", mData.getString(INCOME_AMOUNT_FORMATTED_STRING_DATA_KEY), getKey(), -1));
-        dest.add(new ReviewItem("Type", mData.getString(INCOME_TYPE_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(context.getResources().getString(R.string.date), mData.getString(INCOME_DATE_STRING_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(context.getResources().getString(R.string.amount), mData.getString(INCOME_AMOUNT_FORMATTED_STRING_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(context.getResources().getString(R.string.type), mData.getString(INCOME_TYPE_DATA_KEY), getKey(), -1));
     }
 
     @Override

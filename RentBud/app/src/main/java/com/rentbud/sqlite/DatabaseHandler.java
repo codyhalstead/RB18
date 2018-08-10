@@ -6,7 +6,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Build;
+import android.os.Environment;
+import android.text.format.DateFormat;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.cody.rentbud.R;
 import com.rentbud.activities.MainActivity;
@@ -24,7 +27,14 @@ import com.rentbud.model.User;
 
 import org.joda.time.DateTime;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.nio.channels.FileChannel;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -272,6 +282,26 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         super(context, DB_FILE_NAME, null, DATABASE_VERSION);
         verificationGenerator = new RandomNumberGenerator();
         this.context = context;
+    }
+
+    public void importBackupDB(File backup){
+        try {
+            String currentDBPath = context.getDatabasePath(DatabaseHandler.DB_FILE_NAME).getAbsolutePath();
+            File currentDB = new File(currentDBPath);
+            Boolean deleted = currentDB.delete();
+            if (deleted) {
+                FileChannel src = new FileInputStream(backup).getChannel();
+                FileChannel dst = new FileOutputStream(currentDB).getChannel();
+                dst.transferFrom(src, 0, src.size());
+                src.close();
+                dst.close();
+                Toast.makeText(context, R.string.backup_restored, Toast.LENGTH_LONG).show();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     //Add new user
@@ -650,6 +680,104 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close();
     }
 
+    public float[] getIncomeTotalsForLineGraph(User user, Date startRange, Date endRange){
+        SQLiteDatabase db = this.getReadableDatabase();
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        String startDateString = formatter.format(startRange);
+        String endDateString = formatter.format(endRange);
+        String Query = "Select * from " + INCOME_VIEW +
+                " WHERE " + INCOME_VIEW_USER_ID + " = " + user.getId() +
+                " AND " + INCOME_VIEW_IS_ACTIVE + " = 1" +
+                " AND " + INCOME_VIEW_INCOME_DATE + " BETWEEN '" + startDateString + "' AND '" + endDateString +
+                "' ORDER BY " + INCOME_VIEW_INCOME_DATE + " ASC ";
+        Cursor cursor = db.rawQuery(Query, null);
+        BigDecimal jan = new BigDecimal(0);
+        BigDecimal feb = new BigDecimal(0);
+        BigDecimal mar = new BigDecimal(0);
+        BigDecimal apr = new BigDecimal(0);
+        BigDecimal may = new BigDecimal(0);
+        BigDecimal jun = new BigDecimal(0);
+        BigDecimal jul = new BigDecimal(0);
+        BigDecimal aug = new BigDecimal(0);
+        BigDecimal sep = new BigDecimal(0);
+        BigDecimal oct = new BigDecimal(0);
+        BigDecimal nov = new BigDecimal(0);
+        BigDecimal dec = new BigDecimal(0);
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
+                String amountString = cursor.getString(cursor.getColumnIndex(INCOME_VIEW_AMOUNT));
+                BigDecimal amount = new BigDecimal(amountString);
+                amount = amount.setScale(2, BigDecimal.ROUND_FLOOR).divide(new BigDecimal(100), BigDecimal.ROUND_FLOOR);
+                String expenseDateString = cursor.getString(cursor.getColumnIndex(INCOME_VIEW_INCOME_DATE));
+                Date expenseDate = null;
+                try {
+                    expenseDate = new SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(expenseDateString);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                if(expenseDate != null && amount != null){
+                    String monthNumber  = (String) DateFormat.format("MM", expenseDate);
+                    switch (monthNumber){
+                        case "01":
+                            jan = jan.add(amount);
+                            break;
+
+                        case "02":
+                            feb = feb.add(amount);
+                            break;
+
+                        case "03":
+                            mar = mar.add(amount);
+                            break;
+
+                        case "04":
+                            apr = apr.add(amount);
+                            break;
+
+                        case "05":
+                            may = may.add(amount);
+                            break;
+
+                        case "06":
+                            jun = jun.add(amount);
+                            break;
+
+                        case "07":
+                            jul = jul.add(amount);
+                            break;
+
+                        case "08":
+                            aug = aug.add(amount);
+                            break;
+
+                        case "09":
+                            sep = sep.add(amount);
+                            break;
+
+                        case "10":
+                            oct = oct.add(amount);
+                            break;
+
+                        case "11":
+                            nov = nov.add(amount);
+                            break;
+
+                        case "12":
+                            dec = dec.add(amount);
+                            break;
+
+                        default: break;
+                    }
+                }
+                cursor.moveToNext();
+            }
+        }
+        cursor.close();
+        db.close();
+        return new float[]{jan.floatValue(), feb.floatValue(), mar.floatValue(), apr.floatValue(), may.floatValue(), jun.floatValue(),
+                jul.floatValue(), aug.floatValue(), sep.floatValue(), oct.floatValue(), nov.floatValue(), dec.floatValue()};
+    }
+
     public void addPaymentLogEntryArray(ArrayList<PaymentLogEntry> pleArray, int userID) {
         ContentValues values = new ContentValues();
         SQLiteDatabase db = this.getReadableDatabase();
@@ -895,6 +1023,104 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         cursor.close();
         db.close();
         return ele;
+    }
+
+    public float[] getExpenseTotalsForLineGraph(User user, Date startRange, Date endRange){
+        SQLiteDatabase db = this.getReadableDatabase();
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        String startDateString = formatter.format(startRange);
+        String endDateString = formatter.format(endRange);
+        String Query = "Select * from " + EXPENSES_VIEW +
+                " WHERE " + EXPENSES_VIEW_USER_ID + " = " + user.getId() +
+                " AND " + EXPENSES_VIEW_IS_ACTIVE + " = 1" +
+                " AND " + EXPENSES_VIEW_EXPENSE_DATE + " BETWEEN '" + startDateString + "' AND '" + endDateString +
+                "' ORDER BY " + EXPENSES_VIEW_EXPENSE_DATE + " ASC ";
+        Cursor cursor = db.rawQuery(Query, null);
+        BigDecimal jan = new BigDecimal(0);
+        BigDecimal feb = new BigDecimal(0);
+        BigDecimal mar = new BigDecimal(0);
+        BigDecimal apr = new BigDecimal(0);
+        BigDecimal may = new BigDecimal(0);
+        BigDecimal jun = new BigDecimal(0);
+        BigDecimal jul = new BigDecimal(0);
+        BigDecimal aug = new BigDecimal(0);
+        BigDecimal sep = new BigDecimal(0);
+        BigDecimal oct = new BigDecimal(0);
+        BigDecimal nov = new BigDecimal(0);
+        BigDecimal dec = new BigDecimal(0);
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
+                String amountString = cursor.getString(cursor.getColumnIndex(EXPENSES_VIEW_AMOUNT));
+                BigDecimal amount = new BigDecimal(amountString);
+                amount = amount.setScale(2, BigDecimal.ROUND_FLOOR).divide(new BigDecimal(-100), BigDecimal.ROUND_FLOOR);
+                String expenseDateString = cursor.getString(cursor.getColumnIndex(EXPENSES_VIEW_EXPENSE_DATE));
+                Date expenseDate = null;
+                try {
+                    expenseDate = new SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(expenseDateString);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                if(expenseDate != null && amount != null){
+                    String monthNumber  = (String) DateFormat.format("MM", expenseDate);
+                    switch (monthNumber){
+                        case "01":
+                            jan = jan.add(amount);
+                            break;
+
+                        case "02":
+                            feb = feb.add(amount);
+                            break;
+
+                        case "03":
+                            mar = mar.add(amount);
+                            break;
+
+                        case "04":
+                            apr = apr.add(amount);
+                            break;
+
+                        case "05":
+                            may = may.add(amount);
+                            break;
+
+                        case "06":
+                            jun = jun.add(amount);
+                            break;
+
+                        case "07":
+                            jul = jul.add(amount);
+                            break;
+
+                        case "08":
+                            aug = aug.add(amount);
+                            break;
+
+                        case "09":
+                            sep = sep.add(amount);
+                            break;
+
+                        case "10":
+                            oct = oct.add(amount);
+                            break;
+
+                        case "11":
+                            nov = nov.add(amount);
+                            break;
+
+                        case "12":
+                            dec = dec.add(amount);
+                            break;
+
+                            default: break;
+                    }
+                }
+                cursor.moveToNext();
+            }
+        }
+        cursor.close();
+        db.close();
+        return new float[]{jan.floatValue(), feb.floatValue(), mar.floatValue(), apr.floatValue(), may.floatValue(), jun.floatValue(),
+                jul.floatValue(), aug.floatValue(), sep.floatValue(), oct.floatValue(), nov.floatValue(), dec.floatValue()};
     }
 
     //TODO
@@ -1318,6 +1544,65 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 " AND " + LEASE_START_DATE_COLUMN + " = '" + dateString + "'" +
                 " OR " + LEASE_END_DATE_COLUMN + " = '" + dateString + "'" +
                 " AND " + LEASE_IS_ACTIVE_COLUMN + " = 1 " +
+                " AND " + LEASE_USER_ID_COLUMN_FK + " = " + user.getId();
+        Cursor cursor = db.rawQuery(query, null);
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
+                int id = cursor.getInt(cursor.getColumnIndex(LEASE_ID_COLUMN_PK));
+                int primaryTenantID = cursor.getInt(cursor.getColumnIndex(LEASE_PRIMARY_TENANT_ID_COLUMN));
+                ArrayList<Integer> secondaryTenantIDs = getSecondaryTenantsForLease(db, id);
+                int apartmentID = cursor.getInt(cursor.getColumnIndex(LEASE_APARTMENT_ID_COLUMN));
+                String startDateString = cursor.getString(cursor.getColumnIndex(LEASE_START_DATE_COLUMN));
+                Date startDate = null;
+                try {
+                    startDate = new SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(startDateString);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                String endDateString = cursor.getString(cursor.getColumnIndex(LEASE_END_DATE_COLUMN));
+                Date endDate = null;
+                try {
+                    endDate = new SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(endDateString);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                int paymentDay = cursor.getInt(cursor.getColumnIndex(LEASE_PAYMENT_DAY_COLUMN));
+                String rentCostString = cursor.getString(cursor.getColumnIndex(LEASE_MONTHLY_RENT_COST_COLUMN));
+                BigDecimal rentCost = new BigDecimal(rentCostString);
+                rentCost = rentCost.setScale(2, BigDecimal.ROUND_FLOOR).divide(new BigDecimal(100), BigDecimal.ROUND_FLOOR);
+                String depositString = cursor.getString(cursor.getColumnIndex(LEASE_DEPOSIT_AMOUNT_COLUMN));
+                BigDecimal deposit = new BigDecimal(depositString);
+                deposit = deposit.setScale(2, BigDecimal.ROUND_FLOOR).divide(new BigDecimal(100), BigDecimal.ROUND_FLOOR);
+                //String depositWithheldString = cursor.getString(cursor.getColumnIndex(LEASE_DEPOSIT_WITHHELD_AMOUNT_COLUMN));
+                //BigDecimal depositWithheld = new BigDecimal(depositWithheldString);
+                //depositWithheld = depositWithheld.setScale(2, BigDecimal.ROUND_FLOOR).divide(new BigDecimal(100), BigDecimal.ROUND_FLOOR);
+                String notes = cursor.getString(cursor.getColumnIndex(LEASE_NOTES_COLUMN));
+                leases.add(new Lease(id, primaryTenantID, secondaryTenantIDs, apartmentID, startDate, endDate, paymentDay, rentCost, deposit, notes));
+                cursor.moveToNext();
+            }
+            cursor.close();
+            db.close();
+            return leases;
+        }
+        cursor.close();
+        db.close();
+        return leases;
+    }
+
+    public ArrayList<Lease> getLeasesStartingOrEndingInDateRange(User user, Date startDateRange, Date endDateRange) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        ArrayList<Lease> leases = new ArrayList<>();
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        String startDateRangeString = formatter.format(startDateRange);
+        String endDateRangeString = formatter.format(endDateRange);
+        String query = "Select * from " + LEASE_TABLE +
+                " WHERE " +
+                LEASE_USER_ID_COLUMN_FK + " = " + user.getId() +
+                " AND " + LEASE_IS_ACTIVE_COLUMN + " = 1" +
+                " AND " + LEASE_START_DATE_COLUMN + " BETWEEN '" + startDateRangeString + "' AND '" + endDateRangeString +
+                "' OR " +
+                LEASE_END_DATE_COLUMN + " BETWEEN '" + startDateRangeString + "' AND '" + endDateRangeString +
+                "' AND " + LEASE_IS_ACTIVE_COLUMN + " = 1 " +
                 " AND " + LEASE_USER_ID_COLUMN_FK + " = " + user.getId();
         Cursor cursor = db.rawQuery(query, null);
         if (cursor.moveToFirst()) {
@@ -2440,6 +2725,84 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return incomeAndExpenses;
     }
 
+    public ArrayList<MoneyLogEntry> getIncomeAndExpensesBetweenDates(User user, Date startDateRange, Date endDateRange) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        ArrayList<MoneyLogEntry> incomeAndExpenses = new ArrayList<>();
+
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        String startDateString = formatter.format(startDateRange);
+        String endDateString = formatter.format(endDateRange);
+
+        String Query = "Select * from " + INCOME_VIEW +
+                " WHERE " +
+                INCOME_VIEW_USER_ID + " = " + user.getId() + " AND " +
+                INCOME_VIEW_IS_ACTIVE + " = 1" +
+                " AND " + INCOME_VIEW_INCOME_DATE + " BETWEEN '" + startDateString + "' AND '" + endDateString +
+                "' ORDER BY " + INCOME_VIEW_INCOME_ID + " ASC ";
+        Cursor cursor = db.rawQuery(Query, null);
+
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
+                int id = cursor.getInt(cursor.getColumnIndex(INCOME_VIEW_INCOME_ID));
+                String incomeDateString = cursor.getString(cursor.getColumnIndex(INCOME_VIEW_INCOME_DATE));
+                Date incomeDate = null;
+                try {
+                    incomeDate = new SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(incomeDateString);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                String amountString = cursor.getString(cursor.getColumnIndex(INCOME_VIEW_AMOUNT));
+                BigDecimal amount = new BigDecimal(amountString);
+                amount = amount.setScale(2, BigDecimal.ROUND_FLOOR).divide(new BigDecimal(100), BigDecimal.ROUND_FLOOR);
+                int tenantID = cursor.getInt(cursor.getColumnIndex(INCOME_VIEW_APARTMENT_ID));
+                int leaseID = cursor.getInt(cursor.getColumnIndex(INCOME_VIEW_LEASE_ID));
+                int apartmentID = cursor.getInt(cursor.getColumnIndex(INCOME_VIEW_APARTMENT_ID));
+                String description = cursor.getString(cursor.getColumnIndex(INCOME_VIEW_DESCRIPTION));
+                int typeID = cursor.getInt(cursor.getColumnIndex(INCOME_VIEW_TYPE_ID));
+                String typeLabel = cursor.getString(cursor.getColumnIndex(INCOME_VIEW_TYPE_LABEL));
+                String receiptPic = cursor.getString(cursor.getColumnIndex(INCOME_VIEW_RECEIPT_PIC));
+                incomeAndExpenses.add(new PaymentLogEntry(id, incomeDate, typeID, typeLabel, tenantID, leaseID, apartmentID, amount, description, receiptPic));
+                cursor.moveToNext();
+            }
+        }
+
+        Query = "Select * from " + EXPENSES_VIEW +
+                " WHERE " +
+                EXPENSES_VIEW_USER_ID + " = " + user.getId() + " AND " +
+                EXPENSES_VIEW_IS_ACTIVE + " = 1" +
+                " AND " + EXPENSES_VIEW_EXPENSE_DATE + " BETWEEN '" + startDateString + "' AND '" + endDateString +
+                "' ORDER BY " + EXPENSES_VIEW_EXPENSE_ID + " ASC ";
+        cursor = db.rawQuery(Query, null);
+
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
+                int id = cursor.getInt(cursor.getColumnIndex(EXPENSES_VIEW_EXPENSE_ID));
+                String expenseDateString = cursor.getString(cursor.getColumnIndex(EXPENSES_VIEW_EXPENSE_DATE));
+                Date expenseDate = null;
+                try {
+                    expenseDate = new SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(expenseDateString);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                String amountString = cursor.getString(cursor.getColumnIndex(EXPENSES_VIEW_AMOUNT));
+                BigDecimal amount = new BigDecimal(amountString);
+                amount = amount.setScale(2, BigDecimal.ROUND_FLOOR).divide(new BigDecimal(100), BigDecimal.ROUND_FLOOR);
+                int apartmentID = cursor.getInt(cursor.getColumnIndex(EXPENSES_VIEW_APARTMENT_ID));
+                int tenantID = cursor.getInt(cursor.getColumnIndex(EXPENSES_VIEW_TENANT_ID));
+                int leaseID = cursor.getInt(cursor.getColumnIndex(EXPENSES_VIEW_LEASE_ID));
+                String description = cursor.getString(cursor.getColumnIndex(EXPENSES_VIEW_DESCRIPTION));
+                int typeID = cursor.getInt(cursor.getColumnIndex(EXPENSES_VIEW_TYPE_ID));
+                String typeLabel = cursor.getString(cursor.getColumnIndex(EXPENSES_VIEW_TYPE_LABEL));
+                String receiptPic = cursor.getString(cursor.getColumnIndex(EXPENSES_VIEW_RECEIPT_PIC));
+                incomeAndExpenses.add(new ExpenseLogEntry(id, expenseDate, amount, apartmentID, leaseID, tenantID, description, typeID, typeLabel, receiptPic));
+                cursor.moveToNext();
+            }
+        }
+        cursor.close();
+        db.close();
+        return incomeAndExpenses;
+    }
+
     public ArrayList<MoneyLogEntry> getIncomeAndExpensesByTenantIDWithinDates(User user, int tenantID, Date startDate, Date endDate) {
         ArrayList<MoneyLogEntry> incomeAndExpenses = new ArrayList<>();
         MainArrayDataMethods dm = new MainArrayDataMethods();
@@ -2469,6 +2832,17 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close();
     }
 
+    public void setTypeInactive(TypeTotal type) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(TYPE_LOOKUP_IS_ACTIVE_COLUMN, 0);
+        values.put(TYPE_LOOKUP_LAST_UPDATE_COLUMN, " time('now') ");
+        // updating row
+        db.update(TYPE_LOOKUP_TABLE, values, TYPE_LOOKUP_ID_COLUMN_PK + " = ?", new String[]{String.valueOf(type.getTypeID())});
+        db.close();
+    }
+
     public void addNewExpenseType(String label) {
         ContentValues values = new ContentValues();
         SQLiteDatabase db = this.getReadableDatabase();
@@ -2487,8 +2861,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close();
     }
 
-    public ArrayList<TypeTotal> getTotalForExpenseTypesWithinDates(User user, TreeMap<String, Integer> expenseTypesTreeMap, Date startDate, Date endDate) {
+    public ArrayList<TypeTotal> getTotalForExpenseTypesWithinDates(User user, Date startDate, Date endDate) {
         SQLiteDatabase db = this.getReadableDatabase();
+        TreeMap<String, Integer> expenseTypesTreeMap = getExpenseTypeLabelsIncludingInactiveTreeMap(db);
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
         String startDateString = formatter.format(startDate);
         String endDateString = formatter.format(endDate);
@@ -2502,7 +2877,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             String Query = "Select * from " + EXPENSES_VIEW +
                     " WHERE " +
                     EXPENSES_VIEW_USER_ID + " = " + user.getId() +
-                    " AND " + EXPENSES_VIEW_IS_ACTIVE + " = 1" +
+                    //" AND " + EXPENSES_VIEW_IS_ACTIVE + " = 1" +
                     " AND " + EXPENSES_VIEW_EXPENSE_DATE + " BETWEEN '" + startDateString + "' AND '" + endDateString +
                     "' AND " + EXPENSES_VIEW_TYPE_ID + " = " + typeID;
             Cursor cursor = db.rawQuery(Query, null);
@@ -2516,8 +2891,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                     cursor.moveToNext();
                 }
             }
-            if(numberOfItems > 0){
-            TypeTotal typeTotal = new TypeTotal(typeID, typeLabel, total, numberOfItems);
+            if (numberOfItems > 0) {
+                TypeTotal typeTotal = new TypeTotal(typeID, typeLabel, total, numberOfItems);
                 typeTotals.add(typeTotal);
             }
             cursor.close();
@@ -2526,8 +2901,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return typeTotals;
     }
 
-    public ArrayList<TypeTotal> getTotalForIncomeTypesWithinDates(User user, TreeMap<String, Integer> incomeTypesTreeMap, Date startDate, Date endDate) {
+    public ArrayList<TypeTotal> getTotalForIncomeTypesWithinDates(User user, Date startDate, Date endDate) {
         SQLiteDatabase db = this.getReadableDatabase();
+        TreeMap<String, Integer> incomeTypesTreeMap = getIncomeTypeLabelsIncludingInactiveTreeMap(db);
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
         String startDateString = formatter.format(startDate);
         String endDateString = formatter.format(endDate);
@@ -2541,7 +2917,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             String Query = "Select * from " + INCOME_VIEW +
                     " WHERE " +
                     INCOME_VIEW_USER_ID + " = " + user.getId() +
-                    " AND " + INCOME_VIEW_IS_ACTIVE + " = 1" +
+                    //" AND " + INCOME_VIEW_IS_ACTIVE + " = 1" +
                     " AND " + INCOME_VIEW_INCOME_DATE + " BETWEEN '" + startDateString + "' AND '" + endDateString +
                     "' AND " + INCOME_VIEW_TYPE_ID + " = " + typeID;
             Cursor cursor = db.rawQuery(Query, null);
@@ -2555,7 +2931,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                     cursor.moveToNext();
                 }
             }
-            if(!total.equals(new BigDecimal(0))) {
+            if (!total.equals(new BigDecimal(0))) {
                 TypeTotal typeTotal = new TypeTotal(typeID, typeLabel, total, numberOfItems);
                 typeTotals.add(typeTotal);
             }
@@ -2565,7 +2941,80 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return typeTotals;
     }
 
-    public TreeMap<String, Integer> getIncomeTypeLabels() {
+    public ArrayList<TypeTotal> getIncomeTypeLabelsForRemoval() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        ArrayList<TypeTotal> types = new ArrayList<>();
+        String Query = "Select * from " + TYPE_LOOKUP_TABLE +
+                " WHERE " + TYPE_LOOKUP_TYPE_ID_COLUMN_FK + " = " + 1 + " AND " + TYPE_LOOKUP_IS_ACTIVE_COLUMN + " = 1 " +
+                " AND " + TYPE_LOOKUP_ID_COLUMN_PK + " != " + 1 + " AND " + TYPE_LOOKUP_ID_COLUMN_PK + " != " + 2;
+        Cursor cursor = db.rawQuery(Query, null);
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
+                String label = cursor.getString(cursor.getColumnIndex(TYPE_LOOKUP_LABEL_COLUMN));
+                int id = cursor.getInt(cursor.getColumnIndex(TYPE_LOOKUP_ID_COLUMN_PK));
+                types.add(new TypeTotal(id, label));
+                cursor.moveToNext();
+            }
+        }
+        cursor.close();
+        db.close();
+        return types;
+    }
+
+    public TypeTotal getIncomeTypeByID(int id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        //ArrayList<TypeTotal> types = new ArrayList<>();
+        TypeTotal type = null;
+        String Query = "Select * from " + TYPE_LOOKUP_TABLE +
+                " WHERE " + TYPE_LOOKUP_TYPE_ID_COLUMN_FK + " = " + 1 +
+                " AND " + TYPE_LOOKUP_ID_COLUMN_PK + " = " + id + " LIMIT 1 ";
+        Cursor cursor = db.rawQuery(Query, null);
+        if (cursor.moveToFirst()) {
+            String label = cursor.getString(cursor.getColumnIndex(TYPE_LOOKUP_LABEL_COLUMN));
+            //int id = cursor.getInt(cursor.getColumnIndex(TYPE_LOOKUP_ID_COLUMN_PK));
+            type = new TypeTotal(id, label);
+        }
+        cursor.close();
+        db.close();
+        return type;
+    }
+
+    private TreeMap<String, Integer> getIncomeTypeLabelsIncludingInactiveTreeMap(SQLiteDatabase db) {
+        //SQLiteDatabase db = this.getReadableDatabase();
+        TreeMap<String, Integer> incomeTypeLabels = new TreeMap<>();
+        String Query = "Select * from " + TYPE_LOOKUP_TABLE +
+                " WHERE " + TYPE_LOOKUP_TYPE_ID_COLUMN_FK + " = " + 1;// + " AND " + TYPE_LOOKUP_IS_ACTIVE_COLUMN + " = 1";
+        Cursor cursor = db.rawQuery(Query, null);
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
+                String label = cursor.getString(cursor.getColumnIndex(TYPE_LOOKUP_LABEL_COLUMN));
+                int id = cursor.getInt(cursor.getColumnIndex(TYPE_LOOKUP_ID_COLUMN_PK));
+                incomeTypeLabels.put(label, id);
+                cursor.moveToNext();
+            }
+        }
+        cursor.close();
+        return incomeTypeLabels;
+    }
+
+    private TreeMap<String, Integer> getExpenseTypeLabelsIncludingInactiveTreeMap(SQLiteDatabase db) {
+        TreeMap<String, Integer> expenseTypeLabels = new TreeMap<>();
+        String Query = "Select * from " + TYPE_LOOKUP_TABLE +
+                " WHERE " + TYPE_LOOKUP_TYPE_ID_COLUMN_FK + " = " + 2;// + " AND " + TYPE_LOOKUP_IS_ACTIVE_COLUMN + " = 1";
+        Cursor cursor = db.rawQuery(Query, null);
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
+                String label = cursor.getString(cursor.getColumnIndex(TYPE_LOOKUP_LABEL_COLUMN));
+                int id = cursor.getInt(cursor.getColumnIndex(TYPE_LOOKUP_ID_COLUMN_PK));
+                expenseTypeLabels.put(label, id);
+                cursor.moveToNext();
+            }
+        }
+        cursor.close();
+        return expenseTypeLabels;
+    }
+
+    public TreeMap<String, Integer> getIncomeTypeLabelsTreeMap() {
         SQLiteDatabase db = this.getReadableDatabase();
         TreeMap<String, Integer> incomeTypeLabels = new TreeMap<>();
         String Query = "Select * from " + TYPE_LOOKUP_TABLE +
@@ -2584,7 +3033,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return incomeTypeLabels;
     }
 
-    public TreeMap<String, Integer> getExpenseTypeLabels() {
+    public TreeMap<String, Integer> getExpenseTypeLabelsTreeMap() {
         SQLiteDatabase db = this.getReadableDatabase();
         TreeMap<String, Integer> expenseTypeLabels = new TreeMap<>();
         String Query = "Select * from " + TYPE_LOOKUP_TABLE +
@@ -2601,6 +3050,43 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         cursor.close();
         db.close();
         return expenseTypeLabels;
+    }
+
+    public TypeTotal getExpenseTypeLabelByID(int id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        TypeTotal type = null;
+        String Query = "Select * from " + TYPE_LOOKUP_TABLE +
+                " WHERE " + TYPE_LOOKUP_TYPE_ID_COLUMN_FK + " = " + 2 +
+                " AND " + TYPE_LOOKUP_ID_COLUMN_PK + " = " + id + " LIMIT 1 ";
+        Cursor cursor = db.rawQuery(Query, null);
+        if (cursor.moveToFirst()) {
+            String label = cursor.getString(cursor.getColumnIndex(TYPE_LOOKUP_LABEL_COLUMN));
+            //int id = cursor.getInt(cursor.getColumnIndex(TYPE_LOOKUP_ID_COLUMN_PK));
+            type = new TypeTotal(id, label);
+        }
+        cursor.close();
+        db.close();
+        return type;
+    }
+
+    public ArrayList<TypeTotal> getExpenseTypeLabelsForRemoval() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        ArrayList<TypeTotal> types = new ArrayList<>();
+        String Query = "Select * from " + TYPE_LOOKUP_TABLE +
+                " WHERE " + TYPE_LOOKUP_TYPE_ID_COLUMN_FK + " = " + 2 + " AND " + TYPE_LOOKUP_IS_ACTIVE_COLUMN + " = 1 " +
+                " AND " + TYPE_LOOKUP_ID_COLUMN_PK + " != " + 1 + " AND " + TYPE_LOOKUP_ID_COLUMN_PK + " != " + 4;
+        Cursor cursor = db.rawQuery(Query, null);
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
+                String label = cursor.getString(cursor.getColumnIndex(TYPE_LOOKUP_LABEL_COLUMN));
+                int id = cursor.getInt(cursor.getColumnIndex(TYPE_LOOKUP_ID_COLUMN_PK));
+                types.add(new TypeTotal(id, label));
+                cursor.moveToNext();
+            }
+        }
+        cursor.close();
+        db.close();
+        return types;
     }
 
     public TreeMap<String, Integer> getEventTypeLabels() {

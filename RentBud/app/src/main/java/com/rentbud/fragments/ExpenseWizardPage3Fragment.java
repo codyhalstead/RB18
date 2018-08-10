@@ -43,6 +43,7 @@ public class ExpenseWizardPage3Fragment extends android.support.v4.app.Fragment 
     private Lease lease;
     private ArrayList<Lease> availableLeases;
     private boolean isInitializing;
+    private TenantOrApartmentChooserDialog tenantOrApartmentChooserDialog;
 
     public static ExpenseWizardPage3Fragment create(String key) {
         Bundle args = new Bundle();
@@ -178,10 +179,10 @@ public class ExpenseWizardPage3Fragment extends android.support.v4.app.Fragment 
         linkedAptTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                TenantOrApartmentChooserDialog dialog = new TenantOrApartmentChooserDialog(getContext(), TenantOrApartmentChooserDialog.APARTMENT_TYPE, availableApartments);
-                dialog.show();
-                dialog.changeCancelBtnText("Clear");
-                dialog.setDialogResult(new TenantOrApartmentChooserDialog.OnTenantChooserDialogResult() {
+                tenantOrApartmentChooserDialog = new TenantOrApartmentChooserDialog(getContext(), TenantOrApartmentChooserDialog.APARTMENT_TYPE, availableApartments);
+                tenantOrApartmentChooserDialog.show();
+                tenantOrApartmentChooserDialog.changeCancelBtnText(getContext().getResources().getString(R.string.clear));
+                tenantOrApartmentChooserDialog.setDialogResult(new TenantOrApartmentChooserDialog.OnTenantChooserDialogResult() {
                     @Override
                     public void finish(Tenant tenantResult, Apartment apartmentResult, Lease leaseResult) {
                         if (apartment != null) {
@@ -212,9 +213,10 @@ public class ExpenseWizardPage3Fragment extends android.support.v4.app.Fragment 
         linkedTenantTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                TenantOrApartmentChooserDialog dialog = new TenantOrApartmentChooserDialog(getContext(), TenantOrApartmentChooserDialog.TENANT_TYPE, availableTenants);
-                dialog.show();
-                dialog.setDialogResult(new TenantOrApartmentChooserDialog.OnTenantChooserDialogResult() {
+                tenantOrApartmentChooserDialog = new TenantOrApartmentChooserDialog(getContext(), TenantOrApartmentChooserDialog.TENANT_TYPE, availableTenants);
+                tenantOrApartmentChooserDialog.show();
+                tenantOrApartmentChooserDialog.changeCancelBtnText(getContext().getResources().getString(R.string.clear));
+                tenantOrApartmentChooserDialog.setDialogResult(new TenantOrApartmentChooserDialog.OnTenantChooserDialogResult() {
                     @Override
                     public void finish(Tenant tenantResult, Apartment apartmentResult, Lease leaseResult) {
                         if (tenant != null) {
@@ -245,9 +247,10 @@ public class ExpenseWizardPage3Fragment extends android.support.v4.app.Fragment 
         linkedLeaseTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                TenantOrApartmentChooserDialog dialog = new TenantOrApartmentChooserDialog(getContext(), TenantOrApartmentChooserDialog.LEASE_TYPE, availableLeases);
-                dialog.show();
-                dialog.setDialogResult(new TenantOrApartmentChooserDialog.OnTenantChooserDialogResult() {
+                tenantOrApartmentChooserDialog = new TenantOrApartmentChooserDialog(getContext(), TenantOrApartmentChooserDialog.LEASE_TYPE, availableLeases);
+                tenantOrApartmentChooserDialog.show();
+                tenantOrApartmentChooserDialog.changeCancelBtnText(getContext().getResources().getString(R.string.clear));
+                tenantOrApartmentChooserDialog.setDialogResult(new TenantOrApartmentChooserDialog.OnTenantChooserDialogResult() {
                     @Override
                     public void finish(Tenant tenantResult, Apartment apartmentResult, Lease leaseResult) {
                         if (lease != null) {
@@ -343,6 +346,14 @@ public class ExpenseWizardPage3Fragment extends android.support.v4.app.Fragment 
             return builder.toString();
         } else {
             return "";
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if(tenantOrApartmentChooserDialog != null){
+            tenantOrApartmentChooserDialog.dismiss();
         }
     }
 

@@ -175,9 +175,10 @@ public class LeaseWizardProratedRentPageFragment extends android.support.v4.app.
         String formattedLastRec = NumberFormat.getCurrencyInstance().format(recommendedProratedLast);
         firstProratedRentRecommendationTV.setText(formattedFirstRec);
         lastProratedRentRecommendationTV.setText(formattedLastRec);
-
-        firstProratedDayAmountTV.setText(daysOfFirstPayment + "");
-        lastProratedDayAmountTV.setText(daysOfLastPayment + "");
+        String daysOfFirstPaymentString = daysOfFirstPayment + "";
+        String daysOfLastPaymentString = daysOfLastPayment + "";
+        firstProratedDayAmountTV.setText(daysOfFirstPaymentString);
+        lastProratedDayAmountTV.setText(daysOfLastPaymentString);
 
         if (mPage.getData().getString(LeaseWizardProratedRentPage.LEASE_PRORATED_FIRST_PAYMENT_FORMATTED_STRING_DATA_KEY) != null) {
             if(mPage.getData().getBoolean(LeaseWizardProratedRentPage.LEASE_PRORATED_FIRST_PAYMENT_WAS_MODIFIED_DATA_KEY)) {

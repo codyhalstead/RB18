@@ -94,7 +94,7 @@
                     android:id="@+id/leaseWizardPaymentsTV"
                     style="@style/FormText"
                     android:layout_width="wrap_content"
-                    android:text=" Payments" />
+                    android:text=" Payment(s)" />
 
             </LinearLayout>
 
@@ -121,7 +121,7 @@
                     android:id="@+id/leaseWizardProratedPaymentsTV"
                     style="@style/FormText"
                     android:layout_width="wrap_content"
-                    android:text=" Prorated Payments" />
+                    android:text=" Prorated Payment(s)" />
 
             </LinearLayout>
 

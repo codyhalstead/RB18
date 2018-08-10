@@ -1,11 +1,13 @@
 package com.rentbud.wizards;
 
+import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 
 import com.example.android.wizardpager.wizard.model.ModelCallbacks;
 import com.example.android.wizardpager.wizard.model.Page;
 import com.example.android.wizardpager.wizard.model.ReviewItem;
+import com.example.cody.rentbud.R;
 import com.rentbud.activities.NewIncomeWizard;
 import com.rentbud.fragments.IncomeWizardPage2Fragment;
 import com.rentbud.model.PaymentLogEntry;
@@ -21,9 +23,11 @@ public class IncomeWizardPage2 extends Page {
     public static final String INCOME_RECEIPT_PIC_DATA_KEY = "income_receipt_pic";
     public static final String INCOME_WAS_RECEIPT_PIC_ADDED_DATA_KEY = "income_was_receipt_pic_added";
     public static final String WAS_PRELOADED = "income_page_2_was_preloaded";
+    private Context context;
 
-    public IncomeWizardPage2(ModelCallbacks callbacks, String title) {
+    public IncomeWizardPage2(ModelCallbacks callbacks, String title, Context context) {
         super(callbacks, title);
+        this.context = context;
         mData.putBoolean(WAS_PRELOADED, false);
         //PaymentLogEntry paymentLogEntry = NewIncomeWizard.incomeToEdit;
         //if(paymentLogEntry != null){
@@ -50,8 +54,8 @@ public class IncomeWizardPage2 extends Page {
 
     @Override
     public void getReviewItems(ArrayList<ReviewItem> dest) {
-        dest.add(new ReviewItem("Description", mData.getString(INCOME_DESCRIPTION_DATA_KEY), getKey(), -1));
-        dest.add(new ReviewItem("Receipt Picture", mData.getString(INCOME_WAS_RECEIPT_PIC_ADDED_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(context.getResources().getString(R.string.description), mData.getString(INCOME_DESCRIPTION_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(context.getResources().getString(R.string.receipt_pic), mData.getString(INCOME_WAS_RECEIPT_PIC_ADDED_DATA_KEY), getKey(), -1));
     }
 
     @Override

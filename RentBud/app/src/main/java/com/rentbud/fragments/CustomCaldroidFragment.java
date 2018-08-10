@@ -22,25 +22,14 @@ public class CustomCaldroidFragment extends CaldroidFragment {
     private HashMap<String, Integer> leaseEndDatesHM = new HashMap<>();
     private HashMap<String, Integer> expenseDatesHM = new HashMap<>();
     private HashMap<String, Integer> incomeDatesHM = new HashMap<>();
-    //CaldroidGridAdapter caldroidGridAdapter;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //leaseStartDatesHM = (HashMap<Integer, Integer>) getActivity().getIntent().getSerializableExtra("s");
     }
 
     @Override
     public CaldroidGridAdapter getNewDatesGridAdapter(int month, int year) {
-        //leaseStartDatesHM.put(3, 5);
-        //leaseStartDatesHM.put(7, 7);
-        //leaseStartDatesHM.put(5, 5);
-        //leaseEndDatesHM.put(28, 1);
-        //leaseEndDatesHM.put(7, 5);
-        //expenseDatesHM.put(13, 3);
-        //expenseDatesHM.put(7, 1);
-        //incomeDatesHM.put(22, 7);
-        //incomeDatesHM.put(7, 9);
         return new CustomCalendarAdapter(getActivity(), month, year,
                 getCaldroidData(), extraData, leaseStartDatesHM, leaseEndDatesHM, expenseDatesHM, incomeDatesHM);
     }

@@ -21,7 +21,9 @@
         android:layout_marginRight="15dp"
         android:id="@+id/newItemCreationET"
         android:inputType="textCapWords"
-        android:gravity="center"
+        android:layout_gravity="center_vertical"
+        android:gravity="start"
+        android:padding="10dp"
         />
 
     <View

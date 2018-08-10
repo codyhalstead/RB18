@@ -25,6 +25,7 @@ import com.example.android.wizardpager.wizard.ui.PageFragmentCallbacks;
 import com.example.cody.rentbud.R;
 import com.rentbud.activities.MainActivity;
 import com.rentbud.activities.NewExpenseWizard;
+import com.rentbud.helpers.CustomDatePickerDialogLauncher;
 import com.rentbud.helpers.NewItemCreatorDialog;
 import com.rentbud.model.ExpenseLogEntry;
 import com.rentbud.wizards.ApartmentWizardPage1;
@@ -59,11 +60,12 @@ public class ExpenseWizardPage1Fragment extends android.support.v4.app.Fragment 
     private Spinner typeSpinner;
     private Button addNewTypeBtn;
     private ArrayAdapter<String> adapter;
-    private DatePickerDialog.OnDateSetListener setExpenseDateListener;
     private BigDecimal amount;
     private Date expenseDate;
     private DatabaseHandler dbHandler;
-    boolean isEdit;
+    private boolean isEdit;
+    private CustomDatePickerDialogLauncher datePickerDialogLauncher;
+    private NewItemCreatorDialog newItemCreatorDialog;
 
     public static ExpenseWizardPage1Fragment create(String key) {
         Bundle args = new Bundle();
@@ -136,7 +138,7 @@ public class ExpenseWizardPage1Fragment extends android.support.v4.app.Fragment 
 
         newExpenseHeaderTV = rootView.findViewById(R.id.expenseWizardPageOneHeader);
         if (isEdit) {
-            newExpenseHeaderTV.setText("Edit Expense Info");
+            newExpenseHeaderTV.setText(R.string.edit_expense_info);
         }
 
         return rootView;
@@ -162,7 +164,27 @@ public class ExpenseWizardPage1Fragment extends android.support.v4.app.Fragment 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        setUpdateSelectedDateListeners();
+        datePickerDialogLauncher = new CustomDatePickerDialogLauncher(expenseDate, false, getContext());
+        datePickerDialogLauncher.setDateSelectedListener(new CustomDatePickerDialogLauncher.DateSelectedListener() {
+            @Override
+            public void onStartDateSelected(Date startDate, Date endDate) {
+
+            }
+
+            @Override
+            public void onEndDateSelected(Date startDate, Date endDate) {
+
+            }
+
+            @Override
+            public void onDateSelected(Date date) {
+                expenseDate = date;
+                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+                dateTV.setText(formatter.format(expenseDate));
+                mPage.getData().putString(ExpenseWizardPage1.EXPENSE_DATE_STRING_DATA_KEY, formatter.format(expenseDate));
+                mPage.notifyDataChanged();
+            }
+        });
         populateExpenseTypeSpinner();
         dateTV.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -174,9 +196,7 @@ public class ExpenseWizardPage1Fragment extends android.support.v4.app.Fragment 
                 int year = cal.get(Calendar.YEAR);
                 int month = cal.get(Calendar.MONTH);
                 int day = cal.get(Calendar.DAY_OF_MONTH);
-                DatePickerDialog dialog = new DatePickerDialog(getContext(), android.R.style.Theme_Holo_Light_Dialog_MinWidth, setExpenseDateListener, year, month, day);
-                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                dialog.show();
+                datePickerDialogLauncher.launchSingleDatePickerDialog();
             }
         });
         amountET.addTextChangedListener(new TextWatcher() {
@@ -214,7 +234,10 @@ public class ExpenseWizardPage1Fragment extends android.support.v4.app.Fragment 
                 // paymentFrequency = position + 1;
 
                 String type = typeSpinner.getSelectedItem().toString();
-                int typeID = MainActivity.expenseTypeLabels.get(type);
+                int typeID = 0;
+                if(MainActivity.expenseTypeLabels.get(type) != null) {
+                    typeID = MainActivity.expenseTypeLabels.get(type);
+                }
                 mPage.getData().putInt(ExpenseWizardPage1.EXPENSE_TYPE_ID_DATA_KEY, typeID);
                 mPage.getData().putString(ExpenseWizardPage1.EXPENSE_TYPE_DATA_KEY, type);
 
@@ -234,13 +257,13 @@ public class ExpenseWizardPage1Fragment extends android.support.v4.app.Fragment 
         addNewTypeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                NewItemCreatorDialog dialog = new NewItemCreatorDialog(getContext());
-                dialog.show();
-                dialog.setDialogResult(new NewItemCreatorDialog.NewItemDialogResult() {
+                newItemCreatorDialog = new NewItemCreatorDialog(getContext());
+                newItemCreatorDialog.show();
+                newItemCreatorDialog.setDialogResult(new NewItemCreatorDialog.NewItemDialogResult() {
                     @Override
                     public void finish(String string) {
                         dbHandler.addNewExpenseType(string);
-                        MainActivity.expenseTypeLabels = dbHandler.getExpenseTypeLabels();
+                        MainActivity.expenseTypeLabels = dbHandler.getExpenseTypeLabelsTreeMap();
                         updateExpenseTypeSpinner();
                         int spinnerPosition = adapter.getPosition(string);
                         typeSpinner.setSelection(spinnerPosition);
@@ -255,36 +278,16 @@ public class ExpenseWizardPage1Fragment extends android.support.v4.app.Fragment 
         //}
         if (mPage.getData().getString(ExpenseWizardPage1.EXPENSE_TYPE_DATA_KEY) != null) {
             int spinnerPosition = adapter.getPosition(mPage.getData().getString(ExpenseWizardPage1.EXPENSE_TYPE_DATA_KEY));
+            if (isEdit && spinnerPosition == -1) {
+                adapter.add(mPage.getData().getString(ExpenseWizardPage1.EXPENSE_TYPE_DATA_KEY));
+                spinnerPosition = adapter.getPosition(mPage.getData().getString(ExpenseWizardPage1.EXPENSE_TYPE_DATA_KEY));
+            }
             typeSpinner.setSelection(spinnerPosition);
         }
         //String state = stateSpinner.getSelectedItem().toString();
         //int stateID = MainActivity.stateMap.get(state);
         //mPage.getData().putInt(LeaseWizardPage3.LEASE_PAYMENT_FREQUENCY_DATA_KEY, stateID);
         //mPage.getData().putString(LeaseWizardPage3.LEASE_PAYMENT_FREQUENCY_STRING_DATA_KEY, state);
-    }
-
-    private void setUpdateSelectedDateListeners() {
-        setExpenseDateListener = new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-                //Once user selects date from date picker pop-up,
-                Calendar cal = Calendar.getInstance();
-                cal.set(Calendar.YEAR, year);
-                cal.set(Calendar.MONTH, month);
-                cal.set(Calendar.DATE, day);
-                cal.set(Calendar.HOUR_OF_DAY, 0);
-                cal.set(Calendar.MINUTE, 0);
-                cal.set(Calendar.SECOND, 0);
-                cal.set(Calendar.MILLISECOND, 0);
-
-                expenseDate = cal.getTime();
-
-                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-                dateTV.setText(formatter.format(expenseDate));
-                mPage.getData().putString(ExpenseWizardPage1.EXPENSE_DATE_STRING_DATA_KEY, formatter.format(expenseDate));
-                mPage.notifyDataChanged();
-            }
-        };
     }
 
     @Override
@@ -299,6 +302,15 @@ public class ExpenseWizardPage1Fragment extends android.support.v4.app.Fragment 
             if (!menuVisible) {
                 imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
             }
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        datePickerDialogLauncher.dismissDatePickerDialog();
+        if(newItemCreatorDialog != null){
+            newItemCreatorDialog.dismiss();
         }
     }
 

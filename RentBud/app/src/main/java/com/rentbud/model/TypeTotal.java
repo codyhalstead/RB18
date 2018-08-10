@@ -18,6 +18,13 @@ public class TypeTotal implements Parcelable {
         this.numberOfItems = numberOfItems;
     }
 
+    public TypeTotal(int typeID, String typeLabel){
+        this.typeID = typeID;
+        this.typeLabel = typeLabel;
+        this.totalAmount = new BigDecimal(0);
+        this.numberOfItems = 0;
+    }
+
     @Override
     public int describeContents() {
         return 0;

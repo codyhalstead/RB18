@@ -145,7 +145,6 @@ public class NewApartmentWizard extends BaseActivity implements
                         setResult(RESULT_OK);
                     }
                     mainArrayDataMethods.sortMainApartmentArray();
-                    //ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
                     finish();
 
                 } else {
@@ -183,17 +182,17 @@ public class NewApartmentWizard extends BaseActivity implements
         int position = mPager.getCurrentItem();
         if (position == mCurrentPageSequence.size()) {
             if(apartmentToEdit == null) {
-                mNextButton.setText("Create Apartment");
+                mNextButton.setText(R.string.create_apartment);
             } else {
-                mNextButton.setText("Save Changes");
+                mNextButton.setText(R.string.save_changes);
             }
             mNextButton.setBackgroundResource(com.example.android.wizardpager.R.drawable.finish_background);
             mNextButton.setTextAppearance(this, com.example.android.wizardpager.R.style.TextAppearanceFinish);
             mNextButton.setBackgroundColor(fetchPrimaryColor());
         } else {
             mNextButton.setText(mEditingAfterReview
-                    ? com.example.android.wizardpager.R.string.review
-                    : com.example.android.wizardpager.R.string.next);
+                    ? R.string.review
+                    : R.string.next);
             mNextButton.setBackgroundResource(com.example.android.wizardpager.R.drawable.selectable_item_background);
             TypedValue v = new TypedValue();
             getTheme().resolveAttribute(android.R.attr.textAppearanceMedium, v, true);
@@ -311,7 +310,6 @@ public class NewApartmentWizard extends BaseActivity implements
 
         @Override
         public int getItemPosition(Object object) {
-            // TODO: be smarter about this
             if (object == mPrimaryItem) {
                 // Re-use the current fragment (its position never changes)
                 return POSITION_UNCHANGED;

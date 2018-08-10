@@ -1,11 +1,13 @@
 package com.rentbud.wizards;
 
+import android.content.Context;
 import android.support.v4.app.Fragment;
 
 import com.example.android.wizardpager.wizard.model.ModelCallbacks;
 import com.example.android.wizardpager.wizard.model.Page;
 import com.example.android.wizardpager.wizard.model.ReviewItem;
 import com.example.android.wizardpager.wizard.ui.PageFragmentCallbacks;
+import com.example.cody.rentbud.R;
 import com.rentbud.activities.NewLeaseWizard;
 import com.rentbud.fragments.LeaseWizardProratedRentPageFragment;
 import com.rentbud.model.Lease;
@@ -25,10 +27,12 @@ public class LeaseWizardProratedRentPage extends Page {
     public static final String LEASE_PRORATED_LAST_PAYMENT_STRING_DATA_KEY = "lease_prorated_last_string";
     public static final String LEASE_PRORATED_FIRST_PAYMENT_WAS_MODIFIED_DATA_KEY = "lease_prorated_first_was_modified";
     public static final String LEASE_PRORATED_LAST_PAYMENT_WAS_MODIFIED_DATA_KEY = "lease_prorated_last_was_modified";
+    private Context context;
 
     //Will not be created if editing, do not have to prepare for that
-    public LeaseWizardProratedRentPage(ModelCallbacks callbacks, String title) {
+    public LeaseWizardProratedRentPage(ModelCallbacks callbacks, String title, Context context) {
         super(callbacks, title);
+        this.context = context;
         //Lease lease = NewLeaseWizard.leaseToEdit;
         //if(lease != null){
             //BigDecimal proratedFirstBD = ;
@@ -53,10 +57,10 @@ public class LeaseWizardProratedRentPage extends Page {
     @Override
     public void getReviewItems(ArrayList<ReviewItem> dest) {
         if(mData.getBoolean(LEASE_PRORATED_FIRST_SHOW_IN_REVIEW_DATA_KEY)) {
-            dest.add(new ReviewItem("Prorated First Payment", mData.getString(LEASE_PRORATED_FIRST_PAYMENT_FORMATTED_STRING_DATA_KEY), getKey(), -1));
+            dest.add(new ReviewItem(context.getResources().getString(R.string.prorated_first_payment), mData.getString(LEASE_PRORATED_FIRST_PAYMENT_FORMATTED_STRING_DATA_KEY), getKey(), -1));
         }
         if(mData.getBoolean(LEASE_PRORATED_LAST_SHOW_IN_REVIEW_DATA_KEY)) {
-            dest.add(new ReviewItem("Prorated Last Payment", mData.getString(LEASE_PRORATED_LAST_PAYMENT_FORMATTED_STRING_DATA_KEY), getKey(), -1));
+            dest.add(new ReviewItem(context.getResources().getString(R.string.prorated_last_payment), mData.getString(LEASE_PRORATED_LAST_PAYMENT_FORMATTED_STRING_DATA_KEY), getKey(), -1));
         }
     }
 

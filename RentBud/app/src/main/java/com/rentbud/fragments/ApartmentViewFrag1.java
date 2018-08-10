@@ -1,10 +1,8 @@
 package com.rentbud.fragments;
 
 import android.Manifest;
-import android.app.AlertDialog;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -18,8 +16,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -46,10 +42,11 @@ import com.rentbud.sqlite.DatabaseHandler;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
 import static android.app.Activity.RESULT_OK;
-import static android.support.constraint.Constraints.TAG;
 
 public class ApartmentViewFrag1 extends Fragment {
     Apartment apartment;
@@ -63,7 +60,8 @@ public class ApartmentViewFrag1 extends Fragment {
     ArrayList<Tenant> secondaryTenants;
     String mainPic;
     MainArrayDataMethods dataMethods;
-    Lease currentLease;
+    ArrayList<Lease> activeLeases;
+    //Lease currentLease;
     RecyclerView recyclerView;
     RecyclerViewAdapter adapter;
     ArrayList<String> otherPics;
@@ -88,9 +86,9 @@ public class ApartmentViewFrag1 extends Fragment {
             if (savedInstanceState.getString("mainPic") != null) {
                 mainPic = savedInstanceState.getString("mainPic");
             }
-            if (savedInstanceState.getParcelable("currentLease") != null) {
-                currentLease = savedInstanceState.getParcelable("currentLease");
-            }
+            //if (savedInstanceState.getParcelable("currentLease") != null) {
+            //    currentLease = savedInstanceState.getParcelable("currentLease");
+            //}
             if (savedInstanceState.getParcelable("primaryTenant") != null && savedInstanceState.getParcelableArrayList("secondaryTenants") != null) {
                 primaryTenant = savedInstanceState.getParcelable("primaryTenant");
                 secondaryTenants = savedInstanceState.getParcelableArrayList("secondaryTenants");
@@ -100,7 +98,7 @@ public class ApartmentViewFrag1 extends Fragment {
         } else {
             //If new
             this.apartment = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getApartment().getValue();
-            this.currentLease = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getLease().getValue();
+            //this.currentLease = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getLease().getValue();
             this.primaryTenant = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getPrimaryTenant().getValue();
             this.secondaryTenants = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getSecondaryTenants().getValue();
         //    Bundle bundle = getArguments();
@@ -123,17 +121,34 @@ public class ApartmentViewFrag1 extends Fragment {
         //    this.primaryTenant = tenants.first;
         //    this.secondaryTenants = tenants.second;
         }
+
+        Date today = Calendar.getInstance().getTime();
+        activeLeases = new ArrayList<>();
+        for (int i = 0; i < ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getLeaseArray().getValue().size(); i++) {
+            if (ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getLeaseArray().getValue().get(i).getLeaseStart().before(today) &&
+                    ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getLeaseArray().getValue().get(i).getLeaseEnd().after(today)) {
+                activeLeases.add(ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getLeaseArray().getValue().get(i));
+            }
+        }
+        if(activeLeases.size() == 1){
+            primaryTenant = databaseHandler.getTenantByID(activeLeases.get(0).getPrimaryTenantID(), MainActivity.user);
+            //ArrayList<Integer> secondaryTenantIDs = activeLeases.get(0).getSecondaryTenantIDs();
+            //for (int i = 0; i < secondaryTenantIDs.size(); i++) {
+            //    Tenant secondaryTenant = databaseHandler.getTenantByID(secondaryTenantIDs.get(i), MainActivity.user);
+            //    secondaryTenants.add(secondaryTenant);
+            //}
+        }
         ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getLease().observe(this, new Observer<Lease>() {
             @Override
             public void onChanged(@Nullable Lease changedLease) {
-                currentLease = changedLease;
-                Log.d(TAG, "onChanged: WOAAAAAAAAAAAAAAAAAAAAAAAH");
-                fillTextViews();
+                //currentLease = changedLease;
+                //Log.d(TAG, "onChanged: WOAAAAAAAAAAAAAAAAAAAAAAAH");
+                //fillTextViews();
             }
         });
 
 
-        getActivity().setTitle("Apartment View");
+        //getActivity().setTitle("Apartment View");
     }
 
 
@@ -261,7 +276,7 @@ public class ApartmentViewFrag1 extends Fragment {
                 intent.setType("image/*");
                 startActivityForResult(intent, MainActivity.REQUEST_GALLERY_FOR_MAIN_PIC);
             } else {
-                Toast.makeText(getContext(), "You don't have permission to access file location", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), R.string.no_permission, Toast.LENGTH_SHORT).show();
             }
             return;
         } else if (requestCode == MainActivity.REQUEST_GALLERY_FOR_OTHER_PICS) {
@@ -270,7 +285,7 @@ public class ApartmentViewFrag1 extends Fragment {
                 intent.setType("image/*");
                 startActivityForResult(intent, MainActivity.REQUEST_GALLERY_FOR_OTHER_PICS);
             } else {
-                Toast.makeText(getContext(), "You don't have permission to access file location", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), R.string.no_permission, Toast.LENGTH_SHORT).show();
             }
             return;
         }
@@ -342,12 +357,12 @@ public class ApartmentViewFrag1 extends Fragment {
             if (resultCode == RESULT_OK) {
                 //int apartmentID = data.getIntExtra("updatedApartmentID", 0);
                 //int primaryTenantID = data.getParcelableExtra("updatedPrimaryTenantID");
-                this.apartment = dataMethods.getCachedApartmentByApartmentID(apartment.getId());
-                Pair<Tenant, ArrayList<Tenant>> tenants = dataMethods.getCachedPrimaryAndSecondaryTenantsByLease(currentLease); //TODO
-                this.primaryTenant = tenants.first;
-                this.secondaryTenants = tenants.second;
+                //this.apartment = dataMethods.getCachedApartmentByApartmentID(apartment.getId());
+                //Pair<Tenant, ArrayList<Tenant>> tenants = dataMethods.getCachedPrimaryAndSecondaryTenantsByLease(currentLease); //TODO
+                //this.primaryTenant = tenants.first;
+                //this.secondaryTenants = tenants.second;
                 //this.secondaryTenants = data.getParcelableArrayListExtra("updatedSecondaryTenants");
-                fillTextViews();
+                //fillTextViews();
                // ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
             }
         }
@@ -376,96 +391,67 @@ public class ApartmentViewFrag1 extends Fragment {
         //tenantStatusTV.setText();
         descriptionTV.setText(apartment.getDescription());
         notesTV.setText(apartment.getNotes());
-        if (primaryTenant != null) {
-            editLeaseBtn.setText("Edit Lease");
-            primaryTenantLL.setVisibility(View.VISIBLE);
-            leaseStatusTV.setText("Lease : ");
-            leaseHyphenTV.setText(" - ");
-            primaryTenantFirstNameTV.setText(primaryTenant.getFirstName());
-            primaryTenantLastNAmeTV.setText(primaryTenant.getLastName());
 
-            SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-            if (currentLease != null) {
-                leaseStartTV.setText(formatter.format(currentLease.getLeaseStart()));
-                leaseEndTV.setText(formatter.format(currentLease.getLeaseEnd()));
-            } else {
-                leaseStartTV.setText("WWWWWWW");
-            }
-            if (!secondaryTenants.isEmpty()) {
-                secondaryTenantsLL.setVisibility(View.VISIBLE);
-                secondaryTenantsTV.setText("");
-                for (int i = 0; i < secondaryTenants.size(); i++) {
-                    secondaryTenantsTV.append(secondaryTenants.get(i).getFirstName());
-                    secondaryTenantsTV.append(" ");
-                    secondaryTenantsTV.append(secondaryTenants.get(i).getLastName());
-                    if (i != secondaryTenants.size() - 1) {
-                        secondaryTenantsTV.append("\n");
-                    }
-                }
-            } else {
-                secondaryTenantsLL.setVisibility(View.GONE);
-            }
-        } else {
-            editLeaseBtn.setText("Create Lease");
-            leaseStatusTV.setText("Vacant");
+        if(!apartment.isRented()){
+            //editLeaseBtn.setText("Create Lease");
+            leaseStatusTV.setText(R.string.vacant);
             leaseStartTV.setText("");
             leaseEndTV.setText("");
             leaseHyphenTV.setText("");
             primaryTenantLL.setVisibility(View.GONE);
             secondaryTenantsLL.setVisibility(View.GONE);
+        } else {
+            if(activeLeases.size() > 1){
+                leaseStatusTV.setText(R.string.multiple_active_leases);
+                leaseStartTV.setText("");
+                leaseEndTV.setText("");
+                leaseHyphenTV.setText("");
+                primaryTenantLL.setVisibility(View.GONE);
+                secondaryTenantsLL.setVisibility(View.GONE);
+            } else if(activeLeases.size() == 1){
+                Lease currentLease = activeLeases.get(0);
+                if (primaryTenant != null) {
+                    primaryTenantFirstNameTV.setText(primaryTenant.getFirstName());
+                    primaryTenantLastNAmeTV.setText(primaryTenant.getLastName());
+                } else {
+                    primaryTenantFirstNameTV.setText(R.string.error_loading_primary_tenant);
+                    primaryTenantLastNAmeTV.setVisibility(View.GONE);
+                }
+                if (currentLease.getLeaseStart() != null) {
+                    //leaseLL.setVisibility(View.VISIBLE);
+                    //leaseHolderTypeTV.setVisibility(View.VISIBLE);
+
+                    SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+                    leaseStartTV.setText(formatter.format(currentLease.getLeaseStart()));
+                    leaseEndTV.setText(formatter.format(currentLease.getLeaseEnd()));
+                } else {
+                    //leaseLL.setVisibility(View.GONE);
+                    //leaseHolderTypeTV.setVisibility(View.GONE);
+                }
+                if (!secondaryTenants.isEmpty()) {
+                    secondaryTenantsLL.setVisibility(View.VISIBLE);
+                    secondaryTenantsTV.setText("");
+                    for (int i = 0; i < secondaryTenants.size(); i++) {
+                        secondaryTenantsTV.append(secondaryTenants.get(i).getFirstName());
+                        secondaryTenantsTV.append(" ");
+                        secondaryTenantsTV.append(secondaryTenants.get(i).getLastName());
+                        if (i != secondaryTenants.size() - 1) {
+                            secondaryTenantsTV.append("\n");
+                        }
+                    }
+                } else {
+                    secondaryTenantsLL.setVisibility(View.GONE);
+                }
+            }
         }
     }
 
     private void getTenants() {
         if (apartment.isRented()) {
-            Pair<Tenant, ArrayList<Tenant>> tenants = dataMethods.getCachedPrimaryAndSecondaryTenantsByLease(currentLease);
-            this.primaryTenant = tenants.first;
-            this.secondaryTenants = tenants.second;
+         //   Pair<Tenant, ArrayList<Tenant>> tenants = dataMethods.getCachedPrimaryAndSecondaryTenantsByLease(currentLease);
+         //   this.primaryTenant = tenants.first;
+         //   this.secondaryTenants = tenants.second;
         }
-    }
-
-    public void showDeleteConfirmationAlertDialog() {
-        // setup the alert builder
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        //builder.setTitle("AlertDialog");
-        builder.setMessage("Are you sure you want to remove this apartment?");
-
-        // add the buttons
-        builder.setPositiveButton("No", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-
-            }
-        });
-        builder.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                databaseHandler.setApartmentInactive(apartment);
-                if (apartment.isRented()) {
-                    //TODO update lease
-                    //primaryTenant.setApartmentID(0);
-                    //primaryTenant.setLeaseStart(null);
-                    //primaryTenant.setLeaseEnd(null);
-                    //databaseHandler.editTenant(primaryTenant);
-                    for (int x = 0; x < secondaryTenants.size(); x++) {
-                        //    secondaryTenants.get(x).setApartmentID(0);
-                        //    secondaryTenants.get(x).setLeaseStart(null);
-                        //    secondaryTenants.get(x).setLeaseEnd(null);
-                        //    databaseHandler.editTenant(secondaryTenants.get(x));
-                    }
-                    apartment.setRented(false);
-                    dataMethods.sortMainTenantArray();
-                }
-                MainActivity.apartmentList.remove(apartment);
-                //TenantListFragment.tenantListAdapterNeedsRefreshed = true;
-                //ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
-                getActivity().finish();
-            }
-        });
-
-        // create and show the alert dialog
-        AlertDialog dialog = builder.create();
-        dialog.show();
     }
 
     @Override
@@ -488,8 +474,8 @@ public class ApartmentViewFrag1 extends Fragment {
         if (secondaryTenants != null) {
             outState.putParcelableArrayList("secondaryTenants", secondaryTenants);
         }
-        if (currentLease != null) {
-            outState.putParcelable("currentLease", currentLease);
-        }
+        //if (currentLease != null) {
+        //    outState.putParcelable("currentLease", currentLease);
+        //}
     }
 }

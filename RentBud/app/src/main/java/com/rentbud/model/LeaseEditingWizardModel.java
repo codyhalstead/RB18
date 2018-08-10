@@ -25,11 +25,11 @@ public class LeaseEditingWizardModel extends AbstractWizardModel
     protected PageList onNewRootPageList() {
         return new PageList(
 
-                new LeaseWizardPage1(this, "Page1").setRequired(true),
+                new LeaseWizardPage1(this, "Page1", super.mContext).setRequired(true),
 
-                new LeaseWizardPage2(this, "Page2", true).setRequired(true),
+                new LeaseWizardPage2(this, "Page2", true, super.mContext).setRequired(true),
 
-                new LeaseWizardPage4(this, "Page4").setRequired(false)//,
+                new LeaseWizardPage4(this, "Page4", super.mContext).setRequired(false)//,
 
             //    new LeaseWizardPage3(this, "Page3").setRequired(true)
         );

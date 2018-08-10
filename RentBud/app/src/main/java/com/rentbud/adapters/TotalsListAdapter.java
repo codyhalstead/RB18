@@ -88,9 +88,9 @@ public class TotalsListAdapter extends BaseAdapter {
             String numberOfItemsString = typeTotal.getNumberOfItems() + "";
             viewHolder.numberOfItemsTV.setText(numberOfItemsString);
             if(typeTotal.getNumberOfItems() == 1) {
-                viewHolder.numberOfItemsLabelTV.setText(" occurrence");
+                viewHolder.numberOfItemsLabelTV.setText(R.string.space_occurrence);
             } else {
-                viewHolder.numberOfItemsLabelTV.setText(" occurrences");
+                viewHolder.numberOfItemsLabelTV.setText(R.string.space_occurrences);
             }
         }
         return view;

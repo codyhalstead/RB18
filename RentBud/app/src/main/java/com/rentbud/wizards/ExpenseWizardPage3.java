@@ -1,5 +1,6 @@
 package com.rentbud.wizards;
 
+import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
@@ -7,6 +8,7 @@ import android.util.Log;
 import com.example.android.wizardpager.wizard.model.ModelCallbacks;
 import com.example.android.wizardpager.wizard.model.Page;
 import com.example.android.wizardpager.wizard.model.ReviewItem;
+import com.example.cody.rentbud.R;
 import com.rentbud.activities.NewExpenseWizard;
 import com.rentbud.fragments.ExpenseWizardPage2Fragment;
 import com.rentbud.fragments.ExpenseWizardPage3Fragment;
@@ -31,9 +33,11 @@ public class ExpenseWizardPage3 extends Page {
     public static final String EXPENSE_RELATED_LEASE_TEXT_DATA_KEY = "expense_related_lease_text";
     public static final String EXPENSE_RELATED_LEASE_ID_DATA_KEY = "expense_related_lease_id";
     public static final String WAS_PRELOADED = "expense_page_3_was_preloaded";
+    private Context context;
 
-    public ExpenseWizardPage3(ModelCallbacks callbacks, String title) {
+    public ExpenseWizardPage3(ModelCallbacks callbacks, String title, Context context) {
         super(callbacks, title);
+        this.context = context;
         mData.putBoolean(WAS_PRELOADED, false);
         //ExpenseLogEntry expenseLogEntry = NewExpenseWizard.expenseToEdit;
         //if(expenseLogEntry != null){
@@ -65,9 +69,9 @@ public class ExpenseWizardPage3 extends Page {
 
     @Override
     public void getReviewItems(ArrayList<ReviewItem> dest) {
-        dest.add(new ReviewItem("Related Apartment", mData.getString(EXPENSE_RELATED_APT_TEXT_DATA_KEY), getKey(), -1));
-        dest.add(new ReviewItem("Related Tenant", mData.getString(EXPENSE_RELATED_TENANT_TEXT_DATA_KEY), getKey(), -1));
-        dest.add(new ReviewItem("Related Lease", mData.getString(EXPENSE_RELATED_LEASE_TEXT_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(context.getResources().getString(R.string.related_apt), mData.getString(EXPENSE_RELATED_APT_TEXT_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(context.getResources().getString(R.string.related_tenant), mData.getString(EXPENSE_RELATED_TENANT_TEXT_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(context.getResources().getString(R.string.related_lease), mData.getString(EXPENSE_RELATED_LEASE_TEXT_DATA_KEY), getKey(), -1));
     }
 
     @Override

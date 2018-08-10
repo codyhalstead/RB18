@@ -8,6 +8,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +25,7 @@ import com.example.android.wizardpager.wizard.ui.PageFragmentCallbacks;
 import com.example.cody.rentbud.R;
 import com.rentbud.activities.MainActivity;
 import com.rentbud.activities.NewIncomeWizard;
+import com.rentbud.helpers.CustomDatePickerDialogLauncher;
 import com.rentbud.helpers.NewItemCreatorDialog;
 import com.rentbud.model.PaymentLogEntry;
 import com.rentbud.wizards.ExpenseWizardPage1;
@@ -42,6 +44,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import static android.support.constraint.Constraints.TAG;
+
 public class IncomeWizardPage1Fragment extends android.support.v4.app.Fragment {
     private static final String ARG_KEY = "key";
 
@@ -53,11 +57,12 @@ public class IncomeWizardPage1Fragment extends android.support.v4.app.Fragment {
     private Spinner typeSpinner;
     private Button addNewTypeBtn;
     private ArrayAdapter<String> adapter;
-    private DatePickerDialog.OnDateSetListener setIncomeDateListener;
     private BigDecimal amount;
     private Date incomeDate;
     private DatabaseHandler dbHandler;
     boolean isEdit;
+    private CustomDatePickerDialogLauncher datePickerDialogLauncher;
+    private NewItemCreatorDialog newItemCreatorDialog;
 
     public static IncomeWizardPage1Fragment create(String key) {
         Bundle args = new Bundle();
@@ -130,7 +135,7 @@ public class IncomeWizardPage1Fragment extends android.support.v4.app.Fragment {
 
         newIncomeHeaderTV = rootView.findViewById(R.id.incomeWizardPageOneHeader);
         if (isEdit) {
-            newIncomeHeaderTV.setText("Edit Income Info");
+            newIncomeHeaderTV.setText(R.string.edit_income_info);
         }
 
         return rootView;
@@ -156,21 +161,32 @@ public class IncomeWizardPage1Fragment extends android.support.v4.app.Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        setUpdateSelectedDateListeners();
+        datePickerDialogLauncher = new CustomDatePickerDialogLauncher(incomeDate, false, getActivity());
+        datePickerDialogLauncher.setDateSelectedListener(new CustomDatePickerDialogLauncher.DateSelectedListener() {
+            @Override
+            public void onStartDateSelected(Date startDate, Date endDate) {
+
+            }
+
+            @Override
+            public void onEndDateSelected(Date startDate, Date endDate) {
+
+            }
+
+            @Override
+            public void onDateSelected(Date date) {
+                incomeDate = date;
+                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+                dateTV.setText(formatter.format(incomeDate));
+                mPage.getData().putString(IncomeWizardPage1.INCOME_DATE_STRING_DATA_KEY, formatter.format(incomeDate));
+                mPage.notifyDataChanged();
+            }
+        });
         populateIncomeTypeSpinner();
         dateTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Calendar cal = Calendar.getInstance();
-                if (incomeDate != null) {
-                    cal.setTime(incomeDate);
-                }
-                int year = cal.get(Calendar.YEAR);
-                int month = cal.get(Calendar.MONTH);
-                int day = cal.get(Calendar.DAY_OF_MONTH);
-                DatePickerDialog dialog = new DatePickerDialog(getContext(), android.R.style.Theme_Holo_Light_Dialog_MinWidth, setIncomeDateListener, year, month, day);
-                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                dialog.show();
+                datePickerDialogLauncher.launchSingleDatePickerDialog();
             }
         });
         amountET.addTextChangedListener(new TextWatcher() {
@@ -208,7 +224,10 @@ public class IncomeWizardPage1Fragment extends android.support.v4.app.Fragment {
                 // paymentFrequency = position + 1;
 
                 String type = typeSpinner.getSelectedItem().toString();
-                int typeID = MainActivity.incomeTypeLabels.get(type);
+                int typeID = 0;
+                if (MainActivity.incomeTypeLabels.get(type) != null) {
+                    typeID = MainActivity.incomeTypeLabels.get(type);
+                }
                 mPage.getData().putInt(IncomeWizardPage1.INCOME_TYPE_ID_DATA_KEY, typeID);
                 mPage.getData().putString(IncomeWizardPage1.INCOME_TYPE_DATA_KEY, type);
 
@@ -228,13 +247,13 @@ public class IncomeWizardPage1Fragment extends android.support.v4.app.Fragment {
         addNewTypeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                NewItemCreatorDialog dialog = new NewItemCreatorDialog(getContext());
-                dialog.show();
-                dialog.setDialogResult(new NewItemCreatorDialog.NewItemDialogResult() {
+                newItemCreatorDialog = new NewItemCreatorDialog(getContext());
+                newItemCreatorDialog.show();
+                newItemCreatorDialog.setDialogResult(new NewItemCreatorDialog.NewItemDialogResult() {
                     @Override
                     public void finish(String string) {
                         dbHandler.addNewIncomeType(string);
-                        MainActivity.incomeTypeLabels = dbHandler.getIncomeTypeLabels();
+                        MainActivity.incomeTypeLabels = dbHandler.getIncomeTypeLabelsTreeMap();
                         updateIncomeTypeSpinner();
                         int spinnerPosition = adapter.getPosition(string);
                         typeSpinner.setSelection(spinnerPosition);
@@ -249,6 +268,10 @@ public class IncomeWizardPage1Fragment extends android.support.v4.app.Fragment {
         //}
         if (mPage.getData().getString(IncomeWizardPage1.INCOME_TYPE_DATA_KEY) != null) {
             int spinnerPosition = adapter.getPosition(mPage.getData().getString(IncomeWizardPage1.INCOME_TYPE_DATA_KEY));
+            if (isEdit && spinnerPosition == -1) {
+                adapter.add(mPage.getData().getString(IncomeWizardPage1.INCOME_TYPE_DATA_KEY));
+                spinnerPosition = adapter.getPosition(mPage.getData().getString(IncomeWizardPage1.INCOME_TYPE_DATA_KEY));
+            }
             typeSpinner.setSelection(spinnerPosition);
             //typeSpinner.setSelection(mPage.getData().getInt(IncomeWizardPage1.INCOME_TYPE_ID_DATA_KEY));
         }
@@ -256,30 +279,6 @@ public class IncomeWizardPage1Fragment extends android.support.v4.app.Fragment {
         //int stateID = MainActivity.stateMap.get(state);
         //mPage.getData().putInt(LeaseWizardPage3.LEASE_PAYMENT_FREQUENCY_DATA_KEY, stateID);
         //mPage.getData().putString(LeaseWizardPage3.LEASE_PAYMENT_FREQUENCY_STRING_DATA_KEY, state);
-    }
-
-    private void setUpdateSelectedDateListeners() {
-        setIncomeDateListener = new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-                //Once user selects date from date picker pop-up,
-                Calendar cal = Calendar.getInstance();
-                cal.set(Calendar.YEAR, year);
-                cal.set(Calendar.MONTH, month);
-                cal.set(Calendar.DATE, day);
-                cal.set(Calendar.HOUR_OF_DAY, 0);
-                cal.set(Calendar.MINUTE, 0);
-                cal.set(Calendar.SECOND, 0);
-                cal.set(Calendar.MILLISECOND, 0);
-
-                incomeDate = cal.getTime();
-
-                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-                dateTV.setText(formatter.format(incomeDate));
-                mPage.getData().putString(IncomeWizardPage1.INCOME_DATE_STRING_DATA_KEY, formatter.format(incomeDate));
-                mPage.notifyDataChanged();
-            }
-        };
     }
 
     @Override
@@ -318,6 +317,15 @@ public class IncomeWizardPage1Fragment extends android.support.v4.app.Fragment {
         }
         adapter.clear();
         adapter.addAll(spinnerArray);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        datePickerDialogLauncher.dismissDatePickerDialog();
+        if (newItemCreatorDialog != null) {
+            newItemCreatorDialog.dismiss();
+        }
     }
 
     private void preloadDate(Bundle bundle) {

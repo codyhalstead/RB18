@@ -80,12 +80,12 @@ public class ApartmentWizardPage3Fragment extends android.support.v4.app.Fragmen
                 loadDataForEdit(apartmentToEdit);
             } else {
                 mPage.getData().putString(ApartmentWizardPage3.APARTMENT_MAIN_PIC_DATA_KEY, "");
-                mPage.getData().putString(ApartmentWizardPage3.APARTMENT_WAS_MAIN_PIC_ADDED_DATA_KEY, "No");
+                mPage.getData().putString(ApartmentWizardPage3.APARTMENT_WAS_MAIN_PIC_ADDED_DATA_KEY, getContext().getResources().getString(R.string.no));
                 mPage.getData().putInt(ApartmentWizardPage3.APARTMENT_AMOUNT_OF_OTHER_PICS_DATA_KEY, numberOfOtherPics);
             }
         } else {
             mPage.getData().putString(ApartmentWizardPage3.APARTMENT_MAIN_PIC_DATA_KEY, "");
-            mPage.getData().putString(ApartmentWizardPage3.APARTMENT_WAS_MAIN_PIC_ADDED_DATA_KEY, "No");
+            mPage.getData().putString(ApartmentWizardPage3.APARTMENT_WAS_MAIN_PIC_ADDED_DATA_KEY, getContext().getResources().getString(R.string.no));
             mPage.getData().putInt(ApartmentWizardPage3.APARTMENT_AMOUNT_OF_OTHER_PICS_DATA_KEY, numberOfOtherPics);
         }
     }
@@ -139,7 +139,7 @@ public class ApartmentWizardPage3Fragment extends android.support.v4.app.Fragmen
             public void onClick(View view) {
                 Glide.with(getContext()).load(R.drawable.blank_home_pic).into(mainPicIV);
                 mPage.getData().putString(ApartmentWizardPage3.APARTMENT_MAIN_PIC_DATA_KEY, "");
-                mPage.getData().putString(ApartmentWizardPage3.APARTMENT_WAS_MAIN_PIC_ADDED_DATA_KEY, "No");
+                mPage.getData().putString(ApartmentWizardPage3.APARTMENT_WAS_MAIN_PIC_ADDED_DATA_KEY, getContext().getResources().getString(R.string.no));
                 mPage.notifyDataChanged();
             }
         });
@@ -178,7 +178,7 @@ public class ApartmentWizardPage3Fragment extends android.support.v4.app.Fragmen
         } else {
             Glide.with(getContext()).load(R.drawable.blank_home_pic).into(mainPicIV);
             mPage.getData().putString(ApartmentWizardPage3.APARTMENT_MAIN_PIC_DATA_KEY, "");
-            mPage.getData().putString(ApartmentWizardPage3.APARTMENT_WAS_MAIN_PIC_ADDED_DATA_KEY, "No");
+            mPage.getData().putString(ApartmentWizardPage3.APARTMENT_WAS_MAIN_PIC_ADDED_DATA_KEY, getContext().getResources().getString(R.string.no));
         }
 
         //if(mPage.getData().getStringArrayList(ApartmentWizardPage3.APARTMENT_OTHER_PICS_DATA_KEY) != null){
@@ -238,7 +238,7 @@ public class ApartmentWizardPage3Fragment extends android.support.v4.app.Fragmen
                 Glide.with(this).load(filePath).into(mainPicIV);
                 //this.apartment.setMainPic(filePath);
                 mPage.getData().putString(ApartmentWizardPage3.APARTMENT_MAIN_PIC_DATA_KEY, filePath);
-                mPage.getData().putString(ApartmentWizardPage3.APARTMENT_WAS_MAIN_PIC_ADDED_DATA_KEY, "Yes");
+                mPage.getData().putString(ApartmentWizardPage3.APARTMENT_WAS_MAIN_PIC_ADDED_DATA_KEY, getContext().getResources().getString(R.string.yes));
                 mPage.notifyDataChanged();
                 //this.mainPic = filePath;
                 //databaseHandler.changeApartmentMainPic(this.apartment);
@@ -298,13 +298,13 @@ public class ApartmentWizardPage3Fragment extends android.support.v4.app.Fragmen
         if (apartmentToEdit.getMainPic() != null) {
             if (!apartmentToEdit.getMainPic().equals("")) {
                 mPage.getData().putString(ApartmentWizardPage3.APARTMENT_MAIN_PIC_DATA_KEY, apartmentToEdit.getMainPic());
-                mPage.getData().putString(ApartmentWizardPage3.APARTMENT_WAS_MAIN_PIC_ADDED_DATA_KEY, "Yes");
+                mPage.getData().putString(ApartmentWizardPage3.APARTMENT_WAS_MAIN_PIC_ADDED_DATA_KEY, getContext().getResources().getString(R.string.yes));
             } else {
-                mPage.getData().putString(ApartmentWizardPage3.APARTMENT_WAS_MAIN_PIC_ADDED_DATA_KEY, "No");
+                mPage.getData().putString(ApartmentWizardPage3.APARTMENT_WAS_MAIN_PIC_ADDED_DATA_KEY, getContext().getResources().getString(R.string.no));
             }
             //mPage.getData().putString(ApartmentWizardPage3.APARTMENT_WAS_MAIN_PIC_ADDED_DATA_KEY, "No");
         } else {
-            mPage.getData().putString(ApartmentWizardPage3.APARTMENT_WAS_MAIN_PIC_ADDED_DATA_KEY, "No");
+            mPage.getData().putString(ApartmentWizardPage3.APARTMENT_WAS_MAIN_PIC_ADDED_DATA_KEY, getContext().getResources().getString(R.string.no));
         }
         //Other pics
         if (apartmentToEdit.getOtherPics() != null) {

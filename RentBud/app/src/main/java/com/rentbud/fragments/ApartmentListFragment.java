@@ -55,7 +55,7 @@ public class ApartmentListFragment extends Fragment implements AdapterView.OnIte
         this.noApartmentsTV = view.findViewById(R.id.noapartmentEmptyListTV);
         this.searchBarET = view.findViewById(R.id.apartmentListSearchET);
         this.listView = view.findViewById(R.id.mainapartmentListView);
-        getActivity().setTitle("Apartment View");
+        getActivity().setTitle(R.string.apartment_view);
         //ApartmentListFragment.apartmentListAdapterNeedsRefreshed = false;
         //Get current theme accent color, which is passed into the list adapter for search highlighting
         TypedValue colorValue = new TypedValue();
@@ -69,29 +69,6 @@ public class ApartmentListFragment extends Fragment implements AdapterView.OnIte
     @Override
     public void onResume() {
         super.onResume();
-        // if (ApartmentListFragment.apartmentListAdapterNeedsRefreshed) {
-        //searchBarET.setText("");
-        //    if (this.apartmentListAdapter != null) {
-        //        if (MainActivity.tenantList != null) {
-        //            ArrayList<Apartment> activeApartmentArray = new ArrayList<>();
-        //            for (int i = 0; i < MainActivity.apartmentList.size(); i++) {
-        //                if (MainActivity.apartmentList.get(i).isActive()) {
-        //                    activeApartmentArray.add(MainActivity.apartmentList.get(i));
-        //                }
-        //            }
-        //            if(activeApartmentArray.isEmpty()){
-        //                noApartmentsTV.setVisibility(View.VISIBLE);
-        //                noApartmentsTV.setText("No Current Apartments");
-        //            } else {
-        //                noApartmentsTV.setVisibility(View.GONE);
-        //            }
-        //            this.apartmentListAdapter.updateResults(activeApartmentArray);
-        //        }
-        //        searchBarET.setText(searchBarET.getText());
-        //        searchBarET.setSelection(searchBarET.getText().length());
-        //        ApartmentListFragment.apartmentListAdapterNeedsRefreshed = false;
-        //   }
-        // }
         if (needsRefreshedOnResume) {
             ArrayList<Apartment> activeApartmentArray = new ArrayList<>();
             for (int i = 0; i < MainActivity.apartmentList.size(); i++) {
@@ -156,7 +133,7 @@ public class ApartmentListFragment extends Fragment implements AdapterView.OnIte
         apartmentListAdapter = new ApartmentListAdapter(getActivity(), activeApartmentArray, accentColor);
         listView.setAdapter(apartmentListAdapter);
         listView.setOnItemClickListener(this);
-        noApartmentsTV.setText("No Apartments To Display");
+        noApartmentsTV.setText(R.string.no_apartments_to_display);
         this.listView.setEmptyView(noApartmentsTV);
     }
 

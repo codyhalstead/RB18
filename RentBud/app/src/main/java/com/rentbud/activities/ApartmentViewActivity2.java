@@ -30,6 +30,7 @@ import com.rentbud.fragments.ApartmentViewFrag3;
 import com.rentbud.fragments.ApartmentViewFrag2;
 import com.rentbud.fragments.TenantListFragment;
 import com.rentbud.helpers.ApartmentTenantViewModel;
+import com.rentbud.helpers.CustomDatePickerDialogLauncher;
 import com.rentbud.helpers.MainArrayDataMethods;
 import com.rentbud.model.Apartment;
 import com.rentbud.model.Lease;
@@ -60,8 +61,7 @@ public class ApartmentViewActivity2 extends BaseActivity implements View.OnClick
     ArrayList<Tenant> secondaryTenants;
     Lease currentLease;
     private Boolean wasLeaseEdited, wasIncomeEdited, wasExpenseEdited, wasApartmentEdited;
-
-    private DatePickerDialog.OnDateSetListener dateSetFilterStartListener, dateSetFilterEndListener;
+    private CustomDatePickerDialogLauncher datePickerDialogLauncher;
     Button dateRangeStartBtn, dateRangeEndBtn;
     private ApartmentViewFrag1 frag1;
     private ApartmentViewFrag2 frag2;
@@ -81,8 +81,7 @@ public class ApartmentViewActivity2 extends BaseActivity implements View.OnClick
         this.dateRangeEndBtn = findViewById(R.id.moneyListDateRangeEndBtn);
         this.dateRangeEndBtn.setOnClickListener(this);
 
-        viewPager = (ViewPager) findViewById(R.id.pager);
-        //viewPager.setOffscreenPageLimit(2);
+        viewPager = findViewById(R.id.pager);
         adapter = new ApartmentViewActivity2.ViewPagerAdapter(getSupportFragmentManager());
         // Add Fragments to adapter one by one
         this.databaseHandler = new DatabaseHandler(this);
@@ -107,8 +106,6 @@ public class ApartmentViewActivity2 extends BaseActivity implements View.OnClick
         viewModel.setLease(currentLease);
         viewModel.setPrimaryTenant(primaryTenant);
         viewModel.setSecondaryTenants(secondaryTenants);
-        //Get apartment item
-        //int leaseID = bundle.getInt("leaseID");
         if (savedInstanceState != null) {
             if (savedInstanceState.getString("filterDateStart") != null) {
                 SimpleDateFormat formatTo = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
@@ -162,7 +159,6 @@ public class ApartmentViewActivity2 extends BaseActivity implements View.OnClick
         SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
         dateRangeStartBtn.setText(formatter.format(filterDateStart));
         dateRangeEndBtn.setText(formatter.format(filterDateEnd));
-
         mPageChangeListener = new ViewPager.OnPageChangeListener() {
 
             @Override
@@ -194,7 +190,33 @@ public class ApartmentViewActivity2 extends BaseActivity implements View.OnClick
         tabLayout.setTabTextColors(Color.parseColor("#ffffff"), Color.parseColor("#4d4c4b"));
         tabLayout.setupWithViewPager(viewPager);
         setupBasicToolbar();
-        setUpdateSelectedDateListeners();
+        datePickerDialogLauncher = new CustomDatePickerDialogLauncher(filterDateStart, filterDateEnd,true , this);
+        datePickerDialogLauncher.setDateSelectedListener(new CustomDatePickerDialogLauncher.DateSelectedListener() {
+            @Override
+            public void onStartDateSelected(Date startDate, Date endDate) {
+                filterDateStart = startDate;
+                filterDateEnd = endDate;
+                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+                dateRangeEndBtn.setText(formatter.format(filterDateEnd));
+                dateRangeStartBtn.setText(formatter.format(filterDateStart));
+                updateFragmentDates();
+            }
+
+            @Override
+            public void onEndDateSelected(Date startDate, Date endDate) {
+                filterDateStart = startDate;
+                filterDateEnd = endDate;
+                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+                dateRangeEndBtn.setText(formatter.format(filterDateEnd));
+                dateRangeStartBtn.setText(formatter.format(filterDateStart));
+                updateFragmentDates();
+            }
+
+            @Override
+            public void onDateSelected(Date date) {
+
+            }
+        });
         if (wasLeaseEdited || wasIncomeEdited || wasExpenseEdited || wasApartmentEdited) {
             setResultToEdited();
         } else {
@@ -269,91 +291,31 @@ public class ApartmentViewActivity2 extends BaseActivity implements View.OnClick
         // setup the alert builder
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         //builder.setTitle("AlertDialog");
-        builder.setMessage("Are you sure you want to remove this apartment?");
+        builder.setMessage(R.string.apartment_deletion_confirmation);
 
         // add the buttons
-        builder.setPositiveButton("No", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-
-            }
-        });
-        builder.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 databaseHandler.setApartmentInactive(apartment);
                 wasApartmentEdited = true;
                 setResultToEdited();
-               // ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
+                // ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
                 ApartmentViewActivity2.this.finish();
+
             }
+        });
+        builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+
         });
 
         // create and show the alert dialog
         AlertDialog dialog = builder.create();
         dialog.show();
-    }
-
-    private void setUpdateSelectedDateListeners() {
-        dateSetFilterStartListener = new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-                //Once user selects date from date picker pop-up,
-                Calendar cal = Calendar.getInstance();
-                cal.set(Calendar.YEAR, year);
-                cal.set(Calendar.MONTH, month);
-                cal.set(Calendar.DATE, day);
-                cal.set(Calendar.HOUR_OF_DAY, 0);
-                cal.set(Calendar.MINUTE, 0);
-                cal.set(Calendar.SECOND, 0);
-                cal.set(Calendar.MILLISECOND, 0);
-                filterDateStart = cal.getTime();
-                //currentFilteredExpenses = db.getUsersExpensesWithinDates(MainActivity.user, filterDateStart, filterDateEnd);
-                //if(currentFilteredExpenses.isEmpty()){
-                //    noExpensesTV.setVisibility(View.VISIBLE);
-                //    noExpensesTV.setText("No Current Expenses");
-                //} else {
-                //    noExpensesTV.setVisibility(View.GONE);
-                //    noExpensesTV.setText("No Current Expenses");
-                //}
-                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-                dateRangeStartBtn.setText(formatter.format(filterDateStart));
-
-                updateFragmentDates();
-                //expenseListAdapter.updateResults(currentFilteredExpenses);
-                //expenseListAdapter.getFilter().filter(searchBarET.getText());
-            }
-        };
-        dateSetFilterEndListener = new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-                //Once user selects date from date picker pop-up,
-                Calendar cal = Calendar.getInstance();
-                cal.set(Calendar.YEAR, year);
-                cal.set(Calendar.MONTH, month);
-                cal.set(Calendar.DATE, day);
-                cal.set(Calendar.HOUR_OF_DAY, 0);
-                cal.set(Calendar.MINUTE, 0);
-                cal.set(Calendar.SECOND, 0);
-                cal.set(Calendar.MILLISECOND, 0);
-                filterDateEnd = cal.getTime();
-                //currentFilteredExpenses = db.getUsersExpensesWithinDates(MainActivity.user, filterDateStart, filterDateEnd);
-                //if(currentFilteredExpenses.isEmpty()){
-                //    noExpensesTV.setVisibility(View.VISIBLE);
-                //    noExpensesTV.setText("No Current Expenses");
-                //} else {
-                //    noExpensesTV.setVisibility(View.GONE);
-                //    noExpensesTV.setText("No Current Expenses");
-                //}
-                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-                dateRangeEndBtn.setText(formatter.format(filterDateEnd));
-
-                updateFragmentDates();
-                //expenseListAdapter.notifyDataSetChanged();
-                //expenseListAdapter.updateResults(currentFilteredExpenses);
-                //expenseListAdapter.getFilter().filter(searchBarET.getText());
-            }
-        };
     }
 
     @Override
@@ -498,34 +460,22 @@ public class ApartmentViewActivity2 extends BaseActivity implements View.OnClick
         switch (view.getId()) {
 
             case R.id.moneyListDateRangeStartBtn:
-                Calendar cal = Calendar.getInstance();
-                if (filterDateStart != null) {
-                    cal.setTime(filterDateStart);
-                }
-                int year = cal.get(Calendar.YEAR);
-                int month = cal.get(Calendar.MONTH);
-                int day = cal.get(Calendar.DAY_OF_MONTH);
-                DatePickerDialog dialog = new DatePickerDialog(this, android.R.style.Theme_Holo_Light_Dialog_MinWidth, dateSetFilterStartListener, year, month, day);
-                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                dialog.show();
+                datePickerDialogLauncher.launchStartDatePickerDialog();
                 break;
 
             case R.id.moneyListDateRangeEndBtn:
-                Calendar cal2 = Calendar.getInstance();
-                if (filterDateEnd != null) {
-                    cal2.setTime(filterDateEnd);
-                }
-                int year2 = cal2.get(Calendar.YEAR);
-                int month2 = cal2.get(Calendar.MONTH);
-                int day2 = cal2.get(Calendar.DAY_OF_MONTH);
-                DatePickerDialog dialog2 = new DatePickerDialog(this, android.R.style.Theme_Holo_Light_Dialog_MinWidth, dateSetFilterEndListener, year2, month2, day2);
-                dialog2.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                dialog2.show();
+                datePickerDialogLauncher.launchEndDatePickerDialog();
                 break;
 
             default:
                 break;
         }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        datePickerDialogLauncher.dismissDatePickerDialog();
     }
 
     private void updateFragmentDates() {
@@ -577,8 +527,6 @@ public class ApartmentViewActivity2 extends BaseActivity implements View.OnClick
 
     // Adapter for the viewpager using FragmentPagerAdapter
     class ViewPagerAdapter extends FragmentStatePagerAdapter {
-        //private final List<Fragment> mFragmentList = new ArrayList<>();
-        //private final List<String> mFragmentTitleList = new ArrayList<>();
 
         public ViewPagerAdapter(FragmentManager manager) {
             super(manager);
@@ -629,20 +577,15 @@ public class ApartmentViewActivity2 extends BaseActivity implements View.OnClick
             return createdFragment;
         }
 
-        //public void addFragment(Fragment fragment, String title) {
-        //    mFragmentList.add(fragment);
-        //    mFragmentTitleList.add(title);
-        //}
-
         @Override
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return "Info";
+                    return getResources().getString(R.string.info_tab_title);
                 case 1:
-                    return "Payments";
+                    return getResources().getString(R.string.payments_tab_title);
                 case 2:
-                    return "History";
+                    return getResources().getString(R.string.lease_history_tab_title);
             }
             return "";
         }

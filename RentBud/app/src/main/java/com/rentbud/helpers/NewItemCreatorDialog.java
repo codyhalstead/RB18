@@ -65,7 +65,7 @@ public class NewItemCreatorDialog extends Dialog {
                     dialogResult.finish(result);
                     NewItemCreatorDialog.this.dismiss();
                 } else {
-                    newItemET.setError("Cannot be empty");
+                    newItemET.setError(context.getResources().getString(R.string.cannot_be_empty));
                 }
             }
         });

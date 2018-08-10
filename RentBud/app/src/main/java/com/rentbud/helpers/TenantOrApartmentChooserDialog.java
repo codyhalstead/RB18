@@ -75,20 +75,20 @@ public class TenantOrApartmentChooserDialog extends Dialog implements AdapterVie
         this.selectionTypeTV = findViewById(R.id.popupListSelectTypeTV);
         this.emptyListTV = findViewById(R.id.popupListEmptyListTV);
         if (type == TENANT_TYPE) {
-            selectionTypeTV.setText("Select A Tenant");
-            emptyListTV.setText("No Available Tenants");
+            selectionTypeTV.setText(R.string.select_a_tenant);
+            emptyListTV.setText(R.string.no_available_tenants);
         }
         if (type == APARTMENT_TYPE) {
-            selectionTypeTV.setText("Select An Apartment");
-            emptyListTV.setText("No Available Apartments");
+            selectionTypeTV.setText(R.string.select_an_apartment);
+            emptyListTV.setText(R.string.no_available_apartments);
         }
         if (type == SECONDARY_TENANT_TYPE) {
-            selectionTypeTV.setText("Select Secondary Tenant");
-            emptyListTV.setText("No Available Tenants");
+            selectionTypeTV.setText(R.string.select_secondary_tenant);
+            emptyListTV.setText(R.string.no_available_tenants);
         }
         if (type == LEASE_TYPE) {
-            selectionTypeTV.setText("Select A Lease");
-            emptyListTV.setText("No Available Leases");
+            selectionTypeTV.setText(R.string.select_a_lease);
+            emptyListTV.setText(R.string.no_available_leases);
         }
         TypedValue colorValue = new TypedValue();
         context.getTheme().resolveAttribute(R.attr.colorAccent, colorValue, true);
@@ -147,7 +147,7 @@ public class TenantOrApartmentChooserDialog extends Dialog implements AdapterVie
             searchBarET.setVisibility(View.GONE);
         } else {
             searchBarET.addTextChangedListener(new TextWatcher() {
-                //For updating search results as user types
+                //For updating search results as user fileNames
                 @Override
                 public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
                     //When user changed the Text
@@ -211,5 +211,4 @@ public class TenantOrApartmentChooserDialog extends Dialog implements AdapterVie
             TenantOrApartmentChooserDialog.this.dismiss();
         }
     }
-
 }

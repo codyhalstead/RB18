@@ -24,14 +24,14 @@ public class LeaseWizardModel extends AbstractWizardModel {
     protected PageList onNewRootPageList() {
         return new PageList(
 
-                new LeaseWizardPage1(this, "Page1").setRequired(true),
+                new LeaseWizardPage1(this, "Page1", super.mContext).setRequired(true),
 
-                new LeaseWizardPage2(this, "Page2", false).setRequired(true),
+                new LeaseWizardPage2(this, "Page2", false, super.mContext).setRequired(true),
 
-                new LeaseWizardPage4(this, "Page4").setRequired(false),
+                new LeaseWizardPage4(this, "Page4", super.mContext).setRequired(false),
 
-                new LeaseWizardPage3(this, "Page3")
-                        .addBranch("Yes", new LeaseWizardProratedRentPage(this, "ProratedRentPage").setRequired(true)).setRequired(true)
+                new LeaseWizardPage3(this, "Page3", super.mContext)
+                        .addBranch("Yes", new LeaseWizardProratedRentPage(this, "ProratedRentPage", super.mContext).setRequired(true)).setRequired(true)
         );
     }
 

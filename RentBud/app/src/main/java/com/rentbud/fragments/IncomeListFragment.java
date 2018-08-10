@@ -27,6 +27,7 @@ import com.example.cody.rentbud.R;
 import com.rentbud.activities.IncomeViewActivity;
 import com.rentbud.activities.MainActivity;
 import com.rentbud.adapters.IncomeListAdapter;
+import com.rentbud.helpers.CustomDatePickerDialogLauncher;
 import com.rentbud.helpers.MainViewModel;
 import com.rentbud.model.PaymentLogEntry;
 
@@ -50,14 +51,11 @@ public class IncomeListFragment extends android.support.v4.app.Fragment implemen
     IncomeListAdapter incomeListAdapter;
     ColorStateList accentColor;
     ListView listView;
-    //public static boolean incomeListAdapterNeedsRefreshed;
     Date filterDateStart, filterDateEnd;
-    private DatePickerDialog.OnDateSetListener dateSetFilterStartListener, dateSetFilterEndListener;
-    //private DatabaseHandler db;
-    //private ArrayList<PaymentLogEntry> currentFilteredIncome;
     private BigDecimal total;
     private OnDatesChangedListener mCallback;
     private boolean needsRefreshedOnResume;
+    private CustomDatePickerDialogLauncher datePickerDialogLauncher;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -77,17 +75,40 @@ public class IncomeListFragment extends android.support.v4.app.Fragment implemen
         this.totalAmountLabelTV = view.findViewById(R.id.moneyListTotalAmountLabelTV);
         this.totalAmountTV = view.findViewById(R.id.moneyListTotalAmountTV);
         this.listView = view.findViewById(R.id.mainMoneyListView);
-        // this.db = new DatabaseHandler(getContext());
-
         this.filterDateEnd = ViewModelProviders.of(getActivity()).get(MainViewModel.class).getEndDateRangeDate().getValue();
         this.filterDateStart = ViewModelProviders.of(getActivity()).get(MainViewModel.class).getStartDateRangeDate().getValue();
         SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
         dateRangeStartBtn.setText(formatter.format(filterDateStart));
         dateRangeEndBtn.setText(formatter.format(filterDateEnd));
         total = getTotal(ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedIncome().getValue());
-        setUpdateSelectedDateListeners();
-        getActivity().setTitle("Income View");
-        //ExpenseListFragment.expenseListAdapterNeedsRefreshed = false;
+        datePickerDialogLauncher = new CustomDatePickerDialogLauncher(filterDateStart, filterDateEnd, true, getContext());
+        datePickerDialogLauncher.setDateSelectedListener(new CustomDatePickerDialogLauncher.DateSelectedListener() {
+            @Override
+            public void onStartDateSelected(Date startDate, Date endDate) {
+                filterDateStart = startDate;
+                filterDateEnd = endDate;
+                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+                dateRangeEndBtn.setText(formatter.format(filterDateEnd));
+                dateRangeStartBtn.setText(formatter.format(filterDateStart));
+                mCallback.onIncomeListDatesChanged(filterDateStart, filterDateEnd, IncomeListFragment.this);
+            }
+
+            @Override
+            public void onEndDateSelected(Date startDate, Date endDate) {
+                filterDateStart = startDate;
+                filterDateEnd = endDate;
+                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+                dateRangeEndBtn.setText(formatter.format(filterDateEnd));
+                dateRangeStartBtn.setText(formatter.format(filterDateStart));
+                mCallback.onIncomeListDatesChanged(filterDateStart, filterDateEnd, IncomeListFragment.this);
+            }
+
+            @Override
+            public void onDateSelected(Date date) {
+
+            }
+        });
+        getActivity().setTitle(R.string.income_view);
         //Get current theme accent color, which is passed into the list adapter for search highlighting
         TypedValue colorValue = new TypedValue();
         getActivity().getTheme().resolveAttribute(R.attr.colorAccent, colorValue, true);
@@ -107,32 +128,12 @@ public class IncomeListFragment extends android.support.v4.app.Fragment implemen
     @Override
     public void onResume() {
         super.onResume();
-        //  if (IncomeListFragment.incomeListAdapterNeedsRefreshed) {
-        //      //searchBarET.setText("");
-        //      if(this.incomeListAdapter != null){
-        //          if(ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedIncome().getValue().isEmpty()){
-        //              noIncomeTV.setVisibility(View.VISIBLE);
-        //              noIncomeTV.setText("No Current Income");
-        //          } else {
-        //              noIncomeTV.setVisibility(View.GONE);
-        //          }
         if (needsRefreshedOnResume) {
             incomeListAdapter.updateResults(ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedIncome().getValue());
             searchBarET.setText(searchBarET.getText());
             searchBarET.setSelection(searchBarET.getText().length());
-           // incomeListAdapter.getFilter().filter(searchBarET.getText());
-            //expenseListAdapter.getFilter().filter("");
-            //total = getTotal(ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedIncome().getValue());
-            //setTotalTV();
         }
         needsRefreshedOnResume = true;
-        //        incomeListAdapter.updateResults(ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedIncome().getValue());
-        //        incomeListAdapterNeedsRefreshed = false;
-        //moneyListAdapter.getFilter().filter("");
-        //        searchBarET.setText(searchBarET.getText());
-        //        searchBarET.setSelection(searchBarET.getText().length());
-        //  }
-        //}
     }
 
     private void setUpSearchBar() {
@@ -148,10 +149,7 @@ public class IncomeListFragment extends android.support.v4.app.Fragment implemen
 
             @Override
             public void afterTextChanged(Editable editable) {
-                //apartmentListAdapter.notifyDataSetChanged();
-                //moneyListAdapter.notifyDataSetChanged();
-                //total = getTotal(moneyListAdapter.getFilteredResults());
-                //setTotalTV();
+
             }
 
             @Override
@@ -167,7 +165,7 @@ public class IncomeListFragment extends android.support.v4.app.Fragment implemen
         incomeListAdapter = new IncomeListAdapter(getActivity(), ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedIncome().getValue(), accentColor);
         listView.setAdapter(incomeListAdapter);
         listView.setOnItemClickListener(this);
-        noIncomeTV.setText("No Income To Display");
+        noIncomeTV.setText(R.string.no_income_to_display);
         this.listView.setEmptyView(noIncomeTV);
     }
 
@@ -187,31 +185,11 @@ public class IncomeListFragment extends android.support.v4.app.Fragment implemen
         switch (view.getId()) {
 
             case R.id.moneyListDateRangeStartBtn:
-                Calendar cal = Calendar.getInstance();
-                //needsRefreshedOnResume = false;
-                if (filterDateStart != null) {
-                    cal.setTime(filterDateStart);
-                }
-                int year = cal.get(Calendar.YEAR);
-                int month = cal.get(Calendar.MONTH);
-                int day = cal.get(Calendar.DAY_OF_MONTH);
-                DatePickerDialog dialog = new DatePickerDialog(this.getContext(), android.R.style.Theme_Holo_Light_Dialog_MinWidth, dateSetFilterStartListener, year, month, day);
-                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                dialog.show();
+                datePickerDialogLauncher.launchStartDatePickerDialog();
                 break;
 
             case R.id.moneyListDateRangeEndBtn:
-                Calendar cal2 = Calendar.getInstance();
-                //needsRefreshedOnResume = false;
-                if (filterDateEnd != null) {
-                    cal2.setTime(filterDateEnd);
-                }
-                int year2 = cal2.get(Calendar.YEAR);
-                int month2 = cal2.get(Calendar.MONTH);
-                int day2 = cal2.get(Calendar.DAY_OF_MONTH);
-                DatePickerDialog dialog2 = new DatePickerDialog(this.getContext(), android.R.style.Theme_Holo_Light_Dialog_MinWidth, dateSetFilterEndListener, year2, month2, day2);
-                dialog2.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                dialog2.show();
+                datePickerDialogLauncher.launchEndDatePickerDialog();
                 break;
 
             default:
@@ -243,67 +221,10 @@ public class IncomeListFragment extends android.support.v4.app.Fragment implemen
         mCallback = null;
     }
 
-    private void setUpdateSelectedDateListeners() {
-        dateSetFilterStartListener = new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-                //Once user selects date from date picker pop-up,
-                Calendar cal = Calendar.getInstance();
-                cal.set(Calendar.YEAR, year);
-                cal.set(Calendar.MONTH, month);
-                cal.set(Calendar.DATE, day);
-                cal.set(Calendar.HOUR_OF_DAY, 0);
-                cal.set(Calendar.MINUTE, 0);
-                cal.set(Calendar.SECOND, 0);
-                cal.set(Calendar.MILLISECOND, 0);
-                filterDateStart = cal.getTime();
-                //currentFilteredIncome = db.getUsersIncomeWithinDates(MainActivity.user, filterDateStart, filterDateEnd);
-                //if(currentFilteredIncome.isEmpty()){
-                //    noIncomeTV.setVisibility(View.VISIBLE);
-                //    noIncomeTV.setText("No Current Income");
-                //} else {
-                //    noIncomeTV.setVisibility(View.GONE);
-                //    noIncomeTV.setText("No Current Income");
-                // }
-                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-                dateRangeStartBtn.setText(formatter.format(filterDateStart));
-                mCallback.onIncomeListDatesChanged(filterDateStart, filterDateEnd, IncomeListFragment.this);
-                //incomeListAdapter.updateResults(currentFilteredIncome);
-                //incomeListAdapter.getFilter().filter(searchBarET.getText());
-                //total = getTotal(moneyListAdapter.getFilteredResults());
-                //setTotalTV();
-            }
-        };
-        dateSetFilterEndListener = new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-                //Once user selects date from date picker pop-up,
-                Calendar cal = Calendar.getInstance();
-                cal.set(Calendar.YEAR, year);
-                cal.set(Calendar.MONTH, month);
-                cal.set(Calendar.DATE, day);
-                cal.set(Calendar.HOUR_OF_DAY, 0);
-                cal.set(Calendar.MINUTE, 0);
-                cal.set(Calendar.SECOND, 0);
-                cal.set(Calendar.MILLISECOND, 0);
-                filterDateEnd = cal.getTime();
-                //currentFilteredIncome = db.getUsersIncomeWithinDates(MainActivity.user, filterDateStart, filterDateEnd);
-                //if(currentFilteredIncome.isEmpty()){
-                //    noIncomeTV.setVisibility(View.VISIBLE);
-                //    noIncomeTV.setText("No Current Income");
-                //} else {
-                //    noIncomeTV.setVisibility(View.GONE);
-                //    noIncomeTV.setText("No Current Income");
-                //}
-                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-                dateRangeEndBtn.setText(formatter.format(filterDateEnd));
-                mCallback.onIncomeListDatesChanged(filterDateStart, filterDateEnd, IncomeListFragment.this);
-                //incomeListAdapter.updateResults(currentFilteredIncome);
-                //incomeListAdapter.getFilter().filter(searchBarET.getText());
-                // total = getTotal(moneyListAdapter.getFilteredResults());
-                //setTotalTV();
-            }
-        };
+    @Override
+    public void onPause() {
+        super.onPause();
+        datePickerDialogLauncher.dismissDatePickerDialog();
     }
 
     @Override

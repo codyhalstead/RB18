@@ -165,7 +165,7 @@ public class ApartmentListAdapter extends BaseAdapter implements Filterable {
             }
             if (primaryTenant != null && currentLease != null) {
                 convertView.setBackgroundColor(convertView.getResources().getColor(R.color.white));
-                viewHolder.rentedByTV.setText("Rented By:");
+                viewHolder.rentedByTV.setText(R.string.rented_by);
                 viewHolder.tenantFirstName.setText(primaryTenant.getFirstName());
                 viewHolder.tenantLastName.setText(primaryTenant.getLastName());
                 viewHolder.leaseLL.setVisibility(View.VISIBLE);
@@ -175,7 +175,7 @@ public class ApartmentListAdapter extends BaseAdapter implements Filterable {
 
             } else {
                 convertView.setBackgroundColor(convertView.getResources().getColor(R.color.lightGrey));
-                viewHolder.rentedByTV.setText("Vacant");
+                viewHolder.rentedByTV.setText(R.string.vacant);
                 viewHolder.tenantFirstName.setText("");
                 viewHolder.tenantLastName.setText("");
                 viewHolder.leaseLL.setVisibility(View.GONE);

@@ -53,7 +53,7 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
     private DatabaseHandler db;
     private MainArrayDataMethods mainArrayDataMethods;
     private boolean isEdit;
-
+    private TenantOrApartmentChooserDialog tenantOrApartmentChooserDialog;
 
     public static LeaseWizardPage2Fragment create(String key) {
         Bundle args = new Bundle();
@@ -200,10 +200,10 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
         primaryTenantTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                TenantOrApartmentChooserDialog dialog = new TenantOrApartmentChooserDialog(getContext(), TenantOrApartmentChooserDialog.TENANT_TYPE, availableTenants);
-                dialog.show();
-                dialog.changeCancelBtnText("Clear");
-                dialog.setDialogResult(new TenantOrApartmentChooserDialog.OnTenantChooserDialogResult() {
+                tenantOrApartmentChooserDialog = new TenantOrApartmentChooserDialog(getContext(), TenantOrApartmentChooserDialog.TENANT_TYPE, availableTenants);
+                tenantOrApartmentChooserDialog.show();
+                tenantOrApartmentChooserDialog.changeCancelBtnText(getContext().getResources().getString(R.string.clear));
+                tenantOrApartmentChooserDialog.setDialogResult(new TenantOrApartmentChooserDialog.OnTenantChooserDialogResult() {
                     @Override
                     public void finish(Tenant tenantResult, Apartment apartmentResult, Lease leaseResult) {
                         if (primaryTenant != null) {
@@ -232,9 +232,9 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
         addSecondaryTenantBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                TenantOrApartmentChooserDialog dialog = new TenantOrApartmentChooserDialog(getContext(), TenantOrApartmentChooserDialog.TENANT_TYPE, availableTenants);
-                dialog.show();
-                dialog.setDialogResult(new TenantOrApartmentChooserDialog.OnTenantChooserDialogResult() {
+                tenantOrApartmentChooserDialog = new TenantOrApartmentChooserDialog(getContext(), TenantOrApartmentChooserDialog.TENANT_TYPE, availableTenants);
+                tenantOrApartmentChooserDialog.show();
+                tenantOrApartmentChooserDialog.setDialogResult(new TenantOrApartmentChooserDialog.OnTenantChooserDialogResult() {
                     @Override
                     public void finish(Tenant tenantResult, Apartment apartmentResult, Lease leaseResult) {
                         if (tenantResult != null) {
@@ -255,9 +255,9 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
             @Override
             public void onClick(View view) {
                 if (!secondaryTenants.isEmpty()) {
-                    TenantOrApartmentChooserDialog dialog = new TenantOrApartmentChooserDialog(getContext(), TenantOrApartmentChooserDialog.SECONDARY_TENANT_TYPE, secondaryTenants);
-                    dialog.show();
-                    dialog.setDialogResult(new TenantOrApartmentChooserDialog.OnTenantChooserDialogResult() {
+                    tenantOrApartmentChooserDialog = new TenantOrApartmentChooserDialog(getContext(), TenantOrApartmentChooserDialog.SECONDARY_TENANT_TYPE, secondaryTenants);
+                    tenantOrApartmentChooserDialog.show();
+                    tenantOrApartmentChooserDialog.setDialogResult(new TenantOrApartmentChooserDialog.OnTenantChooserDialogResult() {
                         @Override
                         public void finish(Tenant tenantResult, Apartment apartmentResult, Lease leaseResult) {
                             if (tenantResult != null) {
@@ -344,13 +344,13 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
         //    mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_WITHHELD_STRING_DATA_KEY, depositWithheld.toPlainString());
         //}
         //if (isEdit) {
-            Handler handler = new Handler();
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    mPage.notifyDataChanged();
-                }
-            });
+        Handler handler = new Handler();
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                mPage.notifyDataChanged();
+            }
+        });
         //}
         mainArrayDataMethods.sortTenantArrayAlphabetically(availableTenants);
         //mPage.notifyDataChanged();
@@ -447,7 +447,7 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
         if (!mPage.getData().getBoolean(LeaseWizardPage2.WAS_PRELOADED)) {
             //Primary tenant
             if (leaseToEdit.getPrimaryTenantID() != 0) {
-                primaryTenant = db.getTenantByID(leaseToEdit.getApartmentID(), MainActivity.user);
+                primaryTenant = db.getTenantByID(leaseToEdit.getPrimaryTenantID(), MainActivity.user);
                 if (primaryTenant != null) {
                     //mPage.getData().putInt(IncomeWizardPage3.INCOME_RELATED_APT_ID_DATA_KEY, apartment.getId());
                     mPage.getData().putString(LeaseWizardPage2.LEASE_PRIMARY_TENANT_STRING_DATA_KEY, getTenantString());
@@ -472,6 +472,14 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
             mPage.getData().putBoolean(LeaseWizardPage2.WAS_PRELOADED, true);
         } else {
             preloadData(mPage.getData());
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if(tenantOrApartmentChooserDialog != null){
+            tenantOrApartmentChooserDialog.dismiss();
         }
     }
 }

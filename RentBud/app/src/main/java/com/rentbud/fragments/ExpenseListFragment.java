@@ -27,6 +27,7 @@ import com.example.cody.rentbud.R;
 import com.rentbud.activities.ExpenseViewActivity;
 import com.rentbud.activities.MainActivity;
 import com.rentbud.adapters.ExpenseListAdapter;
+import com.rentbud.helpers.CustomDatePickerDialogLauncher;
 import com.rentbud.helpers.MainViewModel;
 import com.rentbud.model.ExpenseLogEntry;
 
@@ -50,14 +51,11 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
     ColorStateList accentColor;
     ListView listView;
     Button dateRangeStartBtn, dateRangeEndBtn;
-    //public static boolean expenseListAdapterNeedsRefreshed;
     Date filterDateStart, filterDateEnd;
-    private DatePickerDialog.OnDateSetListener dateSetFilterStartListener, dateSetFilterEndListener;
-    //private DatabaseHandler db;
-    //private ArrayList<ExpenseLogEntry> currentFilteredExpenses;
     private BigDecimal total;
     private OnDatesChangedListener mCallback;
     private boolean needsRefreshedOnResume;
+    private CustomDatePickerDialogLauncher datePickerDialogLauncher;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -77,18 +75,40 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
         this.totalAmountLabelTV = view.findViewById(R.id.moneyListTotalAmountLabelTV);
         this.totalAmountTV = view.findViewById(R.id.moneyListTotalAmountTV);
         this.listView = view.findViewById(R.id.mainMoneyListView);
-        //this.db = new DatabaseHandler(getContext());
-
-
         this.filterDateEnd = ViewModelProviders.of(getActivity()).get(MainViewModel.class).getEndDateRangeDate().getValue();
         this.filterDateStart = ViewModelProviders.of(getActivity()).get(MainViewModel.class).getStartDateRangeDate().getValue();
         SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
         dateRangeStartBtn.setText(formatter.format(filterDateStart));
         dateRangeEndBtn.setText(formatter.format(filterDateEnd));
         total = getTotal(ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedExpenses().getValue());
-        setUpdateSelectedDateListeners();
-        getActivity().setTitle("Expense View");
-        //ExpenseListFragment.expenseListAdapterNeedsRefreshed = false;
+        datePickerDialogLauncher = new CustomDatePickerDialogLauncher(filterDateStart, filterDateEnd, true, getContext());
+        datePickerDialogLauncher.setDateSelectedListener(new CustomDatePickerDialogLauncher.DateSelectedListener() {
+            @Override
+            public void onStartDateSelected(Date startDate, Date endDate) {
+                filterDateStart = startDate;
+                filterDateEnd = endDate;
+                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+                dateRangeEndBtn.setText(formatter.format(filterDateEnd));
+                dateRangeStartBtn.setText(formatter.format(filterDateStart));
+                mCallback.onExpenseListDatesChanged(filterDateStart, filterDateEnd, ExpenseListFragment.this);
+            }
+
+            @Override
+            public void onEndDateSelected(Date startDate, Date endDate) {
+                filterDateStart = startDate;
+                filterDateEnd = endDate;
+                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+                dateRangeEndBtn.setText(formatter.format(filterDateEnd));
+                dateRangeStartBtn.setText(formatter.format(filterDateStart));
+                mCallback.onExpenseListDatesChanged(filterDateStart, filterDateEnd, ExpenseListFragment.this);
+            }
+
+            @Override
+            public void onDateSelected(Date date) {
+
+            }
+        });
+        getActivity().setTitle(R.string.expense_view);
         //Get current theme accent color, which is passed into the list adapter for search highlighting
         TypedValue colorValue = new TypedValue();
         getActivity().getTheme().resolveAttribute(R.attr.colorAccent, colorValue, true);
@@ -108,33 +128,12 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
     @Override
     public void onResume() {
         super.onResume();
-        //if (ExpenseListFragment.expenseListAdapterNeedsRefreshed) {
-        //    //searchBarET.setText("");
-        //    if (this.expenseListAdapter != null) {
-        //        //this.currentFilteredExpenses = db.getUsersExpensesWithinDates(MainActivity.user, filterDateStart, filterDateEnd);
-        //        if (ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedExpenses().getValue().isEmpty()) {
-        //            noExpensesTV.setVisibility(View.VISIBLE);
-        //            noExpensesTV.setText("No Current Expenses");
         if (needsRefreshedOnResume) {
             expenseListAdapter.updateResults(ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedExpenses().getValue());
             searchBarET.setText(searchBarET.getText());
             searchBarET.setSelection(searchBarET.getText().length());
-            //expenseListAdapter.getFilter().filter("");
-        //    total = getTotal(ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedExpenses().getValue());
-        //    setTotalTV();
         }
         needsRefreshedOnResume = true;
-        //        } else {
-        //            noExpensesTV.setVisibility(View.GONE);
-        //        }
-        //        expenseListAdapter.updateResults(ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedExpenses().getValue());
-        //        expenseListAdapterNeedsRefreshed = false;
-        //leaseListAdapter.getFilter().filter("");
-        //        searchBarET.setText(searchBarET.getText());
-        //       searchBarET.setSelection(searchBarET.getText().length());
-        //expenseListAdapter.notifyDataSetChanged();
-        //    }
-        //}
     }
 
     private void setUpSearchBar() {
@@ -151,7 +150,7 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
 
             @Override
             public void afterTextChanged(Editable editable) {
-                //apartmentListAdapter.notifyDataSetChanged();
+
             }
 
             @Override
@@ -163,28 +162,17 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
     }
 
     private void setUpListAdapter() {
-        //if (ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedExpenses().getValue() != null) {
         expenseListAdapter = new ExpenseListAdapter(getActivity(), ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedExpenses().getValue(), accentColor);
         listView.setAdapter(expenseListAdapter);
         listView.setOnItemClickListener(this);
-        noExpensesTV.setText("No Expenses To Display");
+        noExpensesTV.setText(R.string.no_expenses_to_display);
         this.listView.setEmptyView(noExpensesTV);
-        //if (ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedExpenses().getValue().isEmpty()) {
-        //    noExpensesTV.setVisibility(View.VISIBLE);
-        //
-        //}
-        // } else {
-        //If MainActivity5.expenseList is null show empty list text
-        //     noExpensesTV.setVisibility(View.VISIBLE);
-        //     noExpensesTV.setText("Error Loading Expenses");
-        // }
     }
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         //On listView row click, launch ApartmentViewActivity passing the rows data into it.
         Intent intent = new Intent(getContext(), ExpenseViewActivity.class);
-        //Uses filtered results to match what is on screen
         ExpenseLogEntry expense = expenseListAdapter.getFilteredResults().get(i);
         intent.putExtra("expenseID", expense.getId());
         getActivity().startActivityForResult(intent, MainActivity.REQUEST_EXPENSE_VIEW);
@@ -195,29 +183,11 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
         switch (view.getId()) {
 
             case R.id.moneyListDateRangeStartBtn:
-                Calendar cal = Calendar.getInstance();
-                if (filterDateStart != null) {
-                    cal.setTime(filterDateStart);
-                }
-                int year = cal.get(Calendar.YEAR);
-                int month = cal.get(Calendar.MONTH);
-                int day = cal.get(Calendar.DAY_OF_MONTH);
-                DatePickerDialog dialog = new DatePickerDialog(this.getContext(), android.R.style.Theme_Holo_Light_Dialog_MinWidth, dateSetFilterStartListener, year, month, day);
-                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                dialog.show();
+                datePickerDialogLauncher.launchStartDatePickerDialog();
                 break;
 
             case R.id.moneyListDateRangeEndBtn:
-                Calendar cal2 = Calendar.getInstance();
-                if (filterDateEnd != null) {
-                    cal2.setTime(filterDateEnd);
-                }
-                int year2 = cal2.get(Calendar.YEAR);
-                int month2 = cal2.get(Calendar.MONTH);
-                int day2 = cal2.get(Calendar.DAY_OF_MONTH);
-                DatePickerDialog dialog2 = new DatePickerDialog(this.getContext(), android.R.style.Theme_Holo_Light_Dialog_MinWidth, dateSetFilterEndListener, year2, month2, day2);
-                dialog2.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                dialog2.show();
+                datePickerDialogLauncher.launchEndDatePickerDialog();
                 break;
 
             default:
@@ -249,64 +219,10 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
         mCallback = null;
     }
 
-    private void setUpdateSelectedDateListeners() {
-        dateSetFilterStartListener = new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-                //Once user selects date from date picker pop-up,
-                Calendar cal = Calendar.getInstance();
-                cal.set(Calendar.YEAR, year);
-                cal.set(Calendar.MONTH, month);
-                cal.set(Calendar.DATE, day);
-                cal.set(Calendar.HOUR_OF_DAY, 0);
-                cal.set(Calendar.MINUTE, 0);
-                cal.set(Calendar.SECOND, 0);
-                cal.set(Calendar.MILLISECOND, 0);
-                filterDateStart = cal.getTime();
-                //currentFilteredExpenses = db.getUsersExpensesWithinDates(MainActivity.user, filterDateStart, filterDateEnd);
-                //if(currentFilteredExpenses.isEmpty()){
-                //    noExpensesTV.setVisibility(View.VISIBLE);
-                //    noExpensesTV.setText("No Current Expenses");
-                //} else {
-                //    noExpensesTV.setVisibility(View.GONE);
-                //    noExpensesTV.setText("No Current Expenses");
-                //}
-                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-                dateRangeStartBtn.setText(formatter.format(filterDateStart));
-                mCallback.onExpenseListDatesChanged(filterDateStart, filterDateEnd, ExpenseListFragment.this);
-                //expenseListAdapter.updateResults(currentFilteredExpenses);
-                //expenseListAdapter.getFilter().filter(searchBarET.getText());
-            }
-        };
-        dateSetFilterEndListener = new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-                //Once user selects date from date picker pop-up,
-                Calendar cal = Calendar.getInstance();
-                cal.set(Calendar.YEAR, year);
-                cal.set(Calendar.MONTH, month);
-                cal.set(Calendar.DATE, day);
-                cal.set(Calendar.HOUR_OF_DAY, 0);
-                cal.set(Calendar.MINUTE, 0);
-                cal.set(Calendar.SECOND, 0);
-                cal.set(Calendar.MILLISECOND, 0);
-                filterDateEnd = cal.getTime();
-                //currentFilteredExpenses = db.getUsersExpensesWithinDates(MainActivity.user, filterDateStart, filterDateEnd);
-                //if(currentFilteredExpenses.isEmpty()){
-                //    noExpensesTV.setVisibility(View.VISIBLE);
-                //    noExpensesTV.setText("No Current Expenses");
-                //} else {
-                //    noExpensesTV.setVisibility(View.GONE);
-                //    noExpensesTV.setText("No Current Expenses");
-                //}
-                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-                dateRangeEndBtn.setText(formatter.format(filterDateEnd));
-                mCallback.onExpenseListDatesChanged(filterDateStart, filterDateEnd, ExpenseListFragment.this);
-                //expenseListAdapter.notifyDataSetChanged();
-                //expenseListAdapter.updateResults(currentFilteredExpenses);
-                //expenseListAdapter.getFilter().filter(searchBarET.getText());
-            }
-        };
+    @Override
+    public void onPause() {
+        super.onPause();
+        datePickerDialogLauncher.dismissDatePickerDialog();
     }
 
     @Override
@@ -342,7 +258,6 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
         expenseListAdapter.updateResults(expenseList);
         expenseListAdapter.getFilter().filter(searchBarET.getText());
         expenseListAdapter.notifyDataSetChanged();
-        Log.d("TAG", "updateData: WHATTHEF");
     }
 
 }

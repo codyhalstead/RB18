@@ -37,7 +37,6 @@ public class LeaseViewActivity2 extends BaseActivity implements LeaseViewFrag2.O
     private LeaseViewFrag1 frag1;
     private LeaseViewFrag2 frag2;
     private boolean wasLeaseEdited, wasIncomeEdited, wasExpenseEdited;
-    //private LeaseViewFrag3 frag3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,7 +68,7 @@ public class LeaseViewActivity2 extends BaseActivity implements LeaseViewFrag2.O
         tabLayout.setTabTextColors(Color.parseColor("#ffffff"), Color.parseColor("#4d4c4b"));
         tabLayout.setupWithViewPager(viewPager);
         setupBasicToolbar();
-        toolbar.setTitle("Lease View");
+        //toolbar.setTitle("Lease View");
         if (wasLeaseEdited || wasIncomeEdited || wasExpenseEdited) {
             setResultToEdited();
         } else {
@@ -110,26 +109,22 @@ public class LeaseViewActivity2 extends BaseActivity implements LeaseViewFrag2.O
         // setup the alert builder
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         //builder.setTitle("AlertDialog");
-        builder.setMessage("Are you sure you want to remove this lease?");
+        builder.setMessage(R.string.lease_deletion_confirmation);
 
         // add the buttons
-        builder.setPositiveButton("No", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-
-            }
-        });
-        builder.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 databaseHandler.setLeaseInactive(lease);
-               // TenantListFragment.tenantListAdapterNeedsRefreshed = true;
-                // ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
-              //  LeaseListFragment.leaseListAdapterNeedsRefreshed = true;
                 MainActivity.apartmentList = databaseHandler.getUsersApartmentsIncludingInactive(MainActivity.user);
                 MainActivity.tenantList = databaseHandler.getUsersTenantsIncludingInactive(MainActivity.user);
-                //LeaseViewActivity2.this.finish();
                 showDeleteAllRelatedMoneyAlertDialog();
+            }
+        });
+        builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
             }
         });
 
@@ -160,18 +155,10 @@ public class LeaseViewActivity2 extends BaseActivity implements LeaseViewFrag2.O
         // setup the alert builder
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         //builder.setTitle("AlertDialog");
-        builder.setMessage("Remove all income/expenses related to this lease?");
+        builder.setMessage(R.string.lease_related_money_deletion_confirmation);
 
         // add the buttons
-        builder.setPositiveButton("No", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                wasLeaseEdited = true;
-                setResultToEdited();
-                LeaseViewActivity2.this.finish();
-            }
-        });
-        builder.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 databaseHandler.setAllExpensesRelatedToLeaseInactive(lease.getId());
@@ -179,6 +166,14 @@ public class LeaseViewActivity2 extends BaseActivity implements LeaseViewFrag2.O
                 wasLeaseEdited = true;
                 wasExpenseEdited = true;
                 wasIncomeEdited = true;
+                setResultToEdited();
+                LeaseViewActivity2.this.finish();
+            }
+        });
+        builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                wasLeaseEdited = true;
                 setResultToEdited();
                 LeaseViewActivity2.this.finish();
             }
@@ -209,10 +204,6 @@ public class LeaseViewActivity2 extends BaseActivity implements LeaseViewFrag2.O
                 if (fragments != null) {
                     for (Fragment fragment : fragments) {
                         if (fragment != null) {
-                            //android.support.v4.app.FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                            //fragmentTransaction.detach(fragment);
-                            //fragmentTransaction.attach(fragment);
-                            //fragmentTransaction.commit();
                             fragment.onActivityResult(requestCode, resultCode, data);
                         }
                     }
@@ -303,11 +294,9 @@ public class LeaseViewActivity2 extends BaseActivity implements LeaseViewFrag2.O
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return "Info";
+                    return getResources().getString(R.string.info_tab_title);
                 case 1:
-                    return "Payments";
-                // case 2:
-                //     return "Expenses";
+                    return getResources().getString(R.string.payments_tab_title);
             }
             return "";
         }

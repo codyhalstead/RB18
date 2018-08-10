@@ -22,8 +22,10 @@ public class MainViewModel extends ViewModel {
     private MutableLiveData<ArrayList<ExpenseLogEntry>> cachedExpenses;
     private MutableLiveData<Date> startDateRange;
     private MutableLiveData<Date> endDateRange;
+    private MutableLiveData<Integer> homeTabSelection;
+    private MutableLiveData<Date> homeTabYearSelected;
 
-    public void init(){
+    public void init() {
         cachedTenants = new MutableLiveData<>();
         cachedApartments = new MutableLiveData<>();
         cachedLeases = new MutableLiveData<>();
@@ -31,13 +33,16 @@ public class MainViewModel extends ViewModel {
         cachedExpenses = new MutableLiveData<>();
         startDateRange = new MutableLiveData<>();
         endDateRange = new MutableLiveData<>();
+        homeTabSelection = new MutableLiveData<>();
+        homeTabSelection.setValue(0);
+        homeTabYearSelected = new MutableLiveData<>();
     }
 
     public LiveData<ArrayList<Tenant>> getCachedTenants() {
         return cachedTenants;
     }
 
-    public void setCachedTenants(ArrayList<Tenant> cachedTenants){
+    public void setCachedTenants(ArrayList<Tenant> cachedTenants) {
         this.cachedTenants.setValue(cachedTenants);
     }
 
@@ -45,7 +50,7 @@ public class MainViewModel extends ViewModel {
         return cachedApartments;
     }
 
-    public void setCachedApartments(ArrayList<Apartment> cachedApartments){
+    public void setCachedApartments(ArrayList<Apartment> cachedApartments) {
         this.cachedApartments.setValue(cachedApartments);
     }
 
@@ -53,7 +58,7 @@ public class MainViewModel extends ViewModel {
         return cachedLeases;
     }
 
-    public void setCachedLeases(ArrayList<Lease> cachedLeases){
+    public void setCachedLeases(ArrayList<Lease> cachedLeases) {
         this.cachedLeases.setValue(cachedLeases);
     }
 
@@ -61,7 +66,7 @@ public class MainViewModel extends ViewModel {
         return cachedIncome;
     }
 
-    public void setCachedIncome(ArrayList<PaymentLogEntry> cachedIncome){
+    public void setCachedIncome(ArrayList<PaymentLogEntry> cachedIncome) {
         this.cachedIncome.setValue(cachedIncome);
     }
 
@@ -69,7 +74,7 @@ public class MainViewModel extends ViewModel {
         return cachedExpenses;
     }
 
-    public void setCachedExpenses(ArrayList<ExpenseLogEntry> cachedExpenses){
+    public void setCachedExpenses(ArrayList<ExpenseLogEntry> cachedExpenses) {
         this.cachedExpenses.setValue(cachedExpenses);
     }
 
@@ -87,5 +92,25 @@ public class MainViewModel extends ViewModel {
 
     public void setEndDateRange(Date date) {
         this.endDateRange.setValue(date);
+    }
+
+    public int getHomeTabSelection() {
+        if (homeTabSelection != null) {
+            return homeTabSelection.getValue();
+        } else {
+            return 0;
+        }
+    }
+
+    public void setHomeTabSelection(int homeTabSelection) {
+        this.homeTabSelection.setValue(homeTabSelection);
+    }
+
+    public Date getHomeTabYearSelected() {
+        return homeTabYearSelected.getValue();
+    }
+
+    public void setHomeTabYearSelected(Date homeTabYearSelected) {
+        this.homeTabYearSelected.setValue(homeTabYearSelected);
     }
 }

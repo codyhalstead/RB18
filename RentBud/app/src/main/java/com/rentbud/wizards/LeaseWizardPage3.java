@@ -1,5 +1,6 @@
 package com.rentbud.wizards;
 
+import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -8,6 +9,7 @@ import com.example.android.wizardpager.wizard.model.ModelCallbacks;
 import com.example.android.wizardpager.wizard.model.Page;
 import com.example.android.wizardpager.wizard.model.PageList;
 import com.example.android.wizardpager.wizard.model.ReviewItem;
+import com.example.cody.rentbud.R;
 import com.rentbud.activities.NewLeaseWizard;
 import com.rentbud.fragments.LeaseWizardPage3Fragment;
 import com.rentbud.helpers.MainArrayDataMethods;
@@ -33,10 +35,11 @@ public class LeaseWizardPage3 extends Page {
     public static final String LEASE_IS_LAST_PRORATED_REQUIRED_DATA_KEY = "lease_is_last_prorated_required";
 
     public static final String LEASE_NEED_BRANCH = "lease_need_branch";
+    private Context context;
 
-
-    public LeaseWizardPage3(ModelCallbacks callbacks, String title) {
+    public LeaseWizardPage3(ModelCallbacks callbacks, String title, Context context) {
         super(callbacks, title);
+        this.context = context;
         //Lease lease = NewLeaseWizard.leaseToEdit;
         //if(lease != null){
         //    BigDecimal rentCost = lease.getMonthlyRentCost();
@@ -62,9 +65,9 @@ public class LeaseWizardPage3 extends Page {
 
     @Override
     public void getReviewItems(ArrayList<ReviewItem> dest) {
-        dest.add(new ReviewItem("Rent Cost", mData.getString(LEASE_RENT_COST_FORMATTED_STRING_DATA_KEY), getKey(), -1));
-        dest.add(new ReviewItem("Payment Frequency", mData.getString(LEASE_PAYMENT_FREQUENCY_STRING_DATA_KEY), getKey(), -1));
-        dest.add(new ReviewItem("Due Date", mData.getString(LEASE_DUE_DATE_STRING_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(context.getResources().getString(R.string.rent_cost), mData.getString(LEASE_RENT_COST_FORMATTED_STRING_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(context.getResources().getString(R.string.payment_frequency), mData.getString(LEASE_PAYMENT_FREQUENCY_STRING_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(context.getResources().getString(R.string.due_date), mData.getString(LEASE_DUE_DATE_STRING_DATA_KEY), getKey(), -1));
     }
 
     @Override

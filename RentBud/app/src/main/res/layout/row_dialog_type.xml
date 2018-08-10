@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    >
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:gravity="center"
+        android:text="Type"
+        android:textSize="18sp"
+        android:id="@+id/typeDialogRowTypeLabelTV"
+        />
+
+    <!--Border -->
+    <View
+        android:id="@+id/typeRowBarBorder"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@+id/apartmentRowLL1"
+        android:background="@color/caldroid_black" />
+
+</LinearLayout>

@@ -115,7 +115,7 @@ public class ApartmentWizardPage1Fragment extends android.support.v4.app.Fragmen
 
         newApartmentHeader = rootView.findViewById(R.id.apartmentWizardPageOneHeader);
         if (isEdit) {
-            newApartmentHeader.setText("Edit Apt. Info");
+            newApartmentHeader.setText(R.string.edit_apt_info);
         }
 
         return rootView;

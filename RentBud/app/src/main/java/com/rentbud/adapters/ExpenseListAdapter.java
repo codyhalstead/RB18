@@ -116,8 +116,8 @@ public class ExpenseListAdapter extends BaseAdapter implements Filterable {
             } else {
                 convertView.setBackgroundColor(convertView.getResources().getColor(R.color.white));
             }
-            viewHolder.typeTV.setText(expense.getTypeLabel());
-
+            //viewHolder.typeTV.setText(expense.getTypeLabel());
+            setTextHighlightSearch(viewHolder.typeTV, expense.getTypeLabel());
             setTextHighlightSearch(viewHolder.descriptionTV, expense.getDescription());
         }
         return convertView;

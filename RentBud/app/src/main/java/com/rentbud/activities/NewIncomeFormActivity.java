@@ -145,7 +145,7 @@ public class NewIncomeFormActivity extends BaseActivity {
                 String amountString = amountET.getText().toString().trim();
                 //BigDecimal amount = new BigDecimal(amountString);
                 String typeLabel = incomeTypeSpinner.getSelectedItem().toString();
-                int typeID = MainActivity.incomeTypeLabels.get(typeLabel);
+                int typeID = 8;//MainActivity.incomeTypeLabels.get(typeLabel);
                 String description = descriptionET.getText().toString().trim();
                 int id = -1;
                 if (incomeToEdit != null) {
@@ -231,7 +231,7 @@ public class NewIncomeFormActivity extends BaseActivity {
                     @Override
                     public void finish(String string) {
                         databaseHandler.addNewIncomeType(string);
-                        MainActivity.incomeTypeLabels = databaseHandler.getIncomeTypeLabels();
+                        //MainActivity.incomeTypeLabels = databaseHandler.getIncomeTypeLabels();
                         updateIncomeTypeSpinner();
                         int spinnerPosition = adapter.getPosition(string);
                         incomeTypeSpinner.setSelection(spinnerPosition);
@@ -250,9 +250,9 @@ public class NewIncomeFormActivity extends BaseActivity {
     private void populateIncomeTypeSpinner() {
         //Create state array from MainActivity5.stateMap
         List<String> spinnerArray = new ArrayList<>();
-        for (Map.Entry<String, Integer> entry : MainActivity.incomeTypeLabels.entrySet()) {
-            spinnerArray.add(entry.getKey());
-        }
+       // for (Map.Entry<String, Integer> entry : MainActivity.incomeTypeLabels.entrySet()) {
+        //    spinnerArray.add(entry.getKey());
+        //}
         //Create ArrayAdapter with state array
         adapter = new ArrayAdapter<>(
                 this, android.R.layout.simple_spinner_item, spinnerArray);
@@ -263,9 +263,9 @@ public class NewIncomeFormActivity extends BaseActivity {
 
     public void updateIncomeTypeSpinner(){
         List<String> spinnerArray = new ArrayList<>();
-        for (Map.Entry<String, Integer> entry : MainActivity.incomeTypeLabels.entrySet()) {
-            spinnerArray.add(entry.getKey());
-        }
+        //for (Map.Entry<String, Integer> entry : MainActivity.incomeTypeLabels.entrySet()) {
+        //    spinnerArray.add(entry.getKey());
+        //}
         adapter.clear();
         adapter.addAll(spinnerArray);
     }

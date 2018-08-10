@@ -41,7 +41,6 @@ public class TenantListFragment extends Fragment implements AdapterView.OnItemCl
     ColorStateList accentColor;
     ListView listView;
     MainArrayDataMethods dataMethods;
-    //public static boolean tenantListAdapterNeedsRefreshed;
     private boolean needsRefreshedOnResume;
 
     @Override
@@ -57,7 +56,7 @@ public class TenantListFragment extends Fragment implements AdapterView.OnItemCl
         this.noTenantsTV = view.findViewById(R.id.notenantEmptyListTV);
         this.searchBarET = view.findViewById(R.id.tenantListSearchET);
         this.listView = view.findViewById(R.id.maintenantListView);
-        getActivity().setTitle("Tenant View");
+        getActivity().setTitle(R.string.tenant_view);
         dataMethods = new MainArrayDataMethods();
         //TenantListFragment.tenantListAdapterNeedsRefreshed = false;
         //Get current theme accent color, which is passed into the list adapter for search highlighting
@@ -72,29 +71,6 @@ public class TenantListFragment extends Fragment implements AdapterView.OnItemCl
     @Override
     public void onResume() {
         super.onResume();
-     //   if (TenantListFragment.tenantListAdapterNeedsRefreshed) {
-     //       //searchBarET.setText("");
-     //       if (this.tenantListAdapter != null) {
-     //           if (MainActivity.tenantList != null) {
-     //               ArrayList<Tenant> activeTenantArray = new ArrayList<>();
-     //               for (int i = 0; i < MainActivity.tenantList.size(); i++) {
-     //                   if (MainActivity.tenantList.get(i).isActive()) {
-     //                       activeTenantArray.add(MainActivity.tenantList.get(i));
-     //                   }
-     //               }
-     //               if(activeTenantArray.isEmpty()){
-     //                   noTenantsTV.setVisibility(View.VISIBLE);
-     ///                   noTenantsTV.setText("No Current Tenants");
-     //               } else {
-     //                   noTenantsTV.setVisibility(View.GONE);
-     //               }
-     //               this.tenantListAdapter.updateResults(activeTenantArray);
-     //           }
-     //           searchBarET.setText(searchBarET.getText());
-     //           searchBarET.setSelection(searchBarET.getText().length());
-     //           TenantListFragment.tenantListAdapterNeedsRefreshed = false;
-     //       }
-     //   }
         if (needsRefreshedOnResume) {
             ArrayList<Tenant> activeTenantArray = new ArrayList<>();
             for (int i = 0; i < MainActivity.tenantList.size(); i++) {
@@ -105,10 +81,6 @@ public class TenantListFragment extends Fragment implements AdapterView.OnItemCl
             tenantListAdapter.updateResults(activeTenantArray);
             searchBarET.setText(searchBarET.getText());
             searchBarET.setSelection(searchBarET.getText().length());
-            // incomeListAdapter.getFilter().filter(searchBarET.getText());
-            //expenseListAdapter.getFilter().filter("");
-            //total = getTotal(ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedIncome().getValue());
-            //setTotalTV();
         }
         needsRefreshedOnResume = true;
 
@@ -133,7 +105,8 @@ public class TenantListFragment extends Fragment implements AdapterView.OnItemCl
             public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
                 //When user changed the Text
                 if (tenantListAdapter != null) {
-                    tenantListAdapter.getFilter().filter(cs);
+                    listView.setFilterText(cs.toString());//.replace(" ", ""));
+                    tenantListAdapter.getFilter().filter(cs.toString());//.replace(" ", ""));
                     //   tenantListAdapter.notifyDataSetChanged();
                 }
             }
@@ -161,7 +134,7 @@ public class TenantListFragment extends Fragment implements AdapterView.OnItemCl
         tenantListAdapter = new TenantListAdapter(getActivity(), activeTenantArray, accentColor);
         listView.setAdapter(tenantListAdapter);
         listView.setOnItemClickListener(this);
-        noTenantsTV.setText("No Tenants To Display");
+        noTenantsTV.setText(R.string.no_tenants_to_display);
         this.listView.setEmptyView(noTenantsTV);
     }
 }

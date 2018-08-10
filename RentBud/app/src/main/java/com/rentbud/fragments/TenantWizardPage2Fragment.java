@@ -169,7 +169,7 @@ public class TenantWizardPage2Fragment extends android.support.v4.app.Fragment {
     }
 
     private TextWatcher createPhoneNumberTextWatcher() {
-        TextWatcher textWatcher = new TextWatcher() {
+        return new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 if (isFormatting)
@@ -223,7 +223,6 @@ public class TenantWizardPage2Fragment extends android.support.v4.app.Fragment {
                 mPage.notifyDataChanged();
             }
         };
-        return textWatcher;
     }
 
     private void loadDataForEdit(Tenant tenantToEdit) {

@@ -21,9 +21,9 @@ public class TenantWizardModel extends AbstractWizardModel {
     protected PageList onNewRootPageList() {
         return new PageList(
 
-                new TenantWizardPage1(this, "Page1").setRequired(true),
-                new TenantWizardPage2(this, "Page2").setRequired(false),
-                new TenantWizardPage3(this, "Page3").setRequired(false)
+                new TenantWizardPage1(this, "Page1", super.mContext).setRequired(true),
+                new TenantWizardPage2(this, "Page2", super.mContext).setRequired(false),
+                new TenantWizardPage3(this, "Page3", super.mContext).setRequired(false)
 
         );
     }

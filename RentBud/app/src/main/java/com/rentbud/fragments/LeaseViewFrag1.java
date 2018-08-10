@@ -79,7 +79,7 @@ public class LeaseViewFrag1 extends Fragment {
                 secondaryTenants.add(secondaryTenant);
             }
         }
-        getActivity().setTitle("Lease View");
+        //getActivity().setTitle("Lease View");
         //  setupBasicToolbar();
     }
 
@@ -204,7 +204,6 @@ public class LeaseViewFrag1 extends Fragment {
                     secondaryTenants.add(secondaryTenant);
                 }
                 fillTextViews();
-               // LeaseListFragment.leaseListAdapterNeedsRefreshed = true;
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.rentbud.wizards;
 
+import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
@@ -7,6 +8,7 @@ import android.util.Log;
 import com.example.android.wizardpager.wizard.model.ModelCallbacks;
 import com.example.android.wizardpager.wizard.model.Page;
 import com.example.android.wizardpager.wizard.model.ReviewItem;
+import com.example.cody.rentbud.R;
 import com.rentbud.activities.NewTenantWizard;
 import com.rentbud.fragments.TenantWizardPage1Fragment;
 import com.rentbud.model.Tenant;
@@ -21,9 +23,11 @@ public class TenantWizardPage1 extends Page {
     public static final String TENANT_PHONE_DATA_KEY = "tenant_phone";
     public static final String TENANT_EMAIL_DATA_KEY = "tenant_email";
     public static final String WAS_PRELOADED = "tenant_page_1_was_preloaded";
+    private Context context;
 
-    public TenantWizardPage1(ModelCallbacks callbacks, String title) {
+    public TenantWizardPage1(ModelCallbacks callbacks, String title, Context context) {
         super(callbacks, title);
+        this.context = context;
         mData.putBoolean(WAS_PRELOADED, false);
         //Tenant tenant = NewTenantWizard.tenantToEdit;
        // Log.d(TAG, "TenantWizardPage1: " + tenant.getFirstName());
@@ -43,10 +47,10 @@ public class TenantWizardPage1 extends Page {
 
     @Override
     public void getReviewItems(ArrayList<ReviewItem> dest) {
-        dest.add(new ReviewItem("First Name", mData.getString(TENANT_FIRST_NAME_DATA_KEY), getKey(), -1));
-        dest.add(new ReviewItem("Last Name", mData.getString(TENANT_LAST_NAME_DATA_KEY), getKey(), -1));
-        dest.add(new ReviewItem("Phone", mData.getString(TENANT_PHONE_DATA_KEY), getKey(), -1));
-        dest.add(new ReviewItem("E-mail", mData.getString(TENANT_EMAIL_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(context.getResources().getString(R.string.first_name), mData.getString(TENANT_FIRST_NAME_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(context.getResources().getString(R.string.last_name), mData.getString(TENANT_LAST_NAME_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(context.getResources().getString(R.string.phone), mData.getString(TENANT_PHONE_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(context.getResources().getString(R.string.email), mData.getString(TENANT_EMAIL_DATA_KEY), getKey(), -1));
     }
 
     @Override

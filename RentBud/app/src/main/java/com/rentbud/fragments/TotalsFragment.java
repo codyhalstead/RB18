@@ -17,13 +17,16 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.example.cody.rentbud.R;
 import com.rentbud.activities.MainActivity;
 import com.rentbud.adapters.IncomeListAdapter;
 import com.rentbud.adapters.TotalsListAdapter;
+import com.rentbud.helpers.CustomDatePickerDialogLauncher;
 import com.rentbud.helpers.MainArrayDataMethods;
 import com.rentbud.helpers.MainViewModel;
+import com.rentbud.model.PaymentLogEntry;
 import com.rentbud.model.TypeTotal;
 import com.rentbud.sqlite.DatabaseHandler;
 
@@ -34,9 +37,11 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TreeMap;
 
 public class TotalsFragment extends android.support.v4.app.Fragment implements AdapterView.OnItemClickListener, View.OnClickListener {
     ArrayList<TypeTotal> typeTotals;
+    TextView noTotalsTV;
     DatabaseHandler db;
     Date filterDateStart, filterDateEnd;
     Button dateRangeStartBtn, dateRangeEndBtn;
@@ -44,8 +49,8 @@ public class TotalsFragment extends android.support.v4.app.Fragment implements A
     ColorStateList accentColor;
     ListView listView;
     MainArrayDataMethods dataMethods;
-    private DatePickerDialog.OnDateSetListener dateSetFilterStartListener, dateSetFilterEndListener;
     private OnDatesChangedListener mCallback;
+    private CustomDatePickerDialogLauncher datePickerDialogLauncher;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -57,6 +62,7 @@ public class TotalsFragment extends android.support.v4.app.Fragment implements A
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        noTotalsTV = view.findViewById(R.id.totalsEmptyListTV);
         this.dateRangeStartBtn = view.findViewById(R.id.totalsDateRangeStartBtn);
         this.dateRangeStartBtn.setOnClickListener(this);
         this.dateRangeEndBtn = view.findViewById(R.id.totalsDateRangeEndBtn);
@@ -70,46 +76,70 @@ public class TotalsFragment extends android.support.v4.app.Fragment implements A
         dateRangeStartBtn.setText(formatter.format(filterDateStart));
         dateRangeEndBtn.setText(formatter.format(filterDateEnd));
         if (savedInstanceState != null) {
-            if(savedInstanceState.getParcelableArrayList("filteredTotals") != null){
+            if (savedInstanceState.getParcelableArrayList("filteredTotals") != null) {
                 this.typeTotals = savedInstanceState.getParcelableArrayList("filteredTotals");
             } else {
                 this.typeTotals = new ArrayList<>();
             }
         } else {
             typeTotals = new ArrayList<>();
-            typeTotals.addAll(db.getTotalForExpenseTypesWithinDates(MainActivity.user, MainActivity.expenseTypeLabels, filterDateStart, filterDateEnd));
-            typeTotals.addAll(db.getTotalForIncomeTypesWithinDates(MainActivity.user, MainActivity.incomeTypeLabels, filterDateStart, filterDateEnd));
+            typeTotals.addAll(db.getTotalForExpenseTypesWithinDates(MainActivity.user, filterDateStart, filterDateEnd));
+            typeTotals.addAll(db.getTotalForIncomeTypesWithinDates(MainActivity.user, filterDateStart, filterDateEnd));
             dataMethods.sortTypeTotalsArrayByTotalAmountDesc(typeTotals);
         }
         TypedValue colorValue = new TypedValue();
         getActivity().getTheme().resolveAttribute(R.attr.colorAccent, colorValue, true);
         this.accentColor = getActivity().getResources().getColorStateList(colorValue.resourceId);
         setUpListAdapter();
-        setUpdateSelectedDateListeners();
-        getActivity().setTitle("Totals");
+        datePickerDialogLauncher = new CustomDatePickerDialogLauncher(filterDateStart, filterDateEnd, true, getContext());
+        datePickerDialogLauncher.setDateSelectedListener(new CustomDatePickerDialogLauncher.DateSelectedListener() {
+            @Override
+            public void onStartDateSelected(Date startDate, Date endDate) {
+                filterDateStart = startDate;
+                filterDateEnd = endDate;
+                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+                dateRangeEndBtn.setText(formatter.format(filterDateEnd));
+                dateRangeStartBtn.setText(formatter.format(filterDateStart));
+                typeTotals.clear();
+                typeTotals.addAll(db.getTotalForExpenseTypesWithinDates(MainActivity.user, filterDateStart, filterDateEnd));
+                typeTotals.addAll(db.getTotalForIncomeTypesWithinDates(MainActivity.user, filterDateStart, filterDateEnd));
+                dataMethods.sortTypeTotalsArrayByTotalAmountDesc(typeTotals);
+                mCallback.onTotalsListDatesChanged(filterDateStart, filterDateEnd, TotalsFragment.this);
+            }
+
+            @Override
+            public void onEndDateSelected(Date startDate, Date endDate) {
+                filterDateStart = startDate;
+                filterDateEnd = endDate;
+                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+                dateRangeEndBtn.setText(formatter.format(filterDateEnd));
+                dateRangeStartBtn.setText(formatter.format(filterDateStart));
+                typeTotals.clear();
+                typeTotals.addAll(db.getTotalForExpenseTypesWithinDates(MainActivity.user, filterDateStart, filterDateEnd));
+                typeTotals.addAll(db.getTotalForIncomeTypesWithinDates(MainActivity.user, filterDateStart, filterDateEnd));
+                dataMethods.sortTypeTotalsArrayByTotalAmountDesc(typeTotals);
+                mCallback.onTotalsListDatesChanged(filterDateStart, filterDateEnd, TotalsFragment.this);
+            }
+
+            @Override
+            public void onDateSelected(Date date) {
+
+            }
+        });
+        getActivity().setTitle(R.string.totals_view);
     }
 
     private void setUpListAdapter() {
-        if (typeTotals != null) {
-            totalsListAdapter = new TotalsListAdapter(getActivity(), typeTotals, accentColor);
-            listView.setAdapter(totalsListAdapter);
-            listView.setOnItemClickListener(this);
-            if (typeTotals.isEmpty()) {
-                //noIncomeTV.setVisibility(View.VISIBLE);
-                //noIncomeTV.setText("No Current Income");
-            }
-        } else {
-            //If MainActivity5.expenseList is null show empty list text
-            //noIncomeTV.setVisibility(View.VISIBLE);
-            //noIncomeTV.setText("Error Loading Income");
-        }
+        totalsListAdapter = new TotalsListAdapter(getActivity(), typeTotals, accentColor);
+        listView.setAdapter(totalsListAdapter);
+        listView.setOnItemClickListener(this);
+        noTotalsTV.setText(R.string.no_data_to_display);
+        this.listView.setEmptyView(noTotalsTV);
     }
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        switch (view.getId()) {
 
-        }
     }
 
 
@@ -118,29 +148,11 @@ public class TotalsFragment extends android.support.v4.app.Fragment implements A
         switch (view.getId()) {
 
             case R.id.totalsDateRangeStartBtn:
-                Calendar cal = Calendar.getInstance();
-                if(filterDateStart != null) {
-                    cal.setTime(filterDateStart);
-                }
-                int year = cal.get(Calendar.YEAR);
-                int month = cal.get(Calendar.MONTH);
-                int day = cal.get(Calendar.DAY_OF_MONTH);
-                DatePickerDialog dialog = new DatePickerDialog(this.getContext(), android.R.style.Theme_Holo_Light_Dialog_MinWidth, dateSetFilterStartListener, year, month, day);
-                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                dialog.show();
+                datePickerDialogLauncher.launchStartDatePickerDialog();
                 break;
 
             case R.id.totalsDateRangeEndBtn:
-                Calendar cal2 = Calendar.getInstance();
-                if(filterDateEnd != null) {
-                    cal2.setTime(filterDateEnd);
-                }
-                int year2 = cal2.get(Calendar.YEAR);
-                int month2 = cal2.get(Calendar.MONTH);
-                int day2 = cal2.get(Calendar.DAY_OF_MONTH);
-                DatePickerDialog dialog2 = new DatePickerDialog(this.getContext(), android.R.style.Theme_Holo_Light_Dialog_MinWidth, dateSetFilterEndListener, year2, month2, day2);
-                dialog2.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                dialog2.show();
+                datePickerDialogLauncher.launchEndDatePickerDialog();
                 break;
 
             default:
@@ -172,55 +184,10 @@ public class TotalsFragment extends android.support.v4.app.Fragment implements A
         mCallback = null;
     }
 
-    private void setUpdateSelectedDateListeners() {
-        dateSetFilterStartListener = new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-                //Once user selects date from date picker pop-up,
-                Calendar cal = Calendar.getInstance();
-                cal.set(Calendar.YEAR, year);
-                cal.set(Calendar.MONTH, month);
-                cal.set(Calendar.DATE, day);
-                cal.set(Calendar.HOUR_OF_DAY, 0);
-                cal.set(Calendar.MINUTE, 0);
-                cal.set(Calendar.SECOND, 0);
-                cal.set(Calendar.MILLISECOND, 0);
-                filterDateStart = cal.getTime();
-                typeTotals.clear();
-                typeTotals.addAll(db.getTotalForExpenseTypesWithinDates(MainActivity.user, MainActivity.expenseTypeLabels, filterDateStart, filterDateEnd));
-                typeTotals.addAll(db.getTotalForIncomeTypesWithinDates(MainActivity.user, MainActivity.incomeTypeLabels, filterDateStart, filterDateEnd));
-                dataMethods.sortTypeTotalsArrayByTotalAmountDesc(typeTotals);
-                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-                dateRangeStartBtn.setText(formatter.format(filterDateStart));
-                mCallback.onTotalsListDatesChanged(filterDateStart, filterDateEnd, TotalsFragment.this);
-                //totalsListAdapter.updateResults(typeTotals);
-                totalsListAdapter.notifyDataSetChanged();
-            }
-        };
-        dateSetFilterEndListener = new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-                //Once user selects date from date picker pop-up,
-                Calendar cal = Calendar.getInstance();
-                cal.set(Calendar.YEAR, year);
-                cal.set(Calendar.MONTH, month);
-                cal.set(Calendar.DATE, day);
-                cal.set(Calendar.HOUR_OF_DAY, 0);
-                cal.set(Calendar.MINUTE, 0);
-                cal.set(Calendar.SECOND, 0);
-                cal.set(Calendar.MILLISECOND, 0);
-                filterDateEnd = cal.getTime();
-                typeTotals.clear();
-                typeTotals.addAll(db.getTotalForExpenseTypesWithinDates(MainActivity.user, MainActivity.expenseTypeLabels, filterDateStart, filterDateEnd));
-                typeTotals.addAll(db.getTotalForIncomeTypesWithinDates(MainActivity.user, MainActivity.incomeTypeLabels, filterDateStart, filterDateEnd));
-                dataMethods.sortTypeTotalsArrayByTotalAmountDesc(typeTotals);
-                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-                dateRangeEndBtn.setText(formatter.format(filterDateEnd));
-                mCallback.onTotalsListDatesChanged(filterDateStart, filterDateEnd, TotalsFragment.this);
-                //totalsListAdapter.updateResults(typeTotals);
-                totalsListAdapter.notifyDataSetChanged();
-            }
-        };
+    @Override
+    public void onPause() {
+        super.onPause();
+        datePickerDialogLauncher.dismissDatePickerDialog();
     }
 
     @Override
@@ -230,5 +197,4 @@ public class TotalsFragment extends android.support.v4.app.Fragment implements A
             outState.putParcelableArrayList("filteredTotals", typeTotals);
         }
     }
-
 }

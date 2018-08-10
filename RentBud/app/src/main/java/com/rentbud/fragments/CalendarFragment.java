@@ -27,6 +27,7 @@ import com.example.cody.rentbud.R;
 import com.rentbud.activities.MainActivity;
 import com.rentbud.activities.SingleDateViewActivity;
 import com.rentbud.adapters.CustomCalendarAdapter;
+import com.rentbud.helpers.CustomDatePickerDialogLauncher;
 import com.rentbud.sqlite.DatabaseHandler;
 import com.roomorama.caldroid.CaldroidGridAdapter;
 import com.roomorama.caldroid.CaldroidListener;
@@ -42,7 +43,6 @@ import static android.support.constraint.Constraints.TAG;
 
 public class CalendarFragment extends android.support.v4.app.Fragment {
     private CustomCaldroidFragment caldroidFragment;
-    private DatePickerDialog.OnDateSetListener dateSetListener;
     private Date currentSelectedDate;
     private Date today;
     Button findDateBtn, goToTodayBtn;
@@ -53,6 +53,8 @@ public class CalendarFragment extends android.support.v4.app.Fragment {
     private HashMap<String, Integer> incomeDatesHM = new HashMap<>();
     private DatabaseHandler databaseHandler;
     private ArrayList<CaldroidGridAdapter> adapters;
+    private CustomDatePickerDialogLauncher datePickerDialogLauncher;
+    private PopupWindow keyPopup;
     int selectedMonth, selectedYear;
 
     @Override
@@ -67,7 +69,7 @@ public class CalendarFragment extends android.support.v4.app.Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        getActivity().setTitle("Calendar View");
+        getActivity().setTitle(R.string.calendar_view);
         calendarKeyBtn = getActivity().findViewById(R.id.calendarKeyImageButton);
         findDateBtn = getActivity().findViewById(R.id.findDateBtn);
         goToTodayBtn = getActivity().findViewById(R.id.goToTodayBtn);
@@ -87,16 +89,6 @@ public class CalendarFragment extends android.support.v4.app.Fragment {
         } else {
             currentSelectedDate = today;
         }
-        //TODO May need later
-        // If activity is created from fresh
-        //else {
-        //Bundle args = new Bundle();
-        //Calendar cal = Calendar.getInstance();
-        //args.putInt(CaldroidFragment.MONTH, cal.get(Calendar.MONTH) + 1);
-        //args.putInt(CaldroidFragment.YEAR, cal.get(Calendar.YEAR));
-        //args.putBoolean(CaldroidFragment.ENABLE_SWIPE, true);
-        //args.putBoolean(CaldroidFragment.SIX_WEEKS_IN_CALENDAR, true);
-        //}
         // Attach to the activity
         FragmentTransaction t = getActivity().getSupportFragmentManager().beginTransaction();
         t.replace(R.id.calendar1, caldroidFragment);
@@ -106,20 +98,30 @@ public class CalendarFragment extends android.support.v4.app.Fragment {
             highlightDateCell(currentSelectedDate);
             caldroidFragment.refreshView();
         }
-        //leaseStartDatesHM.put(3, 5);
-        //leaseStartDatesHM.put(7, 7);
-        //leaseStartDatesHM.put(5, 5);
-        //leaseEndDatesHM.put(28, 1);
-        //leaseEndDatesHM.put(7, 5);
-        //expenseDatesHM.put(13, 3);
-        //expenseDatesHM.put(7, 1);
-        //incomeDatesHM.put(22, 7);
-        //incomeDatesHM.put(7, 9);
-        //caldroidFragment.setEventIcons(leaseStartDatesHM, leaseEndDatesHM, expenseDatesHM, incomeDatesHM);
-        //caldroidFragment.refreshView();
         setUpCaldroidListener();
         setUpCalendarKeyListener();
-        setUpdateSelectedDateListener();
+        datePickerDialogLauncher = new CustomDatePickerDialogLauncher(currentSelectedDate, false, getContext());
+        datePickerDialogLauncher.setDateSelectedListener(new CustomDatePickerDialogLauncher.DateSelectedListener() {
+            @Override
+            public void onStartDateSelected(Date startDate, Date endDate) {
+
+            }
+
+            @Override
+            public void onEndDateSelected(Date startDate, Date endDate) {
+
+            }
+
+            @Override
+            public void onDateSelected(Date date) {
+                //year = year - 1900;
+                //Date date = new Date(year, month, day);
+                highlightDateCell(date);
+                caldroidFragment.moveToDate(date);
+                caldroidFragment.refreshView();
+            }
+        });
+
         setUpFindDateBtnListener();
         setUpGoToTodayBtnListener();
         adapters = caldroidFragment.getDatePagerAdapters();
@@ -142,22 +144,21 @@ public class CalendarFragment extends android.support.v4.app.Fragment {
 
     public void showCalendarKeyPopup(View v) {
         //Display key pop-up
-        PopupWindow popupWindow;
         LayoutInflater layoutInflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final View popupView = layoutInflater.inflate(R.layout.popup_calendar_key, null);
-        popupWindow = new PopupWindow(
+        keyPopup = new PopupWindow(
                 popupView,
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
-        popupWindow.setBackgroundDrawable(new BitmapDrawable());
-        popupWindow.setOutsideTouchable(true);
-        popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+        keyPopup.setBackgroundDrawable(new BitmapDrawable());
+        keyPopup.setOutsideTouchable(true);
+        keyPopup.setOnDismissListener(new PopupWindow.OnDismissListener() {
             @Override
             public void onDismiss() {
                 //Nothing, just close
             }
         });
-        popupWindow.showAsDropDown(v, 35, -435);
+        keyPopup.showAsDropDown(v, 35, -435);
     }
 
     public void highlightDateCell(Date newDateToHighlight) {
@@ -171,7 +172,6 @@ public class CalendarFragment extends android.support.v4.app.Fragment {
             }
         }
         //Set selected dates text color to red
-        //caldroidFragment.setTextColorForDate(R.color.colorPrimary, newDateToHighlight);
         caldroidFragment.setBackgroundDrawableForDate(getResources().getDrawable(R.drawable.calendar_blue_border), newDateToHighlight);
         currentSelectedDate = newDateToHighlight;
     }
@@ -251,19 +251,18 @@ public class CalendarFragment extends android.support.v4.app.Fragment {
         findDateBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Show date picker pop-up
-                Calendar cal = Calendar.getInstance();
-                if (currentSelectedDate != null) {
-                    cal.setTime(currentSelectedDate);
-                }
-                int year = cal.get(Calendar.YEAR);
-                int month = cal.get(Calendar.MONTH);
-                int day = cal.get(Calendar.DAY_OF_MONTH);
-                DatePickerDialog dialog = new DatePickerDialog(getContext(), android.R.style.Theme_Holo_Light_Dialog_MinWidth, dateSetListener, year, month, day);
-                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                dialog.show();
+                datePickerDialogLauncher.launchSingleDatePickerDialog();
             }
         });
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        datePickerDialogLauncher.dismissDatePickerDialog();
+        if(keyPopup != null){
+            keyPopup.dismiss();
+        }
     }
 
     private void setUpGoToTodayBtnListener(){
@@ -275,19 +274,5 @@ public class CalendarFragment extends android.support.v4.app.Fragment {
                 caldroidFragment.refreshView();
             }
         });
-    }
-
-    private void setUpdateSelectedDateListener() {
-        dateSetListener = new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-                //Once user selects date from date picker pop-up, highlight and go to date
-                year = year - 1900;
-                Date date = new Date(year, month, day);
-                highlightDateCell(date);
-                caldroidFragment.moveToDate(date);
-                caldroidFragment.refreshView();
-            }
-        };
     }
 }

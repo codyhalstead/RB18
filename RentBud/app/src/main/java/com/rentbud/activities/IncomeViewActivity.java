@@ -63,7 +63,6 @@ public class IncomeViewActivity extends BaseActivity {
                 this.receiptPic = income.getReceiptPic();
             }
         }
-        Log.d("TAG", "onCreate: " + wasEdited);
         this.dateTV = findViewById(R.id.incomeViewDateTV);
         this.amountTV = findViewById(R.id.incomeViewAmountTV);
         this.typeTV = findViewById(R.id.incomeViewTypeTV);
@@ -130,22 +129,22 @@ public class IncomeViewActivity extends BaseActivity {
         // setup the alert builder
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         //builder.setTitle("AlertDialog");
-        builder.setMessage("Are you sure you want to remove this income?");
+        builder.setMessage(R.string.income_deletion_confirmation);
 
         // add the buttons
-        builder.setPositiveButton("No", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-
-            }
-        });
-        builder.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 databaseHandler.setPaymentLogEntryInactive(income);
                 //IncomeListFragment.incomeListAdapterNeedsRefreshed = true;
                 setResult(MainActivity.RESULT_DATA_WAS_MODIFIED);
                 IncomeViewActivity.this.finish();
+            }
+        });
+        builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
             }
         });
 

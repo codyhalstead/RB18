@@ -21,9 +21,9 @@ public class ApartmentWizardModel extends AbstractWizardModel {
     protected PageList onNewRootPageList() {
         return new PageList(
 
-                new ApartmentWizardPage1(this, "Page1").setRequired(true),
-                new ApartmentWizardPage2(this, "Page2").setRequired(false),
-                new ApartmentWizardPage3(this, "Page3").setRequired(false)
+                new ApartmentWizardPage1(this, "Page1", super.mContext).setRequired(true),
+                new ApartmentWizardPage2(this, "Page2", super.mContext).setRequired(false),
+                new ApartmentWizardPage3(this, "Page3", super.mContext).setRequired(false)
         );
     }
 

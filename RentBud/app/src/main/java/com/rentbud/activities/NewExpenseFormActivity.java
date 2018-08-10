@@ -146,7 +146,7 @@ public class NewExpenseFormActivity extends BaseActivity {
                 String amountString = amountET.getText().toString().trim();
                // BigDecimal amount = new BigDecimal(amountString);
                 String typeLabel = expenseTypeSpinner.getSelectedItem().toString();
-                int typeID = MainActivity.expenseTypeLabels.get(typeLabel);
+                int typeID = 8;//MainActivity.expenseTypeLabels.get(typeLabel);
                 String description = descriptionET.getText().toString().trim();
                 int id = -1;
                 if (expenseToEdit != null) {
@@ -231,7 +231,7 @@ public class NewExpenseFormActivity extends BaseActivity {
                     @Override
                     public void finish(String string) {
                         databaseHandler.addNewExpenseType(string);
-                        MainActivity.expenseTypeLabels = databaseHandler.getExpenseTypeLabels();
+                     //   MainActivity.expenseTypeLabels = databaseHandler.getExpenseTypeLabels();
                         updateExpenseTypeSpinner();
                         int spinnerPosition = adapter.getPosition(string);
                         expenseTypeSpinner.setSelection(spinnerPosition);
@@ -250,9 +250,9 @@ public class NewExpenseFormActivity extends BaseActivity {
     private void populateExpenseTypeSpinner() {
         //Create state array from MainActivity5.stateMap
         List<String> spinnerArray = new ArrayList<>();
-        for (Map.Entry<String, Integer> entry : MainActivity.expenseTypeLabels.entrySet()) {
-            spinnerArray.add(entry.getKey());
-        }
+       // for (Map.Entry<String, Integer> entry : MainActivity.expenseTypeLabels.entrySet()) {
+        //    spinnerArray.add(entry.getKey());
+        //}
         //Create ArrayAdapter with state array
         adapter = new ArrayAdapter<>(
                 this, android.R.layout.simple_spinner_item, spinnerArray);
@@ -263,9 +263,9 @@ public class NewExpenseFormActivity extends BaseActivity {
 
     public void updateExpenseTypeSpinner(){
         List<String> spinnerArray = new ArrayList<>();
-        for (Map.Entry<String, Integer> entry : MainActivity.expenseTypeLabels.entrySet()) {
-            spinnerArray.add(entry.getKey());
-        }
+       // for (Map.Entry<String, Integer> entry : MainActivity.expenseTypeLabels.entrySet()) {
+       //     spinnerArray.add(entry.getKey());
+       // }
         adapter.clear();
         adapter.addAll(spinnerArray);
     }

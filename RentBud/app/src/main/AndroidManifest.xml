@@ -5,8 +5,10 @@
 
     <uses-permission android:name="android.permission.MANAGE_DOCUMENTS" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
 
     <application
         android:allowBackup="true"
@@ -32,6 +34,18 @@
             android:windowSoftInputMode="stateHidden">
 
         </activity>
+        <provider
+            android:name="com.rentbud.helpers.GenericFileProvider"
+            android:authorities="${applicationId}.helpers.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths"
+                tools:replace="android:resource"
+                />
+        </provider>
+
         <!--SignupActivity -->
         <activity
             android:name="com.rentbud.activities.SignupActivity"

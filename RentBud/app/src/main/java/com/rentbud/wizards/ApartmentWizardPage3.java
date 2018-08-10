@@ -1,11 +1,13 @@
 package com.rentbud.wizards;
 
+import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 
 import com.example.android.wizardpager.wizard.model.ModelCallbacks;
 import com.example.android.wizardpager.wizard.model.Page;
 import com.example.android.wizardpager.wizard.model.ReviewItem;
+import com.example.cody.rentbud.R;
 import com.rentbud.activities.NewApartmentWizard;
 import com.rentbud.fragments.ApartmentWizardPage3Fragment;
 import com.rentbud.model.Apartment;
@@ -20,9 +22,11 @@ public class ApartmentWizardPage3 extends Page {
     public static final String APARTMENT_WAS_MAIN_PIC_ADDED_DATA_KEY = "apartment_was_main_pic_added";
     public static final String APARTMENT_AMOUNT_OF_OTHER_PICS_DATA_KEY = "apartment_amount_of_other_pics";
     public static final String WAS_PRELOADED = "apartmant_page_3_was_preloaded";
+    private Context context;
 
-    public ApartmentWizardPage3(ModelCallbacks callbacks, String title) {
+    public ApartmentWizardPage3(ModelCallbacks callbacks, String title, Context context) {
         super(callbacks, title);
+        this.context = context;
         mData.putBoolean(WAS_PRELOADED, false);
         //Apartment apartment = NewApartmentWizard.apartmentToEdit;
         // Log.d(TAG, "TenantWizardPage1: " + tenant.getFirstName());
@@ -54,8 +58,8 @@ public class ApartmentWizardPage3 extends Page {
 
     @Override
     public void getReviewItems(ArrayList<ReviewItem> dest) {
-        dest.add(new ReviewItem("Main Picture", mData.getString(APARTMENT_WAS_MAIN_PIC_ADDED_DATA_KEY), getKey(), -1));
-        dest.add(new ReviewItem("Number Of Side Pictures", mData.getInt(APARTMENT_AMOUNT_OF_OTHER_PICS_DATA_KEY) + "", getKey(), -1));
+        dest.add(new ReviewItem(context.getResources().getString(R.string.main_pic), mData.getString(APARTMENT_WAS_MAIN_PIC_ADDED_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(context.getResources().getString(R.string.number_of_side_pics), mData.getInt(APARTMENT_AMOUNT_OF_OTHER_PICS_DATA_KEY) + "", getKey(), -1));
     }
 
     @Override

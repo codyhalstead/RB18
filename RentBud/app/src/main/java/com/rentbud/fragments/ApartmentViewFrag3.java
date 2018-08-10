@@ -38,24 +38,19 @@ public class ApartmentViewFrag3 extends android.support.v4.app.Fragment implemen
     public ApartmentViewFrag3() {
         // Required empty public constructor
     }
-    TextView noIncomeTV;
+
+   // TextView noIncomeTV;
     FloatingActionButton fab;
     LinearLayout totalBarLL;
-    //  EditText searchBarET;
-    //  Button dateRangeStartBtn, dateRangeEndBtn;
     LeaseListAdapter leaseListAdapter;
     ColorStateList accentColor;
     ListView listView;
-    //Date startDateRange, endDateRange;
-    //public static boolean incomeListAdapterNeedsRefreshed;
-    //  Date filterDateStart, filterDateEnd;
-    //  private DatePickerDialog.OnDateSetListener dateSetFilterStartListener, dateSetFilterEndListener;
     private DatabaseHandler db;
-    //private ArrayList<Lease> currentFilteredLeases;
     private Lease selectedLease;
     private Apartment apartment;
     private OnLeaseDataChangedListener mCallback;
-    //private BigDecimal total;
+    private AlertDialog dialog;
+    private PopupMenu popupMenu;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -72,47 +67,7 @@ public class ApartmentViewFrag3 extends android.support.v4.app.Fragment implemen
         this.fab = view.findViewById(R.id.listFab);
         this.listView = view.findViewById(R.id.mainMoneyListView);
         this.db = new DatabaseHandler(getContext());
-       // Bundle bundle = getArguments();
-        //if (savedInstanceState != null) {
-           // if (savedInstanceState.getParcelable("apartment") != null) {
-           //     this.apartment = savedInstanceState.getParcelable("apartment");
-            //}
-            //if (savedInstanceState.getParcelableArrayList("filteredLeases") != null) {
-            //    this.currentFilteredLeases = savedInstanceState.getParcelableArrayList("filteredLeases");
-            //}
-            //if (savedInstanceState.getString("totalString") != null) {
-            //    String totalString = savedInstanceState.getString("totalString");
-            //    this.total = new BigDecimal(totalString);
-            //}
-            //if (savedInstanceState.getString("startDateRange") != null) {
-            //    DateFormat formatFrom = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
-            //    try {
-            //        Date startDate = formatFrom.parse(savedInstanceState.getString("startDateRange"));
-            //        startDateRange = startDate;
-            //    } catch (ParseException e) {
-            //        e.printStackTrace();
-            //    }
-            //}
-            //if (savedInstanceState.getString("endDateRange") != null) {
-            //    DateFormat formatFrom = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
-            //    try {
-            //        Date endDate = formatFrom.parse(savedInstanceState.getString("endDateRange"));
-            //        endDateRange = endDate;
-            //    } catch (ParseException e) {
-            //        e.printStackTrace();
-            //    }
-           // }
-
-       // } else {
-            this.apartment = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getApartment().getValue();
-            //endDateRange = Calendar.getInstance().getTime();
-            //Calendar calendar = Calendar.getInstance();
-            //calendar.setTime(endDateRange);
-            //calendar.add(Calendar.YEAR, -1);
-            //startDateRange = calendar.getTime();
-            //currentFilteredLeases = db.getUsersLeasesForApartment(MainActivity.user, apartment.getId());
-            //total = getTotal();
-     //   }
+        this.apartment = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getApartment().getValue();
         this.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -121,10 +76,6 @@ public class ApartmentViewFrag3 extends android.support.v4.app.Fragment implemen
                 startActivityForResult(intent, MainActivity.REQUEST_NEW_LEASE_FORM);
             }
         });
-        //Get apartment item
-       // setUpdateSelectedDateListeners();
-        // getActivity().setTitle("Income View");
-        // ExpenseListFragment.expenseListAdapterNeedsRefreshed = false;
         //Get current theme accent color, which is passed into the list adapter for search highlighting
         TypedValue colorValue = new TypedValue();
         getActivity().getTheme().resolveAttribute(R.attr.colorAccent, colorValue, true);
@@ -137,20 +88,26 @@ public class ApartmentViewFrag3 extends android.support.v4.app.Fragment implemen
     @Override
     public void onResume() {
         super.onResume();
-        //if (IncomeListFragment.incomeListAdapterNeedsRefreshed) {
-        //    if (this.leaseListAdapter != null) {
-                //   incomeListAdapterNeedsRefreshed = false;
-              //  leaseListAdapter.getFilter().filter("");
-        //    }
-        //}
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (popupMenu != null) {
+            popupMenu.dismiss();
+        }
+        if (dialog != null) {
+            dialog.dismiss();
+        }
     }
 
     private void setUpSearchBar() {
 
     }
 
-    public interface OnLeaseDataChangedListener{
+    public interface OnLeaseDataChangedListener {
         void onLeaseDataChanged();
+
         void onLeasePaymentsChanged();
     }
 
@@ -180,23 +137,15 @@ public class ApartmentViewFrag3 extends android.support.v4.app.Fragment implemen
             leaseListAdapter = new LeaseListAdapter(getActivity(), ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getLeaseArray().getValue(), accentColor, null);
             listView.setAdapter(leaseListAdapter);
             listView.setOnItemClickListener(this);
-            if (ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getLeaseArray().getValue().isEmpty()) {
-                //     noIncomeTV.setVisibility(View.VISIBLE);
-                //    noIncomeTV.setText("No Current Income");
-            }
-        } else {
-            //If MainActivity5.expenseList is null show empty list text
-            //  noIncomeTV.setVisibility(View.VISIBLE);
-            //  noIncomeTV.setText("Error Loading Income");
         }
     }
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        PopupMenu popup = new PopupMenu(getActivity(), view);
-        MenuInflater inflater = popup.getMenuInflater();
+        popupMenu = new PopupMenu(getActivity(), view);
+        MenuInflater inflater = popupMenu.getMenuInflater();
         final int position = i;
-        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 switch (item.getItemId()) {
@@ -221,41 +170,33 @@ public class ApartmentViewFrag3 extends android.support.v4.app.Fragment implemen
                 }
             }
         });
-        inflater.inflate(R.menu.expense_income_click_menu, popup.getMenu());
-        popup.show();
+        inflater.inflate(R.menu.expense_income_click_menu, popupMenu.getMenu());
+        popupMenu.show();
     }
 
     public void showDeleteConfirmationAlertDialog() {
         // setup the alert builder
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         //builder.setTitle("AlertDialog");
-        builder.setMessage("Are you sure you want to remove this lease?");
+        builder.setMessage(R.string.lease_deletion_confirmation);
 
         // add the buttons
-        builder.setPositiveButton("No", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
 
             }
         });
-        builder.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 db.setLeaseInactive(selectedLease);
-               // LeaseListFragment.leaseListAdapterNeedsRefreshed = true;
-
-                //currentFilteredLeases = db.getUsersLeasesForApartment(MainActivity.user, apartment.getId());
-                //leaseListAdapter.updateResults(currentFilteredLeases);
-             //   leaseListAdapter.notifyDataSetChanged();
-                //total = getTotal();
-                //setTotalTV();
-                //ExpenseViewActivity.this.finish();
                 showDeleteAllRelatedMoneyAlertDialog();
             }
         });
 
         // create and show the alert dialog
-        AlertDialog dialog = builder.create();
+        dialog = builder.create();
         dialog.show();
     }
 
@@ -263,16 +204,16 @@ public class ApartmentViewFrag3 extends android.support.v4.app.Fragment implemen
         // setup the alert builder
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         //builder.setTitle("AlertDialog");
-        builder.setMessage("Remove all income/expenses related to this lease?");
+        builder.setMessage(R.string.lease_related_money_deletion_confirmation);
 
         // add the buttons
-        builder.setPositiveButton("No", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 mCallback.onLeaseDataChanged();
             }
         });
-        builder.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 db.setAllExpensesRelatedToLeaseInactive(selectedLease.getId());
@@ -283,7 +224,7 @@ public class ApartmentViewFrag3 extends android.support.v4.app.Fragment implemen
         });
 
         // create and show the alert dialog
-        AlertDialog dialog = builder.create();
+        dialog = builder.create();
         dialog.show();
     }
 
@@ -310,34 +251,14 @@ public class ApartmentViewFrag3 extends android.support.v4.app.Fragment implemen
 
     }
 
-    private void setUpdateSelectedDateListeners() {
-
-    }
-
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-       // SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
-      //  if (currentFilteredLeases != null) {
-      //      outState.putParcelableArrayList("filteredLeases", currentFilteredLeases);
-      //  }
-      //  if(startDateRange != null){
-      //      outState.putString("startDateRange", formatter.format(startDateRange));
-      ///  }
-      //  if(endDateRange != null){
-      //      outState.putString("endDateRange", formatter.format(endDateRange));
-      //  }
-      //  if(apartment != null){
-      //      outState.putParcelable("apartment", apartment);
-      //  }
-        //if(total != null){
-        //    String totalString = total.toPlainString();
-        //    outState.putString("totalString", totalString);
-        //}
+
     }
 
-    public void updateData(){
-       // currentFilteredLeases = db.getUsersLeasesForApartment(MainActivity.user, apartment.getId());
+    public void updateData() {
+        // currentFilteredLeases = db.getUsersLeasesForApartment(MainActivity.user, apartment.getId());
         leaseListAdapter.updateResults(ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getLeaseArray().getValue());
         leaseListAdapter.notifyDataSetChanged();
         //this.total = getTotal();

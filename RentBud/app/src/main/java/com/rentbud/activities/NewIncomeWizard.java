@@ -154,7 +154,9 @@ public class NewIncomeWizard extends BaseActivity implements
                     if (incomeToEdit != null) {
                         incomeToEdit.setDate(date);
                         incomeToEdit.setAmount(amount);
-                        incomeToEdit.setTypeID(typeID);
+                        if(typeID != 0) {
+                            incomeToEdit.setTypeID(typeID);
+                        }
                         incomeToEdit.setTypeLabel(type);
                         incomeToEdit.setDescription(description);
                         incomeToEdit.setReceiptPic(receiptPic);
@@ -212,17 +214,17 @@ public class NewIncomeWizard extends BaseActivity implements
         int position = mPager.getCurrentItem();
         if (position == mCurrentPageSequence.size()) {
             if (incomeToEdit == null) {
-                mNextButton.setText("Create Income");
+                mNextButton.setText(R.string.create_income);
             } else {
-                mNextButton.setText("Save Changes");
+                mNextButton.setText(R.string.save_changes);
             }
             mNextButton.setBackgroundResource(com.example.android.wizardpager.R.drawable.finish_background);
             mNextButton.setTextAppearance(this, com.example.android.wizardpager.R.style.TextAppearanceFinish);
             mNextButton.setBackgroundColor(fetchPrimaryColor());
         } else {
             mNextButton.setText(mEditingAfterReview
-                    ? com.example.android.wizardpager.R.string.review
-                    : com.example.android.wizardpager.R.string.next);
+                    ? R.string.review
+                    : R.string.next);
             mNextButton.setBackgroundResource(com.example.android.wizardpager.R.drawable.selectable_item_background);
             TypedValue v = new TypedValue();
             getTheme().resolveAttribute(android.R.attr.textAppearanceMedium, v, true);
@@ -340,7 +342,6 @@ public class NewIncomeWizard extends BaseActivity implements
 
         @Override
         public int getItemPosition(Object object) {
-            // TODO: be smarter about this
             if (object == mPrimaryItem) {
                 // Re-use the current fragment (its position never changes)
                 return POSITION_UNCHANGED;

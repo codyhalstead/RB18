@@ -3,9 +3,11 @@ package com.rentbud.adapters;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Typeface;
+import android.support.annotation.Nullable;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.TextAppearanceSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +30,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
+import static android.support.constraint.Constraints.TAG;
+
 public class MoneyListAdapter extends BaseAdapter implements Filterable {
     private ArrayList<MoneyLogEntry> moneyArray;
     private ArrayList<MoneyLogEntry> filteredResults;
@@ -36,8 +40,9 @@ public class MoneyListAdapter extends BaseAdapter implements Filterable {
     private ColorStateList highlightColor;
     MainArrayDataMethods dataMethods;
     private Date todaysDate;
+    private Date dateToHighlight;
 
-    public MoneyListAdapter(Context context, ArrayList<MoneyLogEntry> moneyArray, ColorStateList highlightColor) {
+    public MoneyListAdapter(Context context, ArrayList<MoneyLogEntry> moneyArray, ColorStateList highlightColor, @Nullable Date dateToHighlight) {
         super();
         this.moneyArray = moneyArray;
         this.filteredResults = moneyArray;
@@ -46,6 +51,7 @@ public class MoneyListAdapter extends BaseAdapter implements Filterable {
         this.highlightColor = highlightColor;
         this.dataMethods = new MainArrayDataMethods();
         this.todaysDate = new Date(System.currentTimeMillis());
+        this.dateToHighlight = dateToHighlight;
     }
 
     static class ViewHolder {
@@ -101,6 +107,13 @@ public class MoneyListAdapter extends BaseAdapter implements Filterable {
             usdCostFormat.setMaximumFractionDigits(2);
             SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
             viewHolder.dateTV.setText(formatter.format(moneyEntry.getDate()));
+            if(dateToHighlight != null){
+                if(moneyEntry.getDate().equals(dateToHighlight)){
+                    viewHolder.dateTV.setTextColor(context.getResources().getColor(R.color.green_colorPrimaryDark));
+                } else {
+                    viewHolder.dateTV.setTextColor(context.getResources().getColor(R.color.text_light));
+                }
+            }
             if( todaysDate.compareTo(moneyEntry.getDate()) < 0){
                 convertView.setBackgroundColor(convertView.getResources().getColor(R.color.lightGrey));
             } else {

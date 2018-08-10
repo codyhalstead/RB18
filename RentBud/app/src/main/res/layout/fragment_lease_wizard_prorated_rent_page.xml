@@ -122,7 +122,7 @@
                         android:id="@+id/leaseWizardParaDays1TV"
                         style="@style/FormText"
                         android:layout_width="wrap_content"
-                        android:text=" Days)" />
+                        android:text=" Day(s))" />
 
                 </LinearLayout>
 
@@ -227,7 +227,7 @@
                         android:id="@+id/leaseWizardParaDays2TV"
                         style="@style/FormText"
                         android:layout_width="wrap_content"
-                        android:text=" Days)" />
+                        android:text=" Day(s))" />
 
                 </LinearLayout>
 

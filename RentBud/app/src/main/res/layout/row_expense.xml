@@ -64,6 +64,8 @@
                 style="@style/FormText"
                 android:text="Type"
                 android:textSize="18dp"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:id="@+id/expenseRowTypeTV"
                 />
 

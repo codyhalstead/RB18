@@ -1,5 +1,6 @@
 package com.rentbud.wizards;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
@@ -7,6 +8,7 @@ import android.text.TextUtils;
 import com.example.android.wizardpager.wizard.model.ModelCallbacks;
 import com.example.android.wizardpager.wizard.model.Page;
 import com.example.android.wizardpager.wizard.model.ReviewItem;
+import com.example.cody.rentbud.R;
 import com.rentbud.activities.NewApartmentWizard;
 import com.rentbud.activities.NewLeaseWizard;
 import com.rentbud.fragments.LeaseWizardPage1Fragment;
@@ -28,10 +30,11 @@ public class LeaseWizardPage1 extends Page{
     public static final String LEASE_APARTMENT_DATA_KEY = "lease_apartment";
     public static final String LEASE_ARE_DATES_ACCEPTABLE = "lease_are_dates_acceptable";
     public static final String WAS_PRELOADED = "lease_page_1_was_preloaded";
+    private Context context;
 
-
-    public LeaseWizardPage1(ModelCallbacks callbacks, String title) {
+    public LeaseWizardPage1(ModelCallbacks callbacks, String title, Context context) {
         super(callbacks, title);
+        this.context = context;
         mData.putBoolean(WAS_PRELOADED, false);
     }
 
@@ -42,9 +45,9 @@ public class LeaseWizardPage1 extends Page{
 
     @Override
     public void getReviewItems(ArrayList<ReviewItem> dest) {
-        dest.add(new ReviewItem("Start Date", mData.getString(LEASE_START_DATE_STRING_DATA_KEY), getKey(), -1));
-        dest.add(new ReviewItem("End Date", mData.getString(LEASE_END_DATE_STRING_DATA_KEY), getKey(), -1));
-        dest.add(new ReviewItem("Apartment", mData.getString(LEASE_APARTMENT_STRING_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(context.getResources().getString(R.string.start_date), mData.getString(LEASE_START_DATE_STRING_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(context.getResources().getString(R.string.end_date), mData.getString(LEASE_END_DATE_STRING_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(context.getResources().getString(R.string.apartment), mData.getString(LEASE_APARTMENT_STRING_DATA_KEY), getKey(), -1));
     }
 
     @Override

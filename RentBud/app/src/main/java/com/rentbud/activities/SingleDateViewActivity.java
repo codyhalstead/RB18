@@ -81,7 +81,7 @@ public class SingleDateViewActivity extends BaseActivity implements DateViewFrag
         tabLayout.setTabTextColors(Color.parseColor("#ffffff"), Color.parseColor("#4d4c4b"));
         tabLayout.setupWithViewPager(viewPager);
         setupBasicToolbar();
-        toolbar.setTitle("Date View");
+        //toolbar.setTitle("Date View");
         if (wasLeaseEdited || wasIncomeEdited || wasExpenseEdited) {
             setResultToEdited();
         } else {
@@ -215,9 +215,9 @@ public class SingleDateViewActivity extends BaseActivity implements DateViewFrag
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return "Income And Expenses";
+                    return getResources().getString(R.string.payments_tab_title);
                 case 1:
-                    return "Lease Information";
+                    return getResources().getString(R.string.leases_tab_title);
             }
             return "";
         }

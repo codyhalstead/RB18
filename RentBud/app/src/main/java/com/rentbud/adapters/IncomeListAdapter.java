@@ -108,7 +108,7 @@ public class IncomeListAdapter extends BaseAdapter implements Filterable {
             usdCostFormat.setMaximumFractionDigits( 2 );
 
             viewHolder.amountTV.setText(usdCostFormat.format(displayVal.doubleValue()));
-            viewHolder.typeTV.setText(income.getTypeLabel());
+            //viewHolder.typeTV.setText(income.getTypeLabel());
 
             SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
             viewHolder.dateTV.setText(formatter.format(income.getDate()));
@@ -117,6 +117,7 @@ public class IncomeListAdapter extends BaseAdapter implements Filterable {
             } else {
                 convertView.setBackgroundColor(convertView.getResources().getColor(R.color.white));
             }
+            setTextHighlightSearch(viewHolder.typeTV, income.getTypeLabel());
             setTextHighlightSearch(viewHolder.descriptionTV, income.getDescription());
         }
         return convertView;
@@ -157,7 +158,8 @@ public class IncomeListAdapter extends BaseAdapter implements Filterable {
                 for (int i = 0; i < paymentArray.size(); i++) {
                     PaymentLogEntry dataNames = paymentArray.get(i);
                     //If users search matches any part of any apartment value, add to new filtered list
-                    if (dataNames.getDescription().toLowerCase().contains(constraint.toString())) {
+                    if (dataNames.getDescription().toLowerCase().contains(constraint.toString()) ||
+                            dataNames.getTypeLabel().toLowerCase().contains(constraint.toString())) {
                         FilteredArrayNames.add(dataNames);
                     }
                 }

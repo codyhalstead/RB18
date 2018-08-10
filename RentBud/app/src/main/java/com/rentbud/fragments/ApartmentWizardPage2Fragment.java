@@ -29,7 +29,7 @@ public class ApartmentWizardPage2Fragment extends android.support.v4.app.Fragmen
     private String mKey;
     private ApartmentWizardPage2 mPage;
     private EditText preferredRentET, descriptionET, notesET;
-    private BigDecimal preferredRent;
+    //private BigDecimal preferredRent;
 
     public static ApartmentWizardPage2Fragment create(String key) {
         Bundle args = new Bundle();
@@ -50,7 +50,7 @@ public class ApartmentWizardPage2Fragment extends android.support.v4.app.Fragmen
         Bundle args = getArguments();
         mKey = args.getString(ARG_KEY);
         mPage = (ApartmentWizardPage2) mCallbacks.onGetPage(mKey);
-        preferredRent = new BigDecimal(0);
+        //preferredRent = new BigDecimal(0);
         Bundle extras = mPage.getData();
         if (extras != null) {
             Apartment apartmentToEdit = extras.getParcelable("apartmentToEdit");
@@ -66,11 +66,11 @@ public class ApartmentWizardPage2Fragment extends android.support.v4.app.Fragmen
         View rootView = inflater.inflate(R.layout.fragment_apartment_wizard_page_2, container, false);
         (rootView.findViewById(android.R.id.title)).setVisibility(View.GONE);
 
-        preferredRentET = rootView.findViewById(R.id.apartmentWizardPreferredRentET);
-        if(mPage.getData().getString(ApartmentWizardPage2.APARTMENT_PREFERRED_RENT_COST_FORMATTED_STRING_DATA_KEY) != null) {
-            preferredRentET.setText(mPage.getData().getString(ApartmentWizardPage2.APARTMENT_PREFERRED_RENT_COST_FORMATTED_STRING_DATA_KEY));
-        }
-        preferredRentET.setSelection(preferredRentET.getText().length());
+        //preferredRentET = rootView.findViewById(R.id.apartmentWizardPreferredRentET);
+        //if(mPage.getData().getString(ApartmentWizardPage2.APARTMENT_PREFERRED_RENT_COST_FORMATTED_STRING_DATA_KEY) != null) {
+        //    preferredRentET.setText(mPage.getData().getString(ApartmentWizardPage2.APARTMENT_PREFERRED_RENT_COST_FORMATTED_STRING_DATA_KEY));
+        //}
+        //preferredRentET.setSelection(preferredRentET.getText().length());
 
         descriptionET = rootView.findViewById(R.id.apartmentWizardDescriptionET);
         descriptionET.setText(mPage.getData().getString(ApartmentWizardPage2.APARTMENT_DESCRIPTION_DATA_KEY));
@@ -103,35 +103,35 @@ public class ApartmentWizardPage2Fragment extends android.support.v4.app.Fragmen
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        preferredRentET.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        //preferredRentET.addTextChangedListener(new TextWatcher() {
+        //    @Override
+        //    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-            }
+        //    }
 
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        //    @Override
+        //    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-            }
+        //    }
 
-            @Override
-            public void afterTextChanged(Editable editable) {
-                if (preferredRentET == null) return;
+        //    @Override
+        //    public void afterTextChanged(Editable editable) {
+        //        if (preferredRentET == null) return;
 
-                String s = editable.toString();
-                if (s.isEmpty()) return;
-                preferredRentET.removeTextChangedListener(this);
-                String cleanString = s.replaceAll("[$,.]", "");
-                preferredRent = new BigDecimal(cleanString).setScale(2, BigDecimal.ROUND_FLOOR).divide(new BigDecimal(100), BigDecimal.ROUND_FLOOR);
-                String formatted = NumberFormat.getCurrencyInstance().format(preferredRent);
-                preferredRentET.setText(formatted);
-                mPage.getData().putString(ApartmentWizardPage2.APARTMENT_PREFERRED_RENT_COST_FORMATTED_STRING_DATA_KEY, formatted);
-                mPage.getData().putString(ApartmentWizardPage2.APARTMENT_PREFERRED_RENT_COST_DATA_KEY, preferredRent.toPlainString());
-                mPage.notifyDataChanged();
-                preferredRentET.setSelection(formatted.length());
-                preferredRentET.addTextChangedListener(this);
-            }
-        });
+        //        String s = editable.toString();
+        //        if (s.isEmpty()) return;
+        //        preferredRentET.removeTextChangedListener(this);
+        //        String cleanString = s.replaceAll("[$,.]", "");
+        //        preferredRent = new BigDecimal(cleanString).setScale(2, BigDecimal.ROUND_FLOOR).divide(new BigDecimal(100), BigDecimal.ROUND_FLOOR);
+        //        String formatted = NumberFormat.getCurrencyInstance().format(preferredRent);
+        //        preferredRentET.setText(formatted);
+        //        mPage.getData().putString(ApartmentWizardPage2.APARTMENT_PREFERRED_RENT_COST_FORMATTED_STRING_DATA_KEY, formatted);
+        //        mPage.getData().putString(ApartmentWizardPage2.APARTMENT_PREFERRED_RENT_COST_DATA_KEY, preferredRent.toPlainString());
+        //        mPage.notifyDataChanged();
+        //        preferredRentET.setSelection(formatted.length());
+        //        preferredRentET.addTextChangedListener(this);
+        //    }
+        //});
         descriptionET.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -166,14 +166,14 @@ public class ApartmentWizardPage2Fragment extends android.support.v4.app.Fragmen
                 mPage.notifyDataChanged();
             }
         });
-        if(mPage.getData().getString(ApartmentWizardPage2.APARTMENT_PREFERRED_RENT_COST_DATA_KEY) != null) {
-            String amountString = mPage.getData().getString(ApartmentWizardPage2.APARTMENT_PREFERRED_RENT_COST_DATA_KEY);
-            preferredRent = new BigDecimal(amountString);
-        } else {
-            String formatted = NumberFormat.getCurrencyInstance().format(preferredRent);
-            mPage.getData().putString(ApartmentWizardPage2.APARTMENT_PREFERRED_RENT_COST_FORMATTED_STRING_DATA_KEY, formatted);
-            mPage.getData().putString(ApartmentWizardPage2.APARTMENT_PREFERRED_RENT_COST_DATA_KEY, preferredRent.toPlainString());
-        }
+        //if(mPage.getData().getString(ApartmentWizardPage2.APARTMENT_PREFERRED_RENT_COST_DATA_KEY) != null) {
+        //    String amountString = mPage.getData().getString(ApartmentWizardPage2.APARTMENT_PREFERRED_RENT_COST_DATA_KEY);
+        //    preferredRent = new BigDecimal(amountString);
+        //} else {
+        //    String formatted = NumberFormat.getCurrencyInstance().format(preferredRent);
+        //    mPage.getData().putString(ApartmentWizardPage2.APARTMENT_PREFERRED_RENT_COST_FORMATTED_STRING_DATA_KEY, formatted);
+        //    mPage.getData().putString(ApartmentWizardPage2.APARTMENT_PREFERRED_RENT_COST_DATA_KEY, preferredRent.toPlainString());
+        //}
 
         //String state = stateSpinner.getSelectedItem().toString();
         //int stateID = MainActivity.stateMap.get(state);
@@ -188,7 +188,7 @@ public class ApartmentWizardPage2Fragment extends android.support.v4.app.Fragmen
 
         // In a future update to the support library, this should override setUserVisibleHint
         // instead of setMenuVisibility.
-        if (preferredRentET != null) {
+        if (notesET != null) {
             InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(
                     Context.INPUT_METHOD_SERVICE);
             if (!menuVisible) {
@@ -200,7 +200,6 @@ public class ApartmentWizardPage2Fragment extends android.support.v4.app.Fragmen
     private void loadDataForEdit(Apartment apartmentToEdit) {
         if (!mPage.getData().getBoolean(ApartmentWizardPage2.WAS_PRELOADED)) {
             //Rent cost
-            //TODO
             //preferredRent = apartmentToEdit.getPreferredRentCost();
             //String formatted = NumberFormat.getCurrencyInstance().format(preferredRent);
             //mPage.getData().putString(ApartmentWizardPage2.APARTMENT_PREFERRED_RENT_COST_FORMATTED_STRING_DATA_KEY, formatted);
