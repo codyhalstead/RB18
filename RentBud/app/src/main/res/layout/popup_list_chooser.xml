@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="170dp"
         android:gravity="center"
-        android:text="No current apartments"
+        android:text="@string/no_apartments_to_display"
         android:textSize="18sp"
         android:visibility="invisible" />
 
@@ -26,6 +26,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
+            android:textColor="@color/white"
+            android:background="?attr/colorPrimary"
             android:text="Select A Tenant" />
 
         <LinearLayout
@@ -37,19 +39,18 @@
                 android:id="@+id/popupListSearchET"
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
-                android:layout_marginLeft="5dp"
-                android:layout_marginRight="5dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:maxLength="35"
                 android:background="@color/white"
                 android:drawableLeft="@drawable/ic_search_black_24dp"
                 android:ems="10"
                 android:gravity="left|center"
-                android:hint="Search" />
+                android:hint="@string/search" />
 
             <!--Border -->
             <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/caldroid_black" />
+                style="@style/RowBorder" />
 
 
         </LinearLayout>
@@ -61,22 +62,21 @@
             <ListView
                 android:id="@+id/popupListListView"
                 android:layout_width="match_parent"
+                style="@style/ListView"
                 android:layout_height="400dp">
 
             </ListView>
         </LinearLayout>
         <!--Border -->
         <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/caldroid_black" />
+            style="@style/RowBorder" />
 
         <TextView
             android:id="@+id/popupListCancelTV"
             android:layout_width="match_parent"
             android:layout_height="30dp"
             android:gravity="center"
-            android:text="Cancel" />
+            android:text="@string/cancel" />
 
     </LinearLayout>
 </RelativeLayout>

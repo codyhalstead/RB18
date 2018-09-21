@@ -1,129 +1,149 @@
 <?xml version="1.0" encoding="utf-8"?><!--Row -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    >
+    android:layout_height="match_parent">
 
-    <RelativeLayout
+    <LinearLayout
+        android:id="@+id/tenantRowLL1"
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="15dp"
         android:layout_marginRight="15dp"
-        android:layout_height="wrap_content"
-        android:id="@+id/tenantRowLL1"
-        >
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="7dp"
+        android:orientation="vertical">
 
         <!--First name, last name, and phone -->
         <LinearLayout
-            android:id="@+id/tenantRowLL2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:weightSum="4">
+            android:weightSum="3">
 
-            <RelativeLayout
-                android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/nameTV"
+                style="@style/RowLargeText"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="3">
-
-                <TextView
-                    android:id="@+id/firstNameTV"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Monet"
-                    style="@style/FormLabel"
-                    android:textSize="18sp" />
-
-                <TextView
-                    android:id="@+id/lastNameTV"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="8dp"
-                    android:layout_toRightOf="@+id/firstNameTV"
-                    style="@style/FormLabel"
-                    android:text="Tomioka"
-                    android:textSize="18sp" />
-
-            </RelativeLayout>
+                android:layout_weight="2"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="Monet Tomioka" />
 
             <TextView
                 android:id="@+id/phoneNumberTV"
-                android:layout_width="wrap_content"
+                style="@style/RowText"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                style="@style/FormText"
+                android:ellipsize="end"
                 android:gravity="right|bottom"
+                android:maxLines="1"
                 android:text="563-299-9577" />
+
+            <!--
+
+            <TextView
+                android:id="@+id/lastNameTV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_toRightOf="@+id/firstNameTV"
+                style="@style/RowLargeText"
+                android:text="Tomioka"
+                android:textSize="18sp" />
+                -->
 
         </LinearLayout>
 
         <!--Renting status -->
-        <TextView
-            android:id="@+id/tenantRowRentStatusTV"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/tenantRowLL2"
-            style="@style/FormText"
-            android:text="Currently Renting " />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/tenantRowApartmentStreet1TV"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/tenantRowLL2"
-            style="@style/FormText"
-            android:text="2390 Burlington Rd."
-            android:layout_toRightOf="@+id/tenantRowRentStatusTV"
-            />
+            <TextView
+                android:id="@+id/tenantRowRentStatusTV"
+                style="@style/RowText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/tenantRowLL2"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="Renting " />
 
+            <TextView
+                android:id="@+id/tenantRowApartmentAddressTV"
+                style="@style/RowText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/tenantRowLL2"
+                android:layout_toRightOf="@+id/tenantRowRentStatusTV"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="2390 Burlington Rd. Apt.2345" />
+
+            <!--
         <TextView
             android:id="@+id/tenantRowApartmentStreet2TV"
+            style="@style/RowText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/tenantRowLL2"
             android:layout_marginLeft="3dp"
-            style="@style/FormText"
-            android:text="Apt.2345"
             android:layout_toRightOf="@+id/tenantRowApartmentStreet1TV"
-            />
+            android:text="Apt.2345" />
+            -->
 
-        <TextView
-            android:id="@+id/tenantRowLeaseEndDisplayTV"
-            android:layout_width="wrap_content"
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/tenantRowRentStatusTV"
-            style="@style/FormText"
-            android:text="Lease ends on: "
-            />
+            android:orientation="horizontal"
+            android:weightSum="4">
 
-        <!--Lease status -->
-        <TextView
-            android:id="@+id/tenantRowLeaseEndTV"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@+id/tenantRowLeaseEndDisplayTV"
-            style="@style/FormText"
-            android:text="05/15/2014"
-            android:layout_below="@+id/tenantRowRentStatusTV"
-            />
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3">
 
-        <TextView
-            android:id="@+id/tenantRowLeaseIsPrimaryTV"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="right"
-            style="@style/FormText"
-            android:text="Primary"
-            android:layout_below="@+id/tenantRowRentStatusTV"
-            android:layout_alignParentRight="true"
-            />
+                <TextView
+                    android:id="@+id/tenantRowLeaseEndDisplayTV"
+                    style="@style/RowText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tenantRowRentStatusTV"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="@string/lease_ends_on" />
 
+                <!--Lease status -->
+                <TextView
+                    android:id="@+id/tenantRowLeaseEndTV"
+                    style="@style/RowText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tenantRowRentStatusTV"
+                    android:layout_toRightOf="@+id/tenantRowLeaseEndDisplayTV"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="05/15/2014" />
 
-    </RelativeLayout>
-    <!--Border -->
-    <View
-        android:id="@+id/tenantRowBarBorder"
-        android:layout_width="match_parent"
-        android:layout_height="3dp"
-        android:layout_below="@+id/tenantRowLL1"
-        android:layout_marginTop="8dp"
-        android:background="@color/caldroid_black" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tenantRowLeaseIsPrimaryTV"
+                style="@style/RowText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_below="@+id/tenantRowRentStatusTV"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:gravity="right"
+                android:maxLines="1"
+                android:text="@string/primary" />
+
+        </LinearLayout>
+    </LinearLayout>
+
 </RelativeLayout>

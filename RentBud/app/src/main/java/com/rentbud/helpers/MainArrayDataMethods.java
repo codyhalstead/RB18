@@ -2,6 +2,7 @@ package com.rentbud.helpers;
 
 import android.content.Context;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.util.Pair;
 
 import com.example.android.wizardpager.wizard.model.AbstractWizardModel;
@@ -21,6 +22,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
+
+import static android.support.constraint.Constraints.TAG;
 
 /**
  * Created by Cody on 3/20/2018.
@@ -145,6 +148,30 @@ public class MainArrayDataMethods {
         return new Pair<>(selectedTenant, otherTenants);
     }
 
+    public ArrayList<Tenant> getCachedRoomMatesNoPrimaryByLease(@Nullable Lease lease, int tenantID) {
+        //Tenant selectedTenant = null;
+        ArrayList<Tenant> otherTenants = new ArrayList<>();
+        if (lease != null) {
+            ArrayList<Integer> secondaryTenantIDs = lease.getSecondaryTenantIDs();
+            for (int i = 0; i < MainActivity.tenantList.size(); i++) {
+                if (MainActivity.tenantList.get(i).getId() == lease.getPrimaryTenantID()) {
+
+                } else {
+                    for (int y = 0; y < secondaryTenantIDs.size(); y++) {
+                        if (secondaryTenantIDs.get(y) == MainActivity.tenantList.get(i).getId()) {
+                            if (MainActivity.tenantList.get(i).getId() == tenantID) {
+                                //selectedTenant = MainActivity.tenantList.get(i);
+                            } else {
+                                otherTenants.add(MainActivity.tenantList.get(i));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return otherTenants;
+    }
+
     public void sortMainApartmentArray() {
         Collections.sort(MainActivity.apartmentList, new Comparator<Apartment>() {
             @Override
@@ -156,8 +183,10 @@ public class MainArrayDataMethods {
                 if (comp != 0) {
                     return comp;
                 } else {
-                    String s1 = apartment.getCity();
-                    String s2 = t1.getCity();
+                    String s1 = apartment.getStreet1AndStreet2String().replaceAll("[1234567890]", "");
+                    String s2 = t1.getStreet1AndStreet2String().replaceAll("[1234567890]", "");
+                    //String s1 = apartment.getCity();
+                    //String s2 = t1.getCity();
                     return s1.compareTo(s2);
                 }
             }
@@ -190,7 +219,17 @@ public class MainArrayDataMethods {
         });
     }
 
-    public ArrayList<MoneyLogEntry> sortMoneyByDate(ArrayList<MoneyLogEntry> moneyLogEntries){
+    public ArrayList<MoneyLogEntry> sortMoneyByDateDesc(ArrayList<MoneyLogEntry> moneyLogEntries){
+        Collections.sort(moneyLogEntries, new Comparator<MoneyLogEntry>() {
+            @Override
+            public int compare(MoneyLogEntry moneyLogEntry, MoneyLogEntry t1) {
+                return t1.getDate().compareTo(moneyLogEntry.getDate());
+            }
+        });
+        return moneyLogEntries;
+    }
+
+    public ArrayList<MoneyLogEntry> sortMoneyByDateAsc(ArrayList<MoneyLogEntry> moneyLogEntries){
         Collections.sort(moneyLogEntries, new Comparator<MoneyLogEntry>() {
             @Override
             public int compare(MoneyLogEntry moneyLogEntry, MoneyLogEntry t1) {
@@ -200,11 +239,11 @@ public class MainArrayDataMethods {
         return moneyLogEntries;
     }
 
-    public void sortLeaseArrayByStartDateAsc(ArrayList<Lease> leases){
+    public void sortLeaseArrayByStartDateDesc(ArrayList<Lease> leases){
         Collections.sort(leases, new Comparator<Lease>() {
             @Override
             public int compare(Lease lease, Lease t1) {
-                return lease.getLeaseStart().compareTo(t1.getLeaseStart());
+                return t1.getLeaseStart().compareTo(lease.getLeaseStart());
             }
         });
     }
@@ -227,12 +266,13 @@ public class MainArrayDataMethods {
         });
     }
 
+    //TOdo sort add1 ignore int
     public void sortApartmentArrayAlphabetically(ArrayList<Apartment> apartments){
         Collections.sort(apartments, new Comparator<Apartment>() {
             @Override
             public int compare(Apartment apartment, Apartment t1) {
-                String s1 = apartment.getCity();
-                String s2 = t1.getCity();
+                String s1 = apartment.getStreet1AndStreet2String().replaceAll("[1234567890]", "");
+                String s2 = t1.getStreet1AndStreet2String().replaceAll("[1234567890]", "");
                 return s1.compareTo(s2);
             }
         });

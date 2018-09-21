@@ -3,6 +3,7 @@ package com.rentbud.wizards;
 import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.Pair;
 
 import com.example.android.wizardpager.wizard.model.ModelCallbacks;
@@ -21,6 +22,8 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.support.constraint.Constraints.TAG;
+
 public class LeaseWizardPage3 extends Page {
     public static final String LEASE_RENT_COST_FORMATTED_STRING_DATA_KEY = "lease_rent_cost_formatted";
     public static final String LEASE_PAYMENT_FREQUENCY_STRING_DATA_KEY = "lease_payment_frequency_string";
@@ -28,11 +31,24 @@ public class LeaseWizardPage3 extends Page {
 
     public static final String LEASE_RENT_COST_DATA_KEY = "lease_rent_cost";
     public static final String LEASE_PAYMENT_FREQUENCY_DATA_KEY = "lease_payment_frequency";
-    public static final String LEASE_DUE_DATE_DATA_KEY = "lease_due_date";
+    public static final String LEASE_PAYMENT_FREQUENCY_ID_DATA_KEY = "lease_payment_frequency_id";
+
+    public static final String LEASE_PAYMENT_CYCLE_DATA_KEY = "lease_payment_frequency";
+    public static final String LEASE_PAYMENT_CYCLE_FREQUENCY_ID_DATA_KEY = "lease_payment_frequency_id";
+
+    public static final String LEASE_DUE_DATE_ID_DATA_KEY = "lease_due_date_id";
+
+    //public static final String LEASE_WEEKLY_DAY_ID_DATA_KEY = "lease_due_day_id";
+    //public static final String LEASE_MONTHLY_DAY_ID_DATA_KEY = "lease_due_day_id";
+
+    public static final String WAS_PRELOADED = "lease_page_3_was_preloaded";
+
     public static final String LEASE_PAYMENT_DATES_ARRAY_DATA_KEY = "lease_payment_dates_array";
 
     public static final String LEASE_IS_FIRST_PRORATED_REQUIRED_DATA_KEY = "lease_is_first_prorated_required";
     public static final String LEASE_IS_LAST_PRORATED_REQUIRED_DATA_KEY = "lease_is_last_prorated_required";
+
+    public static final String LEASE_ARE_PAYMENTS_WEEKLY_DATA_KEY = "lease_are_payments_weekly";
 
     public static final String LEASE_NEED_BRANCH = "lease_need_branch";
     private Context context;
@@ -40,20 +56,9 @@ public class LeaseWizardPage3 extends Page {
     public LeaseWizardPage3(ModelCallbacks callbacks, String title, Context context) {
         super(callbacks, title);
         this.context = context;
-        //Lease lease = NewLeaseWizard.leaseToEdit;
-        //if(lease != null){
-        //    BigDecimal rentCost = lease.getMonthlyRentCost();
-        //    String formattedRentCost = NumberFormat.getCurrencyInstance().format(rentCost);
-        //    mData.putString(LEASE_RENT_COST_FORMATTED_STRING_DATA_KEY, formattedRentCost);
-        //   // mData.putString(LEASE_PAYMENT_FREQUENCY_STRING_DATA_KEY, );
-        //    //mData.putString(LEASE_DUE_DATE_STRING_DATA_KEY, );
-        //    mData.putString(LEASE_RENT_COST_DATA_KEY, rentCost.toPlainString());
-        //    //mData.putInt(LEASE_PAYMENT_FREQUENCY_DATA_KEY,); //Todo
-        //    mData.putInt(LEASE_DUE_DATE_DATA_KEY, lease.getPaymentDay());
-        //    //mData.putStringArrayList(LEASE_PAYMENT_DATES_ARRAY_DATA_KEY, );
-        //    mData.putBoolean(LEASE_NEED_BRANCH, );
-        //    this.notifyDataChanged();
-        //}
+        mData.putBoolean(WAS_PRELOADED, false);
+       // mData.putString(LEASE_RENT_COST_DATA_KEY, "15");
+        // mData.putString(LEASE_NEED_BRANCH, "Yes");
     }
     protected ArrayList<String> mChoices = new ArrayList<String>();
     private List<Branch> mBranches = new ArrayList<>();
@@ -72,7 +77,7 @@ public class LeaseWizardPage3 extends Page {
 
     @Override
     public boolean isCompleted() {
-        return (!TextUtils.isEmpty(mData.getString(LEASE_RENT_COST_DATA_KEY)) && !TextUtils.isEmpty(mData.getString(LEASE_NEED_BRANCH)));
+        return (!TextUtils.isEmpty(mData.getString(LEASE_RENT_COST_DATA_KEY)) && !TextUtils.isEmpty(mData.getString(LEASE_NEED_BRANCH)) && !TextUtils.isEmpty(mData.getString(LEASE_PAYMENT_CYCLE_DATA_KEY)));
     }
 
     public LeaseWizardPage3 addBranch(String choice, Page... childPages) {
@@ -131,6 +136,8 @@ public class LeaseWizardPage3 extends Page {
             this.childPageList = childPageList;
         }
     }
+
+
 
     @Override
     public void notifyDataChanged() {

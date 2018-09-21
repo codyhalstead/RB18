@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     style="@style/WizardPageContainer">
 
     <TextView style="@style/WizardPageTitle" />
@@ -19,10 +20,60 @@
 
             <TextView
                 style="@style/WizardTitle"
-                android:text="New Apt. Address"
+                android:text="@string/new_apt_address"
                 android:id="@+id/apartmentWizardPageOneHeader"
                 />
 
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:hintTextAppearance="@style/WizardHintText"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/apartmentWizardAddress1ET"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLength="50"
+                    android:hint="@string/address_line_1_req"
+                    android:inputType="textCapWords" />
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:hintTextAppearance="@style/WizardHintText"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/apartmentWizardAddress2ET"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLength="50"
+                    android:hint="@string/address_line_2_req"
+                    android:inputType="textCapWords" />
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:hintTextAppearance="@style/WizardHintText"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/apartmentWizardCityET"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLength="30"
+                    android:hint="@string/city_req"
+                    android:inputType="textCapWords" />
+            </android.support.design.widget.TextInputLayout>
+
+
+            <!--
             <TextView
                 android:id="@+id/apartmentWizardAddress1LabelTV"
                 style="@style/WizardFormLabel"
@@ -88,38 +139,67 @@
                 android:paddingStart="10dp"
                 android:saveEnabled="false"
                 android:text="" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                android:orientation="horizontal"
-                android:weightSum="2"
-                >
-
-                <LinearLayout
-                    android:layout_width="0dp"
+-->
+                <!--<LinearLayout
+                    android:layout_width="200dp"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:layout_weight="1"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginTop="10dp"
                     >
 
                     <TextView
                         android:id="@+id/apartmentWizardStateLabelTV"
-                        style="@style/WizardFormLabel"
+                        style="@style/SpinnerLabelStyle"
                         android:text="*State" />
 
-                    <Spinner
-                        android:id="@+id/apartmentWizardStateSpinner"
+                    <RelativeLayout
                         android:layout_width="200dp"
                         android:layout_height="40dp"
-                        android:layout_marginRight="10dp"
-                        android:background="@android:drawable/btn_dropdown"
-                        android:drawSelectorOnTop="true"
-                        />
+                        android:layout_marginRight="5dp"
+                        style="@style/MainSpinnerStyle">
+                        <Spinner
+                            style="@style/Widget.AppCompat.DropDownItem.Spinner"
+                            android:layout_width="match_parent"
+                            android:layout_height="40dp"
+                            android:id="@+id/apartmentWizardStateSpinner"
+                            />
+                    </RelativeLayout>
 
-                </LinearLayout>
+                </LinearLayout>-->
 
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:hintTextAppearance="@style/WizardHintText"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/apartmentWizardStateET"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLength="30"
+                    android:hint="@string/state__province_req"
+                    android:inputType="textCapWords" />
+            </android.support.design.widget.TextInputLayout>
+
+                <android.support.design.widget.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:hintTextAppearance="@style/WizardHintText"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginTop="10dp">
+
+                    <android.support.design.widget.TextInputEditText
+                        android:id="@+id/apartmentWizardZIPET"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/zip_req"
+                        android:maxLength="20"
+                        android:inputType="textPostalAddress" />
+                </android.support.design.widget.TextInputLayout>
+                <!--
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -150,9 +230,7 @@
                         android:text="" />
 
                 </LinearLayout>
-
-            </LinearLayout>
-
+-->
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

@@ -23,7 +23,7 @@ public class ExpenseWizardModel extends AbstractWizardModel {
         return new PageList(
 
                 new ExpenseWizardPage1(this, "Page1", super.mContext).setRequired(true),
-                new ExpenseWizardPage2(this, "Page2", super.mContext).setRequired(true),
+                new ExpenseWizardPage2(this, "Page2", false, super.mContext).setRequired(true),
                 new ExpenseWizardPage3(this, "Page3", super.mContext).setRequired(false)
         );
     }

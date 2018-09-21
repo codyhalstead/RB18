@@ -1,41 +1,30 @@
 package com.rentbud.activities;
 
-import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.ColorDrawable;
-import android.net.Uri;
 import android.os.Build;
-import android.os.Environment;
 import android.preference.PreferenceManager;
-import android.provider.SyncStateContract;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.FileProvider;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Toast;
 
-import com.example.android.wizardpager.MainActivity5;
-import com.example.cody.rentbud.BuildConfig;
 import com.example.cody.rentbud.R;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.InterstitialAd;
 import com.rentbud.fragments.CalendarFragment;
 import com.rentbud.fragments.ExpenseListFragment;
 import com.rentbud.fragments.HomeFragment;
@@ -44,33 +33,18 @@ import com.rentbud.fragments.IncomeListFragment;
 import com.rentbud.fragments.LeaseListFragment;
 import com.rentbud.fragments.TenantListFragment;
 import com.rentbud.fragments.TotalsFragment;
-import com.rentbud.helpers.ApartmentTenantViewModel;
-import com.rentbud.helpers.FileChooserDialog;
-import com.rentbud.helpers.GenericFileProvider;
 import com.rentbud.helpers.MainArrayDataMethods;
 import com.rentbud.helpers.MainViewModel;
 import com.rentbud.model.Apartment;
 import com.rentbud.model.Lease;
 import com.rentbud.model.Tenant;
-import com.rentbud.model.TypeTotal;
 import com.rentbud.model.User;
 import com.rentbud.sqlite.DatabaseHandler;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.channels.FileChannel;
-import java.security.Permission;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 import java.util.TreeMap;
-
-import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
-import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener,
         LeaseListFragment.OnDatesChangedListener,
@@ -94,6 +68,12 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     public static final int REQUEST_CALENDAR_VIEW = 46;
     public static final int REQUEST_EMAIL = 47;
     public static final int REQUEST_SETTINGS = 48;
+    public static final int REQUEST_IMAGE_DELETE_PERMISSION = 49;
+    public static final int REQUEST_ADAPTER_IMAGE_DELETE_PERMISSION = 50;
+    public static final int REQUEST_FILE_PERMISSION = 51;
+    public static final int REQUEST_PHONE_CALL_PERMISSION = 52;
+    public static final int REQUEST_CAMERA_FOR_MAIN_PIC = 53;
+    public static final int REQUEST_CAMERA_FOR_OTHER_PICS = 54;
 
     public static final int RESULT_DATA_WAS_MODIFIED = 80;
     //Fragment tag
@@ -106,16 +86,14 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     Boolean isHomeFragDisplayed;
     Boolean isExpenseFragDisplayed;
     Boolean isLeaseFragDisplayed;
-    String lastEmailedFilePath;
     MainArrayDataMethods dataMethods;
     //initialized with setUpDrawer
     DrawerLayout drawer;
     //initialized with setUpNavView()
     NavigationView navigationView;
     //initialized with setUpUser()
-    public Uri profilePic;
     //initialized with cacheUserDB()
-    public static TreeMap<String, Integer> stateMap;
+    //public static TreeMap<String, Integer> stateMap;
     public static ArrayList<Tenant> tenantList;
     public static ArrayList<Apartment> apartmentList;
     public static ArrayList<Lease> currentLeasesList;
@@ -129,22 +107,30 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     //public static TreeMap<String, Integer> eventTypeLabels;
     //public Date filterDateStart, filterDateEnd;
     public MainViewModel viewModel;
+    private InterstitialAd mInterstitialAd;
 
     int testTenants = 0;
     int testApartments = 0;
+    int screenChanges = 0;
+    int adFrequency = 4;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        //MobileAds.initialize(this, "ca-app-pub-3940256099942544/6300978111");
         initializeVariables();
         super.setupUserAppTheme(curThemeChoice);
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main_nav_drawer);
         setUpToolbar();
         setUpDrawer();
         setUpNavView();
+        prepareAd();
+        //Log.d("TAG", "onCreate: !!!!!!!!!!!!!" + stringFromJNI());
+        viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
         //If user is empty (Last user logged out or fist time loading app), begin log in activity
         if (userIsEmpty()) {
             Intent intent = new Intent(this, LoginActivity.class);
+            initializeCachedData();
             startActivityForResult(intent, REQUEST_SIGNIN);
             //User is still logged in, get full user data
         } else {
@@ -154,54 +140,30 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 this.isHomeFragDisplayed = savedInstanceState.getBoolean("isHome");
                 this.isExpenseFragDisplayed = savedInstanceState.getBoolean("isExpense");
                 this.isLeaseFragDisplayed = savedInstanceState.getBoolean("isLease");
+                this.screenChanges = savedInstanceState.getInt("screenChanges");
             } else {
                 //Display home if initial load and user is logged in
                 displaySelectedScreen(R.id.nav_home);
             }
-
             //Easy data loading for testing
             //dbHandler.addTestData(user);
-
             //Cache users data into arrayLists
-            viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
-            cacheUsersDB();
-
-            //todo
-            if (viewModel.getCachedApartments() == null) {
-                viewModel.init();
-                //viewModel.setCachedApartments(dbHandler.getUsersApartments(MainActivity.user));
-                //viewModel.setCachedTenants(dbHandler.getUsersTenants(MainActivity.user));
-                Date endDate = Calendar.getInstance().getTime();
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTime(endDate);
-                calendar.set(Calendar.HOUR_OF_DAY, 0);
-                calendar.set(Calendar.MINUTE, 0);
-                calendar.set(Calendar.SECOND, 0);
-                calendar.set(Calendar.MILLISECOND, 0);
-                Date selectedYear = calendar.getTime();
-                calendar.add(Calendar.YEAR, -1);
-                Date startDate = calendar.getTime();
-                viewModel.setStartDateRange(startDate);
-                viewModel.setEndDateRange(endDate);
-                viewModel.setCachedExpenses(dbHandler.getUsersExpensesWithinDates(MainActivity.user, startDate, endDate));
-                viewModel.setCachedIncome(dbHandler.getUsersIncomeWithinDates(MainActivity.user, startDate, endDate));
-                viewModel.setCachedLeases(dbHandler.getUsersActiveLeasesWithinDates(MainActivity.user, startDate, endDate));
-                viewModel.setHomeTabYearSelected(selectedYear);
-            }
+            initializeCachedData();
             //deleteDir(Environment.getExternalStorageDirectory());
-            //TODO change caching so it doesn't re-cache on phone flip
-            File f = new File(Environment.getExternalStorageDirectory(), "Rentbud");
-            if (!f.exists()) {
-                f.mkdirs();
-            }
+            //File f = new File(Environment.getExternalStorageDirectory(), "Rentbud");
+            //if (!f.exists()) {
+            //    f.mkdirs(); q
+            //}
         }
     }
+
+    //public native String stringFromJNI();
 
     @Override
     protected void onResume() {
         super.onResume();
         //If theme choice has changed, reload for new theme
-        if(MainActivity.user != null) {
+        if (MainActivity.user != null) {
             if (preferences.getInt(MainActivity.user.getEmail(), 0) != curThemeChoice) {
                 this.recreate();
             }
@@ -211,7 +173,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     @Override
     public void onPause() {
         super.onPause();
-        if(alertDialog != null){
+        if (alertDialog != null) {
             alertDialog.dismiss();
         }
     }
@@ -248,24 +210,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 editor.putString("last_user_email", user.getEmail());
                 editor.putString("last_user_password", user.getPassword());
                 editor.commit();
-                viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
-
-                if (viewModel.getCachedApartments() == null) {
-                    viewModel.init();
-                }
                 //Cache newly logged users data into arrayLists
                 //stateMap = dbHandler.getStateTreemap();
-                cacheUsersDB();
-                Date endDate = Calendar.getInstance().getTime();
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTime(endDate);
-                calendar.add(Calendar.YEAR, -1);
-                Date startDate = calendar.getTime();
-                viewModel.setStartDateRange(startDate);
-                viewModel.setEndDateRange(endDate);
-                viewModel.setCachedExpenses(dbHandler.getUsersExpensesWithinDates(MainActivity.user, startDate, endDate));
-                viewModel.setCachedIncome(dbHandler.getUsersIncomeWithinDates(MainActivity.user, startDate, endDate));
-                viewModel.setCachedLeases(dbHandler.getUsersActiveLeasesWithinDates(MainActivity.user, startDate, endDate));
+                cacheDataForNewUser();
                 //Replace current frag with home frag
                 navigationView.getMenu().getItem(0).setChecked(true);
                 android.support.v4.app.FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
@@ -316,7 +263,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 viewModel.setCachedIncome(dbHandler.getUsersIncomeWithinDates(MainActivity.user, viewModel.getStartDateRangeDate().getValue(), viewModel.getEndDateRangeDate().getValue()));
                 viewModel.setCachedExpenses(dbHandler.getUsersExpensesWithinDates(MainActivity.user, viewModel.getStartDateRangeDate().getValue(), viewModel.getEndDateRangeDate().getValue()));
                 MainActivity.tenantList = dbHandler.getUsersTenantsIncludingInactive(MainActivity.user);
-                MainActivity.tenantList = dbHandler.getUsersTenantsIncludingInactive(MainActivity.user);
+                MainActivity.apartmentList = dbHandler.getUsersApartmentsIncludingInactive(MainActivity.user);
                 //Re-query cached tenant array to update cache and refresh current fragment to display new data
                 //dataMethods.sortMainIncomeArray();
                 //refreshFragView();
@@ -411,8 +358,12 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }
         if (requestCode == REQUEST_SETTINGS) {
             if (resultCode == RESULT_DATA_WAS_MODIFIED) {
-                if (data.getExtras().getBoolean("need_to_log_out")) {
-                    logout();
+                if (data != null) {
+                    if (data.getExtras().getBoolean("need_to_log_out")) {
+                        logout();
+                    }
+                } else {
+                    displaySelectedScreen(R.id.nav_home);
                 }
             }
         }
@@ -426,13 +377,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         editor.putString("last_user_password", "");
         editor.apply();
         MainActivity.user = null;
-        //MainActivity.apartmentList.clear();
-        //MainActivity.tenantList.clear();
-        MainActivity.currentLeasesList.clear();
-        //MainActivity5.incomeList.clear();
-        //MainActivity5.expenseList.clear();
-        //TODO maybe not clear stateMap
-        MainActivity.stateMap.clear();
+        MainActivity.apartmentList = null;
+        MainActivity.tenantList = null;
+        MainActivity.currentLeasesList = null;
         //Launch LoginActivity for result
         Intent intent = new Intent(this, LoginActivity.class);
         startActivityForResult(intent, REQUEST_SIGNIN);
@@ -484,6 +431,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             case R.id.nav_calendar:
                 //Calendar fragment
                 fragment = new CalendarFragment();
+                //Intent intent = new Intent(this, CaldroidTestFrag.class);
+                //startActivity(intent);
+                //fragment = new CaldroidTestFrag();
                 break;
 
             case R.id.nav_apartment:
@@ -519,9 +469,28 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             android.support.v4.app.FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.replace(R.id.screen_area, fragment, CURRENT_FRAG_TAG);
             ft.commit();
+
         }
         //Close nav drawer on selection
         this.drawer.closeDrawer(GravityCompat.START);
+        handleAds();
+    }
+
+    private void handleAds() {
+        screenChanges++;
+        if (screenChanges >= adFrequency) {
+            if (mInterstitialAd.isLoaded()) {
+                mInterstitialAd.show();
+                screenChanges = 0;
+                prepareAd();
+            }
+        }
+    }
+
+    private void prepareAd(){
+        mInterstitialAd = new InterstitialAd(this);
+        mInterstitialAd.setAdUnitId("ca-app-pub-3940256099942544/1033173712");
+        mInterstitialAd.loadAd(new AdRequest.Builder().build());
     }
 
     @Override
@@ -539,6 +508,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         outState.putBoolean("isHome", isHomeFragDisplayed);
         outState.putBoolean("isExpense", isExpenseFragDisplayed);
         outState.putBoolean("isLease", isLeaseFragDisplayed);
+        outState.putInt("screenChanges", screenChanges);
     }
 
     public void apartmentFABClick(View view) {
@@ -624,50 +594,83 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     private void setUpUser() {
         //Replaces partial user information with full user information, and sets profilePic variable. Used in onCreate
         MainActivity.user = dbHandler.getUser(MainActivity.user.getEmail(), MainActivity.user.getPassword());
-        if (MainActivity.user.getProfilePic() != null) {
-            profilePic = Uri.parse(MainActivity.user.getProfilePic());
+    }
+
+    private void initializeCachedData() {
+        //Querys database and caches users data into array lists
+        if (MainActivity.expenseTypeLabels == null) {
+            MainActivity.expenseTypeLabels = dbHandler.getExpenseTypeLabelsTreeMap();
+        }
+        if (MainActivity.incomeTypeLabels == null) {
+            MainActivity.incomeTypeLabels = dbHandler.getIncomeTypeLabelsTreeMap();
+        }
+        if (MainActivity.user != null) {
+            if (MainActivity.tenantList == null) {
+                MainActivity.tenantList = dbHandler.getUsersTenantsIncludingInactive(MainActivity.user);
+            }
+            if (MainActivity.apartmentList == null) {
+                MainActivity.apartmentList = dbHandler.getUsersApartmentsIncludingInactive(MainActivity.user);
+            }
+            if (MainActivity.currentLeasesList == null) {
+                MainActivity.currentLeasesList = dbHandler.getUsersActiveLeases(MainActivity.user);
+            }
+        }
+        if (viewModel.getCachedApartments() == null) {
+            viewModel.init();
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.HOUR_OF_DAY, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
+            Date selectedYear = calendar.getTime();
+            calendar.add(Calendar.MONTH, 1);
+            Date endDate = calendar.getTime();
+            calendar.add(Calendar.YEAR, -1);
+            Date startDate = calendar.getTime();
+            viewModel.setStartDateRange(startDate);
+            viewModel.setEndDateRange(endDate);
+            if (MainActivity.user != null) {
+                viewModel.setCachedExpenses(dbHandler.getUsersExpensesWithinDates(MainActivity.user, startDate, endDate));
+                viewModel.setCachedIncome(dbHandler.getUsersIncomeWithinDates(MainActivity.user, startDate, endDate));
+                viewModel.setCachedLeases(dbHandler.getUsersActiveLeasesWithinDates(MainActivity.user, startDate, endDate));
+            }
+            viewModel.setHomeTabYearSelected(selectedYear);
         }
     }
 
-    private void cacheUsersDB() {
-        //Querys database and caches users data into array lists
-        MainActivity.stateMap = dbHandler.getStateTreemap();
-        MainActivity.expenseTypeLabels = dbHandler.getExpenseTypeLabelsTreeMap();
-        MainActivity.incomeTypeLabels = dbHandler.getIncomeTypeLabelsTreeMap();
-        //MainActivity.eventTypeLabels = dbHandler.getEventTypeLabels();
-        MainActivity.tenantList = dbHandler.getUsersTenantsIncludingInactive(MainActivity.user);
-        MainActivity.apartmentList = dbHandler.getUsersApartmentsIncludingInactive(MainActivity.user);
-        MainActivity.currentLeasesList = dbHandler.getUsersActiveLeases(MainActivity.user);
-        //MainActivity.expenseTypes = dbHandler.getExpenseTypeLabels();
-        //MainActivity.incomeTypes = dbHandler.getIncomeTypeLabels();
-        //Date endDate = Calendar.getInstance().getTime();
-        if (viewModel.getCachedApartments() == null) {
-            viewModel.init();
+    private void cacheDataForNewUser() {
+        if (MainActivity.expenseTypeLabels == null) {
+            MainActivity.expenseTypeLabels = dbHandler.getExpenseTypeLabelsTreeMap();
         }
-        //viewModel.setCachedApartments(dbHandler.getUsersApartments(MainActivity.user));
-        //viewModel.setCachedTenants(dbHandler.getUsersTenants(MainActivity.user));
-        Date endDate = Calendar.getInstance().getTime();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(endDate);
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-        Date selectedYear = calendar.getTime();
-        calendar.add(Calendar.YEAR, -1);
-        Date startDate = calendar.getTime();
-        viewModel.setStartDateRange(startDate);
-        viewModel.setEndDateRange(endDate);
-        viewModel.setCachedExpenses(dbHandler.getUsersExpensesWithinDates(MainActivity.user, startDate, endDate));
-        viewModel.setCachedIncome(dbHandler.getUsersIncomeWithinDates(MainActivity.user, startDate, endDate));
-        viewModel.setCachedLeases(dbHandler.getUsersActiveLeasesWithinDates(MainActivity.user, startDate, endDate));
-        viewModel.setHomeTabYearSelected(selectedYear);
-        //Calendar calendar = Calendar.getInstance();
-        //calendar.setTime(endDate);
-        //calendar.add(Calendar.YEAR, -1);
-        //Date startDate = calendar.getTime();
-        //MainActivity5.expenseList = dbHandler.getUsersExpensesWithinDates(MainActivity5.user, startDate, endDate);
-        //MainActivity5.incomeList = dbHandler.getUsersIncomeWithinDates(MainActivity5.user, startDate, endDate);
+        if (MainActivity.incomeTypeLabels == null) {
+            MainActivity.incomeTypeLabels = dbHandler.getIncomeTypeLabelsTreeMap();
+        }
+        if (MainActivity.user != null) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.HOUR_OF_DAY, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
+            Date selectedYear = calendar.getTime();
+            calendar.add(Calendar.MONTH, 1);
+            Date endDate = calendar.getTime();
+            calendar.add(Calendar.YEAR, -1);
+            Date startDate = calendar.getTime();
+            if (viewModel.getCachedApartments() == null) {
+                viewModel.init();
+            }
+            viewModel.setStartDateRange(startDate);
+            viewModel.setEndDateRange(endDate);
+            viewModel.setStartDateRange(startDate);
+            viewModel.setEndDateRange(endDate);
+            viewModel.setCachedExpenses(dbHandler.getUsersExpensesWithinDates(MainActivity.user, startDate, endDate));
+            viewModel.setCachedIncome(dbHandler.getUsersIncomeWithinDates(MainActivity.user, startDate, endDate));
+            viewModel.setCachedLeases(dbHandler.getUsersActiveLeasesWithinDates(MainActivity.user, startDate, endDate));
+            viewModel.setHomeTabYearSelected(selectedYear);
+            MainActivity.tenantList = dbHandler.getUsersTenantsIncludingInactive(MainActivity.user);
+            MainActivity.apartmentList = dbHandler.getUsersApartmentsIncludingInactive(MainActivity.user);
+            MainActivity.currentLeasesList = dbHandler.getUsersActiveLeases(MainActivity.user);
+        }
     }
 
     public void add100Tenants(View view) {
@@ -684,7 +687,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     public void add100Apartments(View view) {
         int i = 0;
         while (i < 100) {
-            Apartment apartment = new Apartment(0, "2366 Lange Ave", "Apt." + testApartments, "Atalissa", 1, "AL",
+            Apartment apartment = new Apartment(0, "2366 Lange Ave", "Apt." + testApartments, "Atalissa", "AL",
                     "53654", "2 bed 1 bath", false, "Big ol building", null, null, true);
             dbHandler.addNewApartment(apartment, user.getId());
             testApartments++;
@@ -731,8 +734,16 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         viewModel.setCachedExpenses(dbHandler.getUsersExpensesWithinDates(MainActivity.user, dateStart, dateEnd));
     }
 
-    public static boolean isSDCARDAvailable() {
-        return Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
+    public static boolean hasPermissions(Context context, String... permissions) {
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && context != null && permissions != null) {
+            for (String permission : permissions) {
+                if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
+
 
 }

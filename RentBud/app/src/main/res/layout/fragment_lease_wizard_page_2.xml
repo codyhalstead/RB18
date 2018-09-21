@@ -18,16 +18,50 @@
             android:orientation="vertical">
 
             <TextView style="@style/WizardTitle"
-                android:text="Tenants"
+                android:text="@string/tenants"
                 />
 
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/leaseWizardPrimaryTenantTV"
+                    hintTextAppearance="@style/WizardHintText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/primary_tenant_req"
+                    android:focusable="false"
+                    android:inputType="none" />
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                hintTextAppearance="@style/WizardHintText"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/leaseWizardSecondaryTenantsTV"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/other_tenants"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:saveEnabled="false"
+                    android:inputType="none" />
+            </android.support.design.widget.TextInputLayout>
+            <!--
             <TextView
                 android:id="@+id/leaseWizardPrimaryTenantLabelTV"
                 style="@style/WizardFormLabel"
                 android:text="*Primary Tenant" />
 
             <TextView
-                android:id="@+id/leaseWizardPrimaryTenantTV"
+                android:id="@+id/leaseWizardSecondaryTenantsTV"
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
                 android:layout_marginBottom="20dp"
@@ -39,7 +73,8 @@
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
                 android:paddingStart="10dp"
-                android:saveEnabled="false" />
+                android:saveEnabled="false"
+                />
 
             <TextView
                 android:id="@+id/leaseWizardSecondaryTenantLabelTV"
@@ -77,7 +112,7 @@
                     android:longClickable="false"
                     android:clickable="false"
                     />
-
+-->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -89,27 +124,65 @@
                         android:layout_weight="1"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        style="?android:attr/buttonBarButtonStyle"
-                        android:text="Remove" />
+                        style="@style/MainButtonStyle"
+                        android:layout_margin="10dp"
+                        android:text="@string/remove" />
 
                     <Button
                         android:id="@+id/leaseWizardSecondaryTenantsAddBtn"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        style="?android:attr/buttonBarButtonStyle"
+                        android:layout_margin="10dp"
+                        style="@style/MainButtonStyle"
                         android:layout_weight="1"
-                        android:text="Add" />
+                        android:text="@string/add" />
 
                 </LinearLayout>
 
-
+<!--
             </LinearLayout>
-
+-->
             <TextView style="@style/WizardTitle"
-                android:text="Deposit"
+                android:text="@string/deposit"
                 android:id="@+id/leaseWizardDepositHeaderTV"
                 />
 
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                hintTextAppearance="@style/WizardHintText"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/leaseWizardDepositET"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLength="14"
+                    android:hint="@string/deposit_amount"
+                    android:text="$0.00"
+                    android:saveEnabled="false"
+                    android:inputType="number" />
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                hintTextAppearance="@style/WizardHintText"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/leaseWizardDepositWithheldET"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:saveEnabled="false"
+                    android:maxLength="14"
+                    android:hint="Deposit Withheld"
+                    android:text="$0.00"
+                    android:inputType="number" />
+            </android.support.design.widget.TextInputLayout>
+            <!--
             <TextView
                 android:id="@+id/leaseWizardDepositLabelTV"
                 style="@style/WizardFormLabel"
@@ -155,7 +228,7 @@
                 android:saveEnabled="false"
                 android:inputType="number"
                 />
-
+-->
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

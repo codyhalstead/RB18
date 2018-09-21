@@ -1,5 +1,7 @@
 package com.rentbud.activities;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -19,6 +21,7 @@ import com.example.android.wizardpager.wizard.ui.PageFragmentCallbacks;
 import com.example.android.wizardpager.wizard.ui.ReviewFragment;
 import com.example.android.wizardpager.wizard.ui.StepPagerStrip;
 import com.example.cody.rentbud.R;
+import com.rentbud.fragments.ReviewFragmentCustom;
 import com.rentbud.fragments.TenantListFragment;
 import com.rentbud.helpers.MainArrayDataMethods;
 import com.rentbud.model.Tenant;
@@ -32,7 +35,7 @@ import java.util.List;
 
 public class NewTenantWizard extends BaseActivity implements
         PageFragmentCallbacks,
-        ReviewFragment.Callbacks,
+        ReviewFragmentCustom.Callbacks,
         ModelCallbacks {
     private ViewPager mPager;
     private MyPagerAdapter mPagerAdapter;
@@ -52,6 +55,7 @@ public class NewTenantWizard extends BaseActivity implements
     private DatabaseHandler dbhandler;
     private MainArrayDataMethods mainArrayDataMethods;
     public Tenant tenantToEdit;
+    private AlertDialog alertDialog;
 
     public void onCreate(Bundle savedInstanceState) {
         setupUserAppTheme(MainActivity.curThemeChoice);
@@ -61,8 +65,10 @@ public class NewTenantWizard extends BaseActivity implements
         if (extras != null) {
             tenantToEdit = extras.getParcelable("tenantToEdit");
             mWizardModel.preloadData(extras);
+            this.setTitle(R.string.edit_tenant);
         } else {
             tenantToEdit = null;
+            this.setTitle(R.string.new_tenant_creation);
         }
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
@@ -199,6 +205,39 @@ public class NewTenantWizard extends BaseActivity implements
     }
 
     @Override
+    public void onBackPressed() {
+        showCancelConfirmation();
+    }
+
+    public void showCancelConfirmation(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.exit_wizard_confirmation);
+        builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                NewTenantWizard.this.finish();
+            }
+        });
+        builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+        // create and show the alert dialog
+        alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if(alertDialog != null){
+            alertDialog.dismiss();
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         mWizardModel.unregisterListener(this);
@@ -273,7 +312,7 @@ public class NewTenantWizard extends BaseActivity implements
         @Override
         public Fragment getItem(int i) {
             if (i >= mCurrentPageSequence.size()) {
-                return new ReviewFragment();
+                return new ReviewFragmentCustom();
             }
 
             return mCurrentPageSequence.get(i).createFragment();

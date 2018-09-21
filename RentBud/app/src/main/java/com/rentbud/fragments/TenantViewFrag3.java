@@ -23,23 +23,12 @@ import android.widget.TextView;
 
 import com.example.cody.rentbud.R;
 import com.rentbud.activities.MainActivity;
-import com.rentbud.activities.NewExpenseWizard;
-import com.rentbud.activities.NewIncomeWizard;
 import com.rentbud.activities.NewLeaseWizard;
-import com.rentbud.adapters.ExpenseListAdapter;
 import com.rentbud.adapters.LeaseListAdapter;
 import com.rentbud.helpers.ApartmentTenantViewModel;
 import com.rentbud.model.Lease;
 import com.rentbud.model.Tenant;
 import com.rentbud.sqlite.DatabaseHandler;
-
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -49,7 +38,7 @@ public class TenantViewFrag3 extends android.support.v4.app.Fragment implements 
     public TenantViewFrag3() {
         // Required empty public constructor
     }
-    TextView noIncomeTV;
+    TextView noLeaseTV;
     FloatingActionButton fab;
     LinearLayout totalBarLL;
     LeaseListAdapter leaseListAdapter;
@@ -65,13 +54,13 @@ public class TenantViewFrag3 extends android.support.v4.app.Fragment implements 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.lease_view_fragment_two, container, false);
+        return inflater.inflate(R.layout.fragment_view_list, container, false);
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        //this.noIncomeTV = view.findViewById(R.id.moneyEmptyListTV);
+        this.noLeaseTV = view.findViewById(R.id.emptyListTV);
         this.totalBarLL = view.findViewById(R.id.moneyListTotalBarLL);
         totalBarLL.setVisibility(View.GONE);
         this.fab = view.findViewById(R.id.listFab);
@@ -140,6 +129,8 @@ public class TenantViewFrag3 extends android.support.v4.app.Fragment implements 
             leaseListAdapter = new LeaseListAdapter(getActivity(), ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getLeaseArray().getValue(), accentColor, null);
             listView.setAdapter(leaseListAdapter);
             listView.setOnItemClickListener(this);
+            noLeaseTV.setText(R.string.no_leases_to_display_tenant);
+            listView.setEmptyView(noLeaseTV);
         }
     }
 

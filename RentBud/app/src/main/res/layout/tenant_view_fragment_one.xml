@@ -1,327 +1,316 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical"
+        android:id="@+id/adViewLL"
+        >
+        <View
+            android:id="@+id/apartmentListBarBorder"
+            android:layout_width="match_parent"
+            style="@style/RowBorder" />
+
+        <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/adView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
+            ads:adSize="BANNER"
+            ads:adUnitId="ca-app-pub-3940256099942544/6300978111" />
+
+    </LinearLayout>
+
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent"
+        android:layout_above="@+id/adViewLL"
+        >
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!--Name layout -->
-            <LinearLayout
+            <TableLayout
                 android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:gravity="center"
-                android:orientation="horizontal"
-                android:weightSum="2">
-
+                android:layout_height="match_parent">
 
                 <TextView
-                    android:id="@+id/tenantViewFirstNameTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Cody"
-                    style="@style/FormText"
-                    android:textSize="20sp" />
+                    style="@style/ViewInformationRowHeaderTextStyle"
+                    android:text="@string/tenant_information" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="  "
-                    style="@style/FormText"
-                    />
+                <!--Name -->
+                <TableRow
+                    style="@style/ViewInformationRowStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
-                <TextView
-                    android:id="@+id/tenantViewLastNameTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Halstead"
-                    style="@style/FormText"
-                    android:textSize="20sp" />
+                    <TextView
+                        android:id="@+id/tenantViewNameLabelTextView"
+                        style="@style/ViewInformationRowLeftTextStyle"
+                        android:text="@string/name" />
 
-            </LinearLayout>
+                    <TextView
+                        android:id="@+id/tenantViewNameTextView"
+                        style="@style/ViewInformationRowRightTextStyle"
+                        android:text="Cody Halstead" />
 
-            <!--Border -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_gravity="center"
-                android:layout_height="2dp"
-                android:background="@color/caldroid_black"
-                android:layout_marginTop="15dp"
-                />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                style="@style/FormLabel"
-                android:text="Contact Information"
-                />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="15dp"
-                android:layout_marginRight="15dp"
-                android:orientation="vertical"
-                >
+                </TableRow>
 
                 <!--Phone -->
-                <TextView
-                    android:id="@+id/tenantViewPhoneTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    style="@style/FormText"
-                    android:text="1-555-4444"
-                    />
+                <TableRow
+                    style="@style/ViewInformationRowStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/tenantViewPhoneLabelTextView"
+                        style="@style/ViewInformationRowLeftTextStyle"
+                        android:text="@string/phone" />
+
+                    <TextView
+                        android:id="@+id/tenantViewPhoneTextView"
+                        style="@style/ViewInformationRowRightTextStyle"
+                        android:text="234-435-6784" />
+
+                </TableRow>
 
                 <!--Email -->
-                <TextView
-                    android:id="@+id/tenantViewEmailTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    style="@style/FormText"
-                    android:text="koko@dodo.com"
-                    />
-
-            </LinearLayout>
-
-            <!--Border -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_gravity="center"
-                android:layout_height="2dp"
-                android:background="@color/caldroid_black"
-                android:layout_marginTop="15dp"
-                />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                style="@style/FormLabel"
-                android:text="Emergency Contact"
-
-                />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="15dp"
-                android:layout_marginRight="15dp"
-                android:orientation="vertical"
-                >
-
-                <!--Name layout -->
-                <LinearLayout
+                <TableRow
+                    style="@style/ViewInformationRowStyle"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:orientation="horizontal"
-                    android:weightSum="2">
+                    android:layout_height="wrap_content">
 
                     <TextView
-                        android:id="@+id/tenantViewEmergencyFirstNameTextView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/FormText"
-                        android:text="Cody" />
+                        android:id="@+id/tenantViewEmailLabelTextView"
+                        style="@style/ViewInformationRowLeftTextStyle"
+                        android:text="@string/email" />
 
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/FormText"
-                        android:text="  " />
+                        android:id="@+id/tenantViewEmailTextView"
+                        style="@style/ViewInformationRowRightTextStyle"
+                        android:text="kft@hotmail.com" />
 
-                    <TextView
-                        android:id="@+id/tenantViewEmergencyLastNameTextView"
-                        android:layout_width="wrap_content"
-                        style="@style/FormText"
-                        android:layout_height="wrap_content"
-                        android:text="Halstead"
-                        />
-
-                </LinearLayout>
-                <!--Email -->
-                <TextView
-                    android:id="@+id/tenantViewEmergencyPhoneTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    style="@style/FormText"
-                    android:layout_gravity="center"
-                    android:text="563-258-9874"
-                    />
-
-            </LinearLayout>
-
-            <!--Border -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_gravity="center"
-                android:layout_height="2dp"
-                android:background="@color/caldroid_black"
-                android:layout_marginTop="15dp"
-                />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                style="@style/FormLabel"
-                android:text="Active Lease Information"
-                />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginLeft="15dp"
-                android:layout_marginRight="15dp"
-                >
-
-                <!--Lease start/end -->
-                <LinearLayout
-                    android:id="@+id/tenantViewLeaseLL"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:orientation="horizontal">
-
-
-                    <TextView
-                        android:id="@+id/tenantViewLeaseStartTextView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/FormText"
-                        android:text="1/2/17" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/FormText"
-                        android:text=" - " />
-
-                    <TextView
-                        android:id="@+id/tenantViewLeaseEndTextView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/FormText"
-                        android:text="1/2/18" />
-
-                </LinearLayout>
-
-                <!--Renting status -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:orientation="horizontal"
-                    >
-<!--
-                    <TextView
-                        android:id="@+id/tenantViewRentingStatusTextView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/FormText"
-                        android:text="Currently renting" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/FormText"
-                        android:text="  " />
--->
-                    <TextView
-                        android:id="@+id/tenantViewRentingAddressTextView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        style="@style/FormText"
-                        android:text="2390 Burlington Rd" />
-
-                </LinearLayout>
+                </TableRow>
 
                 <TextView
-                    android:id="@+id/tenantViewRentingAddress2TextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    style="@style/FormText"
-                    android:layout_gravity="center" />
+                    style="@style/ViewInformationRowHeaderTextStyle"
+                    android:text="@string/emer_contact_information" />
+
+                <!--Emergency Contact Name-->
+                <TableRow
+                    style="@style/ViewInformationRowStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/tenantViewEmergencyNameLabelTextView"
+                        style="@style/ViewInformationRowLeftTextStyle"
+                        android:text="@string/emer_contact_name" />
+
+                    <TextView
+                        android:id="@+id/tenantViewEmergencyNameTextView"
+                        style="@style/ViewInformationRowRightTextStyle"
+                        android:text="Barack Obama" />
+
+                </TableRow>
+
+                <!--Emergency Phone-->
+                <TableRow
+                    style="@style/ViewInformationRowStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/tenantViewEmergencyPhoneLabelTextView"
+                        style="@style/ViewInformationRowLeftTextStyle"
+                        android:text="@string/emer_contact_phone" />
+
+                    <TextView
+                        android:id="@+id/tenantViewEmergencyPhoneTextView"
+                        style="@style/ViewInformationRowRightTextStyle"
+                        android:text="453-354-6578" />
+
+                </TableRow>
 
                 <TextView
-                    android:id="@+id/tenantViewLeaseHolderType"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    style="@style/FormText"
-                    android:text="Primary Tenant" />
+                    android:id="@+id/tenantViewActiveLeaseHeaderTV"
+                    style="@style/ViewInformationRowHeaderTextStyle"
+                    android:text="@string/active_lease_information" />
 
-                <Button
-                    android:id="@+id/tenantViewEditLeaseBtn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:visibility="gone"
-                    android:text="Edit Lease" />
+                <!--Active Lease Duration -->
+                <TableRow
+                    android:id="@+id/tenantViewActiveLeaseDurationTR"
+                    style="@style/ViewInformationRowStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
-            </LinearLayout>
+                    <TextView
+                        android:id="@+id/tenantViewActiveLeaseDurationLabelTextView"
+                        style="@style/ViewInformationRowLeftTextStyle"
+                        android:text="@string/duration" />
 
-            <!--Border -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_gravity="center"
-                android:layout_height="2dp"
-                android:background="@color/caldroid_black"
-                android:layout_marginTop="15dp"
-                />
+                    <TextView
+                        android:id="@+id/tenantViewActiveLeaseDurationTextView"
+                        style="@style/ViewInformationRowRightTextStyle"
+                        android:text="11/12/1221 - 11/12/1222" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="Notes"
-                style="@style/FormLabel"
-                />
+                </TableRow>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginLeft="15dp"
-                android:layout_marginRight="15dp"
-                android:layout_marginBottom="15dp"
-                >
+                <!--Active Lease Apartment -->
+                <TableRow
+                    android:id="@+id/tenantViewActiveLeaseApartmentTR"
+                    style="@style/ViewInformationRowStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
-                <LinearLayout
+                    <TextView
+                        android:id="@+id/tenantViewActiveLeaseApartmentLabelTextView"
+                        style="@style/ViewInformationRowLeftTextStyle"
+                        android:text="@string/apartment" />
+
+                    <TextView
+                        android:id="@+id/tenantViewActiveLeaseApartmentTextView"
+                        style="@style/ViewInformationRowRightTextStyle"
+                        android:text="2390 Burlington Rd Apt.235" />
+
+                </TableRow>
+
+                <!--Lease primary/secondary -->
+                <!--<TableRow
+                    android:id="@+id/tenantViewActiveLeasePrimarySecondaryTR"
+                    style="@style/ViewInformationRowStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/tenantViewActiveLeasePrimarySecondaryLabelTextView"
+                        style="@style/ViewInformationRowLeftTextStyle"
+                        android:text="Primary/Secondary: " />
+
+                    <TextView
+                        android:id="@+id/tenantViewActiveLeasePrimarySecondaryTextView"
+                        style="@style/ViewInformationRowRightTextStyle"
+                        android:text="Primary" />
+
+                </TableRow>-->
+
+                <!--Active Lease Primary Tenant Name-->
+                <TableRow
+                    android:id="@+id/tenantViewActiveLeasePrimaryTenantTR"
+                    style="@style/ViewInformationRowStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/tenantViewPrimaryTenantLabelTextView"
+                        style="@style/ViewInformationRowLeftTextStyle"
+                        android:text="@string/primary_tenant" />
+
+                    <TextView
+                        android:id="@+id/tenantViewPrimaryTenantTextView"
+                        style="@style/ViewInformationRowRightTextStyle"
+                        android:text="Barack Obama" />
+
+                </TableRow>
+
+                <!--Active Lease Other Tenants -->
+                <TableRow
+                    android:id="@+id/tenantViewActiveLeaseOtherTenantsTR"
+                    style="@style/ViewInformationRowStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/tenantViewActiveLeaseOtherTenantsLabelTextView"
+                        style="@style/ViewInformationRowLeftTextStyle"
+                        android:text="@string/other_tenants" />
+
+                    <TextView
+                        android:id="@+id/tenantViewActiveLeaseOtherTenantsTextView"
+                        style="@style/ViewInformationRowRightTextStyle"
+                        android:text="Bill Clinton" />
+
+                </TableRow>
+
+                <TextView
+                    style="@style/ViewInformationRowHeaderTextStyle"
+                    android:text="@string/notes" />
+
+                <!--Notes-->
+                <TableRow
+                    style="@style/ViewInformationRowStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    >
+                    android:layout_marginBottom="40dp">
 
                     <TextView
                         android:id="@+id/tenantViewNotesTextView"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="top|center"
-                        style="@style/FormText"
-                        android:isScrollContainer="true"
-                        android:maxLength="500"
-                        android:minHeight="120dp"
-                        android:padding="10dp" />
+                        style="@style/ViewInformationRowRightTextStyle"
+                        android:layout_weight="3"
+                        android:text="The notes" />
 
-                </LinearLayout>
+                </TableRow>
 
-            </LinearLayout>
+            </TableLayout>
+
+
+            <Button
+                android:id="@+id/tenantViewCallTenantBtn"
+                style="@style/ContactButtonStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/ic_call_black_24dp"
+                android:text="@string/call_tenant" />
+
+            <Button
+                android:id="@+id/tenantViewSMSTenantBtn"
+                style="@style/ContactButtonStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/ic_textsms_black_24dp"
+                android:text="@string/sms_tenant" />
+
+
+            <Button
+                android:id="@+id/tenantViewEmailTenantBtn"
+                style="@style/ContactButtonStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/ic_email_black_24dp"
+                android:text="@string/email_tenant" />
+
+
+            <Button
+                android:id="@+id/tenantViewCallEContactBtn"
+                style="@style/ContactButtonStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/ic_call_black_24dp"
+                android:text="@string/call_emer_contact" />
+
+            <Button
+                android:id="@+id/tenantViewSMSEContactBtn"
+                style="@style/ContactButtonStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/ic_textsms_black_24dp"
+                android:text="@string/sms_emer_contact" />
+
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="20dp" />
 
         </LinearLayout>
     </ScrollView>
-</LinearLayout>
+</RelativeLayout>

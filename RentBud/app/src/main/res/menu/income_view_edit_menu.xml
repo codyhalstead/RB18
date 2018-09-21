@@ -12,11 +12,15 @@
         <menu>
             <item
                 android:id="@+id/editIncome"
-                android:title="Edit income" />
+                android:title="@string/edit_income" />
+
+            <item
+                android:id="@+id/editReceiptPic"
+                android:title="@string/change_receipt_picture" />
 
             <item
                 android:id="@+id/deleteIncome"
-                android:title="Delete income" />
+                android:title="@string/delete_income" />
 
         </menu>
 

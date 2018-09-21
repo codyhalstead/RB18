@@ -4,23 +4,16 @@ package com.rentbud.fragments;
  * Created by Cody on 1/10/2018.
  */
 
-import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.DatePicker;
-import android.widget.ImageButton;
 import android.widget.PopupWindow;
 
 import com.example.cody.rentbud.R;
@@ -38,8 +31,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-
-import static android.support.constraint.Constraints.TAG;
 
 public class CalendarFragment extends android.support.v4.app.Fragment {
     private CustomCaldroidFragment caldroidFragment;
@@ -69,7 +60,7 @@ public class CalendarFragment extends android.support.v4.app.Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        getActivity().setTitle(R.string.calendar_view);
+        getActivity().setTitle(R.string.calendar);
         calendarKeyBtn = getActivity().findViewById(R.id.calendarKeyImageButton);
         findDateBtn = getActivity().findViewById(R.id.findDateBtn);
         goToTodayBtn = getActivity().findViewById(R.id.goToTodayBtn);

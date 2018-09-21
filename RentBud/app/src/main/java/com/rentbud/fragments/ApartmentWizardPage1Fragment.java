@@ -41,8 +41,8 @@ public class ApartmentWizardPage1Fragment extends android.support.v4.app.Fragmen
     private String mKey;
     private ApartmentWizardPage1 mPage;
     private TextView newApartmentHeader;
-    private EditText addressLine1ET, addressLine2ET, cityET, zipET;
-    private Spinner stateSpinner;
+    private EditText addressLine1ET, addressLine2ET, cityET, stateET, zipET;
+    //private Spinner stateSpinner;
     private ArrayAdapter<String> adapter;
     private boolean isEdit;
 
@@ -106,12 +106,20 @@ public class ApartmentWizardPage1Fragment extends android.support.v4.app.Fragmen
         cityET.setMovementMethod(new ScrollingMovementMethod());
         cityET.setSelection(cityET.getText().length());
 
+        stateET = rootView.findViewById(R.id.apartmentWizardStateET);
+        stateET.setText(mPage.getData().getString(ApartmentWizardPage1.APARTMENT_STATE_DATA_KEY));
+        stateET.setScroller(new Scroller(getContext()));
+        stateET.setMaxLines(5);
+        stateET.setVerticalScrollBarEnabled(true);
+        stateET.setMovementMethod(new ScrollingMovementMethod());
+        stateET.setSelection(stateET.getText().length());
+
         zipET = rootView.findViewById(R.id.apartmentWizardZIPET);
         zipET.setText(mPage.getData().getString(ApartmentWizardPage1.APARTMENT_ZIP_DATA_KEY));
         zipET.setSelection(zipET.getText().length());
 
-        stateSpinner = rootView.findViewById(R.id.apartmentWizardStateSpinner);
-        stateSpinner.setSelection(mPage.getData().getInt(ApartmentWizardPage1.APARTMENT_STATE_ID_DATA_KEY));
+        //stateSpinner = rootView.findViewById(R.id.apartmentWizardStateSpinner);
+        //stateSpinner.setSelection(mPage.getData().getInt(ApartmentWizardPage1.APARTMENT_STATE_ID_DATA_KEY));
 
         newApartmentHeader = rootView.findViewById(R.id.apartmentWizardPageOneHeader);
         if (isEdit) {
@@ -141,7 +149,7 @@ public class ApartmentWizardPage1Fragment extends android.support.v4.app.Fragmen
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        populateStateSpinner();
+        //populateStateSpinner();
         addressLine1ET.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -193,6 +201,23 @@ public class ApartmentWizardPage1Fragment extends android.support.v4.app.Fragmen
                 mPage.notifyDataChanged();
             }
         });
+        stateET.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                mPage.getData().putString(ApartmentWizardPage1.APARTMENT_STATE_DATA_KEY, editable.toString());
+                mPage.notifyDataChanged();
+            }
+        });
         zipET.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -210,38 +235,41 @@ public class ApartmentWizardPage1Fragment extends android.support.v4.app.Fragmen
                 mPage.notifyDataChanged();
             }
         });
-        stateSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
-                // paymentFrequency = position + 1;
+        //stateSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        //    @Override
+        //    public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
+        //        // paymentFrequency = position + 1;
 
-                String state = stateSpinner.getSelectedItem().toString();
-                int stateID = MainActivity.stateMap.get(state);
-                mPage.getData().putInt(ApartmentWizardPage1.APARTMENT_STATE_ID_DATA_KEY, stateID);
-                mPage.getData().putString(ApartmentWizardPage1.APARTMENT_STATE_DATA_KEY, state);
+        //        String state = stateSpinner.getSelectedItem().toString();
+        //        int stateID = MainActivity.stateMap.get(state);
+        //        mPage.getData().putInt(ApartmentWizardPage1.APARTMENT_STATE_ID_DATA_KEY, stateID);
+        //        mPage.getData().putString(ApartmentWizardPage1.APARTMENT_STATE_DATA_KEY, state);
 
-                if (getUserVisibleHint()) {
-                    //  figurePayments(leaseStartDate, leaseEndDate, paymentDay, paymentFrequency);
-                    mPage.notifyDataChanged();
-                    //  paymentsAmountTV.setText(prorated + regular + "");
-                    //  proratedPaymentsAmountTV.setText(prorated + "");
-                }
-            }
+        //        if (getUserVisibleHint()) {
+        //  figurePayments(leaseStartDate, leaseEndDate, paymentDay, paymentFrequency);
+        //            mPage.notifyDataChanged();
+        //  paymentsAmountTV.setText(prorated + regular + "");
+        //  proratedPaymentsAmountTV.setText(prorated + "");
+        //        }
+        //    }
 
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
+        //    @Override
+        //    public void onNothingSelected(AdapterView<?> adapterView) {
 
-            }
-        });
-        if (mPage.getData().getString(ApartmentWizardPage1.APARTMENT_STATE_DATA_KEY) != null) {
-            int spinnerPosition = adapter.getPosition(mPage.getData().getString(ApartmentWizardPage1.APARTMENT_STATE_DATA_KEY));
-            stateSpinner.setSelection(spinnerPosition);
-            //typeSpinner.setSelection(mPage.getData().getInt(IncomeWizardPage1.INCOME_TYPE_ID_DATA_KEY));
-        }
+        //    }
+        //});
+        //if (mPage.getData().getString(ApartmentWizardPage1.APARTMENT_STATE_DATA_KEY) != null) {
+        //    int spinnerPosition = adapter.getPosition(mPage.getData().getString(ApartmentWizardPage1.APARTMENT_STATE_DATA_KEY));
+        //    stateSpinner.setSelection(spinnerPosition);
+        //typeSpinner.setSelection(mPage.getData().getInt(IncomeWizardPage1.INCOME_TYPE_ID_DATA_KEY));
+        //}
         //String state = stateSpinner.getSelectedItem().toString();
         //int stateID = MainActivity.stateMap.get(state);
         //mPage.getData().putInt(LeaseWizardPage3.LEASE_PAYMENT_FREQUENCY_DATA_KEY, stateID);
         //mPage.getData().putString(LeaseWizardPage3.LEASE_PAYMENT_FREQUENCY_STRING_DATA_KEY, state);
+        if (getUserVisibleHint()) {
+            mPage.notifyDataChanged();
+        }
     }
 
 
@@ -261,18 +289,18 @@ public class ApartmentWizardPage1Fragment extends android.support.v4.app.Fragmen
     }
 
 
-    private void populateStateSpinner() {
-        //Create state array from MainActivity5.stateMap
-        List<String> spinnerArray = new ArrayList<>();
-        for (Map.Entry<String, Integer> entry : MainActivity.stateMap.entrySet()) {
-            spinnerArray.add(entry.getKey());
-        }
-        //Create ArrayAdapter with state array
-        adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, spinnerArray);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        //Set ArrayAdapter to stateSpinner
-        this.stateSpinner.setAdapter(adapter);
-    }
+    //private void populateStateSpinner() {
+    //Create state array from MainActivity5.stateMap
+    //    List<String> spinnerArray = new ArrayList<>();
+    //    for (Map.Entry<String, Integer> entry : MainActivity.stateMap.entrySet()) {
+    //        spinnerArray.add(entry.getKey());
+    //    }
+    //Create ArrayAdapter with state array
+    //    adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, spinnerArray);
+    //    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+    //Set ArrayAdapter to stateSpinner
+    //    this.stateSpinner.setAdapter(adapter);
+    //}
 
     private void loadDataForEdit(Apartment apartmentToEdit) {
         if (!mPage.getData().getBoolean(ApartmentWizardPage1.WAS_PRELOADED)) {
@@ -285,7 +313,7 @@ public class ApartmentWizardPage1Fragment extends android.support.v4.app.Fragmen
             //City
             mPage.getData().putString(ApartmentWizardPage1.APARTMENT_CITY_DATA_KEY, apartmentToEdit.getCity());
             //State
-            mPage.getData().putInt(ApartmentWizardPage1.APARTMENT_STATE_ID_DATA_KEY, apartmentToEdit.getStateID());
+            //mPage.getData().putInt(ApartmentWizardPage1.APARTMENT_STATE_ID_DATA_KEY, apartmentToEdit.getStateID());
             mPage.getData().putString(ApartmentWizardPage1.APARTMENT_STATE_DATA_KEY, apartmentToEdit.getState());
             //ZIP
             mPage.getData().putString(ApartmentWizardPage1.APARTMENT_ZIP_DATA_KEY, apartmentToEdit.getZip());

@@ -35,8 +35,9 @@
                     android:background="@color/white"
                     android:drawableLeft="@drawable/ic_search_black_24dp"
                     android:ems="10"
+                    android:maxLength="35"
                     android:gravity="left|center"
-                    android:hint="Search"
+                    android:hint="@string/search"
                     style="@style/FormText"
                     android:textStyle="normal"
                     android:textSize="18sp"
@@ -51,10 +52,9 @@
     <!--Border -->
     <View
         android:id="@+id/apartmentListBarBorder"
-        android:layout_width="match_parent"
-        android:layout_height="3dp"
+        style="@style/RowBorder"
         android:layout_below="@+id/apartmentSearchToolbar"
-        android:background="@color/caldroid_black" />
+        />
 
     <!--FAB -->
     <android.support.design.widget.FloatingActionButton
@@ -76,19 +76,18 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="250dp"
-        android:gravity="center"
         android:text="No current apartments"
-        android:textSize="28sp"
-        android:visibility="invisible" />
+        style="@style/LargeEmptyListText" />
 
     <!--Apartment list view -->
     <ListView
-        android:id="@+id/mainapartmentListView"
+        android:id="@+id/mainApartmentListView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/apartmentListBarBorder"
         android:paddingBottom="160dp"
         android:clipToPadding="false"
+        style="@style/ListView"
         >
 
     </ListView>

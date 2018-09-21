@@ -25,6 +25,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/name"
+                android:maxLength="25"
                 android:inputType="textCapWords" />
         </android.support.design.widget.TextInputLayout>
 
@@ -40,6 +41,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/email"
+                android:maxLength="50"
                 android:inputType="textEmailAddress" />
         </android.support.design.widget.TextInputLayout>
 
@@ -54,6 +56,7 @@
                 android:id="@+id/input_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:maxLength="20"
                 android:hint="@string/password"
                 android:inputType="textPassword" />
         </android.support.design.widget.TextInputLayout>
@@ -70,6 +73,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/confirm_password"
+                android:maxLength="20"
                 android:inputType="textPassword" />
         </android.support.design.widget.TextInputLayout>
 
@@ -80,7 +84,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
             android:layout_marginTop="24dp"
-            android:padding="12dp"
+            style="@style/MainButtonStyle"
             android:text="@string/create_account" />
 
         <!--Log-in link -->
@@ -104,7 +108,6 @@
             android:textSize="16sp"
             android:textColor="@color/colorPrimary"
             />
-
 
     </LinearLayout>
 </ScrollView>

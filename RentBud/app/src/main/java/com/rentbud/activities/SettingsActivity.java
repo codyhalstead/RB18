@@ -1,29 +1,26 @@
 package com.rentbud.activities;
 
-import android.annotation.TargetApi;
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
-import android.content.Context;
+import android.Manifest;
+//import android.app.AlertDialog;
+import android.support.v7.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.util.AttributeSet;
-import android.util.Log;
+import android.text.InputFilter;
+import android.text.InputType;
 import android.view.View;
+import android.view.WindowManager;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -31,28 +28,18 @@ import android.widget.Toast;
 
 import com.example.cody.rentbud.BuildConfig;
 import com.example.cody.rentbud.R;
+import com.rentbud.helpers.AppFileManagementHelper;
 import com.rentbud.helpers.ColorChooserDialog;
+import com.rentbud.helpers.DateAndCurrencyDisplayer;
 import com.rentbud.helpers.FileChooserDialog;
-import com.rentbud.helpers.GenericFileProvider;
-import com.rentbud.helpers.NewItemCreatorDialog;
+import com.rentbud.helpers.CustomFileProvider;
 import com.rentbud.helpers.TypeChooserDialog;
+import com.rentbud.helpers.UserInputValidation;
 import com.rentbud.model.TypeTotal;
 import com.rentbud.sqlite.DatabaseHandler;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.nio.channels.FileChannel;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
-import java.util.Map;
-
-import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
-import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
-import static android.content.ContentValues.TAG;
 
 
 /**
@@ -61,12 +48,15 @@ import static android.content.ContentValues.TAG;
 
 public class SettingsActivity extends BaseActivity implements View.OnClickListener {
     ImageButton colorBtn;
-    LinearLayout changeThemeLL, removeIncomeTypeLL, removeExpenseTypeLL, backupDataLL, importDataLL;
+    LinearLayout changeThemeLL, removeIncomeTypeLL, removeExpenseTypeLL, backupDataLL, importDataLL, changeCurrencyLL, changeDateTypeLL, removeUserLL,
+            changeUserPasswordLL, changeUserEmailLL;
     SharedPreferences preferences;
     private ColorChooserDialog dialog;
     private AlertDialog alertDialog;
-    private NewItemCreatorDialog newItemCreatorDialog;
+    //private NewItemCreatorDialog newItemCreatorDialog;
     private DatabaseHandler dbHandler;
+    private boolean wasDataEdited;
+    UserInputValidation validation;
 
 
     @Override
@@ -76,13 +66,23 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
         //Will be different from static MainActivity5.currentThemeChoice when user selects themes within this activity
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         dbHandler = new DatabaseHandler(this);
+        this.validation = new UserInputValidation(this);
         int theme = preferences.getInt(MainActivity.user.getEmail(), 0);
         setupUserAppTheme(theme);
         setContentView(R.layout.activity_settings);
+        if (savedInstanceState != null) {
+            wasDataEdited = savedInstanceState.getBoolean("was_edited");
+        } else {
+            wasDataEdited = false;
+        }
         initializeVariables();
         setupBasicToolbar();
+        this.setTitle(R.string.settings);
         //Color theme selection button to current theme choice
         Colorize(colorBtn);
+        if (wasDataEdited) {
+            setResult(MainActivity.RESULT_DATA_WAS_MODIFIED);
+        }
     }
 
     private void Colorize(ImageView colorBtn) {
@@ -96,11 +96,7 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
         d.setGradientCenter(-1, 0.3f);
         d.setBounds(58, 58, 58, 58);
         d.setStroke(2, Color.BLACK);
-        if (Build.VERSION.SDK_INT > 15) {
-            colorBtn.setBackground(d);
-        } else {
-            colorBtn.setBackgroundDrawable(d);
-        }
+        colorBtn.setBackground(d);
     }
 
     //Shows theme chooser dialog
@@ -135,6 +131,16 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
         backupDataLL.setOnClickListener(this);
         importDataLL = findViewById(R.id.importDataLL);
         importDataLL.setOnClickListener(this);
+        changeCurrencyLL = findViewById(R.id.changeCurrencyLL);
+        changeCurrencyLL.setOnClickListener(this);
+        changeDateTypeLL = findViewById(R.id.changeDateTypeLL);
+        changeDateTypeLL.setOnClickListener(this);
+        removeUserLL = findViewById(R.id.removeUserLL);
+        removeUserLL.setOnClickListener(this);
+        changeUserEmailLL = findViewById(R.id.changeEmailLL);
+        changeUserEmailLL.setOnClickListener(this);
+        changeUserPasswordLL = findViewById(R.id.changePasswordLL);
+        changeUserPasswordLL.setOnClickListener(this);
     }
 
     @Override
@@ -145,9 +151,6 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
         }
         if (alertDialog != null) {
             alertDialog.dismiss();
-        }
-        if (newItemCreatorDialog != null) {
-            newItemCreatorDialog.dismiss();
         }
     }
 
@@ -207,17 +210,53 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
         builder.setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                newItemCreatorDialog = new NewItemCreatorDialog(SettingsActivity.this);
-                newItemCreatorDialog.show();
-                newItemCreatorDialog.setDialogResult(new NewItemCreatorDialog.NewItemDialogResult() {
+                final EditText editText = new EditText(SettingsActivity.this);
+                int maxLength = 25;
+                editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxLength)});
+                editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+
+                // create the AlertDialog as final
+                alertDialog = new AlertDialog.Builder(SettingsActivity.this)
+                        //.setMessage("You are ready to type")
+                        .setTitle(R.string.create_new_type)
+                        .setView(editText)
+
+                        // Set the action buttons
+                        .setPositiveButton(R.string.create, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int id) {
+                                dbHandler.addNewIncomeType(editText.getText().toString());
+                                MainActivity.incomeTypeLabels = dbHandler.getIncomeTypeLabelsTreeMap();
+                            }
+                        })
+
+                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int id) {
+                                // removes the AlertDialog in the screen
+                            }
+                        })
+                        .create();
+
+                // set the focus change listener of the EditText
+                // this part will make the soft keyboard automaticall visible
+                editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                     @Override
-                    public void finish(String string) {
-                        dbHandler.addNewIncomeType(string);
-                        MainActivity.incomeTypeLabels = dbHandler.getExpenseTypeLabelsTreeMap();
+                    public void onFocusChange(View v, boolean hasFocus) {
+                        if (hasFocus) {
+                            alertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                        }
                     }
                 });
+
+                alertDialog.show();
             }
 
+        }).setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
         });
         // create and show the alert dialog
         alertDialog = builder.create();
@@ -248,15 +287,52 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
         builder.setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                newItemCreatorDialog = new NewItemCreatorDialog(SettingsActivity.this);
-                newItemCreatorDialog.show();
-                newItemCreatorDialog.setDialogResult(new NewItemCreatorDialog.NewItemDialogResult() {
+                final EditText editText = new EditText(SettingsActivity.this);
+                int maxLength = 25;
+                editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxLength)});
+                editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+
+                // create the AlertDialog as final
+                alertDialog = new AlertDialog.Builder(SettingsActivity.this)
+                        //.setMessage("You are ready to type")
+                        .setTitle(R.string.create_new_type)
+                        .setView(editText)
+
+                        // Set the action buttons
+                        .setPositiveButton(R.string.create, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int id) {
+                                dbHandler.addNewExpenseType(editText.getText().toString());
+                                MainActivity.expenseTypeLabels = dbHandler.getExpenseTypeLabelsTreeMap();
+                            }
+                        })
+
+                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int id) {
+                                // removes the AlertDialog in the screen
+                            }
+                        })
+                        .create();
+
+                // set the focus change listener of the EditText
+                // this part will make the soft keyboard automaticall visible
+                editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                     @Override
-                    public void finish(String string) {
-                        dbHandler.addNewExpenseType(string);
-                        MainActivity.expenseTypeLabels = dbHandler.getExpenseTypeLabelsTreeMap();
+                    public void onFocusChange(View v, boolean hasFocus) {
+                        if (hasFocus) {
+                            alertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                        }
                     }
                 });
+
+                alertDialog.show();
+            }
+
+        }).setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
             }
         });
         // create and show the alert dialog
@@ -288,20 +364,153 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
                 backup(view);
                 break;
 
+            case R.id.removeUserLL:
+                showConfirmPasswordForAccountDeletionDialog();
+                break;
+
+            case R.id.changeEmailLL:
+                showConfirmPasswordForEmailChangeDialog();
+                break;
+
+            case R.id.changePasswordLL:
+                showConfirmPasswordForPassChangeDialog();
+                break;
+
+            case R.id.changeCurrencyLL:
+                int oldSelection = preferences.getInt("currency", DateAndCurrencyDisplayer.CURRENCY_US);
+                int defaultChoice = 0;
+                if (oldSelection == DateAndCurrencyDisplayer.CURRENCY_UK) {
+                    defaultChoice = 1;
+                } else if (oldSelection == DateAndCurrencyDisplayer.CURRENCY_JAPAN) {
+                    defaultChoice = 2;
+                } else if (oldSelection == DateAndCurrencyDisplayer.CURRENCY_KOREA) {
+                    defaultChoice = 3;
+                } else if (oldSelection == DateAndCurrencyDisplayer.CURRENCY_GERMANY) {
+                    defaultChoice = 4;
+                }
+                alertDialog = new AlertDialog.Builder(this)
+                        // specify the list array, the items to be selected by default (null for none),
+                        // and the listener through which to receive call backs when items are selected
+                        // again, R.array.choices were set in the resources res/values/strings.xml
+                        .setSingleChoiceItems(R.array.currency_choices_array, defaultChoice, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface arg0, int arg1) {
+                                //showToast("Some actions maybe? Selected index: " + arg1);
+                            }
+                        })
+                        // Set the action buttons
+                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int id) {
+                                // user clicked OK, so save the mSelectedItems results somewhere
+                                // or return them to the component that opened the dialog
+                                int selectedPosition = ((AlertDialog) alertDialog).getListView().getCheckedItemPosition();
+                                //String choice = getResources().getStringArray(R.array.currency_choices_array)[selectedPosition];
+                                //Toast.makeText(SettingsActivity.this, choice, Toast.LENGTH_LONG).show();
+                                //Log.d(TAG, "onClick: " + selectedPosition);
+                                //showToast("selectedPosition: " + selectedPosition);
+                                SharedPreferences.Editor editor = preferences.edit();
+                                if (selectedPosition == 0) {
+                                    editor.putInt("currency", DateAndCurrencyDisplayer.CURRENCY_US);
+                                } else if (selectedPosition == 1) {
+                                    editor.putInt("currency", DateAndCurrencyDisplayer.CURRENCY_UK);
+                                } else if (selectedPosition == 2) {
+                                    editor.putInt("currency", DateAndCurrencyDisplayer.CURRENCY_JAPAN);
+                                } else if (selectedPosition == 3) {
+                                    editor.putInt("currency", DateAndCurrencyDisplayer.CURRENCY_KOREA);
+                                } else if (selectedPosition == 4) {
+                                    editor.putInt("currency", DateAndCurrencyDisplayer.CURRENCY_GERMANY);
+                                }
+                                editor.commit();
+                                wasDataEdited = true;
+                                setResult(MainActivity.RESULT_DATA_WAS_MODIFIED, null);
+                            }
+                        })
+                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int id) {
+                                // removes the dialog from the screen
+                            }
+                        })
+                        .show();
+
+                break;
+
+            case R.id.changeDateTypeLL:
+                int oldDateSelection = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
+                int defaultDateChoice = 0;
+                if (oldDateSelection == DateAndCurrencyDisplayer.DATE_DDMMYYYY) {
+                    defaultDateChoice = 1;
+                } else if (oldDateSelection == DateAndCurrencyDisplayer.DATE_YYYYMMDD) {
+                    defaultDateChoice = 2;
+                } else if (oldDateSelection == DateAndCurrencyDisplayer.DATE_YYYYDDMM) {
+                    defaultDateChoice = 3;
+                }
+                alertDialog = new AlertDialog.Builder(this)
+
+                        // Set the dialog title
+                        // specify the list array, the items to be selected by default (null for none),
+                        // and the listener through which to receive call backs when items are selected
+                        // again, R.array.choices were set in the resources res/values/strings.xml
+                        .setSingleChoiceItems(R.array.date_choices_array, defaultDateChoice, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface arg0, int arg1) {
+                                //showToast("Some actions maybe? Selected index: " + arg1);
+                            }
+
+                        })
+
+                        // Set the action buttons
+                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int id) {
+                                // user clicked OK, so save the mSelectedItems results somewhere
+                                // or return them to the component that opened the dialog
+
+                                int selectedPosition = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
+                                //showToast("selectedPosition: " + selectedPosition);
+                                SharedPreferences.Editor editor = preferences.edit();
+                                if (selectedPosition == 0) {
+                                    editor.putInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
+                                } else if (selectedPosition == 1) {
+                                    editor.putInt("dateFormat", DateAndCurrencyDisplayer.DATE_DDMMYYYY);
+                                } else if (selectedPosition == 2) {
+                                    editor.putInt("dateFormat", DateAndCurrencyDisplayer.DATE_YYYYMMDD);
+                                } else if (selectedPosition == 3) {
+                                    editor.putInt("dateFormat", DateAndCurrencyDisplayer.DATE_YYYYDDMM);
+                                }
+                                editor.commit();
+                                wasDataEdited = true;
+                                setResult(MainActivity.RESULT_DATA_WAS_MODIFIED, null);
+                            }
+                        })
+
+                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int id) {
+                                // removes the dialog from the screen
+
+                            }
+                        })
+
+                        .show();
+
+                break;
+
             default:
                 break;
         }
     }
 
     public void sendEmail(View view) {
-        if (!checkPermission()) {
+        if (MainActivity.hasPermissions(this, android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setMessage(R.string.send_backip_to_email_question);
             builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     File file = null;
-                    file = copyFileToExternal();
+                    file = AppFileManagementHelper.copyDBToExternal(SettingsActivity.this);
                     //lastEmailedFilePath = file.getAbsolutePath();
                     Intent intent = new Intent(Intent.ACTION_SEND);
                     intent.putExtra(Intent.EXTRA_EMAIL, new String[]{""});
@@ -309,7 +518,7 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
                     intent.putExtra(Intent.EXTRA_TEXT, "");
                     intent.setType("application/octet-stream");
                     intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    Uri uri = GenericFileProvider.getUriForFile(SettingsActivity.this, BuildConfig.APPLICATION_ID + ".helpers.fileprovider", file);
+                    Uri uri = CustomFileProvider.getUriForFile(SettingsActivity.this, BuildConfig.APPLICATION_ID + ".helpers.fileprovider", file);
                     intent.putExtra(Intent.EXTRA_STREAM, uri);//Uri.parse(file.toURI().toString()));
                     startActivityForResult(Intent.createChooser(intent, SettingsActivity.this.getResources().getString(R.string.send_email)), MainActivity.REQUEST_EMAIL);
                 }
@@ -317,7 +526,7 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
             builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    File file = copyFileToExternal();
+                    File file = AppFileManagementHelper.copyDBToExternal(SettingsActivity.this);
                     if (file.exists()) {
                         Toast.makeText(SettingsActivity.this, "Success", Toast.LENGTH_LONG).show();
                     } else {
@@ -328,116 +537,30 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
             // create and show the alert dialog
             alertDialog = builder.create();
             alertDialog.show();
-
         } else {
-            if (checkPermission()) {
-                requestPermissionAndContinue();
-            }
+            ActivityCompat.requestPermissions(
+                    SettingsActivity.this,
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    MainActivity.REQUEST_FILE_PERMISSION
+            );
         }
     }
 
-    private File copyFileToExternal() {
-        try {
-            File sd = Environment.getExternalStorageDirectory();
-            //File data = Environment.getDataDirectory();
-
-            if (sd.canWrite()) {
-                File f = new File(Environment.getExternalStorageDirectory(), "Rentbud");
-                if (!f.exists()) {
-                    f.mkdirs();
-                }
-                File backups = new File(f.getAbsolutePath() + "/", "Backups");
-                if (!backups.exists()) {
-                    backups.mkdirs();
-                }
-                Date today = Calendar.getInstance().getTime();
-                StringBuilder stringBuilder = new StringBuilder("RentbudBackup_");
-                SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy-hh:mmaa", Locale.US);
-                stringBuilder.append(formatter.format(today));
-                stringBuilder.append(".db");
-                String currentDBPath = this.getDatabasePath(DatabaseHandler.DB_FILE_NAME).getAbsolutePath();
-                String backupDBPath = stringBuilder.toString();
-                File currentDB = new File(currentDBPath);
-                File backupDB = new File(backups, backupDBPath);
-                if (currentDB.exists()) {
-                    FileChannel src = new FileInputStream(currentDB).getChannel();
-                    FileChannel dst = new FileOutputStream(backupDB).getChannel();
-                    dst.transferFrom(src, 0, src.size());
-                    src.close();
-                    dst.close();
-                }
-                return backupDB;
-            }
-        } catch (Exception e) {
-
-        }
-        return null;
-    }
-
-    private static final int PERMISSION_REQUEST_CODE = 200;
-
-    private boolean checkPermission() {
-        return ContextCompat.checkSelfPermission(this, WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-                && ContextCompat.checkSelfPermission(this, READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED;
-    }
-
-    private void requestPermissionAndContinue() {
-        if (ContextCompat.checkSelfPermission(this, WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-                && ContextCompat.checkSelfPermission(this, READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, WRITE_EXTERNAL_STORAGE)
-                    && ActivityCompat.shouldShowRequestPermissionRationale(this, READ_EXTERNAL_STORAGE)) {
-                AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
-                alertBuilder.setCancelable(true);
-                alertBuilder.setTitle("Hmmm");
-                alertBuilder.setMessage("Uhhh");
-                alertBuilder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-                    public void onClick(DialogInterface dialog, int which) {
-                        ActivityCompat.requestPermissions(SettingsActivity.this, new String[]{WRITE_EXTERNAL_STORAGE
-                                , READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
-                    }
-                });
-                AlertDialog alert = alertBuilder.create();
-                alert.show();
-                Log.e("", "permission denied, show dialog");
-            } else {
-                ActivityCompat.requestPermissions(SettingsActivity.this, new String[]{WRITE_EXTERNAL_STORAGE,
-                        READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
-            }
-        } else {
-            openActivity();
-        }
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == PERMISSION_REQUEST_CODE) {
-            if (permissions.length > 0 && grantResults.length > 0) {
-                boolean flag = true;
-                for (int i = 0; i < grantResults.length; i++) {
-                    if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
-                        flag = false;
-                    }
-                }
-                if (flag) {
-                    openActivity();
-                } else {
-                    finish();
-                }
+        if (requestCode == MainActivity.REQUEST_FILE_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
             } else {
-                finish();
+                Toast.makeText(this, R.string.permission_file_access_denied, Toast.LENGTH_SHORT).show();
             }
-        } else {
-            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+            return;
         }
     }
 
-    private void openActivity() {
-        //add your further process after giving permission or to download images from remote server.
-    }
-
     public void backup(View view) {
-        if (hasPermissions(this, android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+        if (MainActivity.hasPermissions(this, android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setMessage(R.string.use_downloads_or_rentbud_folder);
             builder.setPositiveButton(R.string.rentbud_folder, new DialogInterface.OnClickListener() {
@@ -464,6 +587,12 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
             // create and show the alert dialog
             alertDialog = builder.create();
             alertDialog.show();
+        } else {
+            ActivityCompat.requestPermissions(
+                    SettingsActivity.this,
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    MainActivity.REQUEST_FILE_PERMISSION
+            );
         }
     }
 
@@ -493,7 +622,13 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
         });
     }
 
-    private void endActivityAndRequestMainToLogUserOut(){
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean("was_edited", wasDataEdited);
+    }
+
+    private void endActivityAndRequestMainToLogUserOut() {
         Intent intent = new Intent();
         intent.putExtra("need_to_log_out", true);
 
@@ -501,15 +636,260 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
         finish();
     }
 
-    public static boolean hasPermissions(Context context, String... permissions) {
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && context != null && permissions != null) {
-            for (String permission : permissions) {
-                if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
-                    return false;
+    public void showConfirmPasswordForAccountDeletionDialog() {
+        final EditText editText = new EditText(SettingsActivity.this);
+        int maxLength = 20;
+        editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxLength)});
+        editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+
+        // create the AlertDialog as final
+        alertDialog = new AlertDialog.Builder(SettingsActivity.this)
+                .setMessage(R.string.comfirm_pass_to_delete_account_message)
+                .setTitle(R.string.comfirm_pass_to_delete_account_title)
+                .setView(editText)
+
+                // Set the action buttons
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        String input = AppFileManagementHelper.SHA512Hash(editText.getText().toString());
+                        if (dbHandler.checkUser(MainActivity.user.getEmail(), input)) {
+                            dbHandler.setUserInactive(MainActivity.user);
+                            endActivityAndRequestMainToLogUserOut();
+                            Toast.makeText(SettingsActivity.this, R.string.account_removed, Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(SettingsActivity.this, R.string.incorrect_password, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                })
+
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        // removes the AlertDialog in the screen
+                    }
+                })
+                .create();
+
+        // set the focus change listener of the EditText
+        // this part will make the soft keyboard automaticall visible
+        editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    alertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
                 }
             }
-        }
-        return true;
+        });
+
+        alertDialog.show();
+    }
+
+    public void showConfirmPasswordForEmailChangeDialog() {
+        final EditText editText = new EditText(SettingsActivity.this);
+        int maxLength = 20;
+        editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxLength)});
+        editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+
+        // create the AlertDialog as final
+        alertDialog = new AlertDialog.Builder(SettingsActivity.this)
+                .setTitle(R.string.comfirm_pass_to_change_account_info)
+                .setView(editText)
+
+                // Set the action buttons
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        String input = AppFileManagementHelper.SHA512Hash(editText.getText().toString());
+                        if (dbHandler.checkUser(MainActivity.user.getEmail(), input)) {
+                            showChangeEmailDialog();
+                        } else {
+                            Toast.makeText(SettingsActivity.this, R.string.incorrect_password, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                })
+
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        // removes the AlertDialog in the screen
+                    }
+                })
+                .create();
+
+        // set the focus change listener of the EditText
+        // this part will make the soft keyboard automaticall visible
+        editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    alertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                }
+            }
+        });
+
+        alertDialog.show();
+    }
+
+    public void showChangeEmailDialog() {
+        final EditText editText = new EditText(SettingsActivity.this);
+        int maxLength = 50;
+        editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxLength)});
+        editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+
+        // create the AlertDialog as final
+        alertDialog = new AlertDialog.Builder(SettingsActivity.this)
+                .setTitle(R.string.new_account_email)
+                .setView(editText)
+
+                // Set the action buttons
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+
+                    }
+                })
+
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        // removes the AlertDialog in the screen
+                    }
+                })
+                .create();
+
+        // set the focus change listener of the EditText
+        // this part will make the soft keyboard automaticall visible
+        editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    alertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                }
+            }
+        });
+
+        alertDialog.show();
+        ((AlertDialog) alertDialog).getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (validation.isInputEditTextEmail(editText, getString(R.string.enter_valid_email))) {
+                    String input = editText.getText().toString();
+                    MainActivity.user.setEmail(input);
+                    dbHandler.updateUser(MainActivity.user);
+                    SharedPreferences.Editor editor = preferences.edit();
+                    editor.putString("last_user_email", MainActivity.user.getEmail());
+                    editor.commit();
+                    Toast.makeText(SettingsActivity.this, R.string.email_changed, Toast.LENGTH_SHORT).show();
+                    alertDialog.dismiss();
+                }
+            }
+        });
+    }
+
+    public void showConfirmPasswordForPassChangeDialog() {
+        final EditText editText = new EditText(SettingsActivity.this);
+        int maxLength = 20;
+        editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxLength)});
+        editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+
+        // create the AlertDialog as final
+        alertDialog = new AlertDialog.Builder(SettingsActivity.this)
+                .setTitle(R.string.type_old_pass)
+                .setView(editText)
+
+                // Set the action buttons
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        String input = AppFileManagementHelper.SHA512Hash(editText.getText().toString());
+                        if (dbHandler.checkUser(MainActivity.user.getEmail(), input)) {
+                            showChangePassDialog();
+                        } else {
+                            Toast.makeText(SettingsActivity.this, R.string.incorrect_password, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                })
+
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        // removes the AlertDialog in the screen
+                    }
+                })
+                .create();
+
+        // set the focus change listener of the EditText
+        // this part will make the soft keyboard automaticall visible
+        editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    alertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                }
+            }
+        });
+
+        alertDialog.show();
+    }
+
+    public void showChangePassDialog() {
+        final EditText editText = new EditText(SettingsActivity.this);
+        int maxLength = 20;
+        editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxLength)});
+        editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+
+        // create the AlertDialog as final
+        alertDialog = new AlertDialog.Builder(SettingsActivity.this)
+                .setTitle(R.string.new_account_password)
+                .setView(editText)
+
+                // Set the action buttons
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+
+                    }
+                })
+
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        // removes the AlertDialog in the screen
+                    }
+                })
+                .create();
+
+        // set the focus change listener of the EditText
+        // this part will make the soft keyboard automaticall visible
+        editText.setOnFocusChangeListener(new View.OnFocusChangeListener()
+
+        {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    alertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                }
+            }
+        });
+
+        alertDialog.show();
+        ((AlertDialog) alertDialog).getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (validation.isInputEditTextPassword(editText, getString(R.string.password_requirements))) {
+                    String input = AppFileManagementHelper.SHA512Hash(editText.getText().toString());
+                    MainActivity.user.setPassword(input);
+                    dbHandler.updateUser(MainActivity.user);
+                    SharedPreferences.Editor editor = preferences.edit();
+                    editor.putString("last_user_password", MainActivity.user.getPassword());
+                    editor.commit();
+                    Toast.makeText(SettingsActivity.this, R.string.password_changed, Toast.LENGTH_SHORT).show();
+                    alertDialog.dismiss();
+                }
+            }
+        });
+
     }
 
     //private class MyCopyTask extends AsyncTask<Uri, Integer, File> {

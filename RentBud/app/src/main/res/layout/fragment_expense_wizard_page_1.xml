@@ -18,11 +18,43 @@
             android:orientation="vertical">
 
             <TextView
-                style="@style/WizardTitle"
-                android:text="New Expense Info"
                 android:id="@+id/expenseWizardPageOneHeader"
-                />
+                style="@style/WizardTitle"
+                android:text="@string/new_expense_info" />
 
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                hintTextAppearance="@style/WizardHintText"
+                android:layout_marginTop="10dp">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/expenseWizardDateTV"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:focusable="false"
+                    android:hint="@string/date_of_expense_req"
+                    android:inputType="none" />
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                hintTextAppearance="@style/WizardHintText"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/expenseWizardAmountET"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLength="14"
+                    android:hint="@string/expense_amount_req"
+                    android:inputType="number"
+                    android:text="$0.00" />
+            </android.support.design.widget.TextInputLayout>
+            <!--
             <TextView
                 android:id="@+id/expenseWizardDateLabelTV"
                 style="@style/WizardFormLabel"
@@ -69,22 +101,39 @@
                 android:id="@+id/expenseWizardTypeLabelTV"
                 style="@style/WizardFormLabel"
                 android:text="*Expense Type" />
-
-            <Spinner
-                android:id="@+id/expenseWizardTypeSpinner"
+                -->
+            <LinearLayout
                 android:layout_width="200dp"
-                android:layout_height="40dp"
-                android:layout_marginRight="10dp"
-                android:background="@android:drawable/btn_dropdown"
-                android:drawSelectorOnTop="true"
-                />
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/expenseWizardTypeLabelTV"
+                    style="@style/SpinnerLabelStyle"
+                    android:text="@string/type_req" />
+
+                <RelativeLayout
+                    style="@style/MainSpinnerStyle"
+                    android:layout_width="200dp"
+                    android:layout_height="40dp">
+
+                    <Spinner
+                        android:id="@+id/expenseWizardTypeSpinner"
+                        style="@style/Widget.AppCompat.DropDownItem.Spinner"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp" />
+                </RelativeLayout>
+            </LinearLayout>
 
             <Button
                 android:id="@+id/expenseWizardAddNewTypeBtn"
+                style="@style/MainButtonStyle"
                 android:layout_width="200dp"
+                android:layout_marginTop="10dp"
                 android:layout_height="wrap_content"
-                style="?android:attr/buttonBarButtonStyle"
-                android:text="Add New Expense Type" />
+                android:text="@string/add_new_expense_type" />
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

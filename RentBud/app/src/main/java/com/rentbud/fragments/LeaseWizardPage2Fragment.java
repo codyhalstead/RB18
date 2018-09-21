@@ -2,12 +2,13 @@ package com.rentbud.fragments;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.method.ScrollingMovementMethod;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,23 +21,18 @@ import android.widget.TextView;
 import com.example.android.wizardpager.wizard.ui.PageFragmentCallbacks;
 import com.example.cody.rentbud.R;
 import com.rentbud.activities.MainActivity;
+import com.rentbud.helpers.DateAndCurrencyDisplayer;
 import com.rentbud.helpers.MainArrayDataMethods;
-import com.rentbud.helpers.TenantOrApartmentChooserDialog;
+import com.rentbud.helpers.TenantApartmentOrLeaseChooserDialog;
 import com.rentbud.model.Apartment;
 import com.rentbud.model.Lease;
 import com.rentbud.sqlite.DatabaseHandler;
-import com.rentbud.wizards.ExpenseWizardPage1;
-import com.rentbud.wizards.LeaseWizardPage1;
 import com.rentbud.wizards.LeaseWizardPage2;
 import com.rentbud.model.Tenant;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Locale;
-
-import static android.support.constraint.Constraints.TAG;
 
 public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
     private static final String ARG_KEY = "key";
@@ -53,7 +49,9 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
     private DatabaseHandler db;
     private MainArrayDataMethods mainArrayDataMethods;
     private boolean isEdit;
-    private TenantOrApartmentChooserDialog tenantOrApartmentChooserDialog;
+    private TenantApartmentOrLeaseChooserDialog tenantApartmentOrLeaseChooserDialog;
+    private SharedPreferences preferences;
+    private int moneyFormatCode;
 
     public static LeaseWizardPage2Fragment create(String key) {
         Bundle args = new Bundle();
@@ -77,6 +75,8 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
         secondaryTenants = new ArrayList<>();
         availableTenants = new ArrayList<>();
         db = new DatabaseHandler(getActivity());
+        preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        this.moneyFormatCode = preferences.getInt("currency", DateAndCurrencyDisplayer.CURRENCY_US);
         mainArrayDataMethods = new MainArrayDataMethods();
         //availableTenants.addAll(MainActivity.tenantList);
         //depositWithheld = new BigDecimal(0);
@@ -93,7 +93,7 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
         } else {
             primaryTenant = null;
             deposit = new BigDecimal(0);
-            String formatted = NumberFormat.getCurrencyInstance().format(deposit);
+            String formatted = DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, deposit);
             mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_FORMATTED_STRING_DATA_KEY, formatted);
             mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_STRING_DATA_KEY, deposit.toPlainString());
         }
@@ -111,15 +111,15 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
         primaryTenantTV.setMaxLines(5);
         primaryTenantTV.setVerticalScrollBarEnabled(true);
         primaryTenantTV.setMovementMethod(new ScrollingMovementMethod());
-        primaryTenantLabelTV = rootView.findViewById(R.id.leaseWizardPrimaryTenantLabelTV);
+        //primaryTenantLabelTV = rootView.findViewById(R.id.leaseWizardPrimaryTenantLabelTV);
 
         secondaryTenantsTV = rootView.findViewById(R.id.leaseWizardSecondaryTenantsTV);
         secondaryTenantsTV.setText(mPage.getData().getString(LeaseWizardPage2.LEASE_SECONDARY_TENANTS_STRING_DATA_KEY));
-        secondaryTenantsLabelTV = rootView.findViewById(R.id.leaseWizardSecondaryTenantLabelTV);
+        //secondaryTenantsLabelTV = rootView.findViewById(R.id.leaseWizardSecondaryTenantLabelTV);
 
-        depositAmountLabelTV = rootView.findViewById(R.id.leaseWizardDepositLabelTV);
-        depositWithheldLabelTV = rootView.findViewById(R.id.leaseWizardDepositWithheldLabelTV);
-        depositWithheldLabelTV.setVisibility(View.GONE);
+        //depositAmountLabelTV = rootView.findViewById(R.id.leaseWizardDepositLabelTV);
+        //depositWithheldLabelTV = rootView.findViewById(R.id.leaseWizardDepositWithheldLabelTV);
+        //depositWithheldLabelTV.setVisibility(View.GONE);
 
         depositAmountET = rootView.findViewById(R.id.leaseWizardDepositET);
         if (mPage.getData().getString(LeaseWizardPage2.LEASE_DEPOSIT_FORMATTED_STRING_DATA_KEY) != null) {
@@ -128,7 +128,7 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
         depositAmountET.setSelection(depositAmountET.getText().length());
         depositHeaderTV = rootView.findViewById(R.id.leaseWizardDepositHeaderTV);
         if (isEdit) {
-            depositAmountLabelTV.setVisibility(View.GONE);
+//            depositAmountLabelTV.setVisibility(View.GONE);
             depositAmountET.setVisibility(View.GONE);
             depositHeaderTV.setVisibility(View.GONE);
         }
@@ -200,10 +200,10 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
         primaryTenantTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                tenantOrApartmentChooserDialog = new TenantOrApartmentChooserDialog(getContext(), TenantOrApartmentChooserDialog.TENANT_TYPE, availableTenants);
-                tenantOrApartmentChooserDialog.show();
-                tenantOrApartmentChooserDialog.changeCancelBtnText(getContext().getResources().getString(R.string.clear));
-                tenantOrApartmentChooserDialog.setDialogResult(new TenantOrApartmentChooserDialog.OnTenantChooserDialogResult() {
+                tenantApartmentOrLeaseChooserDialog = new TenantApartmentOrLeaseChooserDialog(getContext(), TenantApartmentOrLeaseChooserDialog.TENANT_TYPE, availableTenants);
+                tenantApartmentOrLeaseChooserDialog.show();
+                tenantApartmentOrLeaseChooserDialog.changeCancelBtnText(getContext().getResources().getString(R.string.clear));
+                tenantApartmentOrLeaseChooserDialog.setDialogResult(new TenantApartmentOrLeaseChooserDialog.OnTenantChooserDialogResult() {
                     @Override
                     public void finish(Tenant tenantResult, Apartment apartmentResult, Lease leaseResult) {
                         if (primaryTenant != null) {
@@ -232,9 +232,9 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
         addSecondaryTenantBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                tenantOrApartmentChooserDialog = new TenantOrApartmentChooserDialog(getContext(), TenantOrApartmentChooserDialog.TENANT_TYPE, availableTenants);
-                tenantOrApartmentChooserDialog.show();
-                tenantOrApartmentChooserDialog.setDialogResult(new TenantOrApartmentChooserDialog.OnTenantChooserDialogResult() {
+                tenantApartmentOrLeaseChooserDialog = new TenantApartmentOrLeaseChooserDialog(getContext(), TenantApartmentOrLeaseChooserDialog.TENANT_TYPE, availableTenants);
+                tenantApartmentOrLeaseChooserDialog.show();
+                tenantApartmentOrLeaseChooserDialog.setDialogResult(new TenantApartmentOrLeaseChooserDialog.OnTenantChooserDialogResult() {
                     @Override
                     public void finish(Tenant tenantResult, Apartment apartmentResult, Lease leaseResult) {
                         if (tenantResult != null) {
@@ -255,9 +255,9 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
             @Override
             public void onClick(View view) {
                 if (!secondaryTenants.isEmpty()) {
-                    tenantOrApartmentChooserDialog = new TenantOrApartmentChooserDialog(getContext(), TenantOrApartmentChooserDialog.SECONDARY_TENANT_TYPE, secondaryTenants);
-                    tenantOrApartmentChooserDialog.show();
-                    tenantOrApartmentChooserDialog.setDialogResult(new TenantOrApartmentChooserDialog.OnTenantChooserDialogResult() {
+                    tenantApartmentOrLeaseChooserDialog = new TenantApartmentOrLeaseChooserDialog(getContext(), TenantApartmentOrLeaseChooserDialog.SECONDARY_TENANT_TYPE, secondaryTenants);
+                    tenantApartmentOrLeaseChooserDialog.show();
+                    tenantApartmentOrLeaseChooserDialog.setDialogResult(new TenantApartmentOrLeaseChooserDialog.OnTenantChooserDialogResult() {
                         @Override
                         public void finish(Tenant tenantResult, Apartment apartmentResult, Lease leaseResult) {
                             if (tenantResult != null) {
@@ -292,15 +292,22 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
                 String s = editable.toString();
                 if (s.isEmpty()) return;
                 depositAmountET.removeTextChangedListener(this);
-                String cleanString = s.replaceAll("[$,.]", "");
+                String cleanString = DateAndCurrencyDisplayer.cleanMoneyString(s);
                 deposit = new BigDecimal(cleanString).setScale(2, BigDecimal.ROUND_FLOOR).divide(new BigDecimal(100), BigDecimal.ROUND_FLOOR);
-                String formatted = NumberFormat.getCurrencyInstance().format(deposit);
+                String formatted = DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, deposit);
                 depositAmountET.setText(formatted);
+                depositAmountET.setSelection(DateAndCurrencyDisplayer.getEndCursorPositionForMoneyInput(depositAmountET.getText().length(), moneyFormatCode));
                 mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_FORMATTED_STRING_DATA_KEY, formatted);
                 mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_STRING_DATA_KEY, deposit.toPlainString());
                 mPage.notifyDataChanged();
-                depositAmountET.setSelection(formatted.length());
+                //depositAmountET.setSelection(formatted.length());
                 depositAmountET.addTextChangedListener(this);
+            }
+        });
+        depositAmountET.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                depositAmountET.setSelection(DateAndCurrencyDisplayer.getEndCursorPositionForMoneyInput(depositAmountET.getText().length(), moneyFormatCode));
             }
         });
 
@@ -389,7 +396,9 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
                 builder.append(secondaryTenants.get(i).getFirstName());
                 builder.append(" ");
                 builder.append(secondaryTenants.get(i).getLastName());
-                builder.append("\n");
+                if(i < secondaryTenants.size() - 1) {
+                    builder.append("\n");
+                }
             }
             return builder.toString();
         } else {
@@ -437,7 +446,7 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
             deposit = new BigDecimal(mPage.getData().getString(LeaseWizardPage2.LEASE_DEPOSIT_STRING_DATA_KEY)).setScale(2, BigDecimal.ROUND_FLOOR).divide(new BigDecimal(100), BigDecimal.ROUND_FLOOR);
         } else {
             deposit = new BigDecimal(0);
-            String formatted = NumberFormat.getCurrencyInstance().format(deposit);
+            String formatted = DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, deposit);
             mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_FORMATTED_STRING_DATA_KEY, formatted);
             mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_STRING_DATA_KEY, deposit.toPlainString());
         }
@@ -466,7 +475,7 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
             }
             //Deposit
             deposit = new BigDecimal(0);
-            String formatted = NumberFormat.getCurrencyInstance().format(deposit);
+            String formatted = DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, deposit);
             mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_FORMATTED_STRING_DATA_KEY, formatted);
             mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_STRING_DATA_KEY, deposit.toPlainString());
             mPage.getData().putBoolean(LeaseWizardPage2.WAS_PRELOADED, true);
@@ -478,8 +487,8 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        if(tenantOrApartmentChooserDialog != null){
-            tenantOrApartmentChooserDialog.dismiss();
+        if(tenantApartmentOrLeaseChooserDialog != null){
+            tenantApartmentOrLeaseChooserDialog.dismiss();
         }
     }
 }

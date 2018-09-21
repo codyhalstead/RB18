@@ -9,6 +9,8 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="15dp"
         android:layout_marginRight="15dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="7dp"
         android:orientation="vertical"
         android:weightSum="5">
 
@@ -18,27 +20,30 @@
             android:orientation="horizontal">
 
             <TextView
+                android:id="@+id/leaseRowStartDateTV"
+                style="@style/RowLargeText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/leaseRowStartDateTV"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:text="11/23/1989"
-                style="@style/FormLabel"
-                android:textSize="18sp" />
+                 />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                style="@style/FormLabel"
+                style="@style/RowLargeText"
                 android:text=" - "
-                android:textSize="18sp" />
+                />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/leaseRowEndDateTV"
-                style="@style/FormLabel"
+                style="@style/RowLargeText"
                 android:text="11/23/1990"
-                android:textSize="18sp" />
+                />
+
 
         </LinearLayout>
 
@@ -48,24 +53,29 @@
             android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/leaseRowFirstNameTV"
+                android:id="@+id/leaseRowNameTV"
+                style="@style/RowText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                style="@style/FormText"
-                android:text="Monet" />
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="Monet Tomioka" />
+
+            <!--
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                style="@style/FormText"
+                style="@style/RowText"
                 android:text=" " />
 
             <TextView
                 android:id="@+id/leaseRowLastNameTV"
-                style="@style/FormText"
+                style="@style/RowText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Tomioka" />
+                -->
 
         </LinearLayout>
 
@@ -75,36 +85,31 @@
             android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/leaseRowApartmentStreet1TV"
+                android:id="@+id/leaseRowApartmentAddressTV"
+                style="@style/RowText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                style="@style/FormText"
-                android:text="2390 Burlington Rd." />
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="2390 Burlington Rd. Apt.235" />
+            <!--
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            style="@style/RowText"
+                            android:text=" "
+                            />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                style="@style/FormText"
-                android:text=" "
-                />
-
-            <TextView
-                android:id="@+id/leaseRowApartmentStreet2TV"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                style="@style/FormText"
-                android:text="Apt.2345" />
+                        <TextView
+                            android:id="@+id/leaseRowApartmentStreet2TV"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            style="@style/RowText"
+                            android:text="Apt.2345" />
+                            -->
 
         </LinearLayout>
 
     </LinearLayout>
 
-    <!--Border -->
-    <View
-        android:id="@+id/tenantRowBarBorder"
-        android:layout_width="match_parent"
-        android:layout_height="3dp"
-        android:layout_below="@+id/leaseRowLL"
-        android:layout_marginTop="8dp"
-        android:background="@color/caldroid_black" />
 </RelativeLayout>

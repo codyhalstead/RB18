@@ -7,7 +7,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,15 +19,11 @@ import android.widget.TextView;
 import com.example.cody.rentbud.R;
 import com.rentbud.activities.MainActivity;
 import com.rentbud.activities.TenantViewActivity;
-import com.rentbud.activities.TenantViewActivity2;
 import com.rentbud.adapters.TenantListAdapter;
 import com.rentbud.helpers.MainArrayDataMethods;
-import com.rentbud.model.Lease;
 import com.rentbud.model.Tenant;
 
 import java.util.ArrayList;
-
-import static android.content.ContentValues.TAG;
 
 /**
  * Created by Cody on 1/11/2018.
@@ -56,7 +51,7 @@ public class TenantListFragment extends Fragment implements AdapterView.OnItemCl
         this.noTenantsTV = view.findViewById(R.id.notenantEmptyListTV);
         this.searchBarET = view.findViewById(R.id.tenantListSearchET);
         this.listView = view.findViewById(R.id.maintenantListView);
-        getActivity().setTitle(R.string.tenant_view);
+        getActivity().setTitle(R.string.tenant_list);
         dataMethods = new MainArrayDataMethods();
         //TenantListFragment.tenantListAdapterNeedsRefreshed = false;
         //Get current theme accent color, which is passed into the list adapter for search highlighting
@@ -89,7 +84,7 @@ public class TenantListFragment extends Fragment implements AdapterView.OnItemCl
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         //On listView row click, launch TenantViewActivity passing the rows data into it.
-        Intent intent = new Intent(getContext(), TenantViewActivity2.class);
+        Intent intent = new Intent(getContext(), TenantViewActivity.class);
         //Uses filtered results to match what is on screen
         Tenant tenant = tenantListAdapter.getFilteredResults().get(i);
         //    Lease currentLease = dataMethods.getCachedActiveLeaseByTenantID(tenant.getId());
@@ -135,6 +130,6 @@ public class TenantListFragment extends Fragment implements AdapterView.OnItemCl
         listView.setAdapter(tenantListAdapter);
         listView.setOnItemClickListener(this);
         noTenantsTV.setText(R.string.no_tenants_to_display);
-        this.listView.setEmptyView(noTenantsTV);
+        listView.setEmptyView(noTenantsTV);
     }
 }

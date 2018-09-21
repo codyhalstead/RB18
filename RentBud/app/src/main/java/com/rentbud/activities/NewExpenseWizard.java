@@ -1,5 +1,7 @@
 package com.rentbud.activities;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -7,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +23,9 @@ import com.example.android.wizardpager.wizard.ui.ReviewFragment;
 import com.example.android.wizardpager.wizard.ui.StepPagerStrip;
 import com.example.cody.rentbud.R;
 import com.rentbud.fragments.ExpenseListFragment;
+import com.rentbud.fragments.ReviewFragmentCustom;
 import com.rentbud.model.Apartment;
+import com.rentbud.model.ExpenseEditingWizardModel;
 import com.rentbud.model.ExpenseLogEntry;
 import com.rentbud.model.ExpenseWizardModel;
 import com.rentbud.model.Lease;
@@ -30,6 +35,7 @@ import com.rentbud.wizards.ExpenseWizardPage2;
 import com.rentbud.sqlite.DatabaseHandler;
 import com.rentbud.wizards.ExpenseWizardPage3;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -40,14 +46,14 @@ import java.util.Locale;
 
 public class NewExpenseWizard extends BaseActivity implements
         PageFragmentCallbacks,
-        ReviewFragment.Callbacks,
+        ReviewFragmentCustom.Callbacks,
         ModelCallbacks {
     private ViewPager mPager;
     private NewExpenseWizard.MyPagerAdapter mPagerAdapter;
 
     private boolean mEditingAfterReview;
 
-    private ExpenseWizardModel mWizardModel;// = new ExpenseWizardModel(this);
+    private AbstractWizardModel mWizardModel;
 
     private boolean mConsumePageSelectedEvent;
 
@@ -59,17 +65,26 @@ public class NewExpenseWizard extends BaseActivity implements
 
     private DatabaseHandler dbHandler;
     private ExpenseLogEntry expenseToEdit;
+    private AlertDialog alertDialog;
 
     public void onCreate(Bundle savedInstanceState) {
         setupUserAppTheme(MainActivity.curThemeChoice);
         setContentView(R.layout.activity_fragment_wizard);
-        mWizardModel = new ExpenseWizardModel(this);
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             expenseToEdit = extras.getParcelable("expenseToEdit");
-            mWizardModel.preloadData(extras);
         } else {
             expenseToEdit = null;
+        }
+        if(expenseToEdit != null){
+            mWizardModel = new ExpenseEditingWizardModel(this);
+            this.setTitle(R.string.edit_expense);
+        } else {
+            mWizardModel = new ExpenseWizardModel(this);
+            this.setTitle(R.string.new_expense_creation);
+        }
+        if(extras != null){
+            mWizardModel.preloadData(extras);
         }
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
@@ -122,7 +137,7 @@ public class NewExpenseWizard extends BaseActivity implements
                         e.printStackTrace();
                     }
                     String amountString = mWizardModel.findByKey("Page1").getData().getString(ExpenseWizardPage1.EXPENSE_AMOUNT_STRING_DATA_KEY);
-                    BigDecimal amount = new BigDecimal(amountString);
+                    BigDecimal amount = new BigDecimal(amountString).multiply(new BigDecimal(-1));
                     int apartmentID = 0;
                     int tenantID = 0;
                     int leaseID = 0;
@@ -147,7 +162,6 @@ public class NewExpenseWizard extends BaseActivity implements
                     int typeID = mWizardModel.findByKey("Page1").getData().getInt(ExpenseWizardPage1.EXPENSE_TYPE_ID_DATA_KEY);
                     String type = mWizardModel.findByKey("Page1").getData().getString(ExpenseWizardPage1.EXPENSE_TYPE_DATA_KEY);
                     String receiptPic = mWizardModel.findByKey("Page2").getData().getString(ExpenseWizardPage2.EXPENSE_RECEIPT_PIC_DATA_KEY);
-
                     if(expenseToEdit != null){
                         expenseToEdit.setDate(date);
                         expenseToEdit.setAmount(amount);
@@ -156,7 +170,7 @@ public class NewExpenseWizard extends BaseActivity implements
                         }
                         expenseToEdit.setTypeLabel(type);
                         expenseToEdit.setDescription(description);
-                        expenseToEdit.setReceiptPic(receiptPic);
+                        //expenseToEdit.setReceiptPic(receiptPic);
                         expenseToEdit.setApartmentID(apartmentID);
                         expenseToEdit.setTenantID(tenantID);
                         expenseToEdit.setLeaseID(leaseID);
@@ -237,6 +251,50 @@ public class NewExpenseWizard extends BaseActivity implements
         }
 
         mPrevButton.setVisibility(position <= 0 ? View.INVISIBLE : View.VISIBLE);
+    }
+
+    @Override
+    public void onBackPressed() {
+        showCancelConfirmation();
+    }
+
+    public void showCancelConfirmation(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.exit_wizard_confirmation);
+        builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                if(expenseToEdit == null) {
+                    if (mWizardModel.findByKey("Page2") != null) {
+                        if (mWizardModel.findByKey("Page2").getData().getString(ExpenseWizardPage2.EXPENSE_RECEIPT_PIC_DATA_KEY) != null) {
+                            String receiptPic = mWizardModel.findByKey("Page2").getData().getString(ExpenseWizardPage2.EXPENSE_RECEIPT_PIC_DATA_KEY);
+                            File file = new File(receiptPic);
+                            if (file.exists()) {
+                                file.delete();
+                            }
+                        }
+                    }
+                }
+                NewExpenseWizard.this.finish();
+            }
+        });
+        builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+        // create and show the alert dialog
+        alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if(alertDialog != null){
+            alertDialog.dismiss();
+        }
     }
 
     @Override
@@ -338,7 +396,7 @@ public class NewExpenseWizard extends BaseActivity implements
         @Override
         public Fragment getItem(int i) {
             if (i >= mCurrentPageSequence.size()) {
-                return new ReviewFragment();
+                return new ReviewFragmentCustom();
             }
 
             return mCurrentPageSequence.get(i).createFragment();

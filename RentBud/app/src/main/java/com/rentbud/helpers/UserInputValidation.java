@@ -48,8 +48,34 @@ public class UserInputValidation {
         return true;
     }
 
+    //Used to check if edit text input is not empty and fits Email criteria (ex: O@O.O) with custom message error
+    public boolean isInputEditTextEmail(EditText editText, String message) {
+        String value = editText.getText().toString().trim();
+        if (value.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(value).matches()) {
+            editText.setError(message);
+            hideKeyboardFrom(editText);
+            return false;
+        } else {
+            editText.setError(null);
+        }
+        return true;
+    }
+
     //Used to check if edit text input is not empty and fits password criteria (Between 4 and 15 characters) with custom message error
     public boolean isInputEditTextPassword(TextInputEditText editText, String message) {
+        String value = editText.getText().toString().trim();
+        if (value.isEmpty() || value.length() < 4 || value.length() > 15) {
+            editText.setError(message);
+            hideKeyboardFrom(editText);
+            return false;
+        } else {
+            editText.setError(null);
+        }
+        return true;
+    }
+
+    //Used to check if edit text input is not empty and fits password criteria (Between 4 and 15 characters) with custom message error
+    public boolean isInputEditTextPassword(EditText editText, String message) {
         String value = editText.getText().toString().trim();
         if (value.isEmpty() || value.length() < 4 || value.length() > 15) {
             editText.setError(message);

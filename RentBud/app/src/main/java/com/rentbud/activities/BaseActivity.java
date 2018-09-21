@@ -1,7 +1,9 @@
 package com.rentbud.activities;
 
+import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -17,22 +19,24 @@ import com.example.cody.rentbud.R;
 public class BaseActivity extends AppCompatActivity {
     //Theme constants
     public final static int THEME_PURPLE = 0;
-    public final static int THEME_PURPLE_BLUE = 1;
+    public final static int THEME_GOLD = 1;
     public final static int THEME_PINK = 2;
-    public final static int THEME_PINK_BLUE = 3;
+    public final static int THEME_BLACK = 3;
     public final static int THEME_ORANGE = 4;
-    public final static int THEME_ORANGE_GREY = 5;
+    public final static int THEME_TURQUOISE = 5;
     public final static int THEME_GREEN = 6;
     public final static int THEME_RED = 7;
     public final static int THEME_BROWN = 8;
     public final static int THEME_BLUE = 9;
 
+    public SharedPreferences preferences;
     public Toolbar toolbar;
 
     //onCreate
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.preferences = PreferenceManager.getDefaultSharedPreferences(this);
         this.toolbar = null;
     }
 
@@ -67,24 +71,24 @@ public class BaseActivity extends AppCompatActivity {
             case THEME_PURPLE:
                 break;
 
-            case THEME_PURPLE_BLUE:
-                getTheme().applyStyle(R.style.AppTheme_purple_blue, true);
+            case THEME_GOLD:
+                getTheme().applyStyle(R.style.AppTheme_gold, true);
                 break;
 
             case THEME_PINK:
                 getTheme().applyStyle(R.style.AppTheme_pink, true);
                 break;
 
-            case THEME_PINK_BLUE:
-                getTheme().applyStyle(R.style.AppTheme_pink_blue, true);
+            case THEME_BLACK:
+                getTheme().applyStyle(R.style.AppTheme_black, true);
                 break;
 
             case THEME_ORANGE:
                 getTheme().applyStyle(R.style.AppTheme_orange, true);
                 break;
 
-            case THEME_ORANGE_GREY:
-                getTheme().applyStyle(R.style.AppTheme_orange_grey, true);
+            case THEME_TURQUOISE:
+                getTheme().applyStyle(R.style.AppTheme_turquoise, true);
                 break;
 
             case THEME_GREEN:

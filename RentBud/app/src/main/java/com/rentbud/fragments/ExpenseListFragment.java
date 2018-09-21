@@ -1,24 +1,21 @@
 package com.rentbud.fragments;
 
 import android.app.Activity;
-import android.app.DatePickerDialog;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -28,17 +25,13 @@ import com.rentbud.activities.ExpenseViewActivity;
 import com.rentbud.activities.MainActivity;
 import com.rentbud.adapters.ExpenseListAdapter;
 import com.rentbud.helpers.CustomDatePickerDialogLauncher;
+import com.rentbud.helpers.DateAndCurrencyDisplayer;
 import com.rentbud.helpers.MainViewModel;
 import com.rentbud.model.ExpenseLogEntry;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 
 /**
  * Created by Cody on 3/23/2018.
@@ -55,6 +48,7 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
     private BigDecimal total;
     private OnDatesChangedListener mCallback;
     private boolean needsRefreshedOnResume;
+    private SharedPreferences preferences;
     private CustomDatePickerDialogLauncher datePickerDialogLauncher;
 
     @Override
@@ -66,7 +60,7 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        this.noExpensesTV = view.findViewById(R.id.moneyEmptyListTV);
+        this.noExpensesTV = view.findViewById(R.id.emptyListTV);
         this.searchBarET = view.findViewById(R.id.moneyListSearchET);
         this.dateRangeStartBtn = view.findViewById(R.id.moneyListDateRangeStartBtn);
         this.dateRangeStartBtn.setOnClickListener(this);
@@ -77,9 +71,10 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
         this.listView = view.findViewById(R.id.mainMoneyListView);
         this.filterDateEnd = ViewModelProviders.of(getActivity()).get(MainViewModel.class).getEndDateRangeDate().getValue();
         this.filterDateStart = ViewModelProviders.of(getActivity()).get(MainViewModel.class).getStartDateRangeDate().getValue();
-        SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-        dateRangeStartBtn.setText(formatter.format(filterDateStart));
-        dateRangeEndBtn.setText(formatter.format(filterDateEnd));
+        this.preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        int dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
+        dateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateStart));
+        dateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateEnd));
         total = getTotal(ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedExpenses().getValue());
         datePickerDialogLauncher = new CustomDatePickerDialogLauncher(filterDateStart, filterDateEnd, true, getContext());
         datePickerDialogLauncher.setDateSelectedListener(new CustomDatePickerDialogLauncher.DateSelectedListener() {
@@ -87,9 +82,9 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
             public void onStartDateSelected(Date startDate, Date endDate) {
                 filterDateStart = startDate;
                 filterDateEnd = endDate;
-                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-                dateRangeEndBtn.setText(formatter.format(filterDateEnd));
-                dateRangeStartBtn.setText(formatter.format(filterDateStart));
+                int dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
+                dateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateStart));
+                dateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateEnd));
                 mCallback.onExpenseListDatesChanged(filterDateStart, filterDateEnd, ExpenseListFragment.this);
             }
 
@@ -97,9 +92,9 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
             public void onEndDateSelected(Date startDate, Date endDate) {
                 filterDateStart = startDate;
                 filterDateEnd = endDate;
-                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-                dateRangeEndBtn.setText(formatter.format(filterDateEnd));
-                dateRangeStartBtn.setText(formatter.format(filterDateStart));
+                int dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
+                dateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateStart));
+                dateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateEnd));
                 mCallback.onExpenseListDatesChanged(filterDateStart, filterDateEnd, ExpenseListFragment.this);
             }
 
@@ -108,7 +103,7 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
 
             }
         });
-        getActivity().setTitle(R.string.expense_view);
+        getActivity().setTitle(R.string.expense_list);
         //Get current theme accent color, which is passed into the list adapter for search highlighting
         TypedValue colorValue = new TypedValue();
         getActivity().getTheme().resolveAttribute(R.attr.colorAccent, colorValue, true);
@@ -244,13 +239,12 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
     }
 
     private void setTotalTV() {
-        totalAmountTV.setTextColor(getActivity().getResources().getColor(R.color.red));
+        if(getActivity() != null) {
+            totalAmountTV.setTextColor(getActivity().getResources().getColor(R.color.red));
+        }
         if (total != null) {
-            BigDecimal displayVal = total.setScale(2, RoundingMode.HALF_EVEN);
-            NumberFormat usdCostFormat = NumberFormat.getCurrencyInstance(Locale.US);
-            usdCostFormat.setMinimumFractionDigits(2);
-            usdCostFormat.setMaximumFractionDigits(2);
-            totalAmountTV.setText(usdCostFormat.format(displayVal.doubleValue()));
+            int moneyFormatCode = preferences.getInt("currency", DateAndCurrencyDisplayer.CURRENCY_US);
+            totalAmountTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, total));
         }
     }
 

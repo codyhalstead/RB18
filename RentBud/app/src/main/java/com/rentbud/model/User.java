@@ -22,7 +22,7 @@ public class User implements Parcelable {
         this.profilePic = "";
     }
 
-    public User(int id, String name, String email, String password, String profilePic) {
+    public User(int id, String name, String email, String password) {
         this.id = id;
         this.name = name;
         this.email = email;

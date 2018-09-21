@@ -1,337 +1,235 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical"
+        android:id="@+id/adViewLL"
+        >
+    <View
+        android:id="@+id/apartmentListBarBorder"
+        android:layout_width="match_parent"
+        style="@style/RowBorder" />
+
+    <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/adView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp"
+        ads:adSize="BANNER"
+        ads:adUnitId="ca-app-pub-3940256099942544/6300978111" />
+
+    </LinearLayout>
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent"
+        android:layout_above="@+id/adViewLL"
+        >
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="vertical">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:gravity="center">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:gravity="center">
 
 
-                    <!-- Was 200dp X 200dp -->
-                    <ImageView
-                        android:id="@+id/apartmentViewMainPicIV"
-                        android:layout_width="200dp"
-                        android:layout_height="200dp"
-                        android:src="@drawable/blank_home_pic" />
-                </LinearLayout>
+                <!-- Was 200dp X 200dp -->
+                <ImageView
+                    android:id="@+id/apartmentViewMainPicIV"
+                    android:layout_width="200dp"
+                    android:layout_height="200dp"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/blank_home_pic" />
+            </LinearLayout>
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/recyclerView"
                 android:layout_width="wrap_content"
                 android:layout_height="100dp"
+                android:layout_gravity="center_horizontal"
                 android:layout_marginTop="15dp"
-                android:orientation="horizontal"
-                android:layout_gravity="center_horizontal">
+                android:orientation="horizontal">
 
             </android.support.v7.widget.RecyclerView>
 
-            <!--Border -->
-            <View
+            <TableLayout
                 android:layout_width="match_parent"
-                android:layout_gravity="center"
-                android:layout_height="2dp"
-                android:background="@color/caldroid_black"
-                android:layout_marginTop="15dp"
-                />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="Address"
-                style="@style/FormLabel"
-                />
-
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="15dp"
-                android:layout_marginRight="15dp"
-                android:orientation="vertical"
-                >
-
-                <!--Street 1 -->
-                <TextView
-                    android:id="@+id/apartmentViewStreet1TextView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="2390 Burlington Rd"
-                    style="@style/FormText"
-                    />
-
-                <!--Street 2 -->
-                <TextView
-                    android:id="@+id/apartmentViewStreet2TextView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="Apt. 231"
-                    style="@style/FormText"
-                    />
-
-                <!--City, state, and ZIP -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/apartmentViewCityTextView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/FormText"
-                        android:text="Letts," />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/FormText"
-                        android:text="  " />
-
-                    <TextView
-                        android:id="@+id/apartmentViewStateTextView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/FormText"
-                        android:text="IA" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="  "
-                        style="@style/FormText"
-                        />
-
-                    <TextView
-                        android:id="@+id/apartmentViewZipTextView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/FormText"
-                        android:text="52754"
-                        />
-
-                </LinearLayout>
-
-            </LinearLayout>
-
-            <!--Border -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_gravity="center"
-                android:layout_height="2dp"
-                android:background="@color/caldroid_black"
-                android:layout_marginTop="15dp"
-                />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                style="@style/FormLabel"
-                android:text="Description" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="15dp"
-                android:layout_marginRight="15dp"
-                android:orientation="vertical">
+                android:layout_height="match_parent">
 
                 <TextView
-                    android:id="@+id/apartmentViewDescriptionTextView"
+                    style="@style/ViewInformationRowHeaderTextStyle"
+                    android:text="@string/apartment_information" />
+
+                <!--Address -->
+                <TableRow
+                    style="@style/ViewInformationRowStyle"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    style="@style/FormText"
-                    android:text="Description" />
+                    android:layout_height="wrap_content">
 
-            </LinearLayout>
+                    <TextView
+                        android:id="@+id/apartmentAddressLabelTextView"
+                        style="@style/ViewInformationRowLeftTextStyle"
+                        android:text="@string/address" />
 
-            <!--Border -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_gravity="center"
-                android:layout_height="2dp"
-                android:background="@color/caldroid_black"
-                android:layout_marginTop="15dp"
-                />
+                    <TextView
+                        android:id="@+id/apartmentViewAddressTextView"
+                        style="@style/ViewInformationRowRightTextStyle"
+                        android:text="2390 Burlington Rd" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                style="@style/FormLabel"
-                android:text="Active Lease Information" />
+                </TableRow>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="15dp"
-                android:layout_marginRight="15dp"
-                android:orientation="vertical">
-
-                <LinearLayout
+                <!--Description -->
+                <TableRow
+                    style="@style/ViewInformationRowStyle"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:orientation="horizontal">
+                    android:layout_height="wrap_content">
 
                     <TextView
-                        android:id="@+id/apartmentViewRentalLeaseTV"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/FormText"
-                        android:text="Lease: " />
+                        android:id="@+id/apartmentViewDescriptionLabelTextView"
+                        style="@style/ViewInformationRowLeftTextStyle"
+                        android:text="@string/description" />
 
                     <TextView
-                        android:id="@+id/apartmentViewLeaseStartTextView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="1/2/17"
-                        style="@style/FormText"
-                        />
+                        android:id="@+id/apartmentViewDescriptionTextView"
+                        style="@style/ViewInformationRowRightTextStyle"
+                        android:text="The description" />
 
-                    <TextView
-                        android:id="@+id/apartmentViewLeaseHyphenTV"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text=" - "
-                        style="@style/FormText"
-                        />
-
-                    <TextView
-                        android:id="@+id/apartmentViewLeaseEndTextView"
-                        android:layout_width="wrap_content"
-                        style="@style/FormText"
-                        android:layout_height="wrap_content"
-                        android:text="1/2/18" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/apartmentViewPrimaryTenantLL"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/apartmentViewPrimaryTenantDisplayTV"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Primary Tenant: "
-                        style="@style/FormText"
-                        />
-
-                    <TextView
-                        android:id="@+id/apartmentViewPrimaryTenantFirstNameTV"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/FormText"
-                        android:text="Cody" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/FormText"
-                        android:text="  " />
-
-                    <TextView
-                        android:id="@+id/apartmentViewPrimaryTenantLastNameTV"
-                        style="@style/FormText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Halstead" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/apartmentViewSecondaryTenantsLL"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Secondary Tenants:"
-                        style="@style/FormText"
-                        />
-
-                    <TextView
-                        android:id="@+id/apartmentViewSecondaryTenantsTV"
-                        style="@style/FormText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center" />
-
-                </LinearLayout>
-
-                <Button
-                    android:id="@+id/apartmentViewEditLeaseBtn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:visibility="gone"
-                    android:text="Edit Lease" />
-
-            </LinearLayout>
-
-            <!--Border -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_gravity="center"
-                android:layout_height="2dp"
-                android:background="@color/caldroid_black"
-                android:layout_marginTop="15dp"
-                />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Notes"
-                style="@style/FormLabel"
-                android:layout_gravity="center"
-                />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="15dp"
-                android:layout_marginRight="15dp"
-                android:orientation="vertical">
+                </TableRow>
 
                 <TextView
-                    android:id="@+id/apartmentViewNotesTextView"
+                    android:id="@+id/apartmentViewActiveLeaseHeaderTV"
+                    style="@style/ViewInformationRowHeaderTextStyle"
+                    android:text="@string/active_lease_information" />
+
+                <!--Active Lease Duration -->
+                <TableRow
+                    android:id="@+id/apartmentViewActiveLeaseDurationTR"
+                    style="@style/ViewInformationRowStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/apartmentViewActiveLeaseDurationLabelTextView"
+                        style="@style/ViewInformationRowLeftTextStyle"
+                        android:text="@string/duration" />
+
+                    <TextView
+                        android:id="@+id/apartmentViewActiveLeaseDurationTextView"
+                        style="@style/ViewInformationRowRightTextStyle"
+                        android:text="11/12/1221 - 11/12/1222" />
+
+                </TableRow>
+
+                <!--Active Lease Primary Tenant -->
+                <TableRow
+                    android:id="@+id/apartmentViewActiveLeasePrimaryTenantTR"
+                    style="@style/ViewInformationRowStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/apartmentViewActiveLeasePrimaryTenantLabelTextView"
+                        style="@style/ViewInformationRowLeftTextStyle"
+                        android:text="@string/primary_tenant" />
+
+                    <TextView
+                        android:id="@+id/apartmentViewActiveLeasePrimaryTenantTextView"
+                        style="@style/ViewInformationRowRightTextStyle"
+                        android:text="Frank Lascelles" />
+
+                </TableRow>
+
+                <!--Active Lease Other Tenants -->
+                <TableRow
+                    android:id="@+id/apartmentViewActiveLeaseOtherTenantsTR"
+                    style="@style/ViewInformationRowStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/apartmentViewActiveLeaseOtherTenantsLabelTextView"
+                        style="@style/ViewInformationRowLeftTextStyle"
+                        android:text="@string/other_tenants" />
+
+                    <TextView
+                        android:id="@+id/apartmentViewActiveLeaseOtherTenantsTextView"
+                        style="@style/ViewInformationRowRightTextStyle"
+                        android:text="Bill Clinton" />
+
+                </TableRow>
+
+                <TextView
+                    style="@style/ViewInformationRowHeaderTextStyle"
+                    android:text="@string/notes" />
+
+                <!--Notes -->
+                <TableRow
+                    style="@style/ViewInformationRowStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="top|center"
-                    style="@style/FormText"
-                    android:isScrollContainer="true"
-                    android:maxLength="500"
-                    android:minHeight="120dp" />
+                    android:layout_marginBottom="40dp">
 
-            </LinearLayout>
+                    <TextView
+                        android:id="@+id/apartmentViewNotesTextView"
+                        style="@style/ViewInformationRowRightTextStyle"
+                        android:layout_weight="3"
+                        android:text="The notes" />
+
+                </TableRow>
+
+            </TableLayout>
+
+
+            <Button
+                android:id="@+id/apartmentViewCallTenantBtn"
+                style="@style/ContactButtonStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/ic_call_black_24dp"
+                android:text="@string/call_primary_tenant" />
+
+            <Button
+                android:id="@+id/apartmentViewSMSTenantBtn"
+                style="@style/ContactButtonStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/ic_textsms_black_24dp"
+                android:text="@string/sms_primary_tenant" />
+
+
+            <Button
+                android:id="@+id/apartmentViewEmailTenantBtn"
+                style="@style/ContactButtonStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/ic_email_black_24dp"
+                android:text="@string/email_primary_tenant" />
+
+            <Button
+                android:id="@+id/apartmentViewEmailAllTenantsBtn"
+                style="@style/ContactButtonStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/ic_email_black_24dp"
+                android:text="@string/email_all_tenants" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="20dp" />
+
         </LinearLayout>
     </ScrollView>
-</LinearLayout>
+</RelativeLayout>
 

@@ -12,19 +12,23 @@
         <menu>
             <item
                 android:id="@+id/editApartment"
-                android:title="Edit apartment" />
+                android:title="@string/edit_apartment" />
+
+            <item
+                android:id="@+id/editNotes"
+                android:title="@string/edit_notes" />
 
             <item
                 android:id="@+id/editMainPic"
-                android:title="Change main picture" />
+                android:title="@string/change_main_picture" />
 
             <item
-                android:id="@+id/editotherPics"
-                android:title="Add side picture" />
+                android:id="@+id/editOtherPics"
+                android:title="@string/add_side_picture" />
 
             <item
                 android:id="@+id/deleteApartment"
-                android:title="Delete apartment" />
+                android:title="@string/delete_apartment" />
 
         </menu>
 

@@ -119,24 +119,24 @@ public class ColorChooserDialog extends Dialog {
         themeBackgroundColors.add(whiteBackground);
 
         //Purple blue
-        themePrimaryColors.add(purple);
-        themeBackgroundColors.add(blueBackground);
+        themePrimaryColors.add(gold);
+        themeBackgroundColors.add(whiteBackground);
 
         //Pink white
         themePrimaryColors.add(pink);
         themeBackgroundColors.add(whiteBackground);
 
         //Pink blue
-        themePrimaryColors.add(pink);
-        themeBackgroundColors.add(blueBackground);
+        themePrimaryColors.add(black);
+        themeBackgroundColors.add(whiteBackground);
 
         //Orange white
         themePrimaryColors.add(orange);
         themeBackgroundColors.add(whiteBackground);
 
         //Orange grey
-        themePrimaryColors.add(orange);
-        themeBackgroundColors.add(greyBackground);
+        themePrimaryColors.add(turquoise);
+        themeBackgroundColors.add(whiteBackground);
 
         //Green white
         themePrimaryColors.add(green);
@@ -176,16 +176,19 @@ public class ColorChooserDialog extends Dialog {
 
     //Theme primary colors
     private final int purple = Color.argb(255, 76, 0, 142);
-    private final int pink = Color.argb(255, 233, 30, 90);
-    private final int orange = Color.argb(255, 244, 155, 3);
+    private final int pink = Color.argb(255, 193, 0, 166);
+    private final int orange = Color.argb(255, 244, 115, 3);
     private final int green = Color.argb(255, 76, 175, 80);
-    private final int red = Color.argb(255, 255, 0, 0);
-    private final int brown = Color.argb(255, 121, 85, 72);
+    private final int red = Color.argb(255, 162, 2, 2);
+    private final int brown = Color.argb(255, 80, 56, 48);
     private final int blue = Color.argb(255, 37, 62, 206);
+    private final int black = Color.argb(255, 33, 31, 30);
+    private final int gold = Color.argb(255, 170, 141, 11);
+    private final int turquoise = Color.argb(255, 13, 156, 113);
 
     //Theme backgrounds
-    private final int blueBackground = Color.argb(255, 41, 182, 246);
-    private final int greyBackground = Color.argb(255, 77, 76, 75);
+    //private final int blueBackground = Color.argb(255, 41, 182, 246);
+    //private final int greyBackground = Color.argb(255, 77, 76, 75);
     private final int whiteBackground = Color.argb(255, 255, 255, 255);
 
 }

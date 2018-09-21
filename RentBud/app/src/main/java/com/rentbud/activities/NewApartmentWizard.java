@@ -1,5 +1,7 @@
 package com.rentbud.activities;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -21,27 +23,30 @@ import com.example.android.wizardpager.wizard.ui.ReviewFragment;
 import com.example.android.wizardpager.wizard.ui.StepPagerStrip;
 import com.example.cody.rentbud.R;
 import com.rentbud.fragments.ApartmentListFragment;
+import com.rentbud.fragments.ReviewFragmentCustom;
 import com.rentbud.helpers.MainArrayDataMethods;
 import com.rentbud.model.Apartment;
+import com.rentbud.model.ApartmentEditingWizardModel;
 import com.rentbud.model.ApartmentWizardModel;
 import com.rentbud.wizards.ApartmentWizardPage1;
 import com.rentbud.wizards.ApartmentWizardPage2;
 import com.rentbud.wizards.ApartmentWizardPage3;
 import com.rentbud.sqlite.DatabaseHandler;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 public class NewApartmentWizard extends BaseActivity implements
         PageFragmentCallbacks,
-        ReviewFragment.Callbacks,
+        ReviewFragmentCustom.Callbacks,
         ModelCallbacks {
     private ViewPager mPager;
     private NewApartmentWizard.MyPagerAdapter mPagerAdapter;
 
     private boolean mEditingAfterReview;
 
-    private ApartmentWizardModel mWizardModel;// = new ApartmentWizardModel(this);
+    private AbstractWizardModel mWizardModel;
 
     private boolean mConsumePageSelectedEvent;
 
@@ -54,17 +59,26 @@ public class NewApartmentWizard extends BaseActivity implements
     private DatabaseHandler dbhandler;
     private MainArrayDataMethods mainArrayDataMethods;
     public Apartment apartmentToEdit;
+    private AlertDialog alertDialog;
 
     public void onCreate(Bundle savedInstanceState) {
         setupUserAppTheme(MainActivity.curThemeChoice);
         setContentView(R.layout.activity_fragment_wizard);
-        mWizardModel = new ApartmentWizardModel(this);
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             apartmentToEdit = extras.getParcelable("apartmentToEdit");
-            mWizardModel.preloadData(extras);
         } else {
             apartmentToEdit = null;
+        }
+        if (apartmentToEdit != null) {
+            mWizardModel = new ApartmentEditingWizardModel(this);
+            this.setTitle(R.string.edit_apartment);
+        } else {
+            mWizardModel = new ApartmentWizardModel(this);
+            this.setTitle(R.string.new_apartment_creation);
+        }
+        if(extras != null){
+            mWizardModel.preloadData(extras);
         }
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
@@ -112,33 +126,35 @@ public class NewApartmentWizard extends BaseActivity implements
                     String street1 = mWizardModel.findByKey("Page1").getData().getString(ApartmentWizardPage1.APARTMENT_ADDRESS_1_DATA_KEY);
                     String street2 = mWizardModel.findByKey("Page1").getData().getString(ApartmentWizardPage1.APARTMENT_ADDRESS_2_DATA_KEY);
                     String city = mWizardModel.findByKey("Page1").getData().getString(ApartmentWizardPage1.APARTMENT_CITY_DATA_KEY);
-                    int stateID = mWizardModel.findByKey("Page1").getData().getInt(ApartmentWizardPage1.APARTMENT_STATE_ID_DATA_KEY);
+                    //int stateID = mWizardModel.findByKey("Page1").getData().getInt(ApartmentWizardPage1.APARTMENT_STATE_ID_DATA_KEY);
                     String state = mWizardModel.findByKey("Page1").getData().getString(ApartmentWizardPage1.APARTMENT_STATE_DATA_KEY);
                     String zip = mWizardModel.findByKey("Page1").getData().getString(ApartmentWizardPage1.APARTMENT_ZIP_DATA_KEY);
                     String description = mWizardModel.findByKey("Page2").getData().getString(ApartmentWizardPage2.APARTMENT_DESCRIPTION_DATA_KEY);
                     String notes = mWizardModel.findByKey("Page2").getData().getString(ApartmentWizardPage2.APARTMENT_NOTES_DATA_KEY);
-                    String mainPic = mWizardModel.findByKey("Page3").getData().getString(ApartmentWizardPage3.APARTMENT_MAIN_PIC_DATA_KEY);
-                    ArrayList<String> otherPics = mWizardModel.findByKey("Page3").getData().getStringArrayList(ApartmentWizardPage3.APARTMENT_OTHER_PICS_DATA_KEY);
-                    //Create new Tenant object with input data and add it to the database
-                    if(apartmentToEdit != null){
+                    String mainPic = "";
+                    ArrayList<String> otherPics = new ArrayList<>();
+                    if (mWizardModel.findByKey("Page3") != null) {
+                        mainPic = mWizardModel.findByKey("Page3").getData().getString(ApartmentWizardPage3.APARTMENT_MAIN_PIC_DATA_KEY);
+                        otherPics = mWizardModel.findByKey("Page3").getData().getStringArrayList(ApartmentWizardPage3.APARTMENT_OTHER_PICS_DATA_KEY);
+                    }
+                    if (apartmentToEdit != null) {
                         Apartment apartment = mainArrayDataMethods.getCachedApartmentByApartmentID(apartmentToEdit.getId());
                         apartment.setStreet1(street1);
                         apartment.setStreet2(street2);
                         apartment.setCity(city);
-                        apartment.setStateID(stateID);
+                        //apartment.setStateID(stateID);
                         apartment.setState(state);
                         apartment.setZip(zip);
                         apartment.setDescription(description);
                         apartment.setNotes(notes);
-                        apartment.setMainPic(mainPic);
-                        apartment.setOtherPics(otherPics);
-                        //TODO handle changing otherPics in the database, will not do currently
+                        //apartment.setMainPic(mainPic);
+                        //apartment.setOtherPics(otherPics);
                         dbhandler.editApartment(apartment, MainActivity.user.getId());
                         Intent data = new Intent();
                         data.putExtra("editedApartmentID", apartmentToEdit.getId());
                         setResult(RESULT_OK, data);
                     } else {
-                        Apartment apartment = new Apartment(-1, street1, street2, city, stateID, state, zip, description, false,
+                        Apartment apartment = new Apartment(-1, street1, street2, city, state, zip, description, false,
                                 notes, mainPic, otherPics, true);
                         dbhandler.addNewApartment(apartment, MainActivity.user.getId());
                         MainActivity.apartmentList.add(apartment);
@@ -181,7 +197,7 @@ public class NewApartmentWizard extends BaseActivity implements
     private void updateBottomBar() {
         int position = mPager.getCurrentItem();
         if (position == mCurrentPageSequence.size()) {
-            if(apartmentToEdit == null) {
+            if (apartmentToEdit == null) {
                 mNextButton.setText(R.string.create_apartment);
             } else {
                 mNextButton.setText(R.string.save_changes);
@@ -201,6 +217,55 @@ public class NewApartmentWizard extends BaseActivity implements
         }
 
         mPrevButton.setVisibility(position <= 0 ? View.INVISIBLE : View.VISIBLE);
+    }
+
+    @Override
+    public void onBackPressed() {
+        showCancelConfirmation();
+    }
+
+    public void showCancelConfirmation(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.exit_wizard_confirmation);
+        builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                if(apartmentToEdit != null) {
+                    if (mWizardModel.findByKey("Page3") != null) {
+                        String mainPic = mWizardModel.findByKey("Page3").getData().getString(ApartmentWizardPage3.APARTMENT_MAIN_PIC_DATA_KEY);
+                        ArrayList<String> otherPics = mWizardModel.findByKey("Page3").getData().getStringArrayList(ApartmentWizardPage3.APARTMENT_OTHER_PICS_DATA_KEY);
+                        if (mainPic != null) {
+                            if (!mainPic.equals("")) {
+                                new File(mainPic).delete();
+                            }
+                        }
+                        if (!otherPics.isEmpty()) {
+                            for (int z = 0; z < otherPics.size(); z++) {
+                                new File(otherPics.get(z)).delete();
+                            }
+                        }
+                    }
+                }
+                NewApartmentWizard.this.finish();
+            }
+        });
+        builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+        // create and show the alert dialog
+        alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if(alertDialog != null){
+            alertDialog.dismiss();
+        }
     }
 
     @Override
@@ -272,8 +337,8 @@ public class NewApartmentWizard extends BaseActivity implements
         super.onActivityResult(requestCode, resultCode, data);
 
         List<Fragment> fragments = getSupportFragmentManager().getFragments();
-        if(fragments != null){
-            for(Fragment fragment : fragments){
+        if (fragments != null) {
+            for (Fragment fragment : fragments) {
                 fragment.onActivityResult(requestCode, resultCode, data);
             }
         }
@@ -302,7 +367,7 @@ public class NewApartmentWizard extends BaseActivity implements
         @Override
         public Fragment getItem(int i) {
             if (i >= mCurrentPageSequence.size()) {
-                return new ReviewFragment();
+                return new ReviewFragmentCustom();
             }
 
             return mCurrentPageSequence.get(i).createFragment();

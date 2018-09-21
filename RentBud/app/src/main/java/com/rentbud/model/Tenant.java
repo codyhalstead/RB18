@@ -9,7 +9,7 @@ import java.util.Date;
  * Created by Cody on 1/27/2018.
  */
 
-public class Tenant implements Parcelable{
+public class Tenant implements Parcelable {
     private int id;
     private String firstName;
     private String lastName;
@@ -53,9 +53,9 @@ public class Tenant implements Parcelable{
         parcel.writeString(this.emergencyFirstName);
         parcel.writeString(this.emergencyLastName);
         parcel.writeString(this.emergencyPhone);
-        parcel.writeByte((byte) (hasLease? 1 : 0));
+        parcel.writeByte((byte) (hasLease ? 1 : 0));
         parcel.writeString(this.notes);
-        parcel.writeByte((byte) (isActive? 1 : 0));
+        parcel.writeByte((byte) (isActive ? 1 : 0));
     }
 
     private Tenant(Parcel in) {
@@ -63,7 +63,7 @@ public class Tenant implements Parcelable{
         this.firstName = in.readString();
         this.lastName = in.readString();
         this.phone = in.readString();
-        this.email= in.readString();
+        this.email = in.readString();
         this.emergencyFirstName = in.readString();
         this.emergencyLastName = in.readString();
         this.emergencyPhone = in.readString();
@@ -106,7 +106,10 @@ public class Tenant implements Parcelable{
     }
 
     public String getPhone() {
-        return phone;
+        if(phone != null){
+            return phone;
+        }
+        return "";
     }
 
     public void setPhone(String phone) {
@@ -130,7 +133,10 @@ public class Tenant implements Parcelable{
     }
 
     public String getTenantEmail() {
-        return email;
+        if(email != null){
+            return email;
+        }
+        return "";
     }
 
     public void setTenantEmail(String email) {
@@ -154,7 +160,10 @@ public class Tenant implements Parcelable{
     }
 
     public String getEmergencyPhone() {
-        return emergencyPhone;
+        if(emergencyPhone != null){
+            return emergencyPhone;
+        }
+        return "";
     }
 
     public void setEmergencyPhone(String emergencyPhone) {
@@ -183,5 +192,29 @@ public class Tenant implements Parcelable{
 
     public void setActive(boolean active) {
         isActive = active;
+    }
+
+    public String getFirstAndLastNameString() {
+        StringBuilder name = new StringBuilder("");
+        if(firstName != null) {
+            name.append(firstName);
+            name.append(" ");
+        }
+        if(lastName != null) {
+            name.append(lastName);
+        }
+        return name.toString();
+    }
+
+    public String getEmergencyFirstAndLastNameString() {
+        StringBuilder name = new StringBuilder(" ");
+        if(emergencyFirstName != null) {
+            name.append(emergencyFirstName);
+            name.append(" ");
+        }
+        if(emergencyLastName != null) {
+            name.append(emergencyLastName);
+        }
+        return name.toString();
     }
 }

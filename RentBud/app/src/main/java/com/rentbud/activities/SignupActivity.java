@@ -1,5 +1,6 @@
 package com.rentbud.activities;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -8,6 +9,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -16,6 +18,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.cody.rentbud.R;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.rentbud.helpers.AppFileManagementHelper;
 import com.rentbud.helpers.FileChooserDialog;
 import com.rentbud.helpers.RandomNumberGenerator;
 import com.rentbud.helpers.UserInputValidation;
@@ -68,7 +73,7 @@ public class SignupActivity extends AppCompatActivity {
         //Get input data
         this.name = nameText.getText().toString().trim();
         this.email = emailText.getText().toString().trim();
-        this.password = passwordText.getText().toString().trim();
+        this.password = AppFileManagementHelper.SHA512Hash(passwordText.getText().toString().trim());
         //If user is not already in the database (based on Email), sign-up success
         if (!databaseHandler.checkUser(email)) {
             databaseHandler.addUser(name, email, password);
@@ -79,18 +84,25 @@ public class SignupActivity extends AppCompatActivity {
             onSignupFailed();
         }
         //If creation successful, in 3 seconds empty text boxes empty and this Activity finishes
-        new android.os.Handler().postDelayed(
-                new Runnable() {
-                    public void run() {
-                        if (successfulAccountCreation) {
-                            emptyInputEditText();
-                            finish();
-                        }
-                        progressDialog.dismiss();
-                    }
-                }, 3000);
+        // new android.os.Handler().postDelayed(
+        //         new Runnable() {
+        //             public void run() {
+        if (successfulAccountCreation) {
+            emptyInputEditText();
+            finish();
+        }
+        progressDialog.dismiss();
+        //              }
+        //         }, 3000);
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (alertDialog != null) {
+            alertDialog.dismiss();
+        }
+    }
 
     public void onSignupSuccess() {
         signupButton.setEnabled(true);
@@ -98,6 +110,7 @@ public class SignupActivity extends AppCompatActivity {
         User user = databaseHandler.getUser(email, password);
         Intent data = new Intent();
         data.putExtra("newUserInfo", user);
+        data.putExtra("password", passwordText.getText().toString().trim());
         setResult(RESULT_OK, data);
         successfulAccountCreation = true;
     }
@@ -174,6 +187,9 @@ public class SignupActivity extends AppCompatActivity {
         this.name = "";
         this.email = "";
         this.password = "";
+        if (!databaseHandler.isUserTableEmpty()) {
+            backupRestoreLink.setVisibility(View.GONE);
+        }
     }
 
     private void setOnClickListeners() {
@@ -195,37 +211,45 @@ public class SignupActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //public void backup(View view) {
-                  //  if (hasPermissions(this, android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(SignupActivity.this);
-                        builder.setMessage(R.string.use_downloads_or_rentbud_folder);
-                        builder.setPositiveButton(R.string.rentbud_folder, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                File f = new File(Environment.getExternalStorageDirectory(), "Rentbud");
-                                if (!f.exists()) {
-                                    f.mkdirs();
-                                }
-                                File downloads = new File(f.getAbsolutePath() + "/", "Backups");
-                                if (!downloads.exists()) {
-                                    downloads.mkdirs();
-                                }
-                                displayFiles(downloads);
+                if (MainActivity.hasPermissions(SignupActivity.this, android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(SignupActivity.this);
+                    builder.setMessage(R.string.use_downloads_or_rentbud_folder);
+                    builder.setPositiveButton(R.string.rentbud_folder, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            File f = new File(Environment.getExternalStorageDirectory(), "Rentbud");
+                            if (!f.exists()) {
+                                f.mkdirs();
                             }
-                        });
-                        builder.setNegativeButton(R.string.downloads, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                File downloads = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath());
-                                displayFiles(downloads);
+                            File downloads = new File(f.getAbsolutePath() + "/", "Backups");
+                            if (!downloads.exists()) {
+                                downloads.mkdirs();
                             }
-                        });
-                        // create and show the alert dialog
-                        alertDialog = builder.create();
-                        alertDialog.show();
-                    }
-                });
-         //   }
-       // });
+                            displayFiles(downloads);
+                        }
+                    });
+                    builder.setNegativeButton(R.string.downloads, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            File downloads = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath());
+                            displayFiles(downloads);
+                        }
+                    });
+                    // create and show the alert dialog
+                    alertDialog = builder.create();
+                    alertDialog.show();
+                } else {
+                    ActivityCompat.requestPermissions(
+                            SignupActivity.this,
+                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                            MainActivity.REQUEST_FILE_PERMISSION
+                    );
+                }
+            }
+        });
+
+        //   }
+        // });
     }
 
     public void displayFiles(final File downloads) {

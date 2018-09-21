@@ -1,8 +1,10 @@
 package com.rentbud.adapters;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Typeface;
+import android.preference.PreferenceManager;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.TextAppearanceSpan;
@@ -15,6 +17,7 @@ import android.widget.Filterable;
 import android.widget.TextView;
 
 import com.example.cody.rentbud.R;
+import com.rentbud.helpers.DateAndCurrencyDisplayer;
 import com.rentbud.helpers.MainArrayDataMethods;
 import com.rentbud.model.PaymentLogEntry;
 
@@ -33,15 +36,18 @@ import java.util.Locale;
 public class IncomeListAdapter extends BaseAdapter implements Filterable {
     private ArrayList<PaymentLogEntry> paymentArray;
     private ArrayList<PaymentLogEntry> filteredResults;
+    private SharedPreferences preferences;
     private Context context;
     private String searchText;
     private ColorStateList highlightColor;
     MainArrayDataMethods dataMethods;
     private Date todaysDate;
     OnDataChangeListener mOnDataChangeListener;
+    private int dateFormatCode, moneyFormatCode;
 
     public IncomeListAdapter(Context context, ArrayList<PaymentLogEntry> paymentArray, ColorStateList highlightColor) {
         super();
+        this.preferences = PreferenceManager.getDefaultSharedPreferences(context);
         this.paymentArray = paymentArray;
         this.filteredResults = paymentArray;
         this.context = context;
@@ -49,6 +55,8 @@ public class IncomeListAdapter extends BaseAdapter implements Filterable {
         this.highlightColor = highlightColor;
         this.dataMethods = new MainArrayDataMethods();
         this.todaysDate = new Date(System.currentTimeMillis());
+        this.dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
+        this.moneyFormatCode = preferences.getInt("currency", DateAndCurrencyDisplayer.CURRENCY_US);
     }
 
     public void setOnDataChangeListener(OnDataChangeListener onDataChangeListener){
@@ -102,18 +110,10 @@ public class IncomeListAdapter extends BaseAdapter implements Filterable {
         }
         viewHolder.amountTV.setTextColor(context.getResources().getColor(R.color.green_colorPrimaryDark));
         if(income != null){
-            BigDecimal displayVal = income.getAmount().setScale(2, RoundingMode.HALF_EVEN);
-            NumberFormat usdCostFormat = NumberFormat.getCurrencyInstance(Locale.US);
-            usdCostFormat.setMinimumFractionDigits( 2 );
-            usdCostFormat.setMaximumFractionDigits( 2 );
-
-            viewHolder.amountTV.setText(usdCostFormat.format(displayVal.doubleValue()));
-            //viewHolder.typeTV.setText(income.getTypeLabel());
-
-            SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-            viewHolder.dateTV.setText(formatter.format(income.getDate()));
+            viewHolder.amountTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, income.getAmount()));
+            viewHolder.dateTV.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, income.getDate()));
             if( todaysDate.compareTo(income.getDate()) < 0){
-                convertView.setBackgroundColor(convertView.getResources().getColor(R.color.lightGrey));
+                convertView.setBackgroundColor(convertView.getResources().getColor(R.color.rowDarkenedBackground));
             } else {
                 convertView.setBackgroundColor(convertView.getResources().getColor(R.color.white));
             }

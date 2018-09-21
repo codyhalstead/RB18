@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +19,8 @@ import com.rentbud.model.Lease;
 import com.rentbud.wizards.LeaseWizardPage3;
 import com.rentbud.wizards.LeaseWizardPage4;
 
+import static android.support.constraint.Constraints.TAG;
+
 public class LeaseWizardPage4Fragment extends Fragment {
     private static final String ARG_KEY = "key";
     private PageFragmentCallbacks mCallbacks;
@@ -29,7 +32,6 @@ public class LeaseWizardPage4Fragment extends Fragment {
     public static LeaseWizardPage4Fragment create(String key) {
         Bundle args = new Bundle();
         args.putString(ARG_KEY, key);
-
         LeaseWizardPage4Fragment fragment = new LeaseWizardPage4Fragment();
         fragment.setArguments(args);
         return fragment;
@@ -41,7 +43,6 @@ public class LeaseWizardPage4Fragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         Bundle args = getArguments();
         mKey = args.getString(ARG_KEY);
         mPage = (LeaseWizardPage4) mCallbacks.onGetPage(mKey);
@@ -87,6 +88,7 @@ public class LeaseWizardPage4Fragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
         notesET.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {

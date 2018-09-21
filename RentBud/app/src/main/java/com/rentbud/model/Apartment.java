@@ -15,7 +15,7 @@ public class Apartment implements Parcelable {
     private String street1;
     private String street2;
     private String city;
-    private int stateID;
+    //private int stateID;
     private String state;
     private String zip;
     private String description;
@@ -25,13 +25,13 @@ public class Apartment implements Parcelable {
     private ArrayList<String> otherPics;
     private boolean isActive;
 
-    public Apartment(int id, String street1, String street2, String city, int stateID, String state, String zip,
+    public Apartment(int id, String street1, String street2, String city, String state, String zip,
                      String description, Boolean isRented, String notes, String mainPic, ArrayList<String> otherPics, boolean isActive) {
         this.id = id;
         this.street1 = street1;
         this.street2 = street2;
         this.city = city;
-        this.stateID = stateID;
+        //this.stateID = stateID;
         this.state = state;
         this.zip = zip;
         this.description = description;
@@ -53,7 +53,7 @@ public class Apartment implements Parcelable {
         parcel.writeString(this.street1);
         parcel.writeString(this.street2);
         parcel.writeString(this.city);
-        parcel.writeInt(this.stateID);
+        //parcel.writeInt(this.stateID);
         parcel.writeString(this.state);
         parcel.writeString(this.zip);
         parcel.writeString(this.description);
@@ -79,7 +79,7 @@ public class Apartment implements Parcelable {
         this.street1 = in.readString();
         this.street2 = in.readString();
         this.city = in.readString();
-        this.stateID = in.readInt();
+        //this.stateID = in.readInt();
         this.state = in.readString();
         this.zip = in.readString();
         this.description = in.readString();
@@ -128,7 +128,11 @@ public class Apartment implements Parcelable {
     }
 
     public String getStreet2() {
-        return street2;
+        if(street2 != null) {
+            return street2;
+        } else {
+            return "";
+        }
     }
 
     public void setStreet2(String street2) {
@@ -167,13 +171,13 @@ public class Apartment implements Parcelable {
         this.id = id;
     }
 
-    public int getStateID() {
-        return stateID;
-    }
+    //public int getStateID() {
+    //    return stateID;
+    //}
 
-    public void setStateID(int stateID) {
-        this.stateID = stateID;
-    }
+    //public void setStateID(int stateID) {
+    //    this.stateID = stateID;
+    //}
 
     public String getNotes() {
         return notes;
@@ -225,5 +229,36 @@ public class Apartment implements Parcelable {
 
     public void setActive(boolean active) {
         isActive = active;
+    }
+
+    public String getCityStateZipString() {
+        StringBuilder csz = new StringBuilder(city);
+        csz.append(", ");
+        csz.append(state);
+        csz.append(" ");
+        csz.append(zip);
+        return csz.toString();
+    }
+
+    public String getStreet1AndStreet2String() {
+        StringBuilder s1s2 = new StringBuilder(street1);
+        if(street2 != null) {
+            s1s2.append(" ");
+            s1s2.append(street2);
+        }
+        return s1s2.toString();
+    }
+
+    public String getFullAddressString(){
+        StringBuilder fa = new StringBuilder(street1);
+        if(street2 != null){
+            if(!street2.equals("")) {
+                fa.append("\n");
+                fa.append(street2);
+            }
+        }
+        fa.append("\n");
+        fa.append(getCityStateZipString());
+        return fa.toString();
     }
 }

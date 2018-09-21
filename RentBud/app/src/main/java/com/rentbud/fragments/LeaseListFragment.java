@@ -1,11 +1,12 @@
 package com.rentbud.fragments;
 
 import android.app.Activity;
-import android.app.DatePickerDialog;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -22,17 +23,16 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.cody.rentbud.R;
-import com.rentbud.activities.LeaseViewActivity2;
+import com.rentbud.activities.LeaseViewActivity;
 import com.rentbud.activities.MainActivity;
 import com.rentbud.adapters.LeaseListAdapter;
 import com.rentbud.helpers.CustomDatePickerDialogLauncher;
+import com.rentbud.helpers.DateAndCurrencyDisplayer;
 import com.rentbud.helpers.MainViewModel;
 import com.rentbud.model.Lease;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Locale;
 
 /**
  * Created by Cody on 4/14/2018.
@@ -49,6 +49,7 @@ public class LeaseListFragment extends Fragment implements AdapterView.OnItemCli
     Date filterDateStart, filterDateEnd;
     private OnDatesChangedListener mCallback;
     private boolean needsRefreshedOnResume;
+    private SharedPreferences preferences;
     private CustomDatePickerDialogLauncher datePickerDialogLauncher;
 
     @Override
@@ -60,7 +61,7 @@ public class LeaseListFragment extends Fragment implements AdapterView.OnItemCli
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        this.noLeasesTV = view.findViewById(R.id.moneyEmptyListTV);
+        this.noLeasesTV = view.findViewById(R.id.emptyListTV);
         this.totalBarLL = view.findViewById(R.id.moneyListTotalBarLL);
         totalBarLL.setVisibility(View.GONE);
         this.searchBarET = view.findViewById(R.id.moneyListSearchET);
@@ -71,10 +72,11 @@ public class LeaseListFragment extends Fragment implements AdapterView.OnItemCli
         this.listView = view.findViewById(R.id.mainMoneyListView);
         filterDateStart = ViewModelProviders.of(getActivity()).get(MainViewModel.class).getStartDateRangeDate().getValue();
         filterDateEnd = ViewModelProviders.of(getActivity()).get(MainViewModel.class).getEndDateRangeDate().getValue();
-        SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-        dateRangeStartBtn.setText(formatter.format(filterDateStart));
-        dateRangeEndBtn.setText(formatter.format(filterDateEnd));
-        getActivity().setTitle(R.string.lease_view);
+        this.preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        int dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
+        dateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateStart));
+        dateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateEnd));
+        getActivity().setTitle(R.string.lease_list);
         //Get current theme accent color, which is passed into the list adapter for search highlighting
         TypedValue colorValue = new TypedValue();
         getActivity().getTheme().resolveAttribute(R.attr.colorAccent, colorValue, true);
@@ -88,9 +90,9 @@ public class LeaseListFragment extends Fragment implements AdapterView.OnItemCli
             public void onStartDateSelected(Date startDate, Date endDate) {
                 filterDateStart = startDate;
                 filterDateEnd = endDate;
-                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-                dateRangeEndBtn.setText(formatter.format(filterDateEnd));
-                dateRangeStartBtn.setText(formatter.format(filterDateStart));
+                int dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
+                dateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateStart));
+                dateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateEnd));
                 mCallback.onLeaseListDatesChanged(filterDateStart, filterDateEnd, LeaseListFragment.this);
             }
 
@@ -98,9 +100,9 @@ public class LeaseListFragment extends Fragment implements AdapterView.OnItemCli
             public void onEndDateSelected(Date startDate, Date endDate) {
                 filterDateStart = startDate;
                 filterDateEnd = endDate;
-                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-                dateRangeEndBtn.setText(formatter.format(filterDateEnd));
-                dateRangeStartBtn.setText(formatter.format(filterDateStart));
+                int dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
+                dateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateStart));
+                dateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateEnd));
                 mCallback.onLeaseListDatesChanged(filterDateStart, filterDateEnd, LeaseListFragment.this);
             }
 
@@ -158,7 +160,7 @@ public class LeaseListFragment extends Fragment implements AdapterView.OnItemCli
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         //On listView row click, launch ApartmentViewActivity passing the rows data into it.
-        Intent intent = new Intent(getContext(), LeaseViewActivity2.class);
+        Intent intent = new Intent(getContext(), LeaseViewActivity.class);
         //Uses filtered results to match what is on screen
         Lease lease = leaseListAdapter.getFilteredResults().get(i);
         intent.putExtra("leaseID", lease.getId());

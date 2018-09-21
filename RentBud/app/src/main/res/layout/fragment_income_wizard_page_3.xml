@@ -19,10 +19,59 @@
 
             <TextView
                 style="@style/WizardTitle"
-                android:text="Income Linking"
+                android:text="@string/income_linking"
                 android:id="@+id/incomeWizardPageThreeHeader"
                 />
 
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                hintTextAppearance="@style/WizardHintText"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/incomeWizardAptLinkingTV"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/income_related_apt_ques"
+                    android:focusable="false"
+                    android:inputType="none" />
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                hintTextAppearance="@style/WizardHintText"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/incomeWizardTenantLinkingTV"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/income_related_tenant_ques"
+                    android:focusable="false"
+                    android:inputType="none" />
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                hintTextAppearance="@style/WizardHintText"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/incomeWizardLeaseLinkingTV"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/income_related_lease_ques"
+                    android:focusable="false"
+                    android:inputType="none" />
+            </android.support.design.widget.TextInputLayout>
+
+            <!--
             <TextView
                 android:id="@+id/incomeWizardAptLinkingLabelTV"
                 style="@style/WizardFormLabel"
@@ -72,7 +121,7 @@
                 android:id="@+id/incomeWizardLeaseLinkingTV"
                 style="@style/FormText"
                 android:layout_width="match_parent"
-                android:layout_height="80dp"
+                android:layout_height="40dp"
                 android:layout_marginBottom="20dp"
                 android:background="@drawable/rect_edit"
                 android:paddingTop="10dp"
@@ -89,6 +138,14 @@
                 android:id="@+id/incomeWizardHintTV"
                 android:layout_width="wrap_content"
                 android:text="Linking Income Enables The Income To Be Properly Sorted And Displayed" />
+-->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/FormText"
+                android:layout_marginTop="10dp"
+                android:text="@string/link_lease_hint"
+                />
 
         </LinearLayout>
     </ScrollView>

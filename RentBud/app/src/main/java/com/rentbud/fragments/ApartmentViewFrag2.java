@@ -5,8 +5,10 @@ import android.app.AlertDialog;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.PopupMenu;
@@ -26,6 +28,7 @@ import com.rentbud.activities.NewExpenseWizard;
 import com.rentbud.activities.NewIncomeWizard;
 import com.rentbud.adapters.MoneyListAdapter;
 import com.rentbud.helpers.ApartmentTenantViewModel;
+import com.rentbud.helpers.DateAndCurrencyDisplayer;
 import com.rentbud.model.Apartment;
 import com.rentbud.model.ExpenseLogEntry;
 import com.rentbud.model.MoneyLogEntry;
@@ -33,9 +36,6 @@ import com.rentbud.model.PaymentLogEntry;
 import com.rentbud.sqlite.DatabaseHandler;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.text.NumberFormat;
-import java.util.Locale;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -46,7 +46,7 @@ public class ApartmentViewFrag2 extends android.support.v4.app.Fragment implemen
         // Required empty public constructor
     }
 
-    TextView noIncomeTV, totalAmountTV, totalAmountLabelTV;
+    TextView noPaymentsTV, totalAmountTV, totalAmountLabelTV;
     FloatingActionButton fab;
     //  EditText searchBarET;
     //  Button dateRangeStartBtn, dateRangeEndBtn;
@@ -63,25 +63,26 @@ public class ApartmentViewFrag2 extends android.support.v4.app.Fragment implemen
     private Apartment apartment;
     private BigDecimal total;
     private OnMoneyDataChangedListener mCallback;
+    private SharedPreferences preferences;
     private AlertDialog dialog;
     private PopupMenu popupMenu;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.lease_view_fragment_two, container, false);
+        return inflater.inflate(R.layout.fragment_view_list, container, false);
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        //this.noIncomeTV = view.findViewById(R.id.moneyEmptyListTV);
+        this.noPaymentsTV = view.findViewById(R.id.emptyListTV);
         this.totalAmountLabelTV = view.findViewById(R.id.moneyListTotalAmountLabelTV);
         this.totalAmountTV = view.findViewById(R.id.moneyListTotalAmountTV);
         this.fab = view.findViewById(R.id.listFab);
         this.listView = view.findViewById(R.id.mainMoneyListView);
         this.db = new DatabaseHandler(getContext());
-
+        this.preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         this.apartment = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getApartment().getValue();
 
         total = getTotal();
@@ -149,9 +150,11 @@ public class ApartmentViewFrag2 extends android.support.v4.app.Fragment implemen
 
     private void setUpListAdapter() {
         if (ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue() != null) {
-            moneyListAdapter = new MoneyListAdapter(getActivity(), ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue(), accentColor, null);
+            moneyListAdapter = new MoneyListAdapter(getActivity(), ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue(), accentColor, null, true);
             listView.setAdapter(moneyListAdapter);
             listView.setOnItemClickListener(this);
+            noPaymentsTV.setText(R.string.no_payments_to_display_apartment);
+            listView.setEmptyView(noPaymentsTV);
         }
     }
 
@@ -327,11 +330,8 @@ public class ApartmentViewFrag2 extends android.support.v4.app.Fragment implemen
 
     private void setTotalTV() {
         if (total != null) {
-            BigDecimal displayVal = total.setScale(2, RoundingMode.HALF_EVEN);
-            NumberFormat usdCostFormat = NumberFormat.getCurrencyInstance(Locale.US);
-            usdCostFormat.setMinimumFractionDigits(2);
-            usdCostFormat.setMaximumFractionDigits(2);
-            totalAmountTV.setText(usdCostFormat.format(displayVal.doubleValue()));
+            int moneyFormatCode = preferences.getInt("currency", DateAndCurrencyDisplayer.CURRENCY_US);
+            totalAmountTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, total));
             if (total.compareTo(new BigDecimal(0)) < 0) {
                 totalAmountTV.setTextColor(getActivity().getResources().getColor(R.color.red));
             } else {

@@ -18,6 +18,118 @@
         <item name="android:textSize">20sp</item>
     </style>
 
+    <style name="RowBorder" >
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">2dp</item>
+        <item name="android:background">@color/rowBorder</item>
+    </style>
+
+    <style name="ListView" >
+        <item name="android:dividerHeight">2dp</item>
+        <item name="android:divider">@color/rowBorder</item>
+    </style>
+
+    <style name="MainButtonStyle" >
+        <item name="android:background">@drawable/rect_edit</item>
+        <item name="android:padding">10dp</item>
+        <item name="android:fontFamily">"sans-serif-medium"</item>
+    </style>
+
+    <style name="ContactButtonStyle" >
+        <item name="android:background">@drawable/rect_edit</item>
+        <item name="android:padding">10dp</item>
+        <item name="android:fontFamily">"sans-serif-medium"</item>
+        <item name="android:layout_margin">2.5dp</item>
+    </style>
+
+    <style name="MainSpinnerStyle" >
+        <item name="android:background">@drawable/rect_edit</item>
+    </style>
+
+    <!-- View Styles -->
+    <style name="ViewInformationRowStyle" >
+        <item name="android:padding">10dp</item>
+        <item name="android:weightSum">3</item>
+    </style>
+
+    <style name="ViewInformationRowLeftTextStyle">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textAppearance">?android:textAppearanceSmall</item>
+        <item name="android:textColor">@color/appTextColor</item>
+        <item name="android:layout_weight">1</item>
+
+        <item name="android:gravity">left</item>
+        <item name="android:layout_marginRight">5dp</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="ViewInformationRowRightTextStyle" >
+        <item name="android:textSize">14sp</item>
+        <item name="android:textAppearance">?android:textAppearanceSmall</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:layout_weight">2</item>
+        <item name="android:gravity">left</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:textColor">@color/greybackground</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="ViewInformationRowHeaderTextStyle" >
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAppearance">?android:textAppearanceMedium</item>
+        <item name="android:textColor">?attr/colorAccent</item>
+        <item name="android:fontFamily">sans-serif-thin</item>
+        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:layout_marginBottom">10dp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:padding">10dp</item>
+        <item name="android:textSize">26sp</item>
+        <item name="android:layout_weight">2</item>
+        <item name="android:gravity">left</item>
+    </style>
+
+    <!-- Row Styles -->
+    <style name="RowText">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginBottom">0dp</item>
+        <item name="android:textAppearance">?android:textAppearanceSmall</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">@color/appTextColor</item>
+    </style>
+
+    <style name="RowLargeText">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAppearance">?android:textAppearanceMedium</item>
+        <item name="android:textColor">@color/text_light</item>
+    </style>
+
+    <style name="LargeEmptyListText">
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:visibility">invisible</item>
+        <item name="android:textColor">@color/appTextColor</item>
+    </style>
+
+    <style name="WizardHintText">
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/text_light</item>
+    </style>
+
+    <style name="SpinnerLabelStyle" >
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:layout_marginBottom">0dp</item>
+        <item name="android:textAppearance">?android:textAppearanceSmall</item>
+        <item name="android:textColor">@color/text_light</item>
+    </style>
+
     <style name="AppTheme.NoActionBar">
         <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
         <item name="windowActionBar">false</item>
@@ -57,6 +169,26 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+    <style name="ViewMainLabel">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginBottom">0dp</item>
+        <item name="android:textAppearance">?android:textAppearanceMedium</item>
+        <item name="android:textColor">@color/text_light</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="ViewSubLabelText">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginBottom">0dp</item>
+        <item name="android:textAppearance">?android:textAppearanceSmall</item>
+        <item name="android:textColor">@color/text_light</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
     <style name="WizardTitle">
         <item name="android:id">@android:id/title</item>
         <item name="android:layout_width">match_parent</item>
@@ -65,7 +197,7 @@
         <item name="android:layout_marginLeft">16dp</item>
         <item name="android:layout_marginRight">16dp</item>
         <item name="android:textSize">36sp</item>
-        <item name="android:textColor">#000000</item>
+        <item name="android:textColor">?attr/colorAccent</item>
         <item name="android:fontFamily">sans-serif-thin</item>
     </style>
 
@@ -80,18 +212,18 @@
         <item name="android:colorBackground">@color/white</item>
     </style>
 
-    <style name="AppTheme_pink_blue" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorPrimary">@color/pink_colorPrimary</item>
-        <item name="colorPrimaryDark">@color/pink_colorPrimaryDark</item>
-        <item name="colorAccent">@color/pink_accent</item>
-        <item name="android:colorBackground">@color/lightblue</item>
+    <style name="AppTheme_gold" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/gold_colorPrimary</item>
+        <item name="colorPrimaryDark">@color/gold_colorPrimaryDark</item>
+        <item name="colorAccent">@color/gold_colorAccent</item>
+        <item name="android:colorBackground">@color/white</item>
     </style>
 
-    <style name="AppTheme_purple_blue" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorPrimary">@color/purple_colorPrimary</item>
-        <item name="colorPrimaryDark">@color/purple_colorPrimaryDark</item>
-        <item name="colorAccent">@color/purple_colorAccent</item>
-        <item name="android:colorBackground">@color/lightblue</item>
+    <style name="AppTheme_black" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/black_colorPrimary</item>
+        <item name="colorPrimaryDark">@color/black_colorPrimaryDark</item>
+        <item name="colorAccent">@color/black_colorAccent</item>
+        <item name="android:colorBackground">@color/white</item>
     </style>
 
     <style name="AppTheme_blue" parent="Theme.AppCompat.Light.NoActionBar">
@@ -115,11 +247,11 @@
         <item name="android:colorBackground">@color/white</item>
     </style>
 
-    <style name="AppTheme_orange_grey" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorPrimary">@color/orange_colorPrimary</item>
-        <item name="colorPrimaryDark">@color/orange_colorPrimaryDark</item>
-        <item name="colorAccent">@color/orange_accent</item>
-        <item name="android:colorBackground">@color/greybackground</item>
+    <style name="AppTheme_turquoise" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/turquoise_colorPrimary</item>
+        <item name="colorPrimaryDark">@color/turquoise_colorPrimaryDark</item>
+        <item name="colorAccent">@color/turquoise_colorAccent</item>
+        <item name="android:colorBackground">@color/white</item>
     </style>
 
     <style name="AppTheme_pink" parent="Theme.AppCompat.Light.NoActionBar">

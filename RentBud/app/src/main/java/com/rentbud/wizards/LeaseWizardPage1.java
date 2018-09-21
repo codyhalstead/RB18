@@ -23,10 +23,10 @@ import java.util.Locale;
 public class LeaseWizardPage1 extends Page{
     public static final String LEASE_START_DATE_STRING_DATA_KEY = "lease_start_date_string";
     public static final String LEASE_END_DATE_STRING_DATA_KEY = "lease_end_date_string";
+    public static final String LEASE_START_DATE_STRING_FORMATTED_DATA_KEY = "lease_start_date_formatted_string";
+    public static final String LEASE_END_DATE_STRING_FORMATTED_DATA_KEY = "lease_end_date_formatted_string";
     public static final String LEASE_APARTMENT_STRING_DATA_KEY = "lease_apartment_string";
 
-    //public static final String LEASE_START_DATE_DATA_KEY = "lease_start_date";
-    //public static final String LEASE_END_DATE_DATA_KEY = "lease_end_date";
     public static final String LEASE_APARTMENT_DATA_KEY = "lease_apartment";
     public static final String LEASE_ARE_DATES_ACCEPTABLE = "lease_are_dates_acceptable";
     public static final String WAS_PRELOADED = "lease_page_1_was_preloaded";
@@ -45,8 +45,8 @@ public class LeaseWizardPage1 extends Page{
 
     @Override
     public void getReviewItems(ArrayList<ReviewItem> dest) {
-        dest.add(new ReviewItem(context.getResources().getString(R.string.start_date), mData.getString(LEASE_START_DATE_STRING_DATA_KEY), getKey(), -1));
-        dest.add(new ReviewItem(context.getResources().getString(R.string.end_date), mData.getString(LEASE_END_DATE_STRING_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(context.getResources().getString(R.string.start_date), mData.getString(LEASE_START_DATE_STRING_FORMATTED_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(context.getResources().getString(R.string.end_date), mData.getString(LEASE_END_DATE_STRING_FORMATTED_DATA_KEY), getKey(), -1));
         dest.add(new ReviewItem(context.getResources().getString(R.string.apartment), mData.getString(LEASE_APARTMENT_STRING_DATA_KEY), getKey(), -1));
     }
 

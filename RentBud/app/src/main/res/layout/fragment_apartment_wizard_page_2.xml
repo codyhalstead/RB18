@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     style="@style/WizardPageContainer">
 
     <TextView style="@style/WizardPageTitle" />
@@ -19,7 +20,7 @@
 
             <TextView
                 style="@style/WizardTitle"
-                android:text="More Apt. Info" />
+                android:text="@string/more_apt_info" />
 
             <!--
             <TextView
@@ -46,6 +47,38 @@
 
                 -->
 
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:hintTextAppearance="@style/WizardHintText"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/apartmentWizardDescriptionET"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLength="300"
+                    android:hint="@string/description"
+                    android:inputType="textMultiLine|textCapSentences" />
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:hintTextAppearance="@style/WizardHintText"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/apartmentWizardNotesET"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLength="500"
+                    android:hint="@string/notes"
+                    android:inputType="textMultiLine|textCapSentences" />
+            </android.support.design.widget.TextInputLayout>
+<!--
             <TextView
                 android:id="@+id/apartmentWizardDescriptionLabelTV"
                 style="@style/WizardFormLabel"
@@ -92,7 +125,7 @@
             android:padding="10dp"
             style="@style/FormText"
             />
-
+-->
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

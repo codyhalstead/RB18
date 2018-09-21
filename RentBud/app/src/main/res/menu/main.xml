@@ -11,16 +11,10 @@
         <menu>
             <item
                 android:id="@+id/moreOptions"
-                android:title="More options" />
-            <item
-                android:id="@+id/changeProfilePic"
-                android:title="Change profile picture" />
-            <item
-                android:id="@+id/verifyEmail"
-                android:title="Verify Email" />
+                android:title="@string/settings" />
             <item
                 android:id="@+id/logout"
-                android:title="Log out" />
+                android:title="@string/log_out" />
         </menu>
 
     </item>

@@ -22,7 +22,7 @@ public class IncomeWizardModel extends AbstractWizardModel {
         return new PageList(
 
                 new IncomeWizardPage1(this, "Page1", super.mContext).setRequired(true),
-                new IncomeWizardPage2(this, "Page2", super.mContext).setRequired(true),
+                new IncomeWizardPage2(this, "Page2", false, super.mContext).setRequired(true),
                 new IncomeWizardPage3(this, "Page3", super.mContext).setRequired(false)
         );
     }

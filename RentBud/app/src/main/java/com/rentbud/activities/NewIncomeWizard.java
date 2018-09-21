@@ -1,5 +1,7 @@
 package com.rentbud.activities;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -21,7 +23,9 @@ import com.example.android.wizardpager.wizard.ui.ReviewFragment;
 import com.example.android.wizardpager.wizard.ui.StepPagerStrip;
 import com.example.cody.rentbud.R;
 import com.rentbud.fragments.IncomeListFragment;
+import com.rentbud.fragments.ReviewFragmentCustom;
 import com.rentbud.model.Apartment;
+import com.rentbud.model.IncomeEditingWizardModel;
 import com.rentbud.model.IncomeWizardModel;
 import com.rentbud.model.Lease;
 import com.rentbud.model.Tenant;
@@ -31,6 +35,7 @@ import com.rentbud.model.PaymentLogEntry;
 import com.rentbud.sqlite.DatabaseHandler;
 import com.rentbud.wizards.IncomeWizardPage3;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -41,14 +46,14 @@ import java.util.Locale;
 
 public class NewIncomeWizard extends BaseActivity implements
         PageFragmentCallbacks,
-        ReviewFragment.Callbacks,
+        ReviewFragmentCustom.Callbacks,
         ModelCallbacks {
     private ViewPager mPager;
     private NewIncomeWizard.MyPagerAdapter mPagerAdapter;
 
     private boolean mEditingAfterReview;
 
-    private IncomeWizardModel mWizardModel;// = new IncomeWizardModel(this);
+    private AbstractWizardModel mWizardModel;
 
     private boolean mConsumePageSelectedEvent;
 
@@ -61,17 +66,26 @@ public class NewIncomeWizard extends BaseActivity implements
     private DatabaseHandler dbHandler;
     //private MainArrayDataMethods dataMethods;
     public PaymentLogEntry incomeToEdit;
+    private AlertDialog alertDialog;
 
     public void onCreate(Bundle savedInstanceState) {
         setupUserAppTheme(MainActivity.curThemeChoice);
         setContentView(R.layout.activity_fragment_wizard);
-        mWizardModel = new IncomeWizardModel(this);
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             incomeToEdit = extras.getParcelable("incomeToEdit");
-            mWizardModel.preloadData(extras);
         } else {
             incomeToEdit = null;
+        }
+        if(incomeToEdit != null){
+            mWizardModel = new IncomeEditingWizardModel(this);
+            this.setTitle(R.string.edit_income);
+        } else {
+            mWizardModel = new IncomeWizardModel(this);
+            this.setTitle(R.string.new_income_creation);
+        }
+        if(extras != null){
+            mWizardModel.preloadData(extras);
         }
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
@@ -159,7 +173,7 @@ public class NewIncomeWizard extends BaseActivity implements
                         }
                         incomeToEdit.setTypeLabel(type);
                         incomeToEdit.setDescription(description);
-                        incomeToEdit.setReceiptPic(receiptPic);
+                        //incomeToEdit.setReceiptPic(receiptPic);
                         incomeToEdit.setApartmentID(apartmentID);
                         incomeToEdit.setTenantID(tenantID);
                         incomeToEdit.setLeaseID(leaseID);
@@ -233,6 +247,50 @@ public class NewIncomeWizard extends BaseActivity implements
         }
 
         mPrevButton.setVisibility(position <= 0 ? View.INVISIBLE : View.VISIBLE);
+    }
+
+    @Override
+    public void onBackPressed() {
+        showCancelConfirmation();
+    }
+
+    public void showCancelConfirmation(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.exit_wizard_confirmation);
+        builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                if(incomeToEdit == null) {
+                    if (mWizardModel.findByKey("Page2") != null) {
+                        if (mWizardModel.findByKey("Page2").getData().getString(IncomeWizardPage2.INCOME_RECEIPT_PIC_DATA_KEY) != null) {
+                            String receiptPic = mWizardModel.findByKey("Page2").getData().getString(IncomeWizardPage2.INCOME_RECEIPT_PIC_DATA_KEY);
+                            File file = new File(receiptPic);
+                            if (file.exists()) {
+                                file.delete();
+                            }
+                        }
+                    }
+                }
+                NewIncomeWizard.this.finish();
+            }
+        });
+        builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+        // create and show the alert dialog
+        alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if(alertDialog != null){
+            alertDialog.dismiss();
+        }
     }
 
     @Override
@@ -334,7 +392,7 @@ public class NewIncomeWizard extends BaseActivity implements
         @Override
         public Fragment getItem(int i) {
             if (i >= mCurrentPageSequence.size()) {
-                return new ReviewFragment();
+                return new ReviewFragmentCustom();
             }
 
             return mCurrentPageSequence.get(i).createFragment();

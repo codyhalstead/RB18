@@ -3,6 +3,8 @@ package com.rentbud.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.rentbud.helpers.DateAndCurrencyDisplayer;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
@@ -18,24 +20,26 @@ public class Lease implements Parcelable {
     private int apartmentID;
     private Date leaseStart;
     private Date leaseEnd;
-    private int paymentDay;
+    private int paymentDayID;
     private BigDecimal monthlyRentCost;
     private BigDecimal deposit;
-    //private BigDecimal depositWithheld;
+    private int paymentFrequencyID;
+    //private String paymentFrequency;
     private String notes;
 
-    public Lease(int id, int primaryTenantID, ArrayList<Integer> secondaryTenantIDs, int apartmentID, Date leaseStart, Date leaseEnd, int paymentDay,
-                 BigDecimal monthlyRentCost, BigDecimal deposit, String notes) {
+    public Lease(int id, int primaryTenantID, ArrayList<Integer> secondaryTenantIDs, int apartmentID, Date leaseStart, Date leaseEnd,
+                 int paymentDayID, BigDecimal monthlyRentCost, BigDecimal deposit, int paymentFrequencyID, String notes) {
         this.id = id;
         this.primaryTenantID = primaryTenantID;
         this.secondaryTenantIDs = secondaryTenantIDs;
         this.apartmentID = apartmentID;
         this.leaseStart = leaseStart;
         this.leaseEnd = leaseEnd;
-        this.paymentDay = paymentDay;
+        this.paymentDayID = paymentDayID;
         this.monthlyRentCost = monthlyRentCost;
         this.deposit = deposit;
-        //this.depositWithheld = depositWithheld;
+        this.paymentFrequencyID = paymentFrequencyID;
+        //this.paymentFrequency = paymentFrequency;
         this.notes = notes;
     }
 
@@ -67,13 +71,13 @@ public class Lease implements Parcelable {
         }else{
             parcel.writeInt(0);
         }
-        parcel.writeInt(this.paymentDay);
+        parcel.writeInt(this.paymentDayID);
         String amountString = this.monthlyRentCost.toPlainString();
         parcel.writeString(amountString);
         amountString = this.deposit.toPlainString();
         parcel.writeString(amountString);
-        //amountString = depositWithheld.toPlainString();
-        parcel.writeString(amountString);
+        parcel.writeInt(paymentFrequencyID);
+       // parcel.writeString(paymentFrequency);
         parcel.writeString(this.notes);
     }
 
@@ -99,13 +103,13 @@ public class Lease implements Parcelable {
         } else {
             this.leaseEnd = null;
         }
-        this.paymentDay = parcel.readInt();
+        this.paymentDayID = parcel.readInt();
         String amountString = parcel.readString();
         this.monthlyRentCost = new BigDecimal(amountString);
         amountString = parcel.readString();
         this.deposit = new BigDecimal(amountString);
-        amountString = parcel.readString();
-        //this.depositWithheld = new BigDecimal(amountString);
+        this.paymentFrequencyID = parcel.readInt();
+        //this.paymentFrequency = parcel.readString();
         this.notes = parcel.readString();
     }
 
@@ -173,12 +177,12 @@ public class Lease implements Parcelable {
         this.leaseEnd = leaseEnd;
     }
 
-    public int getPaymentDay() {
-        return paymentDay;
+    public int getPaymentDayID() {
+        return paymentDayID;
     }
 
-    public void setPaymentDay(int paymentDay) {
-        this.paymentDay = paymentDay;
+    public void setPaymentDayID(int paymentDay) {
+        this.paymentDayID = paymentDay;
     }
 
     public BigDecimal getMonthlyRentCost() {
@@ -198,6 +202,22 @@ public class Lease implements Parcelable {
     }
 
     //public BigDecimal getDepositWithheld() {
+
+    public int getPaymentFrequencyID() {
+        return paymentFrequencyID;
+    }
+
+    public void setPaymentFreuencyID(int paymentFreuencyID) {
+        this.paymentFrequencyID = paymentFreuencyID;
+    }
+
+    //public String getPaymentFrequency() {
+   //     return paymentFrequency;
+   // }
+
+   // public void setPaymentFrequency(String paymentFrequency) {
+    //    this.paymentFrequency = paymentFrequency;
+    //}
     //    return depositWithheld;
     //}
 
@@ -211,5 +231,12 @@ public class Lease implements Parcelable {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public String getStartAndEndDatesString(int dateFormatCode) {
+        StringBuilder sae = new StringBuilder(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, leaseStart));
+        sae.append(" - ");
+        sae.append(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, leaseEnd));
+        return sae.toString();
     }
 }

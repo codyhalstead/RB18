@@ -1,13 +1,11 @@
 package com.rentbud.fragments;
 
 import android.app.Activity;
-import android.app.DatePickerDialog;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
-import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -15,29 +13,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.cody.rentbud.R;
 import com.rentbud.activities.MainActivity;
-import com.rentbud.adapters.IncomeListAdapter;
 import com.rentbud.adapters.TotalsListAdapter;
 import com.rentbud.helpers.CustomDatePickerDialogLauncher;
+import com.rentbud.helpers.DateAndCurrencyDisplayer;
 import com.rentbud.helpers.MainArrayDataMethods;
 import com.rentbud.helpers.MainViewModel;
-import com.rentbud.model.PaymentLogEntry;
 import com.rentbud.model.TypeTotal;
 import com.rentbud.sqlite.DatabaseHandler;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
-import java.util.TreeMap;
 
 public class TotalsFragment extends android.support.v4.app.Fragment implements AdapterView.OnItemClickListener, View.OnClickListener {
     ArrayList<TypeTotal> typeTotals;
@@ -49,8 +40,11 @@ public class TotalsFragment extends android.support.v4.app.Fragment implements A
     ColorStateList accentColor;
     ListView listView;
     MainArrayDataMethods dataMethods;
+    TextView incomeTotalTV, expenseTotalTV;
     private OnDatesChangedListener mCallback;
+    private SharedPreferences preferences;
     private CustomDatePickerDialogLauncher datePickerDialogLauncher;
+    private BigDecimal incomeTotals, expenseTotals;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -63,6 +57,8 @@ public class TotalsFragment extends android.support.v4.app.Fragment implements A
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         noTotalsTV = view.findViewById(R.id.totalsEmptyListTV);
+        this.incomeTotalTV = view.findViewById(R.id.totalsListIncomeAmountTV);
+        this.expenseTotalTV = view.findViewById(R.id.totalsListExpenseAmountTV);
         this.dateRangeStartBtn = view.findViewById(R.id.totalsDateRangeStartBtn);
         this.dateRangeStartBtn.setOnClickListener(this);
         this.dateRangeEndBtn = view.findViewById(R.id.totalsDateRangeEndBtn);
@@ -72,9 +68,10 @@ public class TotalsFragment extends android.support.v4.app.Fragment implements A
         dataMethods = new MainArrayDataMethods();
         this.filterDateEnd = ViewModelProviders.of(getActivity()).get(MainViewModel.class).getEndDateRangeDate().getValue();
         this.filterDateStart = ViewModelProviders.of(getActivity()).get(MainViewModel.class).getStartDateRangeDate().getValue();
-        SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-        dateRangeStartBtn.setText(formatter.format(filterDateStart));
-        dateRangeEndBtn.setText(formatter.format(filterDateEnd));
+        this.preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        int dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
+        dateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateStart));
+        dateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateEnd));
         if (savedInstanceState != null) {
             if (savedInstanceState.getParcelableArrayList("filteredTotals") != null) {
                 this.typeTotals = savedInstanceState.getParcelableArrayList("filteredTotals");
@@ -91,19 +88,24 @@ public class TotalsFragment extends android.support.v4.app.Fragment implements A
         getActivity().getTheme().resolveAttribute(R.attr.colorAccent, colorValue, true);
         this.accentColor = getActivity().getResources().getColorStateList(colorValue.resourceId);
         setUpListAdapter();
+        figureIncomeAndExpenseTotals();
+        displayIncomeAndExpenseTotals();
         datePickerDialogLauncher = new CustomDatePickerDialogLauncher(filterDateStart, filterDateEnd, true, getContext());
         datePickerDialogLauncher.setDateSelectedListener(new CustomDatePickerDialogLauncher.DateSelectedListener() {
             @Override
             public void onStartDateSelected(Date startDate, Date endDate) {
                 filterDateStart = startDate;
                 filterDateEnd = endDate;
-                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-                dateRangeEndBtn.setText(formatter.format(filterDateEnd));
-                dateRangeStartBtn.setText(formatter.format(filterDateStart));
+                int dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
+                dateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateStart));
+                dateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateEnd));
                 typeTotals.clear();
                 typeTotals.addAll(db.getTotalForExpenseTypesWithinDates(MainActivity.user, filterDateStart, filterDateEnd));
                 typeTotals.addAll(db.getTotalForIncomeTypesWithinDates(MainActivity.user, filterDateStart, filterDateEnd));
                 dataMethods.sortTypeTotalsArrayByTotalAmountDesc(typeTotals);
+                figureIncomeAndExpenseTotals();
+                displayIncomeAndExpenseTotals();
+                totalsListAdapter.notifyDataSetChanged();
                 mCallback.onTotalsListDatesChanged(filterDateStart, filterDateEnd, TotalsFragment.this);
             }
 
@@ -111,13 +113,16 @@ public class TotalsFragment extends android.support.v4.app.Fragment implements A
             public void onEndDateSelected(Date startDate, Date endDate) {
                 filterDateStart = startDate;
                 filterDateEnd = endDate;
-                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-                dateRangeEndBtn.setText(formatter.format(filterDateEnd));
-                dateRangeStartBtn.setText(formatter.format(filterDateStart));
+                int dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
+                dateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateStart));
+                dateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateEnd));
                 typeTotals.clear();
                 typeTotals.addAll(db.getTotalForExpenseTypesWithinDates(MainActivity.user, filterDateStart, filterDateEnd));
                 typeTotals.addAll(db.getTotalForIncomeTypesWithinDates(MainActivity.user, filterDateStart, filterDateEnd));
                 dataMethods.sortTypeTotalsArrayByTotalAmountDesc(typeTotals);
+                figureIncomeAndExpenseTotals();
+                displayIncomeAndExpenseTotals();
+                totalsListAdapter.notifyDataSetChanged();
                 mCallback.onTotalsListDatesChanged(filterDateStart, filterDateEnd, TotalsFragment.this);
             }
 
@@ -126,7 +131,7 @@ public class TotalsFragment extends android.support.v4.app.Fragment implements A
 
             }
         });
-        getActivity().setTitle(R.string.totals_view);
+        getActivity().setTitle(R.string.totals);
     }
 
     private void setUpListAdapter() {
@@ -142,6 +147,31 @@ public class TotalsFragment extends android.support.v4.app.Fragment implements A
 
     }
 
+    private void figureIncomeAndExpenseTotals() {
+        incomeTotals = new BigDecimal(0);
+        expenseTotals = new BigDecimal(0);
+        if (typeTotals != null) {
+            if (!typeTotals.isEmpty()) {
+                for (int i = 0; i < typeTotals.size(); i++) {
+                    if (typeTotals.get(i).getTotalAmount().compareTo(new BigDecimal(0)) < 0) {
+                        expenseTotals = expenseTotals.add(typeTotals.get(i).getTotalAmount());
+                    } else {
+                        incomeTotals = incomeTotals.add(typeTotals.get(i).getTotalAmount());
+                    }
+                }
+            }
+        }
+    }
+
+    private void displayIncomeAndExpenseTotals() {
+        int moneyFormatCode = preferences.getInt("currency", DateAndCurrencyDisplayer.CURRENCY_US);
+        if (incomeTotals != null) {
+            incomeTotalTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, incomeTotals));
+        }
+        if (expenseTotals != null) {
+            expenseTotalTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, expenseTotals));
+        }
+    }
 
     @Override
     public void onClick(View view) {

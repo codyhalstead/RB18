@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/cell_bg"
-    android:gravity="center"
+    android:gravity="left"
     android:orientation="vertical"
     android:padding="5dp">
 
@@ -14,130 +14,75 @@
         android:id="@+id/customCalCellDateTV"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="20sp"
+        android:textSize="15sp"
         />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:id="@+id/customCalCellIncomeLL"
-        >
 
-        <ImageView
-            android:layout_width="15dp"
-            android:layout_height="15dp"
-            app:srcCompat="@drawable/ic_attach_money_green_24dp" />
+    <TextView
+        android:id="@+id/customCalCellIncomeAmountTV"
+        android:layout_width="wrap_content"
+        android:layout_height="15dp"
+        android:layout_gravity="center_vertical"
+        android:drawableLeft="@drawable/ic_attach_money_green_15dp"
+        android:text="3"
+        android:textSize="12sp" />
 
-        <TextView
-            android:id="@+id/customCalCellIncomeAmountTV"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="12sp"
-            android:text="3"
-            />
 
-    </LinearLayout>
+    <TextView
+        android:id="@+id/customCalCellExpenseAmountTV"
+        android:layout_width="wrap_content"
+        android:layout_height="15dp"
+        android:layout_gravity="center_vertical"
+        android:drawableLeft="@drawable/ic_attach_money_red_15dp"
+        android:text="3"
+        android:textSize="12sp" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:id="@+id/customCalCellExpenseLL"
-        >
-        <ImageView
-            android:layout_width="15dp"
-            android:layout_height="15dp"
-            app:srcCompat="@drawable/ic_attach_money_red_24dp" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:textSize="12sp"
-            android:layout_height="wrap_content"
-            android:id="@+id/customCalCellExpenseAmountTV"
-            android:text="3"
-            />
+    <TextView
+        android:id="@+id/customCalCellLeaseBeginAmountTV"
+        android:layout_width="wrap_content"
+        android:layout_height="15dp"
+        android:layout_gravity="center_vertical"
+        android:drawableLeft="@drawable/ic_buisiness_center_green_15dp"
+        android:text="3"
+        android:textSize="12sp" />
 
-    </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:id="@+id/customCalCellLeaseBeginLL"
-        >
-
-        <ImageView
-            android:layout_width="15dp"
-            android:layout_height="15dp"
-            app:srcCompat="@drawable/ic_buisiness_center_green_24dp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="12sp"
-            android:id="@+id/customCalCellLeaseBeginAmountTV"
-            android:text="3"
-            />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:id="@+id/customCalCellLeaseEndLL"
-        >
-
-        <ImageView
-            android:layout_width="15dp"
-            android:layout_height="15dp"
-            app:srcCompat="@drawable/ic_buisiness_center_red_24dp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/customCalCellLeaseEndAmountTV"
-            android:textSize="12sp"
-            android:text="3"
-            />
-
-    </LinearLayout>
+    <TextView
+        android:id="@+id/customCalCellLeaseEndAmountTV"
+        android:layout_width="wrap_content"
+        android:layout_height="15dp"
+        android:layout_gravity="center_vertical"
+        android:drawableLeft="@drawable/ic_buisiness_center_red_15dp"
+        android:text="3"
+        android:textSize="12sp" />
 
     <TextView
         android:id="@+id/spacer1"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="12sp"
+        android:layout_height="15dp"
         android:text=""
-        android:visibility="gone"
-        />
+        android:textSize="10sp" />
 
     <TextView
         android:id="@+id/spacer2"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="12sp"
+        android:layout_height="15dp"
         android:text=""
-        android:visibility="gone"
-        />
+        android:textSize="10sp" />
 
     <TextView
         android:id="@+id/spacer3"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="12sp"
+        android:layout_height="15dp"
         android:text=""
-        android:visibility="gone"
-        />
+        android:textSize="10sp" />
 
     <TextView
         android:id="@+id/spacer4"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="12sp"
+        android:layout_height="15dp"
         android:text=""
-        android:visibility="gone"
-        />
+        android:textSize="10sp" />
 
 </LinearLayout>

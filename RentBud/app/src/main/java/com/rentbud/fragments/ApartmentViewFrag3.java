@@ -39,7 +39,7 @@ public class ApartmentViewFrag3 extends android.support.v4.app.Fragment implemen
         // Required empty public constructor
     }
 
-   // TextView noIncomeTV;
+    TextView noLeaseTV;
     FloatingActionButton fab;
     LinearLayout totalBarLL;
     LeaseListAdapter leaseListAdapter;
@@ -55,13 +55,13 @@ public class ApartmentViewFrag3 extends android.support.v4.app.Fragment implemen
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.lease_view_fragment_two, container, false);
+        return inflater.inflate(R.layout.fragment_view_list, container, false);
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        //this.noIncomeTV = view.findViewById(R.id.moneyEmptyListTV);
+        this.noLeaseTV = view.findViewById(R.id.emptyListTV);
         this.totalBarLL = view.findViewById(R.id.moneyListTotalBarLL);
         totalBarLL.setVisibility(View.GONE);
         this.fab = view.findViewById(R.id.listFab);
@@ -137,6 +137,8 @@ public class ApartmentViewFrag3 extends android.support.v4.app.Fragment implemen
             leaseListAdapter = new LeaseListAdapter(getActivity(), ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getLeaseArray().getValue(), accentColor, null);
             listView.setAdapter(leaseListAdapter);
             listView.setOnItemClickListener(this);
+            noLeaseTV.setText(R.string.no_leases_to_display_apartment);
+            listView.setEmptyView(noLeaseTV);
         }
     }
 

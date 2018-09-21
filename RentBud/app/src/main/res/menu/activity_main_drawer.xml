@@ -8,55 +8,48 @@
         <item
             android:id="@+id/nav_home"
             android:icon="@drawable/ic_home_black_24dp"
-            android:title="Home" />
+            android:title="@string/main_drawer_home" />
 
         <item
             android:id="@+id/nav_calendar"
             android:icon="@drawable/ic_event_black_24dp"
-            android:title="View Calendar" />
+            android:title="@string/main_drawer_calendar" />
 
         <item
             android:id="@+id/nav_apartment"
             android:icon="@drawable/ic_business_black_24dp"
-            android:title="View Apartment List" />
+            android:title="@string/main_drawer_apartments" />
 
         <item
             android:id="@+id/nav_tenant"
             android:icon="@drawable/ic_person_black_24dp"
-            android:title="View Tenant List" />
+            android:title="@string/main_drawer_tenants" />
 
         <item
             android:id="@+id/nav_lease"
             android:icon="@drawable/ic_business_center_black_24dp"
-            android:title="View Lease List" />
+            android:title="@string/main_drawer_leases" />
 
     </group>
 
 
-    <item android:title="Money">
+    <item android:title="@string/main_drawer_money_title">
         <menu>
             <group android:checkableBehavior="single">
                 <item
                     android:id="@+id/nav_income"
                     android:icon="@drawable/ic_attach_money_green_24dp"
-                    android:title="View Income" />
+                    android:title="@string/main_drawer_income" />
 
                 <item
                     android:id="@+id/nav_expenses"
                     android:icon="@drawable/ic_money_off_black_24dp"
-                    android:title="View Expenses" />
-            </group>
-        </menu>
-    </item>
+                    android:title="@string/main_drawer_expenses" />
 
-
-    <item android:title="Totals">
-        <menu>
-            <group android:checkableBehavior="single">
                 <item
                     android:id="@+id/nav_totals"
                     android:icon="@drawable/ic_folder_special_black_24dp"
-                    android:title="View Totals" />
+                    android:title="@string/main_drawer_totals" />
             </group>
         </menu>
     </item>

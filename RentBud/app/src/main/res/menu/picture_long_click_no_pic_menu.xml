@@ -2,6 +2,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/changePic"
-        android:title="Change Image" />
+        android:title="@string/change_image" />
 
 </menu>

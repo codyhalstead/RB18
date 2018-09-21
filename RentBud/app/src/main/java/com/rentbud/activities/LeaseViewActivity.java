@@ -1,136 +1,78 @@
 package com.rentbud.activities;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.util.Pair;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.text.InputFilter;
+import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.example.cody.rentbud.R;
-import com.rentbud.fragments.IncomeListFragment;
-import com.rentbud.fragments.LeaseListFragment;
-import com.rentbud.helpers.MainArrayDataMethods;
-import com.rentbud.model.Apartment;
+import com.rentbud.fragments.LeaseViewFrag1;
+import com.rentbud.fragments.LeaseViewFrag2;
 import com.rentbud.model.Lease;
-import com.rentbud.model.Tenant;
 import com.rentbud.sqlite.DatabaseHandler;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Locale;
+import java.util.List;
 
-/**
- * Created by Cody on 4/14/2018.
- */
-
-public class LeaseViewActivity extends BaseActivity {
-    Lease lease;
-    TextView apartmentStreet1TV, apartmentStreet2TV, apartmentCityTV, apartmentStateTV, apartmentZIPTV, primaryTenantFirstNameTV,
-            primaryTenantLastNameTV, primaryTenantPhoneTV, primaryTenantEmailTV, leaseStartTV, leaseEndTV, secondaryTenantsTV, notesTV;
-    LinearLayout secondaryTenantsLL;
-    DatabaseHandler databaseHandler;
-    MainArrayDataMethods dataMethods;
-    Apartment apartment;
-    Tenant primaryTenant;
-    ArrayList<Tenant> secondaryTenants;
+public class LeaseViewActivity extends BaseActivity implements LeaseViewFrag2.OnMoneyDataChangedListener {
+    private Lease lease;
+    private DatabaseHandler databaseHandler;
+    ViewPager viewPager;
+    LeaseViewActivity.ViewPagerAdapter adapter;
+    LinearLayout dateSelectorLL;
+    private LeaseViewFrag1 frag1;
+    private LeaseViewFrag2 frag2;
+    private boolean wasLeaseEdited, wasIncomeEdited, wasExpenseEdited;
+    private AlertDialog alertDialog;
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setupUserAppTheme(MainActivity.curThemeChoice);
-        setContentView(R.layout.activity_lease_view);
+        setContentView(R.layout.activity_lease_view_actual);
+        dateSelectorLL = findViewById(R.id.moneyDateSelecterLL);
+        dateSelectorLL.setVisibility(View.GONE);
+        viewPager = (ViewPager) findViewById(R.id.pager);
+        adapter = new ViewPagerAdapter(getSupportFragmentManager());
         this.databaseHandler = new DatabaseHandler(this);
-        dataMethods = new MainArrayDataMethods();
-        //if recreated
+        // Add Fragments to adapter one by one
+        Bundle bundle = getIntent().getExtras();
+        int leaseID = bundle.getInt("leaseID");
+        this.lease = databaseHandler.getLeaseByID(MainActivity.user, leaseID);
+        bundle.putParcelable("lease", lease);
+        viewPager.setAdapter(adapter);
         if (savedInstanceState != null) {
-            if (savedInstanceState.getParcelable("lease") != null) {
-                this.lease = savedInstanceState.getParcelable("lease");
-            }
-            if (savedInstanceState.getParcelable("apartment") != null) {
-                this.apartment = savedInstanceState.getParcelable("apartment");
-            }
-            if (savedInstanceState.getParcelable("primaryTenant") != null) {
-                this.primaryTenant = savedInstanceState.getParcelable("primaryTenant");
-            }
-            if (savedInstanceState.getParcelableArrayList("secondaryTenants") != null) {
-                this.secondaryTenants = savedInstanceState.getParcelableArrayList("secondaryTenants");
-            }
+            wasLeaseEdited = savedInstanceState.getBoolean("was_lease_edited");
+            wasIncomeEdited = savedInstanceState.getBoolean("was_income_edited");
+            wasExpenseEdited = savedInstanceState.getBoolean("was_expense_edited");
         } else {
-            //If new
-            Bundle bundle = getIntent().getExtras();
-            //Get apartment item
-            int leaseID = bundle.getInt("leaseID");
-            this.lease = databaseHandler.getLeaseByID(MainActivity.user, leaseID);
-            this.apartment = dataMethods.getCachedApartmentByApartmentID(lease.getApartmentID());
-            Pair<Tenant, ArrayList<Tenant>> tenants = dataMethods.getCachedPrimaryAndSecondaryTenantsByLease(lease);
-            this.primaryTenant = tenants.first;
-            this.secondaryTenants = tenants.second;
+            wasLeaseEdited = false;
+            wasIncomeEdited = false;
+            wasExpenseEdited = false;
         }
-        this.apartmentStreet1TV = findViewById(R.id.leaseViewStreet1TV);
-        this.apartmentStreet2TV = findViewById(R.id.leaseViewStreet2TV);
-        this.apartmentCityTV = findViewById(R.id.leaseViewCityTV);
-        this.apartmentStateTV = findViewById(R.id.leaseViewStateTV);
-        this.apartmentZIPTV = findViewById(R.id.leaseViewZipTV);
-        this.primaryTenantFirstNameTV = findViewById(R.id.leaseViewPrimaryTenantFirstNameTV);
-        this.primaryTenantLastNameTV = findViewById(R.id.leaseViewPrimaryTenantLastNameTV);
-        this.primaryTenantPhoneTV = findViewById(R.id.leaseViewPrimaryTenantPhoneTV);
-        this.primaryTenantEmailTV = findViewById(R.id.leaseViewPrimaryTenantEmailTV);
-        this.leaseStartTV = findViewById(R.id.leaseViewLeaseStartTV);
-        this.leaseEndTV = findViewById(R.id.leaseViewLeaseEndTV);
-        this.secondaryTenantsTV = findViewById(R.id.leaseViewSecondaryTenantsTV);
-        this.notesTV = findViewById(R.id.leaseViewNotesTV);
-        this.secondaryTenantsLL = findViewById(R.id.leaseViewSecondaryTenantsLL);
-        fillTextViews();
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout.setupWithViewPager(viewPager);
         setupBasicToolbar();
-    }
-
-    private void fillTextViews(){
-        apartmentStreet1TV.setText(apartment.getStreet1());
-        if(apartment.getStreet2() != null) {
-            if (apartment.getStreet2().equals("")) {
-                apartmentStreet2TV.setVisibility(View.GONE);
-            } else {
-                apartmentStreet2TV.setText(apartment.getStreet2());
-            }
+        this.setTitle(R.string.lease_view);
+        if (wasLeaseEdited || wasIncomeEdited || wasExpenseEdited) {
+            setResultToEdited();
         } else {
-            apartmentStreet2TV.setVisibility(View.GONE);
+            setResult(RESULT_OK);
         }
-        String city = apartment.getCity();
-        //If city not empty, add comma
-        if (!apartment.getCity().equals("")) {
-            city += ",";
-        }
-        apartmentCityTV.setText(city);
-        apartmentStateTV.setText(apartment.getState());
-        apartmentZIPTV.setText(apartment.getZip());
-
-        primaryTenantFirstNameTV.setText(primaryTenant.getFirstName());
-        primaryTenantLastNameTV.setText(primaryTenant.getLastName());
-        primaryTenantPhoneTV.setText(primaryTenant.getPhone());
-        primaryTenantEmailTV.setText(primaryTenant.getEmail());
-
-        SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-        leaseStartTV.setText(formatter.format(lease.getLeaseStart()));
-        leaseEndTV.setText(formatter.format(lease.getLeaseEnd()));
-        if (!secondaryTenants.isEmpty()) {
-            secondaryTenantsLL.setVisibility(View.VISIBLE);
-            secondaryTenantsTV.setText("");
-            for (int i = 0; i < secondaryTenants.size(); i++) {
-                secondaryTenantsTV.append(secondaryTenants.get(i).getFirstName());
-                secondaryTenantsTV.append(" ");
-                secondaryTenantsTV.append(secondaryTenants.get(i).getLastName());
-                if (i != secondaryTenants.size() - 1) {
-                    secondaryTenantsTV.append("\n");
-                }
-            }
-        } else {
-            secondaryTenantsLL.setVisibility(View.GONE);
-        }
-        notesTV.setText(lease.getNotes());
+        String ug = databaseHandler.getFrequencyByID(lease.getPaymentFrequencyID());
     }
 
     @Override
@@ -147,11 +89,19 @@ public class LeaseViewActivity extends BaseActivity {
             case R.id.editLease:
                 Intent intent = new Intent(this, NewLeaseWizard.class);
                 intent.putExtra("leaseToEdit", lease);
+                wasLeaseEdited = true;
+                setResultToEdited();
+                setResult(MainActivity.RESULT_DATA_WAS_MODIFIED);
                 startActivityForResult(intent, MainActivity.REQUEST_NEW_LEASE_FORM);
                 return true;
 
-            case R.id.deleteLease:
+            case R.id.editNotes:
+                showEditNotesDialog();
+                return true;
 
+
+            case R.id.deleteLease:
+                showDeleteConfirmationAlertDialog();
                 return true;
 
             default:
@@ -159,38 +109,255 @@ public class LeaseViewActivity extends BaseActivity {
         }
     }
 
+    public void showDeleteConfirmationAlertDialog() {
+        // setup the alert builder
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        //builder.setTitle("AlertDialog");
+        builder.setMessage(R.string.lease_deletion_confirmation);
+
+        // add the buttons
+        builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                databaseHandler.setLeaseInactive(lease);
+                MainActivity.apartmentList = databaseHandler.getUsersApartmentsIncludingInactive(MainActivity.user);
+                MainActivity.tenantList = databaseHandler.getUsersTenantsIncludingInactive(MainActivity.user);
+                showDeleteAllRelatedMoneyAlertDialog();
+            }
+        });
+        builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+
+        // create and show the alert dialog
+        alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (wasLeaseEdited || wasIncomeEdited || wasExpenseEdited) {
+            setResultToEdited();
+        } else {
+            setResult(RESULT_OK);
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if(alertDialog != null){
+            alertDialog.dismiss();
+        }
+    }
+
+
+    private void setResultToEdited() {
+        Intent intent = new Intent();
+        intent.putExtra("was_lease_edited", wasLeaseEdited);
+        intent.putExtra("was_income_edited", wasIncomeEdited);
+        intent.putExtra("was_expense_edited", wasExpenseEdited);
+        setResult(MainActivity.RESULT_DATA_WAS_MODIFIED, intent);
+    }
+
+    public void showDeleteAllRelatedMoneyAlertDialog() {
+        // setup the alert builder
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        //builder.setTitle("AlertDialog");
+        builder.setMessage(R.string.lease_related_money_deletion_confirmation);
+
+        // add the buttons
+        builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                databaseHandler.setAllExpensesRelatedToLeaseInactive(lease.getId());
+                databaseHandler.setAllIncomeRelatedToLeaseInactive(lease.getId());
+                wasLeaseEdited = true;
+                wasExpenseEdited = true;
+                wasIncomeEdited = true;
+                setResultToEdited();
+                LeaseViewActivity.this.finish();
+            }
+        });
+        builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                wasLeaseEdited = true;
+                setResultToEdited();
+                LeaseViewActivity.this.finish();
+            }
+        });
+
+        // create and show the alert dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        setResult(MainActivity.RESULT_DATA_WAS_MODIFIED);
         if (requestCode == MainActivity.REQUEST_NEW_LEASE_FORM) {
             //If successful(not cancelled, passed validation)
             if (resultCode == RESULT_OK) {
                 //Re-query cached apartment array to update cache and refresh current fragment to display new data
                 //int leaseID = data.getIntExtra("editedLeaseID", 0);
                 this.lease = databaseHandler.getLeaseByID(MainActivity.user, lease.getId());
-                this.apartment = dataMethods.getCachedApartmentByApartmentID(lease.getApartmentID());
-                Pair<Tenant, ArrayList<Tenant>> tenants = dataMethods.getCachedPrimaryAndSecondaryTenantsByLease(lease);
-                this.primaryTenant = tenants.first;
-                this.secondaryTenants = tenants.second;
-                fillTextViews();
+                //this.apartment = dataMethods.getCachedApartmentByApartmentID(lease.getApartmentID());
+                //Pair<Tenant, ArrayList<Tenant>> tenants = dataMethods.getCachedPrimaryAndSecondaryTenantsByLease(lease);
+                //this.primaryTenant = tenants.first;
+                //this.secondaryTenants = tenants.second;
+                //fillTextViews();
                 //LeaseListFragment.leaseListAdapterNeedsRefreshed = true;
+                List<Fragment> fragments = getSupportFragmentManager().getFragments();
+                if (fragments != null) {
+                    for (Fragment fragment : fragments) {
+                        if (fragment != null) {
+                            fragment.onActivityResult(requestCode, resultCode, data);
+                        }
+                    }
+                }
+            }
+
+        } else {
+            List<Fragment> fragments = getSupportFragmentManager().getFragments();
+            if (fragments != null) {
+                for (Fragment fragment : fragments) {
+                    if (fragment != null) {
+                        fragment.onActivityResult(requestCode, resultCode, data);
+                    }
+                }
             }
         }
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        //Save the fragment's instance
+    public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelable("lease", lease);
-        if (apartment != null) {
-            outState.putParcelable("apartment", apartment);
+        outState.putBoolean("was_lease_edited", wasLeaseEdited);
+        outState.putBoolean("was_income_edited", wasIncomeEdited);
+        outState.putBoolean("was_expense_edited", wasExpenseEdited);
+    }
+
+    @Override
+    public void onIncomeDataChanged() {
+        wasIncomeEdited = true;
+        setResultToEdited();
+    }
+
+    @Override
+    public void onExpenseDataChanged() {
+        wasExpenseEdited = true;
+        setResultToEdited();
+    }
+
+    public void showEditNotesDialog() {
+        final EditText editText = new EditText(LeaseViewActivity.this);
+        int maxLength = 500;
+        editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxLength)});
+        editText.setSingleLine(false);
+        editText.setImeOptions(EditorInfo.IME_FLAG_NO_ENTER_ACTION);
+        editText.setText(lease.getNotes());
+        editText.setInputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+        editText.setSelection(editText.getText().length());
+        //editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+
+        // create the AlertDialog as final
+        alertDialog = new AlertDialog.Builder(LeaseViewActivity.this)
+                //.setMessage(R.string.comfirm_pass_to_delete_account_message)
+                .setTitle(R.string.edit_notes)
+                .setView(editText)
+
+                // Set the action buttons
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        String input = editText.getText().toString();
+                        lease.setNotes(input);
+                        databaseHandler.editLease(lease);
+                        wasLeaseEdited = true;
+                        setResultToEdited();
+                        //viewModel.setApartment(apartment);
+                        if (frag1 != null) {
+                            frag1.updateLeaseData(lease);
+                        }
+                    }
+                })
+
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        // removes the AlertDialog in the screen
+                    }
+                })
+                .create();
+
+        alertDialog.show();
+    }
+
+    // Adapter for the viewpager using FragmentPagerAdapter
+    class ViewPagerAdapter extends FragmentStatePagerAdapter {
+
+        public ViewPagerAdapter(FragmentManager manager) {
+            super(manager);
         }
-        if (primaryTenant != null) {
-            outState.putParcelable("primaryTenant", primaryTenant);
+
+        @Override
+        public Fragment getItem(int position) {
+            Bundle bundle = new Bundle();
+            bundle.putParcelable("lease", lease);
+            switch (position) {
+                case 0:
+                    LeaseViewFrag1 frg1 = new LeaseViewFrag1();
+                    frg1.setArguments(bundle);
+                    return frg1;
+                case 1:
+                    LeaseViewFrag2 frg2 = new LeaseViewFrag2();
+                    frg2.setArguments(bundle);
+                    return frg2;
+                default:
+                    return null;
+            }
         }
-        if (secondaryTenants != null) {
-            outState.putParcelableArrayList("secondaryTenants", secondaryTenants);
+
+        @Override
+        public int getCount() {
+            return 2;
+        }
+
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            Fragment createdFragment = (Fragment) super.instantiateItem(container, position);
+            // save the appropriate reference depending on position
+            switch (position) {
+                case 0:
+                    frag1 = (LeaseViewFrag1) createdFragment;
+                    break;
+                case 1:
+                    frag2 = (LeaseViewFrag2) createdFragment;
+                    break;
+                //case 2:
+                //    frag3 = (LeaseViewFrag3) createdFragment;
+                //    break;
+            }
+            return createdFragment;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            switch (position) {
+                case 0:
+                    return getResources().getString(R.string.info_tab_title);
+                case 1:
+                    return getResources().getString(R.string.payments_tab_title);
+            }
+            return "";
         }
     }
 }
+
+

@@ -50,7 +50,7 @@ public class TenantWizardPage1 extends Page {
         dest.add(new ReviewItem(context.getResources().getString(R.string.first_name), mData.getString(TENANT_FIRST_NAME_DATA_KEY), getKey(), -1));
         dest.add(new ReviewItem(context.getResources().getString(R.string.last_name), mData.getString(TENANT_LAST_NAME_DATA_KEY), getKey(), -1));
         dest.add(new ReviewItem(context.getResources().getString(R.string.phone), mData.getString(TENANT_PHONE_DATA_KEY), getKey(), -1));
-        dest.add(new ReviewItem(context.getResources().getString(R.string.email), mData.getString(TENANT_EMAIL_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(context.getResources().getString(R.string.email_review), mData.getString(TENANT_EMAIL_DATA_KEY), getKey(), -1));
     }
 
     @Override

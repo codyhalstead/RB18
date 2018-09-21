@@ -77,11 +77,9 @@ public class SingleDateViewActivity extends BaseActivity implements DateViewFrag
         viewPager.setAdapter(adapter);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
-        tabLayout.setSelectedTabIndicatorColor(Color.parseColor("#000000"));
-        tabLayout.setTabTextColors(Color.parseColor("#ffffff"), Color.parseColor("#4d4c4b"));
         tabLayout.setupWithViewPager(viewPager);
         setupBasicToolbar();
-        //toolbar.setTitle("Date View");
+        toolbar.setTitle(R.string.calendar_date_view);
         if (wasLeaseEdited || wasIncomeEdited || wasExpenseEdited) {
             setResultToEdited();
         } else {

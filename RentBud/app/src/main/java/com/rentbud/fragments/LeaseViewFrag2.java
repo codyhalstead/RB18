@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.PopupMenu;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
@@ -23,7 +24,6 @@ import com.example.cody.rentbud.R;
 import com.rentbud.activities.MainActivity;
 import com.rentbud.activities.NewExpenseWizard;
 import com.rentbud.activities.NewIncomeWizard;
-import com.rentbud.adapters.IncomeListAdapter;
 import com.rentbud.adapters.MoneyListAdapter;
 import com.rentbud.helpers.MainArrayDataMethods;
 import com.rentbud.model.ExpenseLogEntry;
@@ -47,7 +47,7 @@ public class LeaseViewFrag2 extends android.support.v4.app.Fragment implements A
         // Required empty public constructor
     }
 
-    TextView noIncomeTV, totalAmountTV, totalAmountLabelTV;
+    TextView noPaymentsTV, totalAmountTV, totalAmountLabelTV;
     MoneyListAdapter moneyListAdapter;
     ColorStateList accentColor;
     ListView listView;
@@ -65,13 +65,13 @@ public class LeaseViewFrag2 extends android.support.v4.app.Fragment implements A
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.lease_view_fragment_two, container, false);
+        return inflater.inflate(R.layout.fragment_view_list, container, false);
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        //this.noIncomeTV = view.findViewById(R.id.moneyEmptyListTV);
+        this.noPaymentsTV = view.findViewById(R.id.emptyListTV);
         this.totalAmountLabelTV = view.findViewById(R.id.moneyListTotalAmountLabelTV);
         this.totalAmountTV = view.findViewById(R.id.moneyListTotalAmountTV);
         this.fab = view.findViewById(R.id.listFab);
@@ -151,9 +151,11 @@ public class LeaseViewFrag2 extends android.support.v4.app.Fragment implements A
 
     private void setUpListAdapter() {
         if (currentFilteredMoney != null) {
-            moneyListAdapter = new MoneyListAdapter(getActivity(), currentFilteredMoney, accentColor, null);
+            moneyListAdapter = new MoneyListAdapter(getActivity(), currentFilteredMoney, accentColor, null, true);
             listView.setAdapter(moneyListAdapter);
             listView.setOnItemClickListener(this);
+            noPaymentsTV.setText(R.string.no_payments_to_display_lease);
+            listView.setEmptyView(noPaymentsTV);
         }
     }
 
@@ -174,6 +176,8 @@ public class LeaseViewFrag2 extends android.support.v4.app.Fragment implements A
                             mCallback.onIncomeDataChanged();
                             Intent intent = new Intent(getActivity(), NewIncomeWizard.class);
                             PaymentLogEntry selectedIncome = (PaymentLogEntry) selectedMoney;
+                            Log.d("TAG", "setUpRelatedInfoSection: ++++++++ " + selectedIncome.getTenantID());
+                            Log.d("TAG", "setUpRelatedInfoSection: ++++++++ " + selectedIncome.getId());
                             intent.putExtra("incomeToEdit", selectedIncome);
                             startActivityForResult(intent, MainActivity.REQUEST_NEW_INCOME_FORM);
                         } else {
@@ -365,7 +369,7 @@ public class LeaseViewFrag2 extends android.support.v4.app.Fragment implements A
         currentFilteredMoney.clear();
         currentFilteredMoney.addAll(db.getUsersIncomeByLeaseID(MainActivity.user, lease.getId()));
         currentFilteredMoney.addAll(db.getUsersExpensesByLeaseID(MainActivity.user, lease.getId()));
-        dm.sortMoneyByDate(currentFilteredMoney);
+        dm.sortMoneyByDateDesc(currentFilteredMoney);
     }
 }
 

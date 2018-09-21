@@ -44,14 +44,13 @@ public class TenantDialogListAdapter extends BaseAdapter implements Filterable {
     }
 
     static class ViewHolder {
-        TextView firstNameTV;
-        TextView lastNameTV;
+        TextView nameTV;
         TextView phoneNumberTV;
     }
 
     @Override
     public int getCount() {
-        if(filteredResults != null) {
+        if (filteredResults != null) {
             return filteredResults.size();
         }
         return 0;
@@ -77,8 +76,7 @@ public class TenantDialogListAdapter extends BaseAdapter implements Filterable {
             convertView = LayoutInflater.from(context).inflate(R.layout.row_dialog_tenant, parent, false);
 
             viewHolder = new ViewHolder();
-            viewHolder.firstNameTV = convertView.findViewById(R.id.firstNameTV);
-            viewHolder.lastNameTV = convertView.findViewById(R.id.lastNameTV);
+            viewHolder.nameTV = convertView.findViewById(R.id.nameTV);
             viewHolder.phoneNumberTV = convertView.findViewById(R.id.phoneNumberTV);
 
             convertView.setTag(viewHolder);
@@ -88,8 +86,7 @@ public class TenantDialogListAdapter extends BaseAdapter implements Filterable {
         }
 
         if (tenant != null) {
-            setTextHighlightSearch(viewHolder.firstNameTV, tenant.getFirstName());
-            setTextHighlightSearch(viewHolder.lastNameTV, tenant.getLastName());
+            setTextHighlightSearch(viewHolder.nameTV, tenant.getFirstAndLastNameString());
             setTextHighlightSearch(viewHolder.phoneNumberTV, tenant.getPhone());
         }
         return convertView;
@@ -117,10 +114,14 @@ public class TenantDialogListAdapter extends BaseAdapter implements Filterable {
                 constraint = constraint.toString().toLowerCase();
                 for (int i = 0; i < tenantArray.size(); i++) {
                     Tenant dataNames = tenantArray.get(i);
+                    String phone = "";
+                    if (dataNames.getPhone() != null) {
+                        phone = dataNames.getPhone();
+                    }
+                    String name = dataNames.getFirstAndLastNameString();
                     //If users search matches any part of any apartment value, add to new filtered list
-                    if (dataNames.getFirstName().toLowerCase().contains(constraint.toString()) ||
-                            dataNames.getLastName().toLowerCase().contains(constraint.toString()) ||
-                            dataNames.getPhone().toLowerCase().contains(constraint.toString())) {
+                    if (name.toLowerCase().contains(constraint.toString()) ||
+                            phone.toLowerCase().contains(constraint.toString())) {
                         FilteredArrayNames.add(dataNames);
                     }
                 }

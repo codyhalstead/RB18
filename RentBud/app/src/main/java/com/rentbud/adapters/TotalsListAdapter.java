@@ -1,7 +1,9 @@
 package com.rentbud.adapters;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +11,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.example.cody.rentbud.R;
+import com.rentbud.helpers.DateAndCurrencyDisplayer;
 import com.rentbud.helpers.MainArrayDataMethods;
 import com.rentbud.model.Tenant;
 import com.rentbud.model.TypeTotal;
@@ -22,12 +25,16 @@ import java.util.Locale;
 public class TotalsListAdapter extends BaseAdapter {
     private ArrayList<TypeTotal> typeTotals;
     private Context context;
+    private SharedPreferences preferences;
     private ColorStateList highlightColor;
+    private int moneyFormatCode;
 
     public TotalsListAdapter(Context context, ArrayList<TypeTotal> typeTotals, ColorStateList highlightColor) {
+        this.preferences = PreferenceManager.getDefaultSharedPreferences(context);
         this.typeTotals = typeTotals;
         this.context = context;
         this.highlightColor = highlightColor;
+        this.moneyFormatCode = preferences.getInt("currency", DateAndCurrencyDisplayer.CURRENCY_US);
     }
 
     static class ViewHolder {
@@ -81,10 +88,7 @@ public class TotalsListAdapter extends BaseAdapter {
             } else {
                 viewHolder.typeTotalAmountTV.setTextColor(context.getResources().getColor(R.color.green_colorPrimaryDark));
             }
-            NumberFormat usdCostFormat = NumberFormat.getCurrencyInstance(Locale.US);
-            usdCostFormat.setMinimumFractionDigits(2);
-            usdCostFormat.setMaximumFractionDigits(2);
-            viewHolder.typeTotalAmountTV.setText(usdCostFormat.format(displayVal.doubleValue()));
+            viewHolder.typeTotalAmountTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, typeTotal.getTotalAmount()));
             String numberOfItemsString = typeTotal.getNumberOfItems() + "";
             viewHolder.numberOfItemsTV.setText(numberOfItemsString);
             if(typeTotal.getNumberOfItems() == 1) {

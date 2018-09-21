@@ -19,82 +19,85 @@
 
             <TextView
                 style="@style/WizardTitle"
-                android:text="Apt. Main Picture" />
+                android:text="@string/apt_main_picture" />
 
             <!-- Was 200dp X 200dp -->
             <ImageView
                 android:id="@+id/apartmentWizardMainPicIV"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
-                android:src="@drawable/blank_home_pic"
-                android:layout_marginTop="20dp"
                 android:layout_gravity="center_horizontal"
-                />
+                android:layout_marginTop="20dp"
+                android:scaleType="fitXY"
+                android:src="@drawable/blank_home_pic" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginTop="20dp"
-                android:weightSum="2"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:weightSum="2">
 
                 <Button
                     android:id="@+id/apartmentWizardRemoveMainPicBtn"
-                    android:layout_weight="1"
+                    style="@style/MainButtonStyle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    style="?android:attr/buttonBarButtonStyle"
-                    android:text="Remove" />
+                    android:layout_margin="10dp"
+                    android:layout_weight="1"
+                    android:text="@string/remove" />
 
                 <Button
                     android:id="@+id/apartmentWizardChangeMainPicBtn"
+                    style="@style/MainButtonStyle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_margin="10dp"
                     android:layout_weight="1"
-                    android:text="Change" />
+                    android:text="@string/change" />
 
             </LinearLayout>
 
             <TextView
                 style="@style/WizardTitle"
-                android:text="Other Pictures" />
+                android:text="@string/other_pictures" />
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/apartmentWizardOtherPicsRecyclerView"
                 android:layout_width="wrap_content"
                 android:layout_height="100dp"
-                android:layout_marginTop="15dp"
-                android:orientation="horizontal"
                 android:layout_gravity="center_horizontal"
-                >
+                android:layout_marginTop="15dp"
+                android:orientation="horizontal">
 
             </android.support.v7.widget.RecyclerView>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="20dp"
-            android:weightSum="2"
-            android:orientation="horizontal">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="20dp"
+                android:orientation="horizontal"
+                android:weightSum="2">
 
-            <Button
-                android:id="@+id/apartmentWizardRemoveOtherPicBtn"
-                android:layout_weight="1"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                style="?android:attr/buttonBarButtonStyle"
-                android:text="Remove" />
+                <Button
+                    android:id="@+id/apartmentWizardRemoveOtherPicBtn"
+                    style="@style/MainButtonStyle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:layout_weight="1"
+                    android:text="@string/remove" />
 
-            <Button
-                android:id="@+id/apartmentWizardAddOtherPicBtn"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                style="?android:attr/buttonBarButtonStyle"
-                android:layout_weight="1"
-                android:text="Add" />
+                <Button
+                    android:id="@+id/apartmentWizardAddOtherPicBtn"
+                    style="@style/MainButtonStyle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:layout_weight="1"
+                    android:text="@string/add" />
 
-        </LinearLayout>
+            </LinearLayout>
 
         </LinearLayout>
     </ScrollView>

@@ -73,10 +73,10 @@ public class CustomCalendarAdapter extends CaldroidGridAdapter {
         TextView leaseEndAmountTV = cellView.findViewById(R.id.customCalCellLeaseEndAmountTV);
         TextView expenseAmountTV = cellView.findViewById(R.id.customCalCellExpenseAmountTV);
         TextView incomeAmountTV = cellView.findViewById(R.id.customCalCellIncomeAmountTV);
-        LinearLayout leaseBeginLL = cellView.findViewById(R.id.customCalCellLeaseBeginLL);
-        LinearLayout leaseEndLL = cellView.findViewById(R.id.customCalCellLeaseEndLL);
-        LinearLayout expenseLL = cellView.findViewById(R.id.customCalCellExpenseLL);
-        LinearLayout incomeLL = cellView.findViewById(R.id.customCalCellIncomeLL);
+        //LinearLayout leaseBeginLL = cellView.findViewById(R.id.customCalCellLeaseBeginLL);
+        //LinearLayout leaseEndLL = cellView.findViewById(R.id.customCalCellLeaseEndLL);
+        //LinearLayout expenseLL = cellView.findViewById(R.id.customCalCellExpenseLL);
+        //LinearLayout incomeLL = cellView.findViewById(R.id.customCalCellIncomeLL);
         TextView spacer1 = cellView.findViewById(R.id.spacer1);
         TextView spacer2 = cellView.findViewById(R.id.spacer2);
         TextView spacer3 = cellView.findViewById(R.id.spacer3);
@@ -90,10 +90,10 @@ public class CustomCalendarAdapter extends CaldroidGridAdapter {
         if (dateTime.getMonth() != month) {
             dateTV.setTextColor(resources
                     .getColor(com.caldroid.R.color.caldroid_darker_gray));
-            leaseBeginLL.setVisibility(View.INVISIBLE);
-            leaseEndLL.setVisibility(View.INVISIBLE);
-            expenseLL.setVisibility(View.INVISIBLE);
-            incomeLL.setVisibility(View.INVISIBLE);
+            leaseBeginAmountTV.setVisibility(View.INVISIBLE);
+            leaseEndAmountTV.setVisibility(View.INVISIBLE);
+            expenseAmountTV.setVisibility(View.INVISIBLE);
+            incomeAmountTV.setVisibility(View.INVISIBLE);
             spacer1.setVisibility(View.GONE);
             spacer2.setVisibility(View.GONE);
             spacer3.setVisibility(View.GONE);
@@ -103,7 +103,7 @@ public class CustomCalendarAdapter extends CaldroidGridAdapter {
         int amount = 0;
         if (leaseStartDatesHM != null) {
             if (leaseStartDatesHM.containsKey(date.toString())) {
-                leaseBeginLL.setVisibility(View.VISIBLE);
+                leaseBeginAmountTV.setVisibility(View.VISIBLE);
                 amount = leaseStartDatesHM.get(date.toString());
                 if (amount <= 99) {
                     String amountString = amount + "";
@@ -113,13 +113,13 @@ public class CustomCalendarAdapter extends CaldroidGridAdapter {
                 }
                 spacer1.setVisibility(View.GONE);
             } else {
-                leaseBeginLL.setVisibility(View.GONE);
+                leaseBeginAmountTV.setVisibility(View.GONE);
                 spacer1.setVisibility(View.INVISIBLE);
             }
         }
         if (leaseEndDatesHM != null) {
             if (leaseEndDatesHM.containsKey(date.toString())) {
-                leaseEndLL.setVisibility(View.VISIBLE);
+                leaseEndAmountTV.setVisibility(View.VISIBLE);
                 amount = leaseEndDatesHM.get(date.toString());
                 if (amount <= 99) {
                     String amountString = amount + "";
@@ -129,13 +129,13 @@ public class CustomCalendarAdapter extends CaldroidGridAdapter {
                 }
                 spacer2.setVisibility(View.GONE);
             } else {
-                leaseEndLL.setVisibility(View.GONE);
+                leaseEndAmountTV.setVisibility(View.GONE);
                 spacer2.setVisibility(View.INVISIBLE);
             }
         }
         if (expenseDatesHM != null) {
             if (expenseDatesHM.containsKey(date.toString())) {
-                expenseLL.setVisibility(View.VISIBLE);
+                expenseAmountTV.setVisibility(View.VISIBLE);
                 amount = expenseDatesHM.get(date.toString());
                 if (amount <= 99) {
                     String amountString = amount + "";
@@ -145,13 +145,13 @@ public class CustomCalendarAdapter extends CaldroidGridAdapter {
                 }
                 spacer3.setVisibility(View.GONE);
             } else {
-                expenseLL.setVisibility(View.GONE);
+                expenseAmountTV.setVisibility(View.GONE);
                 spacer3.setVisibility(View.INVISIBLE);
             }
         }
         if (incomeDatesHM != null) {
             if (incomeDatesHM.containsKey(date.toString())) {
-                incomeLL.setVisibility(View.VISIBLE);
+                incomeAmountTV.setVisibility(View.VISIBLE);
                 amount =  incomeDatesHM.get(date.toString());
                 if (amount <= 99) {
                     String amountString = amount + "";
@@ -161,7 +161,7 @@ public class CustomCalendarAdapter extends CaldroidGridAdapter {
                 }
                 spacer4.setVisibility(View.GONE);
             } else {
-                incomeLL.setVisibility(View.GONE);
+                incomeAmountTV.setVisibility(View.GONE);
                 spacer4.setVisibility(View.INVISIBLE);
             }
         }

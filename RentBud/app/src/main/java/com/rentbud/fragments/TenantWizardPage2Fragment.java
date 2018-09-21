@@ -110,7 +110,7 @@ public class TenantWizardPage2Fragment extends android.support.v4.app.Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        setPhoneNumberEditTextHelper();
+        //setPhoneNumberEditTextHelper();
         emerFirstNameET.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -142,6 +142,23 @@ public class TenantWizardPage2Fragment extends android.support.v4.app.Fragment {
             @Override
             public void afterTextChanged(Editable editable) {
                 mPage.getData().putString(TenantWizardPage2.TENANT_EMERGENCY_LAST_NAME_DATA_KEY, editable.toString());
+                mPage.notifyDataChanged();
+            }
+        });
+        emerPhoneET.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                mPage.getData().putString(TenantWizardPage2.TENANT_EMERGENCY_PHONE_DATA_KEY, editable.toString());
                 mPage.notifyDataChanged();
             }
         });

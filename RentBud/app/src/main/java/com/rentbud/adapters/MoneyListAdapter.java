@@ -1,8 +1,10 @@
 package com.rentbud.adapters;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Typeface;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -17,6 +19,7 @@ import android.widget.Filterable;
 import android.widget.TextView;
 
 import com.example.cody.rentbud.R;
+import com.rentbud.helpers.DateAndCurrencyDisplayer;
 import com.rentbud.helpers.MainArrayDataMethods;
 import com.rentbud.model.ExpenseLogEntry;
 import com.rentbud.model.MoneyLogEntry;
@@ -35,15 +38,19 @@ import static android.support.constraint.Constraints.TAG;
 public class MoneyListAdapter extends BaseAdapter implements Filterable {
     private ArrayList<MoneyLogEntry> moneyArray;
     private ArrayList<MoneyLogEntry> filteredResults;
+    private SharedPreferences preferences;
     private Context context;
     private String searchText;
     private ColorStateList highlightColor;
     MainArrayDataMethods dataMethods;
     private Date todaysDate;
     private Date dateToHighlight;
+    private int dateFormatCode, moneyFormatCode;
+    private boolean greyOutEnabled;
 
-    public MoneyListAdapter(Context context, ArrayList<MoneyLogEntry> moneyArray, ColorStateList highlightColor, @Nullable Date dateToHighlight) {
+    public MoneyListAdapter(Context context, ArrayList<MoneyLogEntry> moneyArray, ColorStateList highlightColor, @Nullable Date dateToHighlight, boolean greyOutEnabled) {
         super();
+        this.preferences = PreferenceManager.getDefaultSharedPreferences(context);
         this.moneyArray = moneyArray;
         this.filteredResults = moneyArray;
         this.context = context;
@@ -52,6 +59,9 @@ public class MoneyListAdapter extends BaseAdapter implements Filterable {
         this.dataMethods = new MainArrayDataMethods();
         this.todaysDate = new Date(System.currentTimeMillis());
         this.dateToHighlight = dateToHighlight;
+        this.dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
+        this.moneyFormatCode = preferences.getInt("currency", DateAndCurrencyDisplayer.CURRENCY_US);
+        this.greyOutEnabled = greyOutEnabled;
     }
 
     static class ViewHolder {
@@ -101,12 +111,7 @@ public class MoneyListAdapter extends BaseAdapter implements Filterable {
         }
         //viewHolder.amountTV.setTextColor(context.getResources().getColor(R.color.red));
         if (moneyEntry != null) {
-            BigDecimal displayVal = moneyEntry.getAmount().setScale(2, RoundingMode.HALF_EVEN);
-            NumberFormat usdCostFormat = NumberFormat.getCurrencyInstance(Locale.US);
-            usdCostFormat.setMinimumFractionDigits(2);
-            usdCostFormat.setMaximumFractionDigits(2);
-            SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-            viewHolder.dateTV.setText(formatter.format(moneyEntry.getDate()));
+            viewHolder.dateTV.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, moneyEntry.getDate()));
             if(dateToHighlight != null){
                 if(moneyEntry.getDate().equals(dateToHighlight)){
                     viewHolder.dateTV.setTextColor(context.getResources().getColor(R.color.green_colorPrimaryDark));
@@ -114,24 +119,25 @@ public class MoneyListAdapter extends BaseAdapter implements Filterable {
                     viewHolder.dateTV.setTextColor(context.getResources().getColor(R.color.text_light));
                 }
             }
-            if( todaysDate.compareTo(moneyEntry.getDate()) < 0){
-                convertView.setBackgroundColor(convertView.getResources().getColor(R.color.lightGrey));
-            } else {
-                convertView.setBackgroundColor(convertView.getResources().getColor(R.color.white));
+            if(greyOutEnabled) {
+                if (todaysDate.compareTo(moneyEntry.getDate()) < 0) {
+                    convertView.setBackgroundColor(convertView.getResources().getColor(R.color.rowDarkenedBackground));
+                } else {
+                    convertView.setBackgroundColor(convertView.getResources().getColor(R.color.white));
+                }
             }
-
             if(moneyEntry instanceof ExpenseLogEntry){
                 ExpenseLogEntry expense = (ExpenseLogEntry)moneyEntry;
-                viewHolder.amountTV.setText(usdCostFormat.format(displayVal.doubleValue()));
+                viewHolder.amountTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, expense.getAmount()));
                 viewHolder.typeTV.setText(expense.getTypeLabel());
                 viewHolder.amountTV.setTextColor(context.getResources().getColor(R.color.red));
             } else if(moneyEntry instanceof PaymentLogEntry){
                 PaymentLogEntry income = (PaymentLogEntry) moneyEntry;
-                viewHolder.amountTV.setText(usdCostFormat.format(displayVal.doubleValue()));
+                viewHolder.amountTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, income.getAmount()));
                 viewHolder.typeTV.setText(income.getTypeLabel());
                 viewHolder.amountTV.setTextColor(context.getResources().getColor(R.color.green_colorPrimaryDark));
             } else {
-                viewHolder.amountTV.setText(usdCostFormat.format(displayVal.doubleValue()));
+                viewHolder.amountTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, moneyEntry.getAmount()));
                 viewHolder.typeTV.setText("");
                 viewHolder.amountTV.setTextColor(context.getResources().getColor(R.color.caldroid_darker_gray));
             }

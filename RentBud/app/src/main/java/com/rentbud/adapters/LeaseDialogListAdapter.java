@@ -1,8 +1,10 @@
 package com.rentbud.adapters;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Typeface;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.Spannable;
@@ -17,12 +19,12 @@ import android.widget.Filterable;
 import android.widget.TextView;
 
 import com.example.cody.rentbud.R;
+import com.rentbud.helpers.DateAndCurrencyDisplayer;
 import com.rentbud.helpers.MainArrayDataMethods;
 import com.rentbud.model.Apartment;
 import com.rentbud.model.Lease;
 import com.rentbud.model.Tenant;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -33,29 +35,26 @@ public class LeaseDialogListAdapter extends BaseAdapter implements Filterable {
     private String searchText;
     private ColorStateList highlightColor;
     private MainArrayDataMethods dataMethods;
+    private SharedPreferences preferences;
+    private int dateFormatCode;
 
     public LeaseDialogListAdapter(Context context, ArrayList<Lease> leaseArray, ColorStateList highlightColor) {
         this.leaseArray = leaseArray;
         this.filteredResults = leaseArray;
         this.context = context;
+        this.preferences = PreferenceManager.getDefaultSharedPreferences(context);
         this.searchText = "";
         this.highlightColor = highlightColor;
         this.dataMethods = new MainArrayDataMethods();
+        this.dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
     }
 
     static class ViewHolder {
         TextView street1TV;
         TextView street2TV;
-        //TextView cityTV;
-        //TextView stateTV;
-        //TextView zipTV;
         TextView extraSpaceTV;
-
-        TextView startDateTV;
-        TextView endDateTV;
-
-        TextView firstNameTV;
-        TextView lastNameTV;
+        TextView startEndDateTV;
+        TextView nameTV;
     }
 
     @Override
@@ -89,16 +88,9 @@ public class LeaseDialogListAdapter extends BaseAdapter implements Filterable {
 
             viewHolder.street1TV = convertView.findViewById(R.id.address1TV);
             viewHolder.street2TV = convertView.findViewById(R.id.address2TV);
-            //viewHolder.cityTV = convertView.findViewById(R.id.cityTV);
-            //viewHolder.stateTV = convertView.findViewById(R.id.stateTV);
-            //viewHolder.zipTV = convertView.findViewById(R.id.zipTV);
             viewHolder.extraSpaceTV = convertView.findViewById(R.id.extraSpaceTV);
-
-            viewHolder.startDateTV = convertView.findViewById(R.id.startDateTV);
-            viewHolder.endDateTV = convertView.findViewById(R.id.endDateTV);
-
-            viewHolder.firstNameTV = convertView.findViewById(R.id.firstNameTV);
-            viewHolder.lastNameTV = convertView.findViewById(R.id.lastNameTV);
+            viewHolder.startEndDateTV = convertView.findViewById(R.id.startEndDateTV);
+            viewHolder.nameTV = convertView.findViewById(R.id.nameTV);
 
             convertView.setTag(viewHolder);
 
@@ -109,18 +101,18 @@ public class LeaseDialogListAdapter extends BaseAdapter implements Filterable {
         if (lease != null) {
             Apartment apartment = dataMethods.getCachedApartmentByApartmentID(lease.getApartmentID());
             Tenant primaryTenant = dataMethods.getCachedTenantByTenantID(lease.getPrimaryTenantID());
-            SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-            viewHolder.startDateTV.setText(formatter.format(lease.getLeaseStart()));
-            viewHolder.endDateTV.setText(formatter.format(lease.getLeaseEnd()));
+            viewHolder.startEndDateTV.setText(lease.getStartAndEndDatesString(dateFormatCode));
             if (apartment != null) {
                 setTextHighlightSearch(viewHolder.street1TV, apartment.getStreet1());
                 //If empty street 2, set invisible
                 if (apartment.getStreet2() != null) {
                     if (apartment.getStreet2().equals("")) {
                         viewHolder.street2TV.setVisibility(View.GONE);
+                        viewHolder.extraSpaceTV.setVisibility(View.VISIBLE);
                     } else {
                         viewHolder.street2TV.setVisibility(View.VISIBLE);
                         setTextHighlightSearch(viewHolder.street2TV, apartment.getStreet2());
+                        viewHolder.extraSpaceTV.setVisibility(View.GONE);
                     }
                 } else {
                     viewHolder.street2TV.setVisibility(View.GONE);
@@ -130,13 +122,10 @@ public class LeaseDialogListAdapter extends BaseAdapter implements Filterable {
                 viewHolder.street2TV.setVisibility(View.INVISIBLE);
             }
             if(primaryTenant != null){
-                viewHolder.firstNameTV.setVisibility(View.VISIBLE);
-                viewHolder.firstNameTV.setText(primaryTenant.getFirstName());
-                viewHolder.lastNameTV.setVisibility(View.VISIBLE);
-                viewHolder.lastNameTV.setText(primaryTenant.getLastName());
+                viewHolder.nameTV.setVisibility(View.VISIBLE);
+                viewHolder.nameTV.setText(primaryTenant.getFirstAndLastNameString());
             } else {
-                viewHolder.firstNameTV.setVisibility(View.INVISIBLE);
-                viewHolder.lastNameTV.setVisibility(View.INVISIBLE);
+                viewHolder.nameTV.setVisibility(View.INVISIBLE);
             }
         }
         return convertView;
@@ -162,21 +151,8 @@ public class LeaseDialogListAdapter extends BaseAdapter implements Filterable {
                 searchText = constraint.toString().toLowerCase();
                 //Perform users search
                 constraint = constraint.toString().toLowerCase();
-                for (int i = 0; i < leaseArray.size(); i++) {
-                    //    Lease dataNames = leaseArray.get(i);
-                    //    String street2 = "";
-                    //    if(dataNames.getStreet2() != null){
-                    //        street2 = dataNames.getStreet2();
-                    //    }
-                    //If users search matches any part of any apartment value, add to new filtered list
-                    //    if (dataNames.getStreet1().toLowerCase().contains(constraint.toString()) ||
-                    //            street2.toLowerCase().contains(constraint.toString()) ||
-                    //            dataNames.getCity().toLowerCase().contains(constraint.toString()) ||
-                    //            dataNames.getState().toLowerCase().contains(constraint.toString()) ||
-                    //            dataNames.getZip().toLowerCase().contains(constraint.toString())) {
-                    //        FilteredArrayNames.add(dataNames);
-                    //    }
-                }
+                //for (int i = 0; i < leaseArray.size(); i++) {
+                //}
                 results.count = FilteredArrayNames.size();
                 results.values = FilteredArrayNames;
                 return results;

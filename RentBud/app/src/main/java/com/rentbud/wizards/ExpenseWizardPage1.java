@@ -24,6 +24,7 @@ import static android.support.constraint.Constraints.TAG;
 
 public class ExpenseWizardPage1 extends Page {
     public static final String EXPENSE_DATE_STRING_DATA_KEY = "expense_date";
+    public static final String EXPENSE_DATE_STRING_FORMATTED_DATA_KEY = "expense_date_formatted";
     public static final String EXPENSE_AMOUNT_FORMATTED_STRING_DATA_KEY = "expense_amount_formatted";
     public static final String EXPENSE_AMOUNT_STRING_DATA_KEY = "expense_amount";
     public static final String EXPENSE_TYPE_ID_DATA_KEY = "expense_type_id";
@@ -59,7 +60,7 @@ public class ExpenseWizardPage1 extends Page {
 
     @Override
     public void getReviewItems(ArrayList<ReviewItem> dest) {
-        dest.add(new ReviewItem(context.getResources().getString(R.string.date), mData.getString(EXPENSE_DATE_STRING_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(context.getResources().getString(R.string.date), mData.getString(EXPENSE_DATE_STRING_FORMATTED_DATA_KEY), getKey(), -1));
         dest.add(new ReviewItem(context.getResources().getString(R.string.amount), mData.getString(EXPENSE_AMOUNT_FORMATTED_STRING_DATA_KEY), getKey(), -1));
         dest.add(new ReviewItem(context.getResources().getString(R.string.type), mData.getString(EXPENSE_TYPE_DATA_KEY), getKey(), -1));
     }

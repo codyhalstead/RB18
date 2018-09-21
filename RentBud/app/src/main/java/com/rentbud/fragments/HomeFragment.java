@@ -1,8 +1,8 @@
 package com.rentbud.fragments;
 
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Intent;
 import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -19,12 +20,20 @@ import android.widget.TextView;
 import com.example.cody.rentbud.R;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.data.LineData;
+import com.google.android.gms.ads.MobileAds;
+import com.rentbud.activities.ExpenseViewActivity;
+import com.rentbud.activities.IncomeViewActivity;
+import com.rentbud.activities.LeaseViewActivity;
 import com.rentbud.activities.MainActivity;
 import com.rentbud.adapters.LeaseListAdapter;
 import com.rentbud.adapters.MoneyListAdapter;
 import com.rentbud.helpers.CustomDatePickerDialogLauncher;
 import com.rentbud.helpers.MainViewModel;
 import com.rentbud.helpers.MonthlyLineGraphCreator;
+import com.rentbud.model.ExpenseLogEntry;
+import com.rentbud.model.Lease;
+import com.rentbud.model.MoneyLogEntry;
+import com.rentbud.model.PaymentLogEntry;
 import com.rentbud.sqlite.DatabaseHandler;
 
 import java.util.Calendar;
@@ -51,6 +60,7 @@ public class HomeFragment extends android.support.v4.app.Fragment {
     ListView upcomingPaymentsLV, upcomingLeasesLV;
     ColorStateList accentColor;
     Date today, startRange, endRange;
+    Boolean fragDataNeedsRefreshed;
     //ImageView profilePic;
     //TextView usernameTV, emailbox, passbox;
 
@@ -58,13 +68,14 @@ public class HomeFragment extends android.support.v4.app.Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        MobileAds.initialize(getActivity(), "ca-app-pub-3940256099942544~3347511713");
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.content_initial, container, false);
+        return inflater.inflate(R.layout.fragment_home, container, false);
     }
 
     @Override
@@ -81,10 +92,8 @@ public class HomeFragment extends android.support.v4.app.Fragment {
         linegraphLL = view.findViewById(R.id.homeFragmentLineGraphLL);
         upcomingListsLL = view.findViewById(R.id.homeFragmentUpcomingListsLL);
         databaseHandler = new DatabaseHandler(getContext());
-
+        fragDataNeedsRefreshed = false;
         TabLayout tabLayout = view.findViewById(R.id.tabs);
-        tabLayout.setSelectedTabIndicatorColor(Color.parseColor("#000000"));
-        tabLayout.setTabTextColors(Color.parseColor("#ffffff"), Color.parseColor("#4d4c4b"));
         tabLayout.addTab(tabLayout.newTab().setText(getContext().getString(R.string.upcoming_events_tab_title)));
         tabLayout.addTab(tabLayout.newTab().setText(getContext().getString(R.string.yearly_revenue_tab_title)));
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -226,8 +235,20 @@ public class HomeFragment extends android.support.v4.app.Fragment {
         //this.passbox.setText(password);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(fragDataNeedsRefreshed){
+            moneyListAdapter.updateResults(databaseHandler.getIncomeAndExpensesBetweenDates(MainActivity.user, this.startRange, this.endRange));
+            leaseListAdapter.updateResults(databaseHandler.getLeasesStartingOrEndingInDateRange(MainActivity.user, this.startRange, this.endRange));
+            incomeValues = databaseHandler.getIncomeTotalsForLineGraph(MainActivity.user, startOfYear, endOfYear);
+            expenseValues = databaseHandler.getExpenseTotalsForLineGraph(MainActivity.user, startOfYear, endOfYear);
+            monthlyLineGraphCreator.setIncomeExpenseData(incomeValues, expenseValues, startOfYear);
+        }
+    }
+
     private void setUpMoneyListAdaptor() {
-        moneyListAdapter = new MoneyListAdapter(getContext(), databaseHandler.getIncomeAndExpensesBetweenDates(MainActivity.user, this.startRange, this.endRange), accentColor, today);
+        moneyListAdapter = new MoneyListAdapter(getContext(), databaseHandler.getIncomeAndExpensesBetweenDates(MainActivity.user, this.startRange, this.endRange), accentColor, today, false);
         upcomingPaymentsLV.setAdapter(moneyListAdapter);
         upcomingPaymentsLV.setOnTouchListener(new View.OnTouchListener() {
             // Setting on Touch Listener for handling the touch inside ScrollView
@@ -242,6 +263,24 @@ public class HomeFragment extends android.support.v4.app.Fragment {
         });
         emptyMoneyTV.setText(R.string.no_payments_within_14_days);
         this.upcomingPaymentsLV.setEmptyView(emptyMoneyTV);
+        upcomingPaymentsLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                MoneyLogEntry mle = moneyListAdapter.getFilteredResults().get(i);
+                fragDataNeedsRefreshed = true;
+                if(mle instanceof PaymentLogEntry){
+                    PaymentLogEntry income = (PaymentLogEntry) mle;
+                    Intent intent = new Intent(getContext(), IncomeViewActivity.class);
+                    intent.putExtra("incomeID", income.getId());
+                    getActivity().startActivityForResult(intent, MainActivity.REQUEST_INCOME_VIEW);
+                } else if (mle instanceof ExpenseLogEntry){
+                    ExpenseLogEntry expense = (ExpenseLogEntry) mle;
+                    Intent intent = new Intent(getContext(), ExpenseViewActivity.class);
+                    intent.putExtra("expenseID", expense.getId());
+                    getActivity().startActivityForResult(intent, MainActivity.REQUEST_EXPENSE_VIEW);
+                }
+            }
+        });
         //upcomingPaymentsLV.setOnItemClickListener(this);
     }
 
@@ -260,6 +299,18 @@ public class HomeFragment extends android.support.v4.app.Fragment {
         });
         emptyLeasesTV.setText(R.string.no_leases_within_14_days);
         this.upcomingLeasesLV.setEmptyView(emptyLeasesTV);
+        upcomingLeasesLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                fragDataNeedsRefreshed = true;
+                //On listView row click, launch ApartmentViewActivity passing the rows data into it.
+                Intent intent = new Intent(getContext(), LeaseViewActivity.class);
+                //Uses filtered results to match what is on screen
+                Lease lease = leaseListAdapter.getFilteredResults().get(i);
+                intent.putExtra("leaseID", lease.getId());
+                getActivity().startActivityForResult(intent, MainActivity.REQUEST_LEASE_VIEW);
+            }
+        });
         //upcomingPaymentsLV.setOnItemClickListener(this);
     }
 }

@@ -1,18 +1,37 @@
 package com.rentbud.activities;
 
+import android.Manifest;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.text.InputFilter;
+import android.text.InputType;
+import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.cody.rentbud.R;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.rentbud.helpers.AppFileManagementHelper;
+import com.rentbud.helpers.GMailSender;
+import com.rentbud.helpers.RandomNumberGenerator;
 import com.rentbud.helpers.UserInputValidation;
 import com.rentbud.model.User;
 import com.rentbud.sqlite.DatabaseHandler;
+
+import java.net.InetAddress;
 
 /**
  * Created by Cody on 12/8/2017.
@@ -25,10 +44,12 @@ public class LoginActivity extends AppCompatActivity {
     TextInputEditText emailText;
     TextInputEditText passwordText;
     Button loginButton;
-    TextView signupLink;
+    TextView signupLink, forgotPassTV;
     UserInputValidation validation;
     User user;
     DatabaseHandler databaseHandler;
+    RandomNumberGenerator randomNumberGenerator;
+    private AlertDialog alertDialog;
 
     //onCreate with app default theme
     @Override
@@ -37,6 +58,16 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         initializeVariables();
         setUpOnClickListeners();
+    }
+
+    static {
+        System.loadLibrary("native-lib");
+    }
+
+    private native String getEmailString();
+
+    public String loadPass() {
+        return getEmailString();
     }
 
     //Log in method
@@ -48,7 +79,7 @@ public class LoginActivity extends AppCompatActivity {
         }
         loginButton.setEnabled(false);
         String email = emailText.getText().toString();
-        String password = passwordText.getText().toString();
+        String password = AppFileManagementHelper.SHA512Hash(passwordText.getText().toString());
         //Check if user exists within database
         if (databaseHandler.checkUser(email, password)) {
             //Get full user info if exists
@@ -67,8 +98,10 @@ public class LoginActivity extends AppCompatActivity {
             //If sign up successful, fill log in text boxes with new user data for easy log in
             if (resultCode == RESULT_OK) {
                 this.user = (User) data.getExtras().get("newUserInfo");
-                passwordText.setText(user.getPassword());
+                String password = data.getExtras().getString("password");
+                passwordText.setText(password);
                 emailText.setText(user.getEmail());
+
                 //Creation success toast
                 Toast.makeText(this, getString(R.string.account_creation_success), Toast.LENGTH_LONG).show();
             }
@@ -109,16 +142,18 @@ public class LoginActivity extends AppCompatActivity {
         return valid;
     }
 
-    private void initializeVariables(){
+    private void initializeVariables() {
         this.emailText = (TextInputEditText) findViewById(R.id.input_email);
         this.passwordText = (TextInputEditText) findViewById(R.id.input_password);
         this.loginButton = (Button) findViewById(R.id.btn_login);
         this.signupLink = (TextView) findViewById(R.id.link_signup);
+        this.forgotPassTV = findViewById(R.id.link_forgot_password);
         this.validation = new UserInputValidation(this);
         this.databaseHandler = new DatabaseHandler(this);
+        randomNumberGenerator = new RandomNumberGenerator();
     }
 
-    private void setUpOnClickListeners(){
+    private void setUpOnClickListeners() {
         //Log in button and listener
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -135,6 +170,153 @@ public class LoginActivity extends AppCompatActivity {
                 startActivityForResult(intent, REQUEST_SIGNUP);
             }
         });
+        forgotPassTV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (ContextCompat.checkSelfPermission(LoginActivity.this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(LoginActivity.this, new String[]{Manifest.permission.INTERNET}, MainActivity.REQUEST_PHONE_CALL_PERMISSION);
+                    Log.d(TAG, "onClick: >>>>>>>>>>");
+                } else {
+                    if(isInternetAvailable()) {
+                        showForgotPasswordGetEmailDialog();
+                    } else {
+                        Toast.makeText(LoginActivity.this, R.string.no_internet_connection, Toast.LENGTH_LONG).show();
+                    }
+                }
+
+            }
+        });
+    }
+
+    private void showForgotPasswordGetEmailDialog() {
+        final EditText editText = new EditText(LoginActivity.this);
+        int maxLength = 25;
+        editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxLength)});
+        editText.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+        alertDialog = new AlertDialog.Builder(LoginActivity.this)
+                //.setMessage("You are ready to type")
+                .setTitle(R.string.enter_account_email)
+                .setView(editText)
+
+                // Set the action buttons
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+
+                    }
+                })
+
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        // removes the AlertDialog in the screen
+                    }
+                })
+                .create();
+
+        // set the focus change listener of the EditText
+        // this part will make the soft keyboard automatically visible
+        editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    alertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                }
+            }
+        });
+
+        alertDialog.show();
+        ((AlertDialog) alertDialog).getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //if (validation.isInputEditTextPassword(editText, getString(R.string.password_requirements))) {
+                if (databaseHandler.checkUser(editText.getText().toString().trim())) {
+                    alertDialog.dismiss();
+                    showPasswordResetConfirmationDialog(editText.getText().toString().trim());
+                } else {
+                    editText.setText("");
+                    Toast.makeText(LoginActivity.this, R.string.no_account_for_email, Toast.LENGTH_LONG).show();
+                }
+                //}
+            }
+        });
+    }
+
+    private void showPasswordResetConfirmationDialog(final String email) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
+        builder.setMessage(R.string.password_recovery_confirmation);
+        builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                recoverPasswordThroughEmail(email);
+            }
+        });
+
+        // add the buttons
+        builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+        // create and show the alert dialog
+        alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    private void recoverPasswordThroughEmail(final String email) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if(isInternetAvailable()) {
+                    try {
+                        String newPass = randomNumberGenerator.gererateVerificationNumber(6);
+                        String subject = LoginActivity.this.getResources().getString(R.string.recovery_email_subject);
+                        StringBuilder body = new StringBuilder(LoginActivity.this.getResources().getString(R.string.recovery_email_body));
+                        body.append("\n");
+                        body.append(newPass);
+                        GMailSender sender = new GMailSender("noreply.rentbud@gmail.com", loadPass());
+                        sender.sendMail(subject,
+                                body.toString(),
+                                "noreply.rentbud@gmail.com",
+                                email);
+                        changeAccountPassword(email, newPass);
+                    } catch (Exception e) {
+                        Log.e("SendMail", e.getMessage(), e);
+                        Toast.makeText(LoginActivity.this, R.string.recovery_error, Toast.LENGTH_LONG).show();
+                    }
+                } else {
+                    Toast.makeText(LoginActivity.this, R.string.no_internet_connection, Toast.LENGTH_LONG).show();
+                }
+            }
+        }).start();
+    }
+
+    private void changeAccountPassword(String email, String newPassword) {
+        int userID = databaseHandler.getUserID(email);
+        String name = databaseHandler.getUserName(email);
+        String password = AppFileManagementHelper.SHA512Hash(newPassword);
+        User user = new User(userID, name, email, password);
+        databaseHandler.updateUser(user);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (alertDialog != null) {
+            alertDialog.dismiss();
+        }
+    }
+
+    public boolean isInternetAvailable() {
+        try {
+            InetAddress ipAddr = InetAddress.getByName("google.com");
+            //You can replace it with your name
+            return !ipAddr.equals("");
+
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public void autoLog(View view) {

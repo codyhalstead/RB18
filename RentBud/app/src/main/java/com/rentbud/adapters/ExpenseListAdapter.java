@@ -1,8 +1,10 @@
 package com.rentbud.adapters;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Typeface;
+import android.preference.PreferenceManager;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.TextAppearanceSpan;
@@ -15,6 +17,7 @@ import android.widget.Filterable;
 import android.widget.TextView;
 
 import com.example.cody.rentbud.R;
+import com.rentbud.helpers.DateAndCurrencyDisplayer;
 import com.rentbud.helpers.MainArrayDataMethods;
 import com.rentbud.model.ExpenseLogEntry;
 import com.rentbud.model.PaymentLogEntry;
@@ -34,15 +37,19 @@ import java.util.Locale;
 public class ExpenseListAdapter extends BaseAdapter implements Filterable {
     private ArrayList<ExpenseLogEntry> expenseArray;
     private ArrayList<ExpenseLogEntry> filteredResults;
+    private SharedPreferences preferences;
     private Context context;
     private String searchText;
     private ColorStateList highlightColor;
     MainArrayDataMethods dataMethods;
     private Date todaysDate;
+    private int dateFormatCode, moneyFormatCode;
+
     OnDataChangeListener mOnDataChangeListener;
 
     public ExpenseListAdapter(Context context, ArrayList<ExpenseLogEntry> expenseArray, ColorStateList highlightColor) {
         super();
+        this.preferences = PreferenceManager.getDefaultSharedPreferences(context);
         this.expenseArray = expenseArray;
         this.filteredResults = expenseArray;
         this.context = context;
@@ -50,6 +57,8 @@ public class ExpenseListAdapter extends BaseAdapter implements Filterable {
         this.highlightColor = highlightColor;
         this.dataMethods = new MainArrayDataMethods();
         this.todaysDate = new Date(System.currentTimeMillis());
+        this.dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
+        this.moneyFormatCode = preferences.getInt("currency", DateAndCurrencyDisplayer.CURRENCY_US);
     }
 
     public void setOnDataChangeListener(ExpenseListAdapter.OnDataChangeListener onDataChangeListener){
@@ -103,16 +112,10 @@ public class ExpenseListAdapter extends BaseAdapter implements Filterable {
         }
         viewHolder.amountTV.setTextColor(context.getResources().getColor(R.color.red));
         if (expense != null) {
-            BigDecimal displayVal = expense.getAmount().setScale(2, RoundingMode.HALF_EVEN);
-            NumberFormat usdCostFormat = NumberFormat.getCurrencyInstance(Locale.US);
-            usdCostFormat.setMinimumFractionDigits(2);
-            usdCostFormat.setMaximumFractionDigits(2);
-
-            viewHolder.amountTV.setText(usdCostFormat.format(displayVal.doubleValue()));
-            SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-            viewHolder.dateTV.setText(formatter.format(expense.getDate()));
+            viewHolder.amountTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, expense.getAmount()));
+            viewHolder.dateTV.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, expense.getDate()));
             if( todaysDate.compareTo(expense.getDate()) < 0){
-                convertView.setBackgroundColor(convertView.getResources().getColor(R.color.lightGrey));
+                convertView.setBackgroundColor(convertView.getResources().getColor(R.color.rowDarkenedBackground));
             } else {
                 convertView.setBackgroundColor(convertView.getResources().getColor(R.color.white));
             }
@@ -158,7 +161,8 @@ public class ExpenseListAdapter extends BaseAdapter implements Filterable {
                 for (int i = 0; i < expenseArray.size(); i++) {
                     ExpenseLogEntry dataNames = expenseArray.get(i);
                     //If users search matches any part of any apartment value, add to new filtered list
-                    if (dataNames.getDescription().toLowerCase().contains(constraint.toString())) {
+                    if (dataNames.getDescription().toLowerCase().contains(constraint.toString()) ||
+                            dataNames.getTypeLabel().toLowerCase().contains(constraint.toString())) {
                         FilteredArrayNames.add(dataNames);
                     }
                 }

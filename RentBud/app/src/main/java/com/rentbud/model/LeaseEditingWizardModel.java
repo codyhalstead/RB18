@@ -29,9 +29,9 @@ public class LeaseEditingWizardModel extends AbstractWizardModel
 
                 new LeaseWizardPage2(this, "Page2", true, super.mContext).setRequired(true),
 
-                new LeaseWizardPage4(this, "Page4", super.mContext).setRequired(false)//,
+                new LeaseWizardPage4(this, "Page4", super.mContext).setRequired(false),
 
-            //    new LeaseWizardPage3(this, "Page3").setRequired(true)
+                new LeaseWizardPage3(this, "Page3", super.mContext).setRequired(false)
         );
     }
 

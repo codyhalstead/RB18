@@ -47,9 +47,7 @@ public class ApartmentDialogListAdapter extends BaseAdapter implements Filterabl
     static class ViewHolder {
         TextView street1TV;
         TextView street2TV;
-        TextView cityTV;
-        TextView stateTV;
-        TextView zipTV;
+        TextView cityStateZipTV;
         TextView extraSpaceTV;
     }
 
@@ -84,9 +82,7 @@ public class ApartmentDialogListAdapter extends BaseAdapter implements Filterabl
 
             viewHolder.street1TV = convertView.findViewById(R.id.address1TV);
             viewHolder.street2TV = convertView.findViewById(R.id.address2TV);
-            viewHolder.cityTV = convertView.findViewById(R.id.cityTV);
-            viewHolder.stateTV = convertView.findViewById(R.id.stateTV);
-            viewHolder.zipTV = convertView.findViewById(R.id.zipTV);
+            viewHolder.cityStateZipTV = convertView.findViewById(R.id.cityStateZipTV);
             viewHolder.extraSpaceTV = convertView.findViewById(R.id.extraSpaceTV);
 
             convertView.setTag(viewHolder);
@@ -101,22 +97,16 @@ public class ApartmentDialogListAdapter extends BaseAdapter implements Filterabl
             if (apartment.getStreet2() != null) {
                 if (apartment.getStreet2().equals("")) {
                     viewHolder.street2TV.setVisibility(View.GONE);
+                    viewHolder.extraSpaceTV.setVisibility(View.VISIBLE);
                 } else {
                     viewHolder.street2TV.setVisibility(View.VISIBLE);
                     setTextHighlightSearch(viewHolder.street2TV, apartment.getStreet2());
+                    viewHolder.extraSpaceTV.setVisibility(View.GONE);
                 }
             } else {
                 viewHolder.street2TV.setVisibility(View.GONE);
             }
-
-            String city = apartment.getCity();
-            //If city not empty, add comma
-            if (!apartment.getCity().equals("")) {
-                city += ",";
-            }
-            setTextHighlightSearch(viewHolder.cityTV, city);
-            setTextHighlightSearch(viewHolder.stateTV, apartment.getState());
-            setTextHighlightSearch(viewHolder.zipTV, apartment.getZip());
+            setTextHighlightSearch(viewHolder.cityStateZipTV, apartment.getCityStateZipString());
         }
         return convertView;
     }

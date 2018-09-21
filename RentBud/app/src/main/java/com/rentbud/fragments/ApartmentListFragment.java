@@ -1,6 +1,5 @@
 package com.rentbud.fragments;
 
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
@@ -8,7 +7,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,16 +17,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.cody.rentbud.R;
-import com.rentbud.activities.ApartmentViewActivity2;
-import com.rentbud.activities.MainActivity;
 import com.rentbud.activities.ApartmentViewActivity;
+import com.rentbud.activities.MainActivity;
 import com.rentbud.adapters.ApartmentListAdapter;
 import com.rentbud.model.Apartment;
 
 import java.util.ArrayList;
-
-import static android.app.Activity.RESULT_OK;
-import static android.content.ContentValues.TAG;
 
 /**
  * Created by Cody on 1/11/2018.
@@ -54,8 +48,8 @@ public class ApartmentListFragment extends Fragment implements AdapterView.OnIte
         super.onViewCreated(view, savedInstanceState);
         this.noApartmentsTV = view.findViewById(R.id.noapartmentEmptyListTV);
         this.searchBarET = view.findViewById(R.id.apartmentListSearchET);
-        this.listView = view.findViewById(R.id.mainapartmentListView);
-        getActivity().setTitle(R.string.apartment_view);
+        this.listView = view.findViewById(R.id.mainApartmentListView);
+        getActivity().setTitle(R.string.apartment_list);
         //ApartmentListFragment.apartmentListAdapterNeedsRefreshed = false;
         //Get current theme accent color, which is passed into the list adapter for search highlighting
         TypedValue colorValue = new TypedValue();
@@ -86,7 +80,7 @@ public class ApartmentListFragment extends Fragment implements AdapterView.OnIte
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         //On listView row click, launch ApartmentViewActivity passing the rows data into it.
-        Intent intent = new Intent(getContext(), ApartmentViewActivity2.class);
+        Intent intent = new Intent(getContext(), ApartmentViewActivity.class);
         //Uses filtered results to match what is on screen
         Apartment apartment = apartmentListAdapter.getFilteredResults().get(i);
         intent.putExtra("apartmentID", apartment.getId());
@@ -106,7 +100,6 @@ public class ApartmentListFragment extends Fragment implements AdapterView.OnIte
                 //When user changed the Text
                 if (apartmentListAdapter != null) {
                     apartmentListAdapter.getFilter().filter(cs);
-
                 }
             }
 

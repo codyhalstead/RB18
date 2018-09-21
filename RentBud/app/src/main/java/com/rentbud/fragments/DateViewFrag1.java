@@ -2,16 +2,16 @@ package com.rentbud.fragments;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.PopupMenu;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
@@ -26,28 +26,19 @@ import com.example.cody.rentbud.R;
 import com.rentbud.activities.MainActivity;
 import com.rentbud.activities.NewExpenseWizard;
 import com.rentbud.activities.NewIncomeWizard;
-import com.rentbud.adapters.ExpenseListAdapter;
 import com.rentbud.adapters.MoneyListAdapter;
 import com.rentbud.helpers.ApartmentTenantViewModel;
-import com.rentbud.model.Apartment;
+import com.rentbud.helpers.DateAndCurrencyDisplayer;
 import com.rentbud.model.ExpenseLogEntry;
 import com.rentbud.model.MoneyLogEntry;
 import com.rentbud.model.PaymentLogEntry;
 import com.rentbud.sqlite.DatabaseHandler;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.text.DateFormat;
-import java.text.NumberFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.Locale;
 
 import static android.app.Activity.RESULT_OK;
-import static android.support.constraint.Constraints.TAG;
 
 public class DateViewFrag1 extends android.support.v4.app.Fragment implements AdapterView.OnItemClickListener, View.OnClickListener {
 
@@ -56,7 +47,7 @@ public class DateViewFrag1 extends android.support.v4.app.Fragment implements Ad
         // Required empty public constructor
     }
 
-    TextView noIncomeTV, totalAmountTV, totalAmountLabelTV;
+    TextView noMoneyTV, totalAmountTV, totalAmountLabelTV;
     FloatingActionButton fab;
     MoneyListAdapter moneyListAdapter;
     ColorStateList accentColor;
@@ -68,16 +59,18 @@ public class DateViewFrag1 extends android.support.v4.app.Fragment implements Ad
     private OnMoneyDataChangedListener mCallback;
     private AlertDialog dialog;
     private PopupMenu popupMenu;
+    private SharedPreferences preferences;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.lease_view_fragment_two, container, false);
+        return inflater.inflate(R.layout.fragment_view_list, container, false);
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        this.noMoneyTV = view.findViewById(R.id.emptyListTV);
         this.fab = view.findViewById(R.id.listFab);
         this.fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -89,7 +82,7 @@ public class DateViewFrag1 extends android.support.v4.app.Fragment implements Ad
         this.totalAmountTV = view.findViewById(R.id.moneyListTotalAmountTV);
         this.listView = view.findViewById(R.id.mainMoneyListView);
         this.db = new DatabaseHandler(getContext());
-
+        this.preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         total = getTotal();
 
         setUpdateSelectedDateListeners();
@@ -138,9 +131,11 @@ public class DateViewFrag1 extends android.support.v4.app.Fragment implements Ad
 
     private void setUpListAdapter() {
         if (ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue() != null) {
-            moneyListAdapter = new MoneyListAdapter(getActivity(), ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue(), accentColor, null);
+            moneyListAdapter = new MoneyListAdapter(getActivity(), ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue(), accentColor, null, true);
             listView.setAdapter(moneyListAdapter);
             listView.setOnItemClickListener(this);
+            noMoneyTV.setText(R.string.no_payments_to_display_date);
+            listView.setEmptyView(noMoneyTV);
         }
     }
 
@@ -328,11 +323,8 @@ public class DateViewFrag1 extends android.support.v4.app.Fragment implements Ad
 
     private void setTotalTV() {
         if (total != null) {
-            BigDecimal displayVal = total.setScale(2, RoundingMode.HALF_EVEN);
-            NumberFormat usdCostFormat = NumberFormat.getCurrencyInstance(Locale.US);
-            usdCostFormat.setMinimumFractionDigits(2);
-            usdCostFormat.setMaximumFractionDigits(2);
-            totalAmountTV.setText(usdCostFormat.format(displayVal.doubleValue()));
+            int moneyFormatCode = preferences.getInt("currency", DateAndCurrencyDisplayer.CURRENCY_US);
+            totalAmountTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, total));
             if (total.compareTo(new BigDecimal(0)) < 0) {
                 totalAmountTV.setTextColor(getActivity().getResources().getColor(R.color.red));
             } else {

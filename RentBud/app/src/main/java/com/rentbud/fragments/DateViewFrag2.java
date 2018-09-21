@@ -24,21 +24,12 @@ import android.widget.TextView;
 import com.example.cody.rentbud.R;
 import com.rentbud.activities.MainActivity;
 import com.rentbud.activities.NewLeaseWizard;
-import com.rentbud.adapters.ExpenseListAdapter;
 import com.rentbud.adapters.LeaseListAdapter;
 import com.rentbud.helpers.ApartmentTenantViewModel;
-import com.rentbud.model.ExpenseLogEntry;
 import com.rentbud.model.Lease;
-import com.rentbud.model.PaymentLogEntry;
 import com.rentbud.sqlite.DatabaseHandler;
 
-import java.math.BigDecimal;
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.Locale;
 
 import static android.app.Activity.RESULT_OK;
@@ -50,7 +41,7 @@ public class DateViewFrag2 extends android.support.v4.app.Fragment implements Ad
         // Required empty public constructor
     }
 
-    TextView noIncomeTV;
+    TextView noLeasesTV;
     LinearLayout totalBarLL;
     FloatingActionButton fab;
     LeaseListAdapter leaseListAdapter;
@@ -65,13 +56,13 @@ public class DateViewFrag2 extends android.support.v4.app.Fragment implements Ad
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.lease_view_fragment_two, container, false);
+        return inflater.inflate(R.layout.fragment_view_list, container, false);
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        //this.noIncomeTV = view.findViewById(R.id.moneyEmptyListTV);
+        this.noLeasesTV = view.findViewById(R.id.emptyListTV);
         this.fab = view.findViewById(R.id.listFab);
         //fab.setVisibility(View.GONE);
         this.fab.setOnClickListener(new View.OnClickListener() {
@@ -135,6 +126,8 @@ public class DateViewFrag2 extends android.support.v4.app.Fragment implements Ad
                     accentColor, ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getDate().getValue());
             listView.setAdapter(leaseListAdapter);
             listView.setOnItemClickListener(this);
+            noLeasesTV.setText(R.string.no_leases_to_display_date);
+            listView.setEmptyView(noLeasesTV);
         }
     }
 

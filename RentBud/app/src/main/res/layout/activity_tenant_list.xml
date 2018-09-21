@@ -31,23 +31,23 @@
                     android:id="@+id/tenantListSearchET"
                     android:layout_width="match_parent"
                     android:layout_height="40dp"
+                    android:maxLength="35"
                     android:layout_margin="5dp"
                     android:background="@color/white"
                     android:drawableLeft="@drawable/ic_search_black_24dp"
                     android:ems="10"
                     android:gravity="left|center"
-                    android:hint="Search" />
+                    android:hint="@string/search" />
             </LinearLayout>
         </LinearLayout>
     </android.support.v7.widget.Toolbar>
 
     <!--Border -->
     <View
-        android:id="@+id/apartmentListBarBorder"
-        android:layout_width="match_parent"
-        android:layout_height="3dp"
+        android:id="@+id/tenantListBarBorder"
+        style="@style/RowBorder"
         android:layout_below="@+id/tenantSearchToolbar"
-        android:background="@color/caldroid_black" />
+        />
 
     <!--FAB -->
     <android.support.design.widget.FloatingActionButton
@@ -69,17 +69,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="250dp"
-        android:gravity="center"
         android:text="No current tenants"
-        android:textSize="28sp"
-        android:visibility="invisible" />
+        style="@style/LargeEmptyListText" />
 
     <!--Tenant list view -->
     <ListView
         android:id="@+id/maintenantListView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/tenantSearchToolbar"
+        android:layout_below="@+id/tenantListBarBorder"
+        style="@style/ListView"
         android:paddingBottom="160dp"
         android:clipToPadding="false"
         >

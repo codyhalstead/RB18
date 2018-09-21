@@ -1,23 +1,33 @@
 package com.rentbud.activities;
 
 import android.app.AlertDialog;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.util.Log;
-import android.util.Pair;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.text.InputFilter;
+import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
+import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.example.cody.rentbud.R;
-import com.rentbud.fragments.ApartmentListFragment;
-import com.rentbud.fragments.TenantListFragment;
+import com.rentbud.fragments.TenantViewFrag1;
+import com.rentbud.fragments.TenantViewFrag2;
+import com.rentbud.fragments.TenantViewFrag3;
+import com.rentbud.helpers.ApartmentTenantViewModel;
+import com.rentbud.helpers.CustomDatePickerDialogLauncher;
+import com.rentbud.helpers.DateAndCurrencyDisplayer;
 import com.rentbud.helpers.MainArrayDataMethods;
 import com.rentbud.model.Apartment;
 import com.rentbud.model.Lease;
@@ -28,74 +38,176 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
-/**
- * Created by Cody on 2/6/2018.
- */
-
-public class TenantViewActivity extends BaseActivity {
-    Tenant tenant;
-    ArrayList<Tenant> otherTenants;
-    TextView firstNameTV, lastNameTV, renterStatusTV, phoneTV, leaseStartTV, leaseEndTV, notesTV, apartmentAddressTV, apartmentAddress2TV,
-            leaseHolderTypeTV, emailTV, emergencyFirstNameTV, emergencyLastNameTV, getEmergencyPhoneTV;
-    Button editLeaseBtn;
-    Apartment apartment;
-    Lease currentLease;
-    LinearLayout leaseLL;
-    DatabaseHandler databaseHandler;
-    MainArrayDataMethods dataMethods;
+public class TenantViewActivity extends BaseActivity implements View.OnClickListener, TenantViewFrag2.OnMoneyDataChangedListener,
+        TenantViewFrag3.OnLeaseDataChangedListener {
+    private DatabaseHandler databaseHandler;
+    private MainArrayDataMethods dataMethods;
+    private ArrayList<Tenant> otherTenants;
+    private Lease currentLease;
+    private Tenant tenant;
+    private Apartment apartment;
+    ViewPager.OnPageChangeListener mPageChangeListener;
+    ViewPager viewPager;
+    TenantViewActivity.ViewPagerAdapter adapter;
+    LinearLayout dateSelectorLL;
+    Date filterDateStart, filterDateEnd;
+    Button dateRangeStartBtn, dateRangeEndBtn;
+    private AlertDialog alertDialog;
+    private TenantViewFrag1 frag1;
+    private TenantViewFrag2 frag2;
+    private TenantViewFrag3 frag3;
+    private ApartmentTenantViewModel viewModel;
+    private Boolean wasLeaseEdited, wasIncomeEdited, wasExpenseEdited, wasTenantEdited;
+    private CustomDatePickerDialogLauncher datePickerDialogLauncher;
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setupUserAppTheme(MainActivity.curThemeChoice);
-        setContentView(R.layout.activity_tenant_view);
+        setContentView(R.layout.activity_lease_view_actual);
+        dateSelectorLL = findViewById(R.id.moneyDateSelecterLL);
+        dateSelectorLL.setVisibility(View.GONE);
+        this.dateRangeStartBtn = findViewById(R.id.moneyListDateRangeStartBtn);
+        this.dateRangeStartBtn.setOnClickListener(this);
+        this.dateRangeEndBtn = findViewById(R.id.moneyListDateRangeEndBtn);
+        this.dateRangeEndBtn.setOnClickListener(this);
+        viewPager = (ViewPager) findViewById(R.id.pager);
+        adapter = new ViewPagerAdapter(getSupportFragmentManager());
         databaseHandler = new DatabaseHandler(this);
         dataMethods = new MainArrayDataMethods();
-        otherTenants = new ArrayList<>();
+        viewModel = ViewModelProviders.of(this).get(ApartmentTenantViewModel.class);
+        viewModel.init();
+        Bundle bundle = getIntent().getExtras();
+        int tenantID = bundle.getInt("tenantID");
+        tenant = databaseHandler.getTenantByID(tenantID, MainActivity.user);
+        int dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
+        viewModel.setViewedTenant(tenant);
         if (savedInstanceState != null) {
-            tenant = savedInstanceState.getParcelable("tenant");
-            apartment = savedInstanceState.getParcelable("apartment");
-            currentLease = savedInstanceState.getParcelable("currentLease");
-        } else {
-            Bundle bundle = getIntent().getExtras();
-            int tenantID = bundle.getInt("tenantID");
-            tenant = dataMethods.getCachedTenantByTenantID(tenantID);
-            currentLease = dataMethods.getCachedActiveLeaseByTenantID(tenantID);
-         //   int apartmentID = dataMethods.getCachedApartmentByApartmentID(currentLease.getApartmentID());
-            if (!tenant.getHasLease()) {
-                this.tenant = dataMethods.getCachedTenantByTenantID(tenantID);
-                this.apartment = null;
-            } else {
-                Pair<Tenant, ArrayList<Tenant>> tenants = dataMethods.getCachedSelectedTenantAndRoomMatesByLease(currentLease, tenantID);
-                this.tenant = tenants.first;
-                this.otherTenants = tenants.second;
-                this.apartment = dataMethods.getCachedApartmentByApartmentID(currentLease.getApartmentID());
+            if (savedInstanceState.getString("filterDateStart") != null) {
+                DateFormat formatFrom = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
+                try {
+                    Date startDate = formatFrom.parse(savedInstanceState.getString("filterDateStart"));
+                    this.filterDateStart = startDate;
+                    this.dateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, startDate));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
             }
+            if (savedInstanceState.getString("filterDateEnd") != null) {
+                DateFormat formatFrom = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
+                try {
+                    Date endDate = formatFrom.parse(savedInstanceState.getString("filterDateEnd"));
+                    this.filterDateEnd = endDate;
+                    this.dateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, endDate));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+            wasLeaseEdited = savedInstanceState.getBoolean("was_lease_edited");
+            wasIncomeEdited = savedInstanceState.getBoolean("was_income_edited");
+            wasExpenseEdited = savedInstanceState.getBoolean("was_expense_edited");
+            wasTenantEdited = savedInstanceState.getBoolean("was_tenant_edited");
+        } else {
+            Date endDate = Calendar.getInstance().getTime();
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(endDate);
+            calendar.add(Calendar.YEAR, -1);
+            Date startDate = calendar.getTime();
+            this.filterDateEnd = endDate;
+            this.filterDateStart = startDate;
+            dateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateStart));
+            dateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateEnd));
+            wasLeaseEdited = false;
+            wasIncomeEdited = false;
+            wasExpenseEdited = false;
+            wasTenantEdited = false;
         }
 
-        firstNameTV = findViewById(R.id.tenantViewFirstNameTextView);
-        lastNameTV = findViewById(R.id.tenantViewLastNameTextView);
-        renterStatusTV = findViewById(R.id.tenantViewRentingStatusTextView);
-        phoneTV = findViewById(R.id.tenantViewPhoneTextView);
-        leaseStartTV = findViewById(R.id.tenantViewLeaseStartTextView);
-        leaseEndTV = findViewById(R.id.tenantViewLeaseEndTextView);
-        notesTV = findViewById(R.id.tenantViewNotesTextView);
-        apartmentAddressTV = findViewById(R.id.tenantViewRentingAddressTextView);
-        apartmentAddress2TV = findViewById(R.id.tenantViewRentingAddress2TextView);
-        leaseHolderTypeTV = findViewById(R.id.tenantViewLeaseHolderType);
-        emailTV = findViewById(R.id.tenantViewEmailTextView);
-        emergencyFirstNameTV = findViewById(R.id.tenantViewEmergencyFirstNameTextView);
-        emergencyLastNameTV = findViewById(R.id.tenantViewEmergencyLastNameTextView);
-        getEmergencyPhoneTV = findViewById(R.id.tenantViewEmergencyPhoneTextView);
-        editLeaseBtn = findViewById(R.id.tenantViewEditLeaseBtn);
-        leaseLL = findViewById(R.id.tenantViewLeaseLL);
+        viewModel.setMoneyArray(databaseHandler.getIncomeAndExpensesByTenantIDWithinDates(MainActivity.user, tenant.getId(), filterDateStart, filterDateEnd));
+        viewModel.setLeaseArray(databaseHandler.getPrimaryAndSecondaryLeasesForTenant(MainActivity.user, tenant.getId()));
+        ArrayList<Tenant> secondaryTenants = new ArrayList<>();
+        if (currentLease != null) {
+            Tenant primaryTenant = databaseHandler.getTenantByID(currentLease.getPrimaryTenantID(), MainActivity.user);
+            viewModel.setPrimaryTenant(primaryTenant);
+            apartment = databaseHandler.getApartmentByID(currentLease.getApartmentID(), MainActivity.user);
+            viewModel.setApartment(apartment);
+            ArrayList<Integer> secondaryTenantIDs = currentLease.getSecondaryTenantIDs();
+            for (int i = 0; i < secondaryTenantIDs.size(); i++) {
+                Tenant secondaryTenant = databaseHandler.getTenantByID(secondaryTenantIDs.get(i), MainActivity.user);
+                secondaryTenants.add(secondaryTenant);
+            }
+        }
+        viewModel.setLease(currentLease);
+        //viewModel.setPrimaryTenant(primaryTenant);
+        viewModel.setSecondaryTenants(secondaryTenants);
+        viewPager.setAdapter(adapter);
+        mPageChangeListener = new ViewPager.OnPageChangeListener() {
 
-        fillTextViews();
-        setOnClickListeners();
+            @Override
+            public void onPageScrollStateChanged(int arg0) {
+                // TODO Auto-generated method stub
+
+            }
+
+            @Override
+            public void onPageScrolled(int arg0, float arg1, int arg2) {
+                // TODO Auto-generated method stub
+
+            }
+
+            @Override
+            public void onPageSelected(int pos) {
+                if (pos == 0 || pos == 2) {
+                    dateSelectorLL.setVisibility(View.GONE);
+                } else {
+                    dateSelectorLL.setVisibility(View.VISIBLE);
+                }
+            }
+
+        };
+        viewPager.addOnPageChangeListener(mPageChangeListener);
+
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout.setupWithViewPager(viewPager);
         setupBasicToolbar();
+        datePickerDialogLauncher = new CustomDatePickerDialogLauncher(filterDateStart, filterDateEnd, true, this);
+        datePickerDialogLauncher.setDateSelectedListener(new CustomDatePickerDialogLauncher.DateSelectedListener() {
+            @Override
+            public void onStartDateSelected(Date startDate, Date endDate) {
+                int dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
+                filterDateStart = startDate;
+                filterDateEnd = endDate;
+                dateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateEnd));
+                dateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateStart));
+                updateFragmentDates();
+            }
+
+            @Override
+            public void onEndDateSelected(Date startDate, Date endDate) {
+                int dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
+                filterDateStart = startDate;
+                filterDateEnd = endDate;
+                dateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateEnd));
+                dateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateStart));
+                updateFragmentDates();
+            }
+
+            @Override
+            public void onDateSelected(Date date) {
+
+            }
+        });
+        this.setTitle(R.string.tenant_view);
+        if (wasLeaseEdited || wasIncomeEdited || wasExpenseEdited || wasTenantEdited) {
+            setResultToEdited();
+        } else {
+            setResult(RESULT_OK);
+        }
     }
 
     @Override
@@ -106,13 +218,38 @@ public class TenantViewActivity extends BaseActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        if (wasLeaseEdited || wasIncomeEdited || wasExpenseEdited || wasTenantEdited) {
+            setResultToEdited();
+        } else {
+            setResult(RESULT_OK);
+        }
+    }
+
+    private void setResultToEdited() {
+        Intent intent = new Intent();
+        intent.putExtra("was_lease_edited", wasLeaseEdited);
+        intent.putExtra("was_income_edited", wasIncomeEdited);
+        intent.putExtra("was_expense_edited", wasExpenseEdited);
+        intent.putExtra("was_tenant_edited", wasTenantEdited);
+        setResult(MainActivity.RESULT_DATA_WAS_MODIFIED, intent);
+    }
+
+    @Override
     //Handle option menu actions
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.editTenant:
                 Intent intent = new Intent(this, NewTenantWizard.class);
                 intent.putExtra("tenantToEdit", tenant);
+                wasTenantEdited = true;
+                setResultToEdited();
                 startActivityForResult(intent, MainActivity.REQUEST_NEW_TENANT_FORM);
+                return true;
+
+            case R.id.editNotes:
+                showEditNotesDialog();
                 return true;
 
             case R.id.deleteTenant:
@@ -131,147 +268,222 @@ public class TenantViewActivity extends BaseActivity {
             //If successful(not cancelled, passed validation)
             if (resultCode == RESULT_OK) {
                 //Re-query cached apartment array to update cache and refresh current fragment to display new data
-                //int tenantID  = data.getIntExtra("editedTenantID", 0);
-                this.tenant = dataMethods.getCachedTenantByTenantID(tenant.getId());
-                fillTextViews();
-               // TenantListFragment.tenantListAdapterNeedsRefreshed = true;
-            }
-        }
-        if (requestCode == MainActivity.REQUEST_NEW_LEASE_FORM) {
-            if (resultCode == RESULT_OK) {
-                //int apartmentID = data.getIntExtra("updatedApartmentID", 0);
-                int tenantID = this.tenant.getId();
-                this.currentLease = dataMethods.getCachedActiveLeaseByTenantID(tenantID);
-                if(currentLease != null) {
-                    this.apartment = dataMethods.getCachedApartmentByApartmentID(currentLease.getApartmentID());
-                    Pair<Tenant, ArrayList<Tenant>> tenants = dataMethods.getCachedSelectedTenantAndRoomMatesByLease(currentLease, tenantID);
-                    this.tenant = tenants.first;
-                    this.otherTenants = tenants.second;
-                } else {
-                    this.apartment = null;
-                    this.tenant = dataMethods.getCachedTenantByTenantID(tenantID);
-                    this.otherTenants = null;
-                }
-            }
-            fillTextViews();
-           // TenantListFragment.tenantListAdapterNeedsRefreshed = true;
-        }
-    }
-
-    public void fillTextViews() {
-        firstNameTV.setText(tenant.getFirstName());
-        lastNameTV.setText(tenant.getLastName());
-        phoneTV.setText(tenant.getPhone());
-        emailTV.setText(tenant.getTenantEmail());
-        emergencyFirstNameTV.setText(tenant.getEmergencyFirstName());
-        emergencyLastNameTV.setText(tenant.getEmergencyLastName());
-        getEmergencyPhoneTV.setText(tenant.getEmergencyPhone());
-        if (!tenant.getHasLease()) {
-            renterStatusTV.setText("Not Currently Renting");
-            editLeaseBtn.setText("Create Lease");
-            apartmentAddressTV.setText("");
-            apartmentAddress2TV.setVisibility(View.GONE);
-            leaseLL.setVisibility(View.GONE);
-            leaseHolderTypeTV.setVisibility(View.GONE);
-
-        } else {
-            renterStatusTV.setText("Renting");
-            editLeaseBtn.setText("Edit Lease");
-            if (apartment != null) {
-                apartmentAddressTV.setText(apartment.getStreet1());
-                if(apartment.getStreet2() != null) {
-                    if (apartment.getStreet2().equals("")) {
-                        apartmentAddress2TV.setVisibility(View.GONE);
-                    } else {
-                        apartmentAddress2TV.setVisibility(View.VISIBLE);
-                        apartmentAddress2TV.setText(apartment.getStreet2());
+                this.tenant = databaseHandler.getTenantByID(tenant.getId(), MainActivity.user);
+                viewModel.setViewedTenant(tenant);
+                List<Fragment> fragments = getSupportFragmentManager().getFragments();
+                if (fragments != null) {
+                    for (Fragment fragment : fragments) {
+                        if (fragment != null) {
+                            fragment.onActivityResult(requestCode, resultCode, data);
+                        }
                     }
-                } else {
-                    apartmentAddress2TV.setVisibility(View.GONE);
                 }
             }
-            if (tenant.getId() == currentLease.getPrimaryTenantID()) {
-                leaseHolderTypeTV.setText("Primary Tenant");
-            } else {
-                leaseHolderTypeTV.setText("Secondary Tenant");
-            }
-            if (currentLease.getLeaseStart() != null) {
-                leaseLL.setVisibility(View.VISIBLE);
-                leaseHolderTypeTV.setVisibility(View.VISIBLE);
-
-                SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-                leaseStartTV.setText(formatter.format(currentLease.getLeaseStart()));
-                leaseEndTV.setText(formatter.format(currentLease.getLeaseEnd()));
-
-
-            } else {
-                leaseLL.setVisibility(View.GONE);
-                leaseHolderTypeTV.setVisibility(View.GONE);
+        } else {
+            List<Fragment> fragments = getSupportFragmentManager().getFragments();
+            if (fragments != null) {
+                for (Fragment fragment : fragments) {
+                    if (fragment != null) {
+                        fragment.onActivityResult(requestCode, resultCode, data);
+                    }
+                }
             }
         }
-        notesTV.setText(tenant.getNotes());
     }
-
-
-    private void setOnClickListeners() {
-        this.editLeaseBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (tenant.getHasLease()) {
-                    Intent intent = new Intent(TenantViewActivity.this, NewLeaseFormActivity.class);
-                    //Uses filtered results to match what is on screen
-                    intent.putExtra("existingLeaseTenant", tenant);
-                    startActivityForResult(intent, MainActivity.REQUEST_NEW_LEASE_FORM);
-                } else {
-                    showNewLeaseAlertDialog(view);
-                }
-            }
-        });
-    }
-
-    public void showNewLeaseAlertDialog(View view) {
-        // setup the alert builder
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        //builder.setTitle("AlertDialog");
-        builder.setMessage("Will this be the primary tenant?");
-
-        // add the buttons
-        builder.setPositiveButton("No", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                Intent intent = new Intent(TenantViewActivity.this, NewLeaseFormActivity.class);
-                //Uses filtered results to match what is on screen
-                intent.putExtra("secondaryTenant", tenant);
-                startActivityForResult(intent, MainActivity.REQUEST_NEW_LEASE_FORM);
-                ;
-            }
-        });
-        builder.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                Intent intent = new Intent(TenantViewActivity.this, NewLeaseFormActivity.class);
-                //Uses filtered results to match what is on screen
-                intent.putExtra("primaryTenant", tenant);
-                startActivityForResult(intent, MainActivity.REQUEST_NEW_LEASE_FORM);
-            }
-        });
-
-        // create and show the alert dialog
-        AlertDialog dialog = builder.create();
-        dialog.show();
-    }
-
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        //Save the fragment's instance
+    public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelable("tenant", tenant);
-        if (apartment != null) {
-            outState.putParcelable("apartment", apartment);
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
+        if (filterDateStart != null) {
+            outState.putString("filterDateStart", formatter.format(filterDateStart));
         }
-        if(currentLease != null){
-            outState.putParcelable("currentLease", currentLease);
+        if (filterDateEnd != null) {
+            outState.putString("filterDateEnd", formatter.format(filterDateEnd));
+        }
+        outState.putBoolean("was_lease_edited", wasLeaseEdited);
+        outState.putBoolean("was_income_edited", wasIncomeEdited);
+        outState.putBoolean("was_expense_edited", wasExpenseEdited);
+        outState.putBoolean("was_tenant_edited", wasTenantEdited);
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+
+            case R.id.moneyListDateRangeStartBtn:
+                datePickerDialogLauncher.launchStartDatePickerDialog();
+                break;
+
+            case R.id.moneyListDateRangeEndBtn:
+                datePickerDialogLauncher.launchEndDatePickerDialog();
+
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        datePickerDialogLauncher.dismissDatePickerDialog();
+        if(alertDialog != null){
+            alertDialog.dismiss();
+        }
+    }
+
+    private void updateFragmentDates() {
+        if (frag2 != null) {
+            frag2.updateData();
+        }
+        if (frag3 != null) {
+            frag3.updateData();
+        }
+    }
+
+    @Override
+    public void onMoneyDataChanged() {
+        viewModel.setMoneyArray(databaseHandler.getIncomeAndExpensesByTenantIDWithinDates(MainActivity.user, tenant.getId(), filterDateStart, filterDateEnd));
+        frag2.updateData();
+    }
+
+    @Override
+    public void onLeaseDataChanged() {
+        this.tenant = databaseHandler.getTenantByID(tenant.getId(), MainActivity.user);
+        viewModel.setViewedTenant(tenant);
+        viewModel.setLeaseArray(databaseHandler.getUsersLeasesForTenant(MainActivity.user, tenant.getId()));
+        viewModel.setMoneyArray(databaseHandler.getIncomeAndExpensesByTenantIDWithinDates(MainActivity.user, tenant.getId(), filterDateStart, filterDateEnd));
+        frag2.updateData();
+        frag3.updateData();
+        wasLeaseEdited = true;
+        setResultToEdited();
+    }
+
+    @Override
+    public void onIncomeDataChanged() {
+        wasIncomeEdited = true;
+        setResultToEdited();
+    }
+
+    @Override
+    public void onExpenseDataChanged() {
+        wasExpenseEdited = true;
+        setResultToEdited();
+    }
+
+    @Override
+    public void onLeasePaymentsChanged(){
+        wasExpenseEdited = true;
+        wasIncomeEdited = true;
+        setResultToEdited();
+    }
+
+    public void showEditNotesDialog() {
+        final EditText editText = new EditText(TenantViewActivity.this);
+        int maxLength = 500;
+        editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxLength)});
+        editText.setSingleLine(false);
+        editText.setImeOptions(EditorInfo.IME_FLAG_NO_ENTER_ACTION);
+        editText.setText(tenant.getNotes());
+        editText.setInputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+        editText.setSelection(editText.getText().length());
+
+        // create the AlertDialog as final
+        alertDialog = new AlertDialog.Builder(TenantViewActivity.this)
+                //.setMessage(R.string.comfirm_pass_to_delete_account_message)
+                .setTitle(R.string.edit_notes)
+                .setView(editText)
+
+                // Set the action buttons
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        String input = editText.getText().toString();
+                        tenant.setNotes(input);
+                        databaseHandler.editTenant(tenant);
+                        wasTenantEdited = true;
+                        setResultToEdited();
+                        viewModel.setViewedTenant(tenant);
+                        if (frag1 != null) {
+                            frag1.updateTenantData(tenant);
+                        }
+                    }
+                })
+
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        // removes the AlertDialog in the screen
+                    }
+                })
+                .create();
+
+        alertDialog.show();
+    }
+
+    // Adapter for the viewpager using FragmentPagerAdapter
+    class ViewPagerAdapter extends FragmentStatePagerAdapter {
+
+        public ViewPagerAdapter(FragmentManager manager) {
+            super(manager);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            Bundle bundle = new Bundle();
+            bundle.putParcelable("tenant", tenant);
+            switch (position) {
+                case 0:
+                    TenantViewFrag1 frg1 = new TenantViewFrag1();
+                    frg1.setArguments(bundle);
+                    return frg1;
+                case 1:
+                    TenantViewFrag2 frg2 = new TenantViewFrag2();
+                    frg2.setArguments(bundle);
+                    return frg2;
+                case 2:
+                    TenantViewFrag3 frg3 = new TenantViewFrag3();
+                    frg3.setArguments(bundle);
+                    return frg3;
+                default:
+                    return null;
+            }
+        }
+
+        @Override
+        public int getCount() {
+            return 3;
+        }
+
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            Fragment createdFragment = (Fragment) super.instantiateItem(container, position);
+            // save the appropriate reference depending on position
+            switch (position) {
+                case 0:
+                    frag1 = (TenantViewFrag1) createdFragment;
+                    break;
+                case 1:
+                    frag2 = (TenantViewFrag2) createdFragment;
+                    break;
+                case 2:
+                    frag3 = (TenantViewFrag3) createdFragment;
+                    break;
+            }
+            return createdFragment;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            switch (position) {
+                case 0:
+                    return getResources().getString(R.string.info_tab_title);
+                case 1:
+                    return getResources().getString(R.string.payments_tab_title);
+                case 2:
+                    return getResources().getString(R.string.lease_history_tab_title);
+            }
+            return "";
         }
     }
 
@@ -279,48 +491,29 @@ public class TenantViewActivity extends BaseActivity {
         // setup the alert builder
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         //builder.setTitle("AlertDialog");
-        builder.setMessage("Are you sure you want to remove this tenant?");
+        builder.setMessage(R.string.tenant_deletion_confirmation);
 
         // add the buttons
-        builder.setPositiveButton("No", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-
-            }
-        });
-        builder.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 databaseHandler.setTenantInactive(tenant);
-                MainActivity.tenantList.remove(tenant);
-                if(currentLease != null) {
-                    if (tenant.getId() == currentLease.getPrimaryTenantID()) {
-                        //     tenant.setIsPrimary(false);
-                        //     for (int x = 0; x < otherTenants.size(); x++) {
-                        //         otherTenants.get(x).setApartmentID(0);
-                        //         otherTenants.get(x).setLeaseStart(null);
-                        //         otherTenants.get(x).setLeaseEnd(null);
-                        //         databaseHandler.editTenant(otherTenants.get(x));
-                        //     }
-                        apartment.setRented(false);
-                        MainActivity.tenantList = databaseHandler.getUsersTenantsIncludingInactive(MainActivity.user);
-                    }
-                }
-                //tenant.setApartmentID(0);
-                //tenant.setLeaseStart(null);
-                //tenant.setLeaseEnd(null);
-                //databaseHandler.editTenant(tenant);
-                //TODO
-                dataMethods.sortMainApartmentArray();
-                //MainActivity5.apartmentList = databaseHandler.getUsersApartments(MainActivity5.user);
-                //TenantListFragment.tenantListAdapterNeedsRefreshed = true;
-                //ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
+                wasTenantEdited = true;
+                setResultToEdited();
                 TenantViewActivity.this.finish();
             }
         });
+        builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
 
+            }
+        });
         // create and show the alert dialog
-        AlertDialog dialog = builder.create();
-        dialog.show();
+        alertDialog = builder.create();
+        alertDialog.show();
     }
+
 }
+
+

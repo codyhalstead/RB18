@@ -2,256 +2,240 @@ package com.rentbud.activities;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.content.ClipData;
-import android.content.Context;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.view.PagerAdapter;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.content.FileProvider;
 import android.support.v4.view.ViewPager;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.PopupMenu;
-import android.support.v7.widget.RecyclerView;
-import android.util.Base64;
+import android.text.InputFilter;
+import android.text.InputType;
 import android.util.Log;
-import android.util.Pair;
-import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
+import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.animation.GlideAnimation;
-import com.bumptech.glide.request.target.SimpleTarget;
-import com.davemorrissey.labs.subscaleview.ImageSource;
-import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
+import com.example.cody.rentbud.BuildConfig;
 import com.example.cody.rentbud.R;
-import com.rentbud.adapters.RecyclerViewAdapter;
-import com.rentbud.fragments.ApartmentListFragment;
-import com.rentbud.fragments.TenantListFragment;
-import com.rentbud.helpers.ImageViewDialog;
+import com.rentbud.fragments.ApartmentViewFrag1;
+import com.rentbud.fragments.ApartmentViewFrag3;
+import com.rentbud.fragments.ApartmentViewFrag2;
+import com.rentbud.helpers.ApartmentTenantViewModel;
+import com.rentbud.helpers.AppFileManagementHelper;
+import com.rentbud.helpers.CustomDatePickerDialogLauncher;
+import com.rentbud.helpers.DateAndCurrencyDisplayer;
 import com.rentbud.helpers.MainArrayDataMethods;
 import com.rentbud.model.Apartment;
 import com.rentbud.model.Lease;
 import com.rentbud.model.Tenant;
 import com.rentbud.sqlite.DatabaseHandler;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
-/**
- * Created by Cody on 2/6/2018.
- */
+import static android.support.constraint.Constraints.TAG;
 
-public class ApartmentViewActivity extends BaseActivity {
+public class ApartmentViewActivity extends BaseActivity implements View.OnClickListener,
+        ApartmentViewFrag3.OnLeaseDataChangedListener,
+        ApartmentViewFrag2.OnMoneyDataChangedListener,
+        ApartmentViewFrag1.OnPicDataChangedListener {
     Apartment apartment;
-    TextView street1TV, street2TV, cityTV, stateTV, zipTV, descriptionTV, notesTV, primaryTenantFirstNameTV, primaryTenantLastNAmeTV, primaryTenantDisplayTV;
-    TextView secondaryTenantsTV, leaseStatusTV, leaseStartTV, leaseEndTV, leaseHyphenTV;
-    LinearLayout primaryTenantLL, secondaryTenantsLL;
-    ImageView mainPicIV;
-    Button editLeaseBtn;
+    MainArrayDataMethods dataMethods;
     DatabaseHandler databaseHandler;
+    ViewPager.OnPageChangeListener mPageChangeListener;
+    ViewPager viewPager;
+    ApartmentViewActivity.ViewPagerAdapter adapter;
+    LinearLayout dateSelectorLL;
+    Date filterDateStart, filterDateEnd;
     Tenant primaryTenant;
     ArrayList<Tenant> secondaryTenants;
-    String mainPic;
-    MainArrayDataMethods dataMethods;
     Lease currentLease;
-
-    RecyclerView recyclerView;
-    RecyclerViewAdapter adapter;
-    ArrayList<String> otherPics;
+    private Boolean wasLeaseEdited, wasIncomeEdited, wasExpenseEdited, wasApartmentEdited;
+    private CustomDatePickerDialogLauncher datePickerDialogLauncher;
+    Button dateRangeStartBtn, dateRangeEndBtn;
+    private ApartmentViewFrag1 frag1;
+    private ApartmentViewFrag2 frag2;
+    private ApartmentViewFrag3 frag3;
+    private ApartmentTenantViewModel viewModel;
+    private String cameraImageFilePath;
+    private AlertDialog dialog;
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setupUserAppTheme(MainActivity.curThemeChoice);
-        setContentView(R.layout.activity_apartment_view);
+        setContentView(R.layout.activity_lease_view_actual);
+
+        dateSelectorLL = findViewById(R.id.moneyDateSelecterLL);
+        dateSelectorLL.setVisibility(View.GONE);
+        this.dateRangeStartBtn = findViewById(R.id.moneyListDateRangeStartBtn);
+        this.dateRangeStartBtn.setOnClickListener(this);
+        this.dateRangeEndBtn = findViewById(R.id.moneyListDateRangeEndBtn);
+        this.dateRangeEndBtn.setOnClickListener(this);
+
+        viewPager = findViewById(R.id.pager);
+        adapter = new ApartmentViewActivity.ViewPagerAdapter(getSupportFragmentManager());
+        // Add Fragments to adapter one by one
         this.databaseHandler = new DatabaseHandler(this);
-        dataMethods = new MainArrayDataMethods();
-        recyclerView = findViewById(R.id.recyclerView);
+        this.dataMethods = new MainArrayDataMethods();
+        Bundle bundle = getIntent().getExtras();
+        int apartmentID = bundle.getInt("apartmentID");
+        this.apartment = databaseHandler.getApartmentByID(apartmentID, MainActivity.user);
+        bundle.putParcelable("apartment", apartment);
+        viewModel = ViewModelProviders.of(this).get(ApartmentTenantViewModel.class);
+        viewModel.init();
+        viewModel.setApartment(apartment);
+        currentLease = dataMethods.getCachedActiveLeaseByApartmentID(apartment.getId());
         secondaryTenants = new ArrayList<>();
-        //if recreated
+        int dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
+        if (currentLease != null) {
+            primaryTenant = databaseHandler.getTenantByID(currentLease.getPrimaryTenantID(), MainActivity.user);
+            ArrayList<Integer> secondaryTenantIDs = currentLease.getSecondaryTenantIDs();
+            for (int i = 0; i < secondaryTenantIDs.size(); i++) {
+                Tenant secondaryTenant = databaseHandler.getTenantByID(secondaryTenantIDs.get(i), MainActivity.user);
+                secondaryTenants.add(secondaryTenant);
+            }
+        }
+        viewModel.setLease(currentLease);
+        viewModel.setPrimaryTenant(primaryTenant);
+        viewModel.setSecondaryTenants(secondaryTenants);
         if (savedInstanceState != null) {
-            apartment = savedInstanceState.getParcelable("apartment");
-            otherPics = new ArrayList<>();
-            if (savedInstanceState.getInt("otherPicsSize") > 0) {
-                for (int i = 0; i < savedInstanceState.getInt("otherPicsSize"); i++) {
-                    otherPics.add(savedInstanceState.getString("otherPics" + i));
+            if (savedInstanceState.getString("filterDateStart") != null) {
+                DateFormat formatFrom = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
+                try {
+                    Date startDate = formatFrom.parse(savedInstanceState.getString("filterDateStart"));
+                    this.filterDateStart = startDate;
+                    this.dateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateStart));
+                } catch (ParseException e) {
+                    e.printStackTrace();
                 }
             }
-            if (savedInstanceState.getString("mainPic") != null) {
-                mainPic = savedInstanceState.getString("mainPic");
+            if (savedInstanceState.getString("filterDateEnd") != null) {
+                DateFormat formatFrom = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
+                try {
+                    Date endDate = formatFrom.parse(savedInstanceState.getString("filterDateEnd"));
+                    this.filterDateEnd = endDate;
+                    this.dateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateEnd));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
             }
-            if(savedInstanceState.getParcelable("currentLease") != null){
-                currentLease = savedInstanceState.getParcelable("currentLease");
-            }
-            if (savedInstanceState.getParcelable("primaryTenant") != null && savedInstanceState.getParcelableArrayList("secondaryTenants") != null) {
-                primaryTenant = savedInstanceState.getParcelable("primaryTenant");
-                secondaryTenants = savedInstanceState.getParcelableArrayList("secondaryTenants");
-            } else {
-                getTenants();
-            }
+            wasLeaseEdited = savedInstanceState.getBoolean("was_lease_edited");
+            wasIncomeEdited = savedInstanceState.getBoolean("was_income_edited");
+            wasExpenseEdited = savedInstanceState.getBoolean("was_expense_edited");
+            wasApartmentEdited = savedInstanceState.getBoolean("was_apartment_edited");
+            cameraImageFilePath = savedInstanceState.getString("camera_image_file_path");
         } else {
-            //If new
-            Bundle bundle = getIntent().getExtras();
-            //Get apartment item
-            int apartmentID = bundle.getInt("apartmentID");
-            this.apartment = dataMethods.getCachedApartmentByApartmentID(apartmentID);
-            //Get other pics
-            if (apartment.getOtherPics() != null) {
-                otherPics = apartment.getOtherPics();
-            } else {
-                otherPics = new ArrayList<>();
-            }
-            //Get main pic
-            if (apartment.getMainPic() != null) {
-                mainPic = apartment.getMainPic();
-            }
-            currentLease = dataMethods.getCachedActiveLeaseByApartmentID(apartmentID);
-            //Get all tenants
-            Pair<Tenant, ArrayList<Tenant>> tenants = dataMethods.getCachedPrimaryAndSecondaryTenantsByLease(currentLease);
-            this.primaryTenant = tenants.first;
-            this.secondaryTenants = tenants.second;
+            Date endDate = Calendar.getInstance().getTime();
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(endDate);
+            calendar.add(Calendar.YEAR, -1);
+            Date startDate = calendar.getTime();
+            this.filterDateEnd = endDate;
+            this.filterDateStart = startDate;
+            wasLeaseEdited = false;
+            wasIncomeEdited = false;
+            wasExpenseEdited = false;
+            wasApartmentEdited = false;
+            dateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateStart));
+            dateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateEnd));
+            cameraImageFilePath = "";
         }
-        street1TV = findViewById(R.id.apartmentViewStreet1TextView);
-        street2TV = findViewById(R.id.apartmentViewStreet2TextView);
-        cityTV = findViewById(R.id.apartmentViewCityTextView);
-        stateTV = findViewById(R.id.apartmentViewStateTextView);
-        zipTV = findViewById(R.id.apartmentViewZipTextView);
-        descriptionTV = findViewById(R.id.apartmentViewDescriptionTextView);
-        notesTV = findViewById(R.id.apartmentViewNotesTextView);
-        primaryTenantFirstNameTV = findViewById(R.id.apartmentViewPrimaryTenantFirstNameTV);
-        primaryTenantLastNAmeTV = findViewById(R.id.apartmentViewPrimaryTenantLastNameTV);
-        primaryTenantDisplayTV = findViewById(R.id.apartmentViewPrimaryTenantDisplayTV);
-        secondaryTenantsTV = findViewById(R.id.apartmentViewSecondaryTenantsTV);
-        leaseStatusTV = findViewById(R.id.apartmentViewRentalLeaseTV);
-        leaseStartTV = findViewById(R.id.apartmentViewLeaseStartTextView);
-        leaseEndTV = findViewById(R.id.apartmentViewLeaseEndTextView);
-        leaseHyphenTV = findViewById(R.id.apartmentViewLeaseHyphenTV);
+        //ApartmentViewFrag3 ap2 = (ApartmentViewFrag3) frag2;
+        //ap2.updateDates();
+        //((ApartmentViewFrag3) frag2).updateDates();
+        // adapter.addFragment(new FragmentThree(), "FRAG3");
+        viewPager.setAdapter(adapter);
+        viewModel.setMoneyArray(databaseHandler.getIncomeAndExpensesByApartmentIDWithinDates(MainActivity.user, apartment.getId(), filterDateStart, filterDateEnd));
+        viewModel.setLeaseArray(databaseHandler.getUsersLeasesForApartment(MainActivity.user, apartment.getId()));
 
-        mainPicIV = findViewById(R.id.apartmentViewMainPicIV);
+        //this.currentFilteredExpenses = db.getUsersExpensesWithinDates(MainActivity.user, startDate, endDate );
 
-        primaryTenantLL = findViewById(R.id.apartmentViewPrimaryTenantLL);
-        secondaryTenantsLL = findViewById(R.id.apartmentViewSecondaryTenantsLL);
+        mPageChangeListener = new ViewPager.OnPageChangeListener() {
 
-        editLeaseBtn = findViewById(R.id.apartmentViewEditLeaseBtn);
-        editLeaseBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(ApartmentViewActivity.this, NewLeaseFormActivity.class);
-                //Uses filtered results to match what is on screen
-                intent.putExtra("apartment", apartment);
-                startActivityForResult(intent, MainActivity.REQUEST_NEW_LEASE_FORM);
+            public void onPageScrollStateChanged(int arg0) {
+                // TODO Auto-generated method stub
+
             }
-        });
 
-        fillTextViews();
-        if (mainPic != null) {
-            Glide.with(this).load(mainPic).into(mainPicIV);
-        }
-        mainPicIV.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                if(mainPic != null) {
-                    ImageViewDialog ivd = new ImageViewDialog(ApartmentViewActivity.this, mainPic);
-                    ivd.show();
-                }
+            public void onPageScrolled(int arg0, float arg1, int arg2) {
+                // TODO Auto-generated method stub
+
             }
-        });
-        mainPicIV.setOnLongClickListener(new View.OnLongClickListener() {
+
             @Override
-            public boolean onLongClick(View view) {
-                if (mainPic != null) {
-                    PopupMenu popup = new PopupMenu(ApartmentViewActivity.this, view);
-                    MenuInflater inflater = popup.getMenuInflater();
-                    popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                        @Override
-                        public boolean onMenuItemClick(MenuItem item) {
-                            switch (item.getItemId()) {
-
-                                case R.id.removePic:
-                                    databaseHandler.removeApartmentMainPic(apartment);
-                                    mainPicIV.setImageDrawable(getResources().getDrawable(R.drawable.blank_home_pic));
-                                    mainPic = null;
-                                    apartment.setMainPic(null);
-                                    //ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
-                                    return true;
-
-                                case R.id.changePic:
-                                    ActivityCompat.requestPermissions(
-                                            ApartmentViewActivity.this,
-                                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                                            MainActivity.REQUEST_GALLERY_FOR_MAIN_PIC
-                                    );
-                                    return true;
-
-                                default:
-                                    return false;
-                            }
-                        }
-                    });
-                    inflater.inflate(R.menu.picture_long_click_menu, popup.getMenu());
-                    popup.show();
+            public void onPageSelected(int pos) {
+                if (pos == 0 || pos == 2) {
+                    dateSelectorLL.setVisibility(View.GONE);
                 } else {
-                    PopupMenu popup = new PopupMenu(ApartmentViewActivity.this, view);
-                    MenuInflater inflater = popup.getMenuInflater();
-                    popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                        @Override
-                        public boolean onMenuItemClick(MenuItem item) {
-                            switch (item.getItemId()) {
-
-                                case R.id.changePic:
-                                    ActivityCompat.requestPermissions(
-                                            ApartmentViewActivity.this,
-                                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                                            MainActivity.REQUEST_GALLERY_FOR_MAIN_PIC
-                                    );
-                                    return true;
-
-                                default:
-                                    return false;
-                            }
-                        }
-                    });
-                    inflater.inflate(R.menu.picture_long_click_no_pic_menu, popup.getMenu());
-                    popup.show();
+                    dateSelectorLL.setVisibility(View.VISIBLE);
                 }
-                return true;
+            }
+
+        };
+        viewPager.addOnPageChangeListener(mPageChangeListener);
+
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout.setupWithViewPager(viewPager);
+        setupBasicToolbar();
+        datePickerDialogLauncher = new CustomDatePickerDialogLauncher(filterDateStart, filterDateEnd, true, this);
+        datePickerDialogLauncher.setDateSelectedListener(new CustomDatePickerDialogLauncher.DateSelectedListener() {
+            @Override
+            public void onStartDateSelected(Date startDate, Date endDate) {
+                filterDateStart = startDate;
+                filterDateEnd = endDate;
+                int dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
+                dateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateEnd));
+                dateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateStart));
+                updateFragmentDates();
+            }
+
+            @Override
+            public void onEndDateSelected(Date startDate, Date endDate) {
+                filterDateStart = startDate;
+                filterDateEnd = endDate;
+                int dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
+                dateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateEnd));
+                dateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateStart));
+                updateFragmentDates();
+            }
+
+            @Override
+            public void onDateSelected(Date date) {
+
             }
         });
-        setupBasicToolbar();
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-        adapter = new RecyclerViewAdapter(apartment.getOtherPics(), this);
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(adapter);
+        this.setTitle(R.string.apartment_view);
+        if (wasLeaseEdited || wasIncomeEdited || wasExpenseEdited || wasApartmentEdited) {
+            setResultToEdited();
+        } else {
+            setResult(RESULT_OK);
+        }
     }
 
     @Override
@@ -262,29 +246,50 @@ public class ApartmentViewActivity extends BaseActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        if (wasLeaseEdited || wasIncomeEdited || wasExpenseEdited || wasApartmentEdited) {
+            setResultToEdited();
+        } else {
+            setResult(RESULT_OK);
+        }
+    }
+
+    private void setResultToEdited() {
+        Intent intent = new Intent();
+        intent.putExtra("was_lease_edited", wasLeaseEdited);
+        intent.putExtra("was_income_edited", wasIncomeEdited);
+        intent.putExtra("was_expense_edited", wasExpenseEdited);
+        intent.putExtra("was_apartment_edited", wasApartmentEdited);
+        setResult(MainActivity.RESULT_DATA_WAS_MODIFIED, intent);
+    }
+
+    @Override
     //Handle option menu actions
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.editApartment:
                 Intent intent = new Intent(this, NewApartmentWizard.class);
                 intent.putExtra("apartmentToEdit", apartment);
+                wasApartmentEdited = true;
+                setResultToEdited();
                 startActivityForResult(intent, MainActivity.REQUEST_NEW_APARTMENT_FORM);
                 return true;
 
-            case R.id.editMainPic:
-                ActivityCompat.requestPermissions(
-                        ApartmentViewActivity.this,
-                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                        MainActivity.REQUEST_GALLERY_FOR_MAIN_PIC
-                );
+            case R.id.editNotes:
+                showEditNotesDialog();
                 return true;
 
-            case R.id.editotherPics:
-                ActivityCompat.requestPermissions(
-                        ApartmentViewActivity.this,
-                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                        MainActivity.REQUEST_GALLERY_FOR_OTHER_PICS
-                );
+            case R.id.editMainPic:
+                launchCameraOrGalleryDialog(true);
+                return true;
+
+            case R.id.editOtherPics:
+                if (adapter.getCount() > 9) {
+                    Toast.makeText(this, R.string.pic_limit, Toast.LENGTH_LONG).show();
+                } else {
+                    launchCameraOrGalleryDialog(false);
+                }
                 return true;
 
             case R.id.deleteApartment:
@@ -296,15 +301,57 @@ public class ApartmentViewActivity extends BaseActivity {
         }
     }
 
+    private void launchCameraOrGalleryDialog(final boolean isMain) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.camera_or_gallery);
+        builder.setPositiveButton(R.string.gallery,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface arg0, int arg1) {
+                        int requestCode = 0;
+                        if (isMain) {
+                            requestCode = MainActivity.REQUEST_GALLERY_FOR_MAIN_PIC;
+                        } else {
+                            requestCode = MainActivity.REQUEST_GALLERY_FOR_OTHER_PICS;
+                        }
+                        ActivityCompat.requestPermissions(
+                                ApartmentViewActivity.this,
+                                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                requestCode
+                        );
+                    }
+                });
+
+        builder.setNegativeButton(R.string.camera,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface arg0, int arg1) {
+                        int requestCode = 0;
+                        if (isMain) {
+                            requestCode = MainActivity.REQUEST_CAMERA_FOR_MAIN_PIC;
+                        } else {
+                            requestCode = MainActivity.REQUEST_CAMERA_FOR_OTHER_PICS;
+                        }
+                        ActivityCompat.requestPermissions(
+                                ApartmentViewActivity.this,
+                                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA},
+                                requestCode
+                        );
+                    }
+                });
+        dialog = builder.create();
+        dialog.show();
+    }
+
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        Log.d(TAG, "onRequestPermissionsResult: " + requestCode);
         if (requestCode == MainActivity.REQUEST_GALLERY_FOR_MAIN_PIC) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Intent intent = new Intent(Intent.ACTION_PICK);
                 intent.setType("image/*");
                 startActivityForResult(intent, MainActivity.REQUEST_GALLERY_FOR_MAIN_PIC);
             } else {
-                Toast.makeText(this, "You don't have permission to access file location", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.permission_picture_denied, Toast.LENGTH_SHORT).show();
             }
             return;
         } else if (requestCode == MainActivity.REQUEST_GALLERY_FOR_OTHER_PICS) {
@@ -313,11 +360,89 @@ public class ApartmentViewActivity extends BaseActivity {
                 intent.setType("image/*");
                 startActivityForResult(intent, MainActivity.REQUEST_GALLERY_FOR_OTHER_PICS);
             } else {
-                Toast.makeText(this, "You don't have permission to access file location", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.permission_picture_denied, Toast.LENGTH_SHORT).show();
             }
             return;
+        } else if (requestCode == MainActivity.REQUEST_CAMERA_FOR_MAIN_PIC) {
+
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Intent pictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                File photoFile = AppFileManagementHelper.createImageFileFromCamera();
+                cameraImageFilePath = photoFile.getAbsolutePath();
+                if (frag1 != null) {
+                    frag1.updateCameraUri(cameraImageFilePath);
+                }
+                Uri photoUri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".helpers.fileprovider", photoFile);
+                pictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
+                this.startActivityForResult(pictureIntent, MainActivity.REQUEST_CAMERA_FOR_MAIN_PIC);
+            } else {
+                Toast.makeText(this, R.string.permission_picture_denied, Toast.LENGTH_SHORT).show();
+            }
+        } else if (requestCode == MainActivity.REQUEST_CAMERA_FOR_OTHER_PICS) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Intent pictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                File photoFile = AppFileManagementHelper.createImageFileFromCamera();
+                cameraImageFilePath = photoFile.getAbsolutePath();
+                if (frag1 != null) {
+                    frag1.updateCameraUri(cameraImageFilePath);
+                }
+                Uri photoUri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".helpers.fileprovider", photoFile);
+                pictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
+                startActivityForResult(pictureIntent, MainActivity.REQUEST_CAMERA_FOR_OTHER_PICS);
+            } else {
+                Toast.makeText(this, R.string.permission_picture_denied, Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            List<Fragment> fragments = getSupportFragmentManager().getFragments();
+            if (fragments != null) {
+                for (Fragment fragment : fragments) {
+                    if (fragment != null) {
+                        fragment.onRequestPermissionsResult(requestCode, permissions, grantResults);
+                    }
+                }
+            }
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    public void showDeleteConfirmationAlertDialog() {
+        // setup the alert builder
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        //builder.setTitle("AlertDialog");
+        builder.setMessage(R.string.apartment_deletion_confirmation);
+
+        // add the buttons
+        builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                if (apartment.getMainPic() != null) {
+                    if (!apartment.getMainPic().equals("")) {
+                        new File(apartment.getMainPic()).delete();
+                    }
+                }
+                if (!apartment.getOtherPics().isEmpty()) {
+                    for (int z = 0; z < apartment.getOtherPics().size(); z++) {
+                        new File(apartment.getOtherPics().get(z)).delete();
+                    }
+                }
+                databaseHandler.setApartmentInactive(apartment);
+                wasApartmentEdited = true;
+                setResultToEdited();
+                ApartmentViewActivity.this.finish();
+
+            }
+        });
+        builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+
+        });
+
+        // create and show the alert dialog
+        dialog = builder.create();
+        dialog.show();
     }
 
     @Override
@@ -329,207 +454,336 @@ public class ApartmentViewActivity extends BaseActivity {
             if (resultCode == RESULT_OK) {
                 //Re-query cached apartment array to update cache and refresh current textViews to display new data. Re-query to sort list
 
-                int apartmentID = data.getIntExtra("editedApartmentID", 0);
-                this.apartment = dataMethods.getCachedApartmentByApartmentID(apartmentID);
-                fillTextViews();
+                //int apartmentID = data.getIntExtra("editedApartmentID", 0);
+                this.apartment = databaseHandler.getApartmentByID(apartment.getId(), MainActivity.user);
+                viewModel.setApartment(apartment);
+                //fillTextViews();
                 //ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
+                List<Fragment> fragments = getSupportFragmentManager().getFragments();
+                if (fragments != null) {
+                    for (Fragment fragment : fragments) {
+                        if (fragment != null) {
+                            fragment.onActivityResult(requestCode, resultCode, data);
+                        }
+                    }
+                }
             }
-        }
-        if (requestCode == MainActivity.REQUEST_GALLERY_FOR_MAIN_PIC) {
+        } else if (requestCode == MainActivity.REQUEST_GALLERY_FOR_MAIN_PIC) {
             if (resultCode == RESULT_OK && data != null) {
                 Uri selectedImage = data.getData();
                 String[] filePathColumn = {MediaStore.Images.Media.DATA};
-
                 Cursor cursor = getContentResolver().query(selectedImage,
                         filePathColumn, null, null, null);
                 cursor.moveToFirst();
-
                 int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-
                 String filePath = cursor.getString(columnIndex);
-                //file path of captured image
                 cursor.close();
-                Glide.with(this).load(filePath).into(mainPicIV);
-                this.apartment.setMainPic(filePath);
-                this.mainPic = filePath;
-                databaseHandler.changeApartmentMainPic(this.apartment);
-                //MainActivity5.apartmentList = databaseHandler.getUsersApartments(MainActivity5.user);
-                //ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
+                String oldPic = null;
+                if (this.apartment.getMainPic() != null) {
+                    oldPic = this.apartment.getMainPic();
+                }
+                File copiedFile = AppFileManagementHelper.copyPictureFileToApp(filePath, oldPic);
+                if (copiedFile != null) {
+                    apartment.setMainPic(copiedFile.getAbsolutePath());
+                    databaseHandler.changeApartmentMainPic(this.apartment);
+                    viewModel.setApartment(apartment);
+                } else {
+                    Toast.makeText(ApartmentViewActivity.this, R.string.failed_to_save_image, Toast.LENGTH_LONG).show();
+                }
+                if (frag1 != null) {
+                    if(frag1.isAdded()) {
+                        frag1.updateMainPicIV(apartment.getMainPic());
+                    }
+                }
+                wasApartmentEdited = true;
+                setResultToEdited();
             }
-        }
-        if (requestCode == MainActivity.REQUEST_GALLERY_FOR_OTHER_PICS) {
+        } else if (requestCode == MainActivity.REQUEST_GALLERY_FOR_OTHER_PICS) {
             if (resultCode == RESULT_OK && data != null) {
                 Uri selectedImage = data.getData();
                 String[] filePathColumn = {MediaStore.Images.Media.DATA};
-
                 Cursor cursor = getContentResolver().query(selectedImage,
                         filePathColumn, null, null, null);
                 cursor.moveToFirst();
-
                 int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-
                 String filePath = cursor.getString(columnIndex);
-                //file path of captured image
-                File f = new File(filePath);
-                String filename = f.getName();
-
                 cursor.close();
-                this.apartment.addOtherPic(filePath);
-                databaseHandler.addApartmentOtherPic(apartment, filePath, MainActivity.user);
-                //MainActivity5.apartmentList = databaseHandler.getUsersApartments(MainActivity5.user);
-                //ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
+                File copiedFile = AppFileManagementHelper.copyPictureFileToApp(filePath, null);
+                //if (copiedFile != null) {
+                // apartment.setMainPic(copiedFile.getAbsolutePath());
+                //}
+                if (copiedFile != null) {
+                    this.apartment.addOtherPic(copiedFile.getAbsolutePath());
+                    viewModel.setApartment(apartment);
+                    databaseHandler.addApartmentOtherPic(apartment, copiedFile.getAbsolutePath(), MainActivity.user);
+                } else {
+                    Toast.makeText(ApartmentViewActivity.this, R.string.failed_to_save_image, Toast.LENGTH_LONG).show();
+                }
+                if (frag1 != null) {
+                    frag1.hideOtherPicsRecyclerViewIfEmpty();
+                    frag1.refreshPictureAdapter();
+                }
+                adapter.notifyDataSetChanged();
+                wasApartmentEdited = true;
+                setResultToEdited();
+            }
+        } else if (requestCode == MainActivity.REQUEST_CAMERA_FOR_MAIN_PIC) {
+            if (resultCode == RESULT_OK) {
+                if (this.apartment.getMainPic() != null) {
+                    String oldPicPath = this.apartment.getMainPic();
+                    File oldPic = new File(oldPicPath);
+                    if (oldPic.exists()) {
+                        oldPic.delete();
+                    }
+                }
+                apartment.setMainPic(cameraImageFilePath);
+                databaseHandler.changeApartmentMainPic(apartment);
+                wasApartmentEdited = true;
+                setResultToEdited();
                 adapter.notifyDataSetChanged();
             }
-        }
-        if (requestCode == MainActivity.REQUEST_NEW_LEASE_FORM) {
+
+        } else if (requestCode == MainActivity.REQUEST_CAMERA_FOR_OTHER_PICS) {
             if (resultCode == RESULT_OK) {
-                //int apartmentID = data.getIntExtra("updatedApartmentID", 0);
-                //int primaryTenantID = data.getParcelableExtra("updatedPrimaryTenantID");
-                this.apartment = dataMethods.getCachedApartmentByApartmentID(apartment.getId());
-                Pair<Tenant, ArrayList<Tenant>> tenants = dataMethods.getCachedPrimaryAndSecondaryTenantsByLease(currentLease); //TODO
-                this.primaryTenant = tenants.first;
-                this.secondaryTenants = tenants.second;
-                //this.secondaryTenants = data.getParcelableArrayListExtra("updatedSecondaryTenants");
-                fillTextViews();
-               // ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
-            }
-        }
-    }
-
-    private void fillTextViews() {
-        street1TV.setText(apartment.getStreet1());
-        if (apartment.getStreet2() != null) {
-            if (apartment.getStreet2().equals("")) {
-                street2TV.setVisibility(View.GONE);
-            } else {
-                street2TV.setVisibility(View.VISIBLE);
-            }
-        } else {
-            street2TV.setVisibility(View.GONE);
-        }
-        String city = apartment.getCity();
-        //If city not empty, add comma
-        if (!apartment.getCity().equals("")) {
-            city += ",";
-        }
-        cityTV.setText(city);
-        stateTV.setText(apartment.getState());
-        zipTV.setText(apartment.getZip());
-        //tenantStatusTV.setText();
-        descriptionTV.setText(apartment.getDescription());
-        notesTV.setText(apartment.getNotes());
-        if (primaryTenant != null) {
-            editLeaseBtn.setText("Edit Lease");
-            primaryTenantLL.setVisibility(View.VISIBLE);
-            leaseStatusTV.setText("Lease : ");
-            leaseHyphenTV.setText(" - ");
-            primaryTenantFirstNameTV.setText(primaryTenant.getFirstName());
-            primaryTenantLastNAmeTV.setText(primaryTenant.getLastName());
-
-            SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-            if(currentLease != null) {
-                leaseStartTV.setText(formatter.format(currentLease.getLeaseStart()));
-                leaseEndTV.setText(formatter.format(currentLease.getLeaseEnd()));
-            }
-            if (!secondaryTenants.isEmpty()) {
-                secondaryTenantsLL.setVisibility(View.VISIBLE);
-                secondaryTenantsTV.setText("");
-                for (int i = 0; i < secondaryTenants.size(); i++) {
-                    secondaryTenantsTV.append(secondaryTenants.get(i).getFirstName());
-                    secondaryTenantsTV.append(" ");
-                    secondaryTenantsTV.append(secondaryTenants.get(i).getLastName());
-                    if (i != secondaryTenants.size() - 1) {
-                        secondaryTenantsTV.append("\n");
+                if (this.apartment.getMainPic() != null) {
+                    String oldPicPath = this.apartment.getMainPic();
+                    File oldPic = new File(oldPicPath);
+                    if (oldPic.exists()) {
+                        oldPic.delete();
                     }
                 }
-            } else {
-                secondaryTenantsLL.setVisibility(View.GONE);
+                this.apartment.addOtherPic(cameraImageFilePath);
+                databaseHandler.addApartmentOtherPic(apartment, cameraImageFilePath, MainActivity.user);
+                //if (frag1 != null) {
+                //    frag1.hideOtherPicsRecyclerViewIfEmpty();
+                //    frag1.refreshPictureAdapter();
+                //}
+                adapter.notifyDataSetChanged();
+                wasApartmentEdited = true;
+                setResultToEdited();
             }
-        } else {
-            editLeaseBtn.setText("Create Lease");
-            leaseStatusTV.setText("Vacant");
-            leaseStartTV.setText("");
-            leaseEndTV.setText("");
-            leaseHyphenTV.setText("");
-            primaryTenantLL.setVisibility(View.GONE);
-            secondaryTenantsLL.setVisibility(View.GONE);
+
         }
-    }
 
-    private void getTenants() {
-        if (apartment.isRented()) {
-            Pair<Tenant, ArrayList<Tenant>> tenants = dataMethods.getCachedPrimaryAndSecondaryTenantsByLease(currentLease);
-            this.primaryTenant = tenants.first;
-            this.secondaryTenants = tenants.second;
-        }
-    }
-
-    public void showDeleteConfirmationAlertDialog() {
-        // setup the alert builder
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        //builder.setTitle("AlertDialog");
-        builder.setMessage("Are you sure you want to remove this apartment?");
-
-        // add the buttons
-        builder.setPositiveButton("No", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-
-            }
-        });
-        builder.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                databaseHandler.setApartmentInactive(apartment);
-                if (apartment.isRented()) {
-                    //TODO update lease
-                    //primaryTenant.setApartmentID(0);
-                    //primaryTenant.setLeaseStart(null);
-                    //primaryTenant.setLeaseEnd(null);
-                    //databaseHandler.editTenant(primaryTenant);
-                    for (int x = 0; x < secondaryTenants.size(); x++) {
-                    //    secondaryTenants.get(x).setApartmentID(0);
-                    //    secondaryTenants.get(x).setLeaseStart(null);
-                    //    secondaryTenants.get(x).setLeaseEnd(null);
-                    //    databaseHandler.editTenant(secondaryTenants.get(x));
-                    }
-                    apartment.setRented(false);
-                    dataMethods.sortMainTenantArray();
+        List<Fragment> fragments = getSupportFragmentManager().getFragments();
+        if (fragments != null) {
+            for (Fragment fragment : fragments) {
+                if (fragment != null) {
+                    fragment.onActivityResult(requestCode, resultCode, data);
                 }
-               // MainActivity.apartmentList.remove(apartment);
-                //TenantListFragment.tenantListAdapterNeedsRefreshed = true;
-               // ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
-                ApartmentViewActivity.this.finish();
             }
-        });
+        }
 
-        // create and show the alert dialog
-        AlertDialog dialog = builder.create();
-        dialog.show();
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        //Save the fragment's instance
+    public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelable("apartment", apartment);
-        if (otherPics != null) {
-            outState.putInt("otherPicsSize", otherPics.size());
-            for (int i = 0; i < otherPics.size(); i++) {
-                outState.putString("otherPics" + i, otherPics.get(i));
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
+        if (filterDateStart != null) {
+            outState.putString("filterDateStart", formatter.format(filterDateStart));
+        }
+        if (filterDateEnd != null) {
+            outState.putString("filterDateEnd", formatter.format(filterDateEnd));
+        }
+        outState.putBoolean("was_lease_edited", wasLeaseEdited);
+        outState.putBoolean("was_income_edited", wasIncomeEdited);
+        outState.putBoolean("was_expense_edited", wasExpenseEdited);
+        outState.putBoolean("was_apartment_edited", wasApartmentEdited);
+        outState.putString("camera_image_file_path", cameraImageFilePath);
+        //getSupportFragmentManager().putFragment(outState, "frag1",  (adapter.getItem(0)));
+        //getSupportFragmentManager().putFragment(outState, "frag2",  (adapter.getItem(1)));
+        //getSupportFragmentManager().putFragment(outState, "frag3",  (adapter.getItem(2)));
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+
+            case R.id.moneyListDateRangeStartBtn:
+                datePickerDialogLauncher.launchStartDatePickerDialog();
+                break;
+
+            case R.id.moneyListDateRangeEndBtn:
+                datePickerDialogLauncher.launchEndDatePickerDialog();
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        datePickerDialogLauncher.dismissDatePickerDialog();
+        if (dialog != null) {
+            dialog.dismiss();
+        }
+    }
+
+    private void updateFragmentDates() {
+        if (frag2 != null) {
+            frag2.updateData();
+        }
+        if (frag3 != null) {
+            frag3.updateData();
+        }
+    }
+
+    @Override
+    public void onLeaseDataChanged() {
+        this.apartment = databaseHandler.getApartmentByID(apartment.getId(), MainActivity.user);
+        viewModel.setApartment(apartment);
+        //viewModel.setLease(null); //TODO update lease
+        viewModel.setLeaseArray(databaseHandler.getUsersLeasesForApartment(MainActivity.user, apartment.getId()));
+        viewModel.setMoneyArray(databaseHandler.getIncomeAndExpensesByApartmentIDWithinDates(MainActivity.user, apartment.getId(), filterDateStart, filterDateEnd));
+        frag2.updateData();
+        frag3.updateData();
+        wasLeaseEdited = true;
+        setResultToEdited();
+    }
+
+    @Override
+    public void onLeasePaymentsChanged() {
+        wasExpenseEdited = true;
+        wasIncomeEdited = true;
+        setResultToEdited();
+    }
+
+    @Override
+    public void onMoneyDataChanged() {
+        viewModel.setMoneyArray(databaseHandler.getIncomeAndExpensesByApartmentIDWithinDates(MainActivity.user, apartment.getId(), filterDateStart, filterDateEnd));
+        frag2.updateData();
+    }
+
+    @Override
+    public void onIncomeDataChanged() {
+        wasIncomeEdited = true;
+        setResultToEdited();
+    }
+
+    @Override
+    public void onExpenseDataChanged() {
+        wasExpenseEdited = true;
+        setResultToEdited();
+    }
+
+    @Override
+    public void onPicDataChanged() {
+        wasApartmentEdited = true;
+        setResultToEdited();
+    }
+
+    public void showEditNotesDialog() {
+        final EditText editText = new EditText(ApartmentViewActivity.this);
+        int maxLength = 500;
+        editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxLength)});
+        editText.setSingleLine(false);
+        editText.setImeOptions(EditorInfo.IME_FLAG_NO_ENTER_ACTION);
+        editText.setText(apartment.getNotes());
+        editText.setInputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+        editText.setSelection(editText.getText().length());
+        //editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+
+        // create the AlertDialog as final
+        dialog = new AlertDialog.Builder(ApartmentViewActivity.this)
+                //.setMessage(R.string.comfirm_pass_to_delete_account_message)
+                .setTitle(R.string.edit_notes)
+                .setView(editText)
+
+                // Set the action buttons
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        String input = editText.getText().toString();
+                        apartment.setNotes(input);
+                        databaseHandler.editApartment(apartment, MainActivity.user.getId());
+                        wasApartmentEdited = true;
+                        setResultToEdited();
+                        viewModel.setApartment(apartment);
+                        if (frag1 != null) {
+                            frag1.updateApartmentData(apartment);
+                        }
+                    }
+                })
+
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        // removes the AlertDialog in the screen
+                    }
+                })
+                .create();
+
+        dialog.show();
+    }
+
+    // Adapter for the viewpager using FragmentPagerAdapter
+    class ViewPagerAdapter extends FragmentStatePagerAdapter {
+
+        public ViewPagerAdapter(FragmentManager manager) {
+            super(manager);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            Bundle bundle = new Bundle();
+            bundle.putParcelable("apartment", apartment);
+            switch (position) {
+                case 0:
+                    ApartmentViewFrag1 frg1 = new ApartmentViewFrag1();
+                    frg1.setArguments(bundle);
+                    return frg1;
+                case 1:
+                    ApartmentViewFrag2 frg2 = new ApartmentViewFrag2();
+                    frg2.setArguments(bundle);
+                    return frg2;
+                case 2:
+                    ApartmentViewFrag3 frg3 = new ApartmentViewFrag3();
+                    frg3.setArguments(bundle);
+                    return frg3;
+                default:
+                    return null;
             }
         }
-        if (mainPic != null) {
-            outState.putString("mainPic", mainPic);
+
+        @Override
+        public int getCount() {
+            return 3;
         }
-        if (primaryTenant != null) {
-            outState.putParcelable("primaryTenant", primaryTenant);
+
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            Fragment createdFragment = (Fragment) super.instantiateItem(container, position);
+            // save the appropriate reference depending on position
+            switch (position) {
+                case 0:
+                    frag1 = (ApartmentViewFrag1) createdFragment;
+                    break;
+                case 1:
+                    frag2 = (ApartmentViewFrag2) createdFragment;
+                    break;
+                case 2:
+                    frag3 = (ApartmentViewFrag3) createdFragment;
+                    break;
+            }
+            return createdFragment;
         }
-        if (secondaryTenants != null) {
-            outState.putParcelableArrayList("secondaryTenants", secondaryTenants);
-        }
-        if(currentLease != null){
-            outState.putParcelable("currentLease", currentLease);
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            switch (position) {
+                case 0:
+                    return getResources().getString(R.string.info_tab_title);
+                case 1:
+                    return getResources().getString(R.string.payments_tab_title);
+                case 2:
+                    return getResources().getString(R.string.lease_history_tab_title);
+            }
+            return "";
         }
     }
 }
+
+

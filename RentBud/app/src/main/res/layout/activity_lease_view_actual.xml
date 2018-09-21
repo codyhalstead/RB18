@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.rentbud.activities.LeaseViewActivity2">
+    tools:context="com.rentbud.activities.LeaseViewActivity">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
@@ -22,23 +22,26 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/toolbar"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        >
 
         <android.support.design.widget.TabLayout
             android:id="@+id/tabs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:tabIndicatorHeight="5dp"
             android:background="?attr/colorPrimary"
             android:minHeight="?attr/actionBarSize"
+            app:tabIndicatorColor="?attr/colorAccent"
             app:tabGravity="fill"
             app:tabMode="fixed"
-            app:tabSelectedTextColor="@color/colorAccent"
-            app:tabTextColor="#FFF" />
+            app:tabSelectedTextColor="@color/white"
+            app:tabTextColor="@color/nonSelectedTabColor" />
 
         <LinearLayout
             android:id="@+id/moneyDateSelecterLL"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="60dp"
             android:background="?attr/colorPrimary"
             android:gravity="center"
             android:paddingLeft="15dp"
@@ -51,18 +54,22 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                style="@style/MainButtonStyle"
                 android:text="1/15/2017" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="  to  "
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:text="@string/to"
                 android:textColor="@color/white" />
 
             <Button
                 android:id="@+id/moneyListDateRangeEndBtn"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                style="@style/MainButtonStyle"
                 android:layout_weight="1"
                 android:text="1/15/2018" />
 
@@ -72,9 +79,8 @@
         <View
             android:id="@+id/apartmentListBarBorder"
             android:layout_width="match_parent"
-            android:layout_height="3dp"
             android:layout_below="@+id/apartmentSearchToolbar"
-            android:background="@color/caldroid_black" />
+            style="@style/RowBorder" />
 
         <android.support.v4.view.ViewPager
             android:id="@+id/pager"
@@ -94,5 +100,7 @@
         >
 
     </LinearLayout>
+
+
 
 </RelativeLayout>

@@ -99,12 +99,12 @@ public class MonthlyLineGraphCreator {
         LineDataSet incomeLineDataSet = new LineDataSet(incomeEntries, context.getResources().getString(R.string.income));
         incomeLineDataSet.setColor(Color.GREEN);
         incomeLineDataSet.setDrawValues(false);
-        incomeLineDataSet.setCircleColor(Color.GREEN);
+        incomeLineDataSet.setCircleColor(Color.BLACK);
         incomeLineDataSet.setLineWidth(2);
         LineDataSet expenseLineDataSet = new LineDataSet(expenseEntries, context.getResources().getString(R.string.expenses));
         expenseLineDataSet.setColor(Color.RED);
         expenseLineDataSet.setDrawValues(false);
-        expenseLineDataSet.setCircleColor(Color.RED);
+        expenseLineDataSet.setCircleColor(Color.BLACK);
         expenseLineDataSet.setLineWidth(2);
         lineDataSets = new ArrayList<>();
         lineDataSets.add(incomeLineDataSet);
