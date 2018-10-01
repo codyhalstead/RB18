@@ -10,6 +10,6 @@ JNICALL
 Java_com_rentbud_activities_LoginActivity_getEmailString(
         JNIEnv *env,
         jobject /* this */) {
-    std::string hello = "ax9!4rkpl?";
-    return env->NewStringUTF(hello.c_str());
+    std::string string = "ax9!4rkpl?";
+    return env->NewStringUTF(string.c_str());
 }
