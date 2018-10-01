@@ -117,12 +117,13 @@
             <TextView
                 android:id="@+id/leaseWizardStartOfCycleTV"
                 style="@style/SpinnerLabelStyle"
-                android:text="@string/start_of_cycle" />
+                android:text="@string/start_of_cycle_req" />
 
             <RelativeLayout
                 android:layout_width="200dp"
                 android:layout_height="40dp"
                 style="@style/MainSpinnerStyle"
+                android:id="@+id/leaseWizardStartOfCycleRL"
                 android:layout_marginBottom="20dp"
                 >
                 <Spinner

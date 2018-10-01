@@ -74,6 +74,16 @@
                 android:id="@+id/expenseRowTypeTV"
                 />
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/RowText"
+                android:text="Paid"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:id="@+id/expenseRowWasPaidTV"
+                />
+
         </LinearLayout>
 
     </LinearLayout>

@@ -24,10 +24,12 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.cody.rentbud.BuildConfig;
 import com.example.cody.rentbud.R;
+import com.google.android.gms.ads.AdRequest;
 import com.rentbud.helpers.AppFileManagementHelper;
 import com.rentbud.helpers.ColorChooserDialog;
 import com.rentbud.helpers.DateAndCurrencyDisplayer;
@@ -50,6 +52,7 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
     ImageButton colorBtn;
     LinearLayout changeThemeLL, removeIncomeTypeLL, removeExpenseTypeLL, backupDataLL, importDataLL, changeCurrencyLL, changeDateTypeLL, removeUserLL,
             changeUserPasswordLL, changeUserEmailLL;
+    TextView importDataTV, backupDataTV;
     SharedPreferences preferences;
     private ColorChooserDialog dialog;
     private AlertDialog alertDialog;
@@ -121,6 +124,7 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
 
     private void initializeVariables() {
         colorBtn = findViewById(R.id.button_color);
+        colorBtn.setOnClickListener(this);
         changeThemeLL = findViewById(R.id.changeThemeLL);
         changeThemeLL.setOnClickListener(this);
         removeIncomeTypeLL = findViewById(R.id.removeIncomeTypeLL);
@@ -128,8 +132,10 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
         removeExpenseTypeLL = findViewById(R.id.removeExpenseTypeLL);
         removeExpenseTypeLL.setOnClickListener(this);
         backupDataLL = findViewById(R.id.backupDataLL);
+        backupDataTV = findViewById(R.id.backupDataTV);
         backupDataLL.setOnClickListener(this);
         importDataLL = findViewById(R.id.importDataLL);
+        importDataTV = findViewById(R.id.importDataTV);
         importDataLL.setOnClickListener(this);
         changeCurrencyLL = findViewById(R.id.changeCurrencyLL);
         changeCurrencyLL.setOnClickListener(this);
@@ -141,6 +147,10 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
         changeUserEmailLL.setOnClickListener(this);
         changeUserPasswordLL = findViewById(R.id.changePasswordLL);
         changeUserPasswordLL.setOnClickListener(this);
+        if (BuildConfig.FLAVOR.equals("free")) {
+            importDataTV.setTextColor(getResources().getColor(R.color.caldroid_lighter_gray));
+            backupDataTV.setText(R.string.backup_data);
+        }
     }
 
     @Override
@@ -348,6 +358,10 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
                 showColorPopup(view);
                 break;
 
+            case R.id.button_color:
+                showColorPopup(view);
+                break;
+
             case R.id.removeIncomeTypeLL:
                 showAddRemoveIncomeTypeAlertDialog();
                 break;
@@ -361,7 +375,11 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
                 break;
 
             case R.id.importDataLL:
-                backup(view);
+                if (BuildConfig.FLAVOR.equals("free")) {
+                    Toast.makeText(this, R.string.import_not_available, Toast.LENGTH_LONG).show();
+                } else {
+                    backup(view);
+                }
                 break;
 
             case R.id.removeUserLL:
@@ -506,7 +524,7 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
         if (MainActivity.hasPermissions(this, android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setMessage(R.string.send_backip_to_email_question);
-            builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+            builder.setPositiveButton(R.string.email, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     File file = null;
@@ -523,7 +541,7 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
                     startActivityForResult(Intent.createChooser(intent, SettingsActivity.this.getResources().getString(R.string.send_email)), MainActivity.REQUEST_EMAIL);
                 }
             });
-            builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+            builder.setNegativeButton(R.string.folder, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     File file = AppFileManagementHelper.copyDBToExternal(SettingsActivity.this);
@@ -532,6 +550,12 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
                     } else {
                         Toast.makeText(SettingsActivity.this, "Failed", Toast.LENGTH_LONG).show();
                     }
+                }
+            });
+            builder.setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+
                 }
             });
             // create and show the alert dialog

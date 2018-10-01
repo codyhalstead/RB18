@@ -12,6 +12,7 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.InputFilter;
 import android.text.InputType;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -179,9 +180,10 @@ public class TenantViewActivity extends BaseActivity implements View.OnClickList
         datePickerDialogLauncher.setDateSelectedListener(new CustomDatePickerDialogLauncher.DateSelectedListener() {
             @Override
             public void onStartDateSelected(Date startDate, Date endDate) {
-                int dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
                 filterDateStart = startDate;
                 filterDateEnd = endDate;
+                viewModel.setMoneyArray(databaseHandler.getIncomeAndExpensesByTenantIDWithinDates(MainActivity.user, tenant.getId(), filterDateStart, filterDateEnd));
+                int dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
                 dateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateEnd));
                 dateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateStart));
                 updateFragmentDates();
@@ -189,9 +191,10 @@ public class TenantViewActivity extends BaseActivity implements View.OnClickList
 
             @Override
             public void onEndDateSelected(Date startDate, Date endDate) {
-                int dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
                 filterDateStart = startDate;
                 filterDateEnd = endDate;
+                viewModel.setMoneyArray(databaseHandler.getIncomeAndExpensesByTenantIDWithinDates(MainActivity.user, tenant.getId(), filterDateStart, filterDateEnd));
+                int dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
                 dateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateEnd));
                 dateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateStart));
                 updateFragmentDates();

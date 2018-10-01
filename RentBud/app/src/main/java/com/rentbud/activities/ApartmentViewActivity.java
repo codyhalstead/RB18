@@ -209,6 +209,7 @@ public class ApartmentViewActivity extends BaseActivity implements View.OnClickL
             public void onStartDateSelected(Date startDate, Date endDate) {
                 filterDateStart = startDate;
                 filterDateEnd = endDate;
+                viewModel.setMoneyArray(databaseHandler.getIncomeAndExpensesByApartmentIDWithinDates(MainActivity.user, apartment.getId(), filterDateStart, filterDateEnd));
                 int dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
                 dateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateEnd));
                 dateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateStart));
@@ -219,6 +220,7 @@ public class ApartmentViewActivity extends BaseActivity implements View.OnClickL
             public void onEndDateSelected(Date startDate, Date endDate) {
                 filterDateStart = startDate;
                 filterDateEnd = endDate;
+                viewModel.setMoneyArray(databaseHandler.getIncomeAndExpensesByApartmentIDWithinDates(MainActivity.user, apartment.getId(), filterDateStart, filterDateEnd));
                 int dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
                 dateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateEnd));
                 dateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateStart));

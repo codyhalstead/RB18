@@ -17,6 +17,24 @@ android {
             }
         }
     }
+    productFlavors {
+        free {
+            flavorDimensions "default"
+            applicationIdSuffix ".free"
+            versionCode 1
+            versionName '1.0.0'
+            resValue "string", "app_name", "RentalBud"
+
+        }
+        pro {
+            flavorDimensions "default"
+            applicationIdSuffix ".pro"
+            versionCode 1
+            versionName '1.0.0'
+            resValue "string", "app_name", "RentalBud Pro"
+
+        }
+    }
 
     buildTypes {
         release {

@@ -9,7 +9,6 @@ import android.support.annotation.Nullable;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.TextAppearanceSpan;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,15 +24,9 @@ import com.rentbud.model.ExpenseLogEntry;
 import com.rentbud.model.MoneyLogEntry;
 import com.rentbud.model.PaymentLogEntry;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
-
-import static android.support.constraint.Constraints.TAG;
 
 public class MoneyListAdapter extends BaseAdapter implements Filterable {
     private ArrayList<MoneyLogEntry> moneyArray;
@@ -69,6 +62,7 @@ public class MoneyListAdapter extends BaseAdapter implements Filterable {
         TextView dateTV;
         TextView typeTV;
         TextView descriptionTV;
+        TextView wasCompletedTV;
     }
 
     @Override
@@ -102,6 +96,7 @@ public class MoneyListAdapter extends BaseAdapter implements Filterable {
             viewHolder.dateTV = convertView.findViewById(R.id.expenseRowDateTV);
             viewHolder.typeTV = convertView.findViewById(R.id.expenseRowTypeTV);
             viewHolder.descriptionTV = convertView.findViewById(R.id.expenseRowDescriptionTV);
+            viewHolder.wasCompletedTV = convertView.findViewById(R.id.expenseRowWasPaidTV);
             //viewHolder.position = position;
 
             convertView.setTag(viewHolder);
@@ -131,11 +126,25 @@ public class MoneyListAdapter extends BaseAdapter implements Filterable {
                 viewHolder.amountTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, expense.getAmount()));
                 viewHolder.typeTV.setText(expense.getTypeLabel());
                 viewHolder.amountTV.setTextColor(context.getResources().getColor(R.color.red));
+                if(expense.getIsCompleted()) {
+                    viewHolder.wasCompletedTV.setText(R.string.paid);
+                    viewHolder.wasCompletedTV.setTextColor(convertView.getResources().getColor(R.color.caldroid_black));
+                } else {
+                    viewHolder.wasCompletedTV.setText(R.string.not_paid);
+                    viewHolder.wasCompletedTV.setTextColor(convertView.getResources().getColor(R.color.red));
+                }
             } else if(moneyEntry instanceof PaymentLogEntry){
                 PaymentLogEntry income = (PaymentLogEntry) moneyEntry;
                 viewHolder.amountTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, income.getAmount()));
                 viewHolder.typeTV.setText(income.getTypeLabel());
                 viewHolder.amountTV.setTextColor(context.getResources().getColor(R.color.green_colorPrimaryDark));
+                if(income.getIsCompleted()) {
+                    viewHolder.wasCompletedTV.setText(R.string.received);
+                    viewHolder.wasCompletedTV.setTextColor(convertView.getResources().getColor(R.color.caldroid_black));
+                } else {
+                    viewHolder.wasCompletedTV.setText(R.string.not_received);
+                    viewHolder.wasCompletedTV.setTextColor(convertView.getResources().getColor(R.color.red));
+                }
             } else {
                 viewHolder.amountTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, moneyEntry.getAmount()));
                 viewHolder.typeTV.setText("");

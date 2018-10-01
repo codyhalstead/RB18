@@ -41,7 +41,7 @@ public class SignupActivity extends AppCompatActivity {
     TextInputEditText passwordText;
     TextInputEditText confirmPasswordText;
     Button signupButton;
-    TextView loginLink, backupRestoreLink;
+    TextView loginLink;
     UserInputValidation validation;
     DatabaseHandler databaseHandler;
     private String name;
@@ -180,16 +180,13 @@ public class SignupActivity extends AppCompatActivity {
         this.confirmPasswordText = findViewById(R.id.input_confirm_password);
         this.signupButton = findViewById(R.id.btn_signup);
         this.loginLink = findViewById(R.id.link_login);
-        this.backupRestoreLink = findViewById(R.id.backup_link_signup);
         this.validation = new UserInputValidation(this);
         this.databaseHandler = new DatabaseHandler(this);
         this.successfulAccountCreation = false;
         this.name = "";
         this.email = "";
         this.password = "";
-        if (!databaseHandler.isUserTableEmpty()) {
-            backupRestoreLink.setVisibility(View.GONE);
-        }
+
     }
 
     private void setOnClickListeners() {
@@ -207,74 +204,10 @@ public class SignupActivity extends AppCompatActivity {
                 finish();
             }
         });
-        backupRestoreLink.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //public void backup(View view) {
-                if (MainActivity.hasPermissions(SignupActivity.this, android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(SignupActivity.this);
-                    builder.setMessage(R.string.use_downloads_or_rentbud_folder);
-                    builder.setPositiveButton(R.string.rentbud_folder, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            File f = new File(Environment.getExternalStorageDirectory(), "Rentbud");
-                            if (!f.exists()) {
-                                f.mkdirs();
-                            }
-                            File downloads = new File(f.getAbsolutePath() + "/", "Backups");
-                            if (!downloads.exists()) {
-                                downloads.mkdirs();
-                            }
-                            displayFiles(downloads);
-                        }
-                    });
-                    builder.setNegativeButton(R.string.downloads, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            File downloads = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath());
-                            displayFiles(downloads);
-                        }
-                    });
-                    // create and show the alert dialog
-                    alertDialog = builder.create();
-                    alertDialog.show();
-                } else {
-                    ActivityCompat.requestPermissions(
-                            SignupActivity.this,
-                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                            MainActivity.REQUEST_FILE_PERMISSION
-                    );
-                }
-            }
-        });
+
 
         //   }
         // });
     }
 
-    public void displayFiles(final File downloads) {
-        File[] filelist = downloads.listFiles();
-        ArrayList<String> theNamesOfFiles = new ArrayList<>();
-        for (int i = 0; i < filelist.length; i++) {
-            if (filelist[i].getPath().endsWith(".db")) {
-                theNamesOfFiles.add(filelist[i].getName());
-            }
-            //Log.d("TAG", "backup: " + filelist[i]);
-            //Toast.makeText(this, i, Toast.LENGTH_LONG).show();
-        }
-        final FileChooserDialog typeChooserDialog2 = new FileChooserDialog(this, theNamesOfFiles);
-        typeChooserDialog2.show();
-        typeChooserDialog2.setDialogResult(new FileChooserDialog.OnTypeChooserDialogResult() {
-            @Override
-            public void finish(String fileName) {
-                if (fileName != null) {
-                    File backup = new File(downloads.getAbsolutePath() + "/" + fileName);
-                    if (backup.exists()) {
-                        databaseHandler.importBackupDB(backup);
-                        SignupActivity.this.finish();
-                    }
-                }
-            }
-        });
-    }
 }

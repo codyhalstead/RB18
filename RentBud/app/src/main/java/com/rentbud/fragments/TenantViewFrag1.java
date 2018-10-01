@@ -26,6 +26,7 @@ import android.widget.LinearLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import com.example.cody.rentbud.BuildConfig;
 import com.example.cody.rentbud.R;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
@@ -294,9 +295,11 @@ public class TenantViewFrag1 extends Fragment {
         //primarySecondaryTR = rootView.findViewById(R.id.tenantViewActiveLeasePrimarySecondaryTR);
         primaryTenantTR = rootView.findViewById(R.id.tenantViewActiveLeasePrimaryTenantTR);
         otherTenantsTR = rootView.findViewById(R.id.tenantViewActiveLeaseOtherTenantsTR);
-        adView = rootView.findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
-        adView.loadAd(adRequest);
+        if (BuildConfig.FLAVOR.equals("free")) {
+            adView = rootView.findViewById(R.id.adView);
+            AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
+            adView.loadAd(adRequest);
+        }
         return rootView;
     }
 

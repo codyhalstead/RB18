@@ -37,6 +37,7 @@
                     android:ems="10"
                     android:maxLength="35"
                     android:gravity="left|center"
+                    android:inputType="textNoSuggestions"
                     android:hint="@string/search"
                     style="@style/FormText"
                     android:textStyle="normal"

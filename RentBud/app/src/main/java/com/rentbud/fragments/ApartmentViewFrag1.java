@@ -259,9 +259,11 @@ public class ApartmentViewFrag1 extends Fragment {
                 emailAllTenants();
             }
         });
-        adview = rootView.findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
-        adview.loadAd(adRequest);
+        if (BuildConfig.FLAVOR.equals("free")) {
+            adview = rootView.findViewById(R.id.adView);
+            AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
+            adview.loadAd(adRequest);
+        }
         fillTextViews();
         setUpTenantContactButtons();
         return rootView;

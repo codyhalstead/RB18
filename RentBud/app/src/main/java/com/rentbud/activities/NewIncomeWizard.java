@@ -184,7 +184,7 @@ public class NewIncomeWizard extends BaseActivity implements
                         data.putExtra("editedIncomeID", incomeToEdit.getId());
                         setResult(RESULT_OK, data);
                     } else {
-                        PaymentLogEntry income = new PaymentLogEntry(-1, date, typeID, type, tenantID, leaseID, apartmentID, amount, description, receiptPic);
+                        PaymentLogEntry income = new PaymentLogEntry(-1, date, typeID, type, tenantID, leaseID, apartmentID, amount, description, receiptPic, false);
                         dbHandler.addPaymentLogEntry(income, MainActivity.user.getId());
                        // IncomeListFragment.incomeListAdapterNeedsRefreshed = true;
                         setResult(RESULT_OK);

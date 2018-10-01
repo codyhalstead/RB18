@@ -35,7 +35,7 @@
                     android:maxLength="500"
                     android:saveEnabled="false"
                     android:hint="@string/notes"
-                    android:inputType="textMultiLine|textCapSentences" />
+                    android:inputType="textMultiLine|textCapSentences|textNoSuggestions" />
             </android.support.design.widget.TextInputLayout>
 <!--
             <TextView

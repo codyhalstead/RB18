@@ -46,7 +46,8 @@ import java.io.File;
 
 public class IncomeViewActivity extends BaseActivity {
     PaymentLogEntry income;
-    TextView dateTV, amountTV, typeTV, descriptionTV, relatedLeaseTV, relatedTenantTV, relatedApartmentAddressTV;
+    TextView dateTV, amountTV, typeTV, descriptionTV, relatedLeaseTV, relatedTenantTV, relatedApartmentAddressTV,
+    statusTV;
     DatabaseHandler databaseHandler;
     MainArrayDataMethods dataMethods;
     ImageView receiptPicIV;
@@ -90,9 +91,12 @@ public class IncomeViewActivity extends BaseActivity {
         this.relatedLeaseTV = findViewById(R.id.incomeViewRelatedLeaseTV);
         this.relatedTenantTV = findViewById(R.id.incomeViewRelatedTenantTV);
         this.relatedApartmentAddressTV = findViewById(R.id.incomeViewRelatedApartmentAddressTV);
-        adView = findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
-        adView.loadAd(adRequest);
+        this.statusTV = findViewById(R.id.incomeViewStatusTV);
+        if (BuildConfig.FLAVOR.equals("free")) {
+            adView = findViewById(R.id.adView);
+            AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
+            adView.loadAd(adRequest);
+        }
         fillTextViews();
         setupBasicToolbar();
         this.setTitle(R.string.income_view);
@@ -188,6 +192,11 @@ public class IncomeViewActivity extends BaseActivity {
         amountTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, income.getAmount()));
 
         typeTV.setText(income.getTypeLabel());
+        if(income.getIsCompleted()){
+            statusTV.setText(R.string.received);
+        } else {
+            statusTV.setText(R.string.not_received);
+        }
         descriptionTV.setText(income.getDescription());
 
         if (receiptPic != null) {
@@ -224,6 +233,17 @@ public class IncomeViewActivity extends BaseActivity {
 
             case R.id.editReceiptPic:
                 launchCameraOrGalleryDialog();
+
+            case R.id.changeStatus:
+                if(income.getIsCompleted()){
+                    income.setIsCompleted(false);
+                } else {
+                    income.setIsCompleted(true);
+                }
+                databaseHandler.editPaymentLogEntry(income);
+                fillTextViews();
+                wasEdited = true;
+                setResult(MainActivity.RESULT_DATA_WAS_MODIFIED);
 
             default:
                 return super.onOptionsItemSelected(item);

@@ -2,10 +2,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/changeStatus"
-        android:title="@string/change_status" />
-
-    <item
         android:id="@+id/edit"
         android:title="@string/edit" />
 

@@ -22,6 +22,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.cody.rentbud.BuildConfig;
 import com.example.cody.rentbud.R;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
@@ -184,9 +185,11 @@ public class LeaseViewFrag1 extends Fragment {
                 emailAllTenants();
             }
         });
-        adView = rootView.findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
-        adView.loadAd(adRequest);
+        if (BuildConfig.FLAVOR.equals("free")) {
+            adView = rootView.findViewById(R.id.adView);
+            AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
+            adView.loadAd(adRequest);
+        }
        // this.secondaryTenantsLL = rootView.findViewById(R.id.leaseViewSecondaryTenantsLL);
         fillTextViews();
         return rootView;

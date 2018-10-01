@@ -100,7 +100,7 @@
                         android:id="@+id/leaseWizardFor1TV"
                         style="@style/FormText"
                         android:layout_width="wrap_content"
-                        android:text="@string/for_cap" />
+                        android:text="@string/from_cap" />
 
                     <TextView
                         android:id="@+id/leaseWizardProratedFirstPaymentRangeStartTV"
@@ -222,7 +222,7 @@
                         android:id="@+id/leaseWizardFor2TV"
                         style="@style/FormText"
                         android:layout_width="wrap_content"
-                        android:text="@string/for_cap" />
+                        android:text="@string/from_cap" />
 
                     <TextView
                         android:id="@+id/leaseWizardProratedLastPaymentRangeStartTV"

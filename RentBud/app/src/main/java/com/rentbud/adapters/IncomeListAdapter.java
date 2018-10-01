@@ -68,6 +68,7 @@ public class IncomeListAdapter extends BaseAdapter implements Filterable {
         TextView dateTV;
         TextView typeTV;
         TextView descriptionTV;
+        TextView wasReceivedTV;
     }
 
     @Override
@@ -101,6 +102,7 @@ public class IncomeListAdapter extends BaseAdapter implements Filterable {
             viewHolder.dateTV = convertView.findViewById(R.id.incomeRowDateTV);
             viewHolder.typeTV = convertView.findViewById(R.id.incomeRowTypeTV);
             viewHolder.descriptionTV = convertView.findViewById(R.id.incomeRowDescriptionTV);
+            viewHolder.wasReceivedTV = convertView.findViewById(R.id.incomeRowWasReceivedTV);
             //viewHolder.position = position;
 
             convertView.setTag(viewHolder);
@@ -116,6 +118,13 @@ public class IncomeListAdapter extends BaseAdapter implements Filterable {
                 convertView.setBackgroundColor(convertView.getResources().getColor(R.color.rowDarkenedBackground));
             } else {
                 convertView.setBackgroundColor(convertView.getResources().getColor(R.color.white));
+            }
+            if(income.getIsCompleted()) {
+                viewHolder.wasReceivedTV.setText(R.string.received);
+                viewHolder.wasReceivedTV.setTextColor(convertView.getResources().getColor(R.color.caldroid_black));
+            } else {
+                viewHolder.wasReceivedTV.setText(R.string.not_received);
+                viewHolder.wasReceivedTV.setTextColor(convertView.getResources().getColor(R.color.red));
             }
             setTextHighlightSearch(viewHolder.typeTV, income.getTypeLabel());
             setTextHighlightSearch(viewHolder.descriptionTV, income.getDescription());

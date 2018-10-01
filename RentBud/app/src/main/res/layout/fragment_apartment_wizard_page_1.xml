@@ -37,7 +37,7 @@
                     android:layout_height="wrap_content"
                     android:maxLength="50"
                     android:hint="@string/address_line_1_req"
-                    android:inputType="textCapWords" />
+                    android:inputType="textCapWords|textNoSuggestions" />
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
@@ -52,8 +52,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:maxLength="50"
-                    android:hint="@string/address_line_2_req"
-                    android:inputType="textCapWords" />
+                    android:hint="@string/address_line_2"
+                    android:inputType="textCapWords|textNoSuggestions" />
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
@@ -181,7 +181,7 @@
                     android:layout_height="wrap_content"
                     android:maxLength="30"
                     android:hint="@string/state__province_req"
-                    android:inputType="textCapWords" />
+                    android:inputType="textCapWords|textNoSuggestions" />
             </android.support.design.widget.TextInputLayout>
 
                 <android.support.design.widget.TextInputLayout

@@ -23,6 +23,7 @@ import android.widget.TextView;
 
 import com.example.android.wizardpager.wizard.ui.PageFragmentCallbacks;
 import com.example.cody.rentbud.R;
+import com.rentbud.helpers.AppFileManagementHelper;
 import com.rentbud.helpers.DateAndCurrencyDisplayer;
 import com.rentbud.model.Lease;
 import com.rentbud.model.WizardDueDate;
@@ -59,16 +60,16 @@ public class LeaseWizardPage3Fragment extends android.support.v4.app.Fragment {
     private Spinner paymentFrequencySpinner, paymentDateSpinner, paymentDaySpinner, cycleStartSpinner;
     private int regular, prorated, paymentDate, weeklyPaymentDay, paymentFrequency;
     private ArrayList<String> paymentDates;
-    private ArrayAdapter<String> frequencyAdapter, dateAdapter, dayAdapter;
+    private ArrayAdapter<String> frequencyAdapter, dateAdapter, dayAdapter, cycleAdapter;
     private Boolean isFirstLoad;
     private DatabaseHandler databaseHandler;
     private LinkedHashMap<String, Integer> frequencyMap;
     private WizardDueDate[] weeklyDatesMap, monthlyDatesMap;
-    private RelativeLayout paymentDateRL, paymentDayRL;
+    private RelativeLayout paymentDateRL, paymentDayRL, cycleStartRL;
     private SharedPreferences preferences;
     private boolean isEdit;
-    private int moneyFormatCode;
-    Date leaseStartDate, leaseEndDate;
+    private int moneyFormatCode, dateFormatCode;
+    Date leaseStartDate, leaseEndDate, selectedCycleStartDate;
 
     public static LeaseWizardPage3Fragment create(String key) {
         Bundle args = new Bundle();
@@ -91,6 +92,7 @@ public class LeaseWizardPage3Fragment extends android.support.v4.app.Fragment {
         databaseHandler = new DatabaseHandler(getContext());
         preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         this.moneyFormatCode = preferences.getInt("currency", DateAndCurrencyDisplayer.CURRENCY_US);
+        this.dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
         frequencyMap = databaseHandler.getFrequencyLabelsMap();
         weeklyDatesMap = databaseHandler.getWeeklyDateOptions();
         monthlyDatesMap = databaseHandler.getMonthlyDateOptions();
@@ -161,6 +163,7 @@ public class LeaseWizardPage3Fragment extends android.support.v4.app.Fragment {
 
         cycleStartLabelTV = rootView.findViewById(R.id.leaseWizardStartOfCycleTV);
         cycleStartSpinner = rootView.findViewById(R.id.leaseWizardStartOfCycleSpinner);
+        cycleStartRL = rootView.findViewById(R.id.leaseWizardStartOfCycleRL);
 
         newChangeWarningTV = rootView.findViewById(R.id.leaseWizardNewChangeWarningTV);
         editChangeWarningTV = rootView.findViewById(R.id.leaseWizardEditChangeWarningTV);
@@ -173,6 +176,7 @@ public class LeaseWizardPage3Fragment extends android.support.v4.app.Fragment {
             proratedPaymentInfoLL.setVisibility(View.GONE);
             cycleStartLabelTV.setVisibility(View.GONE);
             cycleStartSpinner.setVisibility(View.GONE);
+            cycleStartRL.setVisibility(View.GONE);
         } else {
             newChangeWarningTV.setVisibility(View.VISIBLE);
             editChangeWarningTV.setVisibility(View.GONE);
@@ -180,6 +184,7 @@ public class LeaseWizardPage3Fragment extends android.support.v4.app.Fragment {
             proratedPaymentInfoLL.setVisibility(View.VISIBLE);
             cycleStartLabelTV.setVisibility(View.VISIBLE);
             cycleStartSpinner.setVisibility(View.VISIBLE);
+            cycleStartRL.setVisibility(View.VISIBLE);
         }
 
         return rootView;
@@ -254,33 +259,38 @@ public class LeaseWizardPage3Fragment extends android.support.v4.app.Fragment {
     }
 
     private void populateCycleOptionsSpinner(boolean isWeekly) {
-        //Create state array from MainActivity5.stateMap
-        List<String> spinnerArray = new ArrayList<>();
-        if(isWeekly){
-            spinnerArray = getCycleDateOptionsWeekly(paymentFrequency, weeklyPaymentDay, leaseStartDate);
+        ArrayList<String> spinnerArray = new ArrayList<>();
+        ArrayList<LocalDate> dateOptions;
+        if (isWeekly) {
+            dateOptions = getCycleDateOptionsWeekly(paymentFrequency, weeklyPaymentDay, leaseStartDate, leaseEndDate);
         } else {
-            spinnerArray = getCycleDateOptionsMonthly(paymentFrequency, paymentDate, leaseStartDate);
+            dateOptions = getCycleDateOptionsMonthly(paymentFrequency, paymentDate, leaseStartDate, leaseEndDate);
         }
         //for (Map.Entry<String, Integer> entry : weeklyDatesMap.entrySet()) {
         //    spinnerArray.add(entry.getKey());
         //}
 
-        //for (int i = 0; i < weeklyDatesMap.length; i++) {
-        //    spinnerArray.add(weeklyDatesMap[i].getLabel());
-        //}
+        for (int i = 0; i < dateOptions.size(); i++) {
+            spinnerArray.add(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, dateOptions.get(i)));
+        }
         //Create ArrayAdapter with state array
-        dayAdapter = new ArrayAdapter<>(
+        cycleAdapter = new ArrayAdapter<>(
                 getContext(), android.R.layout.simple_spinner_item, spinnerArray);
-        dayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        cycleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         //Set ArrayAdapter to stateSpinner
-        this.cycleStartSpinner.setAdapter(dayAdapter);
+        this.cycleStartSpinner.setAdapter(cycleAdapter);
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         if (mPage.getData().getInt(LeaseWizardPage3.LEASE_DUE_DATE_ID_DATA_KEY) != 0) {
-            paymentDate = mPage.getData().getInt(LeaseWizardPage3.LEASE_DUE_DATE_ID_DATA_KEY);
+            if(mPage.getData().getInt(LeaseWizardPage3.LEASE_DUE_DATE_ID_DATA_KEY) > 31){
+                weeklyPaymentDay = mPage.getData().getInt(LeaseWizardPage3.LEASE_DUE_DATE_ID_DATA_KEY) - 31;
+            } else {
+                paymentDate = mPage.getData().getInt(LeaseWizardPage3.LEASE_DUE_DATE_ID_DATA_KEY);
+            }
+            //weeklyPaymentDay = mPage.getData().getInt(LeaseWizardPage3.LEASE_DUE_DATE_ID_DATA_KEY);
         }
         //if (mPage.getData().getInt(LeaseWizardPage3.LEASE_DUE_DAY_ID_DATA_KEY) != 0) {
         //    weeklyPaymentDay = mPage.getData().getInt(LeaseWizardPage3.LEASE_DUE_DAY_ID_DATA_KEY) - 31;
@@ -288,6 +298,10 @@ public class LeaseWizardPage3Fragment extends android.support.v4.app.Fragment {
         if (mPage.getData().getInt(LeaseWizardPage3.LEASE_PAYMENT_FREQUENCY_DATA_KEY) == 0) {
             mPage.getData().putInt(LeaseWizardPage3.LEASE_PAYMENT_FREQUENCY_DATA_KEY, 1);
         }
+        if (mPage.getData().getString(LeaseWizardPage3.LEASE_PAYMENT_CYCLE_DATA_KEY) != null) {
+            selectedCycleStartDate = DateAndCurrencyDisplayer.getDateFromDisplay(dateFormatCode, mPage.getData().getString(LeaseWizardPage3.LEASE_PAYMENT_CYCLE_DATA_KEY));
+        }
+        paymentFrequency = mPage.getData().getInt(LeaseWizardPage3.LEASE_PAYMENT_FREQUENCY_DATA_KEY);
         populateFrequencySpinner();
         populateMonthlyDatesSpinner();
         populateWeeklyDatesSpinner();
@@ -339,7 +353,6 @@ public class LeaseWizardPage3Fragment extends android.support.v4.app.Fragment {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-
         paymentDateSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, final int position, long l) {
@@ -351,7 +364,7 @@ public class LeaseWizardPage3Fragment extends android.support.v4.app.Fragment {
                             public void run() {
                                 //       if (getUserVisibleHint()) {
                                 if (!isEdit) {
-                                    figurePayments(leaseStartDate, leaseEndDate, paymentDate, paymentFrequency);
+                                    figurePayments(leaseStartDate, leaseEndDate, paymentDate, paymentFrequency, selectedCycleStartDate);
                                 }
                                 mPage.getData().putString(LeaseWizardPage3.LEASE_DUE_DATE_STRING_DATA_KEY, paymentDateSpinner.getSelectedItem().toString());
 
@@ -388,7 +401,7 @@ public class LeaseWizardPage3Fragment extends android.support.v4.app.Fragment {
                             public void run() {
                                 //       if (getUserVisibleHint()) {
                                 if (!isEdit) {
-                                    figureWeeklyPayments(leaseStartDate, leaseEndDate, weeklyPaymentDay, paymentFrequency);
+                                    figureWeeklyPayments(leaseStartDate, leaseEndDate, weeklyPaymentDay, paymentFrequency, selectedCycleStartDate);
                                 }
                                 mPage.getData().putString(LeaseWizardPage3.LEASE_DUE_DATE_STRING_DATA_KEY, paymentDaySpinner.getSelectedItem().toString());
                                 int id = 1;
@@ -419,15 +432,14 @@ public class LeaseWizardPage3Fragment extends android.support.v4.app.Fragment {
         paymentFrequencySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
-                String frequency = paymentFrequencySpinner.getSelectedItem().toString();
+                final String frequency = paymentFrequencySpinner.getSelectedItem().toString();
                 int frequencyID = 1;
                 if (frequencyMap.get(frequency) != null) {
                     frequencyID = frequencyMap.get(frequency);
                 }
-                Log.d(TAG, "onItemSelected: " + frequencyID);
                 mPage.getData().putInt(LeaseWizardPage3.LEASE_PAYMENT_FREQUENCY_ID_DATA_KEY, frequencyID);
                 paymentFrequency = getFrequencyNumber(frequencyID);
-                if (frequencyID == 7 || frequencyID == 8) {
+                if (frequencyID > 7) {
                     mPage.getData().putBoolean(LeaseWizardPage3.LEASE_ARE_PAYMENTS_WEEKLY_DATA_KEY, true);
                 } else {
                     mPage.getData().putBoolean(LeaseWizardPage3.LEASE_ARE_PAYMENTS_WEEKLY_DATA_KEY, false);
@@ -441,14 +453,14 @@ public class LeaseWizardPage3Fragment extends android.support.v4.app.Fragment {
                                     paymentDayRL.setVisibility(View.VISIBLE);
                                     paymentDateRL.setVisibility(View.GONE);
                                     if (!isEdit) {
-                                        figureWeeklyPayments(leaseStartDate, leaseEndDate, weeklyPaymentDay, paymentFrequency);
+                                        figureWeeklyPayments(leaseStartDate, leaseEndDate, weeklyPaymentDay, paymentFrequency, selectedCycleStartDate);
                                         populateCycleOptionsSpinner(true);
                                     }
                                 } else {
                                     paymentDayRL.setVisibility(View.GONE);
                                     paymentDateRL.setVisibility(View.VISIBLE);
                                     if (!isEdit) {
-                                        figurePayments(leaseStartDate, leaseEndDate, paymentDate, paymentFrequency);
+                                        figurePayments(leaseStartDate, leaseEndDate, paymentDate, paymentFrequency, selectedCycleStartDate);
                                         populateCycleOptionsSpinner(false);
                                     }
                                 }
@@ -471,24 +483,58 @@ public class LeaseWizardPage3Fragment extends android.support.v4.app.Fragment {
 
             }
         });
-        //paymentDate = 20;
-        if (mPage.getData().getBoolean(LeaseWizardPage3.LEASE_ARE_PAYMENTS_WEEKLY_DATA_KEY)) {
-            if (!isEdit) {
-                figureWeeklyPayments(leaseStartDate, leaseEndDate, weeklyPaymentDay, paymentFrequency);
-            }
-            paymentDayRL.setVisibility(View.VISIBLE);
-            paymentDateRL.setVisibility(View.GONE);
-        } else {
-            if (!isEdit) {
-                figurePayments(leaseStartDate, leaseEndDate, paymentDate, paymentFrequency);
-            }
-            paymentDayRL.setVisibility(View.GONE);
-            paymentDateRL.setVisibility(View.VISIBLE);
+        if (!isEdit) {
+            cycleStartSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> adapterView, View view, final int position, long l) {
+
+                    if (!isFirstLoad) {
+                        if (getUserVisibleHint()) {
+                            new Handler().post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    //       if (getUserVisibleHint()) {
+                                    //if (!isEdit) {
+
+                                    //}
+                                    String dateString = cycleStartSpinner.getSelectedItem().toString();
+                                    selectedCycleStartDate = DateAndCurrencyDisplayer.getDateFromDisplay(dateFormatCode, dateString);
+                                    mPage.getData().putString(LeaseWizardPage3.LEASE_PAYMENT_CYCLE_DATA_KEY, dateString);
+                                    //mPage.notifyDataChanged();
+                                    //String paymentsAmount = prorated + regular + "";
+                                    //String proratedPaymentsAmount = prorated + "";
+
+                                    if(mPage.getData().getBoolean(LeaseWizardPage3.LEASE_ARE_PAYMENTS_WEEKLY_DATA_KEY)){
+                                        figureWeeklyPayments(leaseStartDate, leaseEndDate, weeklyPaymentDay, paymentFrequency, selectedCycleStartDate);
+                                    } else {
+                                        figurePayments(leaseStartDate, leaseEndDate, paymentDate, paymentFrequency, selectedCycleStartDate);
+                                    }
+                                    mPage.notifyDataChanged();
+                                    String paymentsAmount = prorated + regular + "";
+                                    String proratedPaymentsAmount = prorated + "";
+                                    paymentsAmountTV.setText(paymentsAmount);
+                                    proratedPaymentsAmountTV.setText(proratedPaymentsAmount);
+                                    isFirstLoad = false;
+                                    //paymentsAmountTV.setText(paymentsAmount);
+                                    //proratedPaymentsAmountTV.setText(proratedPaymentsAmount);
+                                    //populateCycleOptionsSpinner(false);
+                                    //       }
+                                }
+                            });
+
+                        }
+                    }
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> adapterView) {
+
+                }
+            });
         }
-        String paymentsAmount = prorated + regular + "";
-        String proratedPaymentsAmount = prorated + "";
-        paymentsAmountTV.setText(paymentsAmount);
-        proratedPaymentsAmountTV.setText(proratedPaymentsAmount);
+        //paymentDate = 20;
+
+
 
         if (mPage.getData().getString(LeaseWizardPage3.LEASE_RENT_COST_DATA_KEY) == null) {
             String formatted = NumberFormat.getCurrencyInstance().format(rentCost);
@@ -528,6 +574,41 @@ public class LeaseWizardPage3Fragment extends android.support.v4.app.Fragment {
         //    }
         //});
         populateCycleOptionsSpinner(mPage.getData().getBoolean(LeaseWizardPage3.LEASE_ARE_PAYMENTS_WEEKLY_DATA_KEY));
+        if(mPage.getData().getString(LeaseWizardPage3.LEASE_PAYMENT_CYCLE_DATA_KEY) == null){
+            selectedCycleStartDate = DateAndCurrencyDisplayer.getDateFromDisplay(dateFormatCode, cycleStartSpinner.getItemAtPosition(0).toString());
+            mPage.getData().putString(LeaseWizardPage3.LEASE_PAYMENT_CYCLE_DATA_KEY, DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, selectedCycleStartDate));
+        }
+        if (mPage.getData().getString(LeaseWizardPage3.LEASE_PAYMENT_CYCLE_DATA_KEY) != null) {
+            int spinnerPosition = cycleAdapter.getPosition(mPage.getData().getString(LeaseWizardPage3.LEASE_PAYMENT_CYCLE_DATA_KEY));
+            cycleStartSpinner.setSelection(spinnerPosition);
+        }
+        String isOtherBranchNeeded = mPage.getData().getString(LeaseWizardPage3.LEASE_NEED_BRANCH);
+        if (mPage.getData().getBoolean(LeaseWizardPage3.LEASE_ARE_PAYMENTS_WEEKLY_DATA_KEY)) {
+            if (!isEdit) {
+                figureWeeklyPayments(leaseStartDate, leaseEndDate, weeklyPaymentDay, paymentFrequency, selectedCycleStartDate);
+            }
+            paymentDayRL.setVisibility(View.VISIBLE);
+            paymentDateRL.setVisibility(View.GONE);
+        } else {
+            if (!isEdit) {
+                figurePayments(leaseStartDate, leaseEndDate, paymentDate, paymentFrequency, selectedCycleStartDate);
+            }
+            paymentDayRL.setVisibility(View.GONE);
+            paymentDateRL.setVisibility(View.VISIBLE);
+        }
+        String paymentsAmount = prorated + regular + "";
+        String proratedPaymentsAmount = prorated + "";
+        paymentsAmountTV.setText(paymentsAmount);
+        proratedPaymentsAmountTV.setText(proratedPaymentsAmount);
+        if(!isOtherBranchNeeded.equals(mPage.getData().getString(LeaseWizardPage3.LEASE_NEED_BRANCH))){
+            Handler handler = new Handler();
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    mPage.notifyDataChanged();
+                }
+            });
+        }
         isFirstLoad = false;
     }
 
@@ -546,22 +627,21 @@ public class LeaseWizardPage3Fragment extends android.support.v4.app.Fragment {
         }
     }
 
-    private void figureWeeklyPayments(Date leaseStartDate, Date leaseEndDate, int paymentDay, int paymentFrequency) {
+    private void figureWeeklyPayments(Date leaseStartDate, Date leaseEndDate, int paymentDay, int paymentFrequency, Date cycleStartDate) {
         prorated = 0;
         regular = 0;
         LocalDate startDate = new LocalDate(leaseStartDate);
         LocalDate endDate = new LocalDate(leaseEndDate);
         paymentDates.clear();
-        LocalDate payment = new LocalDate(startDate.getYear(), startDate.getMonthOfYear(), startDate.getDayOfMonth());
+        LocalDate payment = new LocalDate(cycleStartDate);
         //if(paymentDay > 7) {
         //    paymentDay = paymentDaySpinner.getSelectedItemPosition() + 1;
         //}
-        Log.d(TAG, "figureWeeklyPayments: " + paymentDay);
-        while (payment.getDayOfWeek() != paymentDay) {
-            payment = payment.plusDays(1);
-            //Log.d(TAG, "figureWeeklyPayments: " + payment.getDayOfWeek());
-            //Log.d(TAG, "figureWeeklyPayments: " + paymentDay);
-        }
+        //>//while (payment.getDayOfWeek() != paymentDay) {
+        //>//    payment = payment.plusDays(1);
+        //Log.d(TAG, "figureWeeklyPayments: " + payment.getDayOfWeek());
+        //Log.d(TAG, "figureWeeklyPayments: " + paymentDay);
+        //>//}
         if (startDate.plusWeeks(paymentFrequency).isAfter(endDate)) {
             //Not full cycle, need 2 prorated
             if (payment.isAfter(startDate) && payment.isBefore(endDate)) {
@@ -600,6 +680,7 @@ public class LeaseWizardPage3Fragment extends android.support.v4.app.Fragment {
             mPage.getData().putBoolean(LeaseWizardPage3.LEASE_IS_FIRST_PRORATED_REQUIRED_DATA_KEY, false);
             mPage.getData().putBoolean(LeaseWizardPage3.LEASE_IS_LAST_PRORATED_REQUIRED_DATA_KEY, false);
             paymentDates.add(startDate.toString("yyyy-MM-dd"));
+            paymentDates.add(payment.toString("yyyy-MM-dd"));
 
         } else {
             paymentDates.add(startDate.toString("yyyy-MM-dd"));
@@ -615,7 +696,7 @@ public class LeaseWizardPage3Fragment extends android.support.v4.app.Fragment {
                 mPage.getData().putBoolean(LeaseWizardPage3.LEASE_IS_FIRST_PRORATED_REQUIRED_DATA_KEY, false);
                 //Log.d(TAG, "figurePayments: INITIAL PAYMENT ---- " + startDate + " --> " + payment);
             } else {
-                payment = payment.plusMonths(paymentFrequency);
+                payment = payment.plusWeeks(paymentFrequency);
                 //payment = keepPaymentDayConsistentForEndOfMonth(paymentDate, payment);
                 prorated++;
                 mPage.getData().putBoolean(LeaseWizardPage3.LEASE_IS_FIRST_PRORATED_REQUIRED_DATA_KEY, true);
@@ -640,29 +721,30 @@ public class LeaseWizardPage3Fragment extends android.support.v4.app.Fragment {
                 //Log.d(TAG, "figurePayments: FINAL PAYMENT ---- " + payment + " --> " + endDate + " PRO");
                 mPage.getData().putBoolean(LeaseWizardPage3.LEASE_IS_LAST_PRORATED_REQUIRED_DATA_KEY, true);
             }
-            //paymentDates.add(endDate.toString("yyyy-MM-dd"));
-            mPage.getData().putStringArrayList(LeaseWizardPage3.LEASE_PAYMENT_DATES_ARRAY_DATA_KEY, paymentDates);
-            if (prorated > 0) {
-                mPage.getData().putString(LeaseWizardPage3.LEASE_NEED_BRANCH, "Yes");
-            } else {
-                mPage.getData().putString(LeaseWizardPage3.LEASE_NEED_BRANCH, "No");
-            }
+        }
+        //paymentDates.add(endDate.toString("yyyy-MM-dd"));
+        mPage.getData().putStringArrayList(LeaseWizardPage3.LEASE_PAYMENT_DATES_ARRAY_DATA_KEY, paymentDates);
+        if (prorated > 0) {
+            mPage.getData().putString(LeaseWizardPage3.LEASE_NEED_BRANCH, "Yes");
+        } else {
+            mPage.getData().putString(LeaseWizardPage3.LEASE_NEED_BRANCH, "No");
         }
     }
 
-    private void figurePayments(Date leaseStartDate, Date leaseEndDate, int paymentDay, int paymentFrequency) {
+    private void figurePayments(Date leaseStartDate, Date leaseEndDate, int paymentDay, int paymentFrequency, Date cycleStartDate) {
         prorated = 0;
         regular = 0;
+        Log.d(TAG, "figurePayments: " + paymentDay);
         LocalDate startDate = new LocalDate(leaseStartDate);
         LocalDate endDate = new LocalDate(leaseEndDate);
         paymentDates.clear();
-        LocalDate payment;
-        if (paymentDay > 27) {
-            payment = new LocalDate(startDate.getYear(), startDate.getMonthOfYear(), 27);
-            payment = keepPaymentDayConsistentForEndOfMonth(paymentDay, payment);
-        } else {
-            payment = new LocalDate(startDate.getYear(), startDate.getMonthOfYear(), paymentDay);
-        }
+        LocalDate payment = new LocalDate(cycleStartDate);
+        //if (paymentDay > 27) {
+        //    payment = new LocalDate(startDate.getYear(), startDate.getMonthOfYear(), 27);
+        //    payment = keepPaymentDayConsistentForEndOfMonth(paymentDay, payment);
+        //} else {
+        //    payment = new LocalDate(startDate.getYear(), startDate.getMonthOfYear(), paymentDay);
+        //}
         if (startDate.plusMonths(paymentFrequency).isAfter(endDate)) {
             //Not full cycle, need 2 prorated
             if (payment.isAfter(startDate) && payment.isBefore(endDate)) {
@@ -767,9 +849,10 @@ public class LeaseWizardPage3Fragment extends android.support.v4.app.Fragment {
         return payment;
     }
 
-    private ArrayList<String> getCycleDateOptionsMonthly(int paymentFrequency, int dueDate, Date startDate) {
-        ArrayList<String> cycleOptions = new ArrayList<>();
+    private ArrayList<LocalDate> getCycleDateOptionsMonthly(int paymentFrequency, int dueDate, Date startDate, Date endDate) {
+        ArrayList<LocalDate> cycleOptions = new ArrayList<>();
         LocalDate startDateLD = new LocalDate(startDate);
+        LocalDate endDateLD = new LocalDate(endDate);
         LocalDate option;
         if (dueDate > 27) {
             option = new LocalDate(startDateLD.getYear(), startDateLD.getMonthOfYear(), 27);
@@ -777,27 +860,44 @@ public class LeaseWizardPage3Fragment extends android.support.v4.app.Fragment {
         } else {
             option = new LocalDate(startDateLD.getYear(), startDateLD.getMonthOfYear(), dueDate);
         }
-        if(option.isBefore(startDateLD)){
+        if (option.isBefore(startDateLD)) {
             option = option.plusMonths(1);
             option = keepPaymentDayConsistentForEndOfMonth(dueDate, option);
         }
-        for (int i = 0; i < paymentFrequency; i++) {
-            cycleOptions.add(option.toString("yyyy-MM-dd"));
-            option = option.plusMonths(1);
+        if (endDateLD.isBefore(option)) {
+            cycleOptions.add(startDateLD);
+        } else {
+            for (int i = 0; i < paymentFrequency; i++) {
+                if (option.isBefore(endDateLD)) {
+                    cycleOptions.add(option);
+                    option = option.plusMonths(1);
+                } else {
+                    break;
+                }
+            }
         }
         return cycleOptions;
     }
 
-    private ArrayList<String> getCycleDateOptionsWeekly(int paymentFrequency, int dueDay, Date startDate) {
-        ArrayList<String> cycleOptions = new ArrayList<>();
+    private ArrayList<LocalDate> getCycleDateOptionsWeekly(int paymentFrequency, int dueDay, Date startDate, Date endDate) {
+        ArrayList<LocalDate> cycleOptions = new ArrayList<>();
         LocalDate startDateLD = new LocalDate(startDate);
+        LocalDate endDateLD = new LocalDate(endDate);
         LocalDate option = new LocalDate(startDateLD);
         while (option.getDayOfWeek() != dueDay) {
             option = option.plusDays(1);
         }
-        for (int i = 0; i < paymentFrequency; i++) {
-            cycleOptions.add(option.toString("yyyy-MM-dd"));
-            option = option.plusWeeks(1);
+        if (endDateLD.isBefore(option)) {
+            cycleOptions.add(startDateLD);
+        } else {
+            for (int i = 0; i < paymentFrequency; i++) {
+                if (option.isBefore(endDateLD)) {
+                    cycleOptions.add(option);
+                    option = option.plusWeeks(1);
+                } else {
+                    break;
+                }
+            }
         }
         return cycleOptions;
     }
@@ -817,9 +917,13 @@ public class LeaseWizardPage3Fragment extends android.support.v4.app.Fragment {
         } else if (frequencyID == 6) {
             frequencyNumber = 9;
         } else if (frequencyID == 7) {
-
+            frequencyNumber = 12;
         } else if (frequencyID == 8) {
+
+        } else if (frequencyID == 9) {
             frequencyNumber = 2;
+        } else if (frequencyID == 10) {
+            frequencyNumber = 3;
         }
         return frequencyNumber;
     }

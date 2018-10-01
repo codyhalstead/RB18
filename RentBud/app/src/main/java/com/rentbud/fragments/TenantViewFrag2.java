@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -47,6 +48,7 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
     }
 
     TextView nopaymentsTV, totalAmountTV, totalAmountLabelTV;
+    LinearLayout totalAmountLL;
     FloatingActionButton fab;
     MoneyListAdapter moneyListAdapter;
     ColorStateList accentColor;
@@ -59,6 +61,7 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
     private SharedPreferences preferences;
     private AlertDialog dialog;
     private PopupMenu popupMenu;
+    private boolean completedOnly;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -74,7 +77,14 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
         this.totalAmountTV = view.findViewById(R.id.moneyListTotalAmountTV);
         this.fab = view.findViewById(R.id.listFab);
         this.listView = view.findViewById(R.id.mainMoneyListView);
+        this.totalAmountLL = view.findViewById(R.id.moneyListTotalAmountLL);
+        this.totalAmountLL.setOnClickListener(this);
         this.db = new DatabaseHandler(getContext());
+        if(savedInstanceState != null){
+            completedOnly = savedInstanceState.getBoolean("completedOnly");
+        } else {
+            completedOnly = true;
+        }
         this.preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
 
         this.tenant = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getViewedTenant().getValue();
@@ -151,6 +161,35 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 switch (item.getItemId()) {
+
+                    case R.id.changeStatus:
+                        //On listView row click, launch ApartmentViewActivity passing the rows data into it.
+                        selectedMoney = moneyListAdapter.getFilteredResults().get(position);
+                        if (selectedMoney instanceof PaymentLogEntry) {
+                            //mCallback.onIncomeDataChanged();
+                            PaymentLogEntry selectedIncome = (PaymentLogEntry) selectedMoney;
+                            if(selectedIncome.getIsCompleted()){
+                                selectedIncome.setIsCompleted(false);
+                            } else {
+                                selectedIncome.setIsCompleted(true);
+                            }
+                            db.editPaymentLogEntry(selectedIncome);
+                            mCallback.onMoneyDataChanged();
+                            mCallback.onIncomeDataChanged();
+                        } else {
+                            //mCallback.onExpenseDataChanged();
+                            ExpenseLogEntry selectedExpense = (ExpenseLogEntry) selectedMoney;
+                            if(selectedExpense.getIsCompleted()){
+                                selectedExpense.setIsCompleted(false);
+                            } else {
+                                selectedExpense.setIsCompleted(true);
+                            }
+                            db.editExpenseLogEntry(selectedExpense);
+                            mCallback.onMoneyDataChanged();
+                            mCallback.onExpenseDataChanged();
+
+                        }
+                        return true;
 
                     case R.id.edit:
                         //On listView row click, launch ApartmentViewActivity passing the rows data into it.
@@ -299,20 +338,45 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
 
     @Override
     public void onClick(View view) {
+        switch (view.getId()) {
 
+            case R.id.moneyListTotalAmountLL:
+                if(completedOnly){
+                    completedOnly = false;
+                    total = getTotal();
+                    setTotalTV();
+                } else {
+                    completedOnly = true;
+                    total = getTotal();
+                    setTotalTV();
+                }
+                break;
+
+            default:
+                break;
+        }
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        outState.putBoolean("completedOnly", completedOnly);
     }
 
     private BigDecimal getTotal() {
         BigDecimal total = new BigDecimal(0);
         if (ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue() != null) {
             if (!ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue().isEmpty()) {
-                for (int i = 0; i < ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue().size(); i++) {
-                    total = total.add(ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue().get(i).getAmount());
+                if (completedOnly) {
+                    for (int i = 0; i < ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue().size(); i++) {
+                        if(ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue().get(i).getIsCompleted()) {
+                            total = total.add(ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue().get(i).getAmount());
+                        }
+                    }
+                } else {
+                    for (int i = 0; i < ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue().size(); i++) {
+                        total = total.add(ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue().get(i).getAmount());
+                    }
                 }
             }
         }
@@ -325,8 +389,18 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
             totalAmountTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, total));
             if (total.compareTo(new BigDecimal(0)) < 0) {
                 totalAmountTV.setTextColor(getActivity().getResources().getColor(R.color.red));
+                if(completedOnly){
+                    totalAmountLabelTV.setText(R.string.total_paid);
+                } else {
+                    totalAmountLabelTV.setText(R.string.projected_total);
+                }
             } else {
                 totalAmountTV.setTextColor(getActivity().getResources().getColor(R.color.green_colorPrimaryDark));
+                if(completedOnly){
+                    totalAmountLabelTV.setText(R.string.received_total);
+                } else {
+                    totalAmountLabelTV.setText(R.string.projected_total);
+                }
             }
         }
     }

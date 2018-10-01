@@ -47,7 +47,7 @@ public class HomeFragment extends android.support.v4.app.Fragment {
     private LineChart lineChart;
     private LineData lineData;
     Button graphLeftArrowBtn, graphRightArrowBtn;
-    TextView graphYearTV, emptyLeasesTV, emptyMoneyTV;
+    TextView graphYearTV, emptyLeasesTV, emptyMoneyTV, isCompletedToggleFilterTV;
     DatabaseHandler databaseHandler;
     float[] expenseValues;
     float[] incomeValues;
@@ -56,11 +56,11 @@ public class HomeFragment extends android.support.v4.app.Fragment {
     MonthlyLineGraphCreator monthlyLineGraphCreator;
     MoneyListAdapter moneyListAdapter;
     LeaseListAdapter leaseListAdapter;
-    LinearLayout linegraphLL, upcomingListsLL;
+    LinearLayout linegraphLL, upcomingListsLL, isCompetedToggleFilterLL;
     ListView upcomingPaymentsLV, upcomingLeasesLV;
     ColorStateList accentColor;
     Date today, startRange, endRange;
-    Boolean fragDataNeedsRefreshed;
+    Boolean fragDataNeedsRefreshed, isCompletedOnly;
     //ImageView profilePic;
     //TextView usernameTV, emailbox, passbox;
 
@@ -91,8 +91,27 @@ public class HomeFragment extends android.support.v4.app.Fragment {
         lineChart = view.findViewById(R.id.homeLineChart);
         linegraphLL = view.findViewById(R.id.homeFragmentLineGraphLL);
         upcomingListsLL = view.findViewById(R.id.homeFragmentUpcomingListsLL);
+        isCompletedToggleFilterTV = view.findViewById(R.id.homeIsCompletedFilterTV);
+        isCompetedToggleFilterLL = view.findViewById(R.id.homeIsCompletedFilterLL);
         databaseHandler = new DatabaseHandler(getContext());
         fragDataNeedsRefreshed = false;
+        isCompletedToggleFilterTV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(isCompletedOnly) {
+                    incomeValues = databaseHandler.getIncomeTotalsForLineGraph(MainActivity.user, startOfYear, endOfYear);
+                    expenseValues = databaseHandler.getExpenseTotalsForLineGraph(MainActivity.user, startOfYear, endOfYear);
+                    isCompletedOnly = false;
+                    isCompletedToggleFilterTV.setText(R.string.projected);
+                } else {
+                    incomeValues = databaseHandler.getIncomeTotalsForLineGraphOnlyReceived(MainActivity.user, startOfYear, endOfYear);
+                    expenseValues = databaseHandler.getExpenseTotalsForLineGraphOnlyPaid(MainActivity.user, startOfYear, endOfYear);
+                    isCompletedOnly = true;
+                    isCompletedToggleFilterTV.setText(R.string.paid_received_only);
+                }
+                monthlyLineGraphCreator.setIncomeExpenseData(incomeValues, expenseValues, startOfYear);
+            }
+        });
         TabLayout tabLayout = view.findViewById(R.id.tabs);
         tabLayout.addTab(tabLayout.newTab().setText(getContext().getString(R.string.upcoming_events_tab_title)));
         tabLayout.addTab(tabLayout.newTab().setText(getContext().getString(R.string.yearly_revenue_tab_title)));
@@ -103,10 +122,12 @@ public class HomeFragment extends android.support.v4.app.Fragment {
                 if(tab.getPosition() == 0) {
                     linegraphLL.setVisibility(View.GONE);
                     upcomingListsLL.setVisibility(View.VISIBLE);
+                    isCompetedToggleFilterLL.setVisibility(View.GONE);
                     ViewModelProviders.of(getActivity()).get(MainViewModel.class).setHomeTabSelection(0);
                 } else if(tab.getPosition() == 1){
                     linegraphLL.setVisibility(View.VISIBLE);
                     upcomingListsLL.setVisibility(View.GONE);
+                    isCompetedToggleFilterLL.setVisibility(View.VISIBLE);
                     ViewModelProviders.of(getActivity()).get(MainViewModel.class).setHomeTabSelection(1);
                 }
             }
@@ -126,6 +147,11 @@ public class HomeFragment extends android.support.v4.app.Fragment {
             tabLayout.getTabAt(0).select();
         } else {
             tabLayout.getTabAt(1).select();
+        }
+        if(savedInstanceState != null){
+            isCompletedOnly = savedInstanceState.getBoolean("completedOnly");
+        } else {
+            isCompletedOnly = true;
         }
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.HOUR_OF_DAY, 0);
@@ -147,8 +173,13 @@ public class HomeFragment extends android.support.v4.app.Fragment {
                 cal.set(Calendar.DAY_OF_MONTH, 31);
                 endOfYear = cal.getTime();
                 datePickerDialogLauncher.setSingleDatePreset(startOfYear);
-                incomeValues = databaseHandler.getIncomeTotalsForLineGraph(MainActivity.user, startOfYear, endOfYear);
-                expenseValues = databaseHandler.getExpenseTotalsForLineGraph(MainActivity.user, startOfYear, endOfYear);
+                if(isCompletedOnly) {
+                    incomeValues = databaseHandler.getIncomeTotalsForLineGraphOnlyReceived(MainActivity.user, startOfYear, endOfYear);
+                    expenseValues = databaseHandler.getExpenseTotalsForLineGraphOnlyPaid(MainActivity.user, startOfYear, endOfYear);
+                } else {
+                    incomeValues = databaseHandler.getIncomeTotalsForLineGraph(MainActivity.user, startOfYear, endOfYear);
+                    expenseValues = databaseHandler.getExpenseTotalsForLineGraph(MainActivity.user, startOfYear, endOfYear);
+                }
                 monthlyLineGraphCreator.setIncomeExpenseData(incomeValues, expenseValues, startOfYear);
                 ViewModelProviders.of(getActivity()).get(MainViewModel.class).setHomeTabYearSelected(startOfYear);
             }
@@ -163,8 +194,13 @@ public class HomeFragment extends android.support.v4.app.Fragment {
                 cal.set(Calendar.DAY_OF_MONTH, 31);
                 endOfYear = cal.getTime();
                 datePickerDialogLauncher.setSingleDatePreset(startOfYear);
-                incomeValues = databaseHandler.getIncomeTotalsForLineGraph(MainActivity.user, startOfYear, endOfYear);
-                expenseValues = databaseHandler.getExpenseTotalsForLineGraph(MainActivity.user, startOfYear, endOfYear);
+                if(isCompletedOnly) {
+                    incomeValues = databaseHandler.getIncomeTotalsForLineGraphOnlyReceived(MainActivity.user, startOfYear, endOfYear);
+                    expenseValues = databaseHandler.getExpenseTotalsForLineGraphOnlyPaid(MainActivity.user, startOfYear, endOfYear);
+                } else {
+                    incomeValues = databaseHandler.getIncomeTotalsForLineGraph(MainActivity.user, startOfYear, endOfYear);
+                    expenseValues = databaseHandler.getExpenseTotalsForLineGraph(MainActivity.user, startOfYear, endOfYear);
+                }
                 monthlyLineGraphCreator.setIncomeExpenseData(incomeValues, expenseValues, startOfYear);
                 ViewModelProviders.of(getActivity()).get(MainViewModel.class).setHomeTabYearSelected(startOfYear);
             }
@@ -195,8 +231,13 @@ public class HomeFragment extends android.support.v4.app.Fragment {
                 cal.set(Calendar.MONTH, 11);
                 cal.set(Calendar.DAY_OF_MONTH, 31);
                 endOfYear = cal.getTime();
-                incomeValues = databaseHandler.getIncomeTotalsForLineGraph(MainActivity.user, startOfYear, endOfYear);
-                expenseValues = databaseHandler.getExpenseTotalsForLineGraph(MainActivity.user, startOfYear, endOfYear);
+                if(isCompletedOnly) {
+                    incomeValues = databaseHandler.getIncomeTotalsForLineGraphOnlyReceived(MainActivity.user, startOfYear, endOfYear);
+                    expenseValues = databaseHandler.getExpenseTotalsForLineGraphOnlyPaid(MainActivity.user, startOfYear, endOfYear);
+                } else {
+                    incomeValues = databaseHandler.getIncomeTotalsForLineGraph(MainActivity.user, startOfYear, endOfYear);
+                    expenseValues = databaseHandler.getExpenseTotalsForLineGraph(MainActivity.user, startOfYear, endOfYear);
+                }
                 monthlyLineGraphCreator.setIncomeExpenseData(incomeValues, expenseValues, startOfYear);
                 ViewModelProviders.of(getActivity()).get(MainViewModel.class).setHomeTabYearSelected(startOfYear);
             }
@@ -211,8 +252,13 @@ public class HomeFragment extends android.support.v4.app.Fragment {
         //String year = (String) DateFormat.format("yyyy", startOfYear);
         cal.set(Calendar.DAY_OF_MONTH, 31);
         endOfYear = cal.getTime();
-        incomeValues = databaseHandler.getIncomeTotalsForLineGraph(MainActivity.user, startOfYear, endOfYear);
-        expenseValues = databaseHandler.getExpenseTotalsForLineGraph(MainActivity.user, startOfYear, endOfYear);
+        if(isCompletedOnly) {
+            incomeValues = databaseHandler.getIncomeTotalsForLineGraphOnlyReceived(MainActivity.user, startOfYear, endOfYear);
+            expenseValues = databaseHandler.getExpenseTotalsForLineGraphOnlyPaid(MainActivity.user, startOfYear, endOfYear);
+        } else {
+            incomeValues = databaseHandler.getIncomeTotalsForLineGraph(MainActivity.user, startOfYear, endOfYear);
+            expenseValues = databaseHandler.getExpenseTotalsForLineGraph(MainActivity.user, startOfYear, endOfYear);
+        }
         monthlyLineGraphCreator.setIncomeExpenseData(incomeValues, expenseValues, ViewModelProviders.of(getActivity()).get(MainViewModel.class).getHomeTabYearSelected());
         getActivity().setTitle(R.string.home);
 
@@ -222,10 +268,6 @@ public class HomeFragment extends android.support.v4.app.Fragment {
         this.accentColor = getActivity().getResources().getColorStateList(colorValue.resourceId);
         setUpMoneyListAdaptor();
         setUpLeaseListAdaptor();
-        //If user has a profile pic, set that pic
-        if (MainActivity.user.getProfilePic() != null && !MainActivity.user.getProfilePic().isEmpty()) {
-            //profilePic.setImageURI(Uri.parse(MainActivity.user.getProfilePic()));
-        }
     }
 
     public void setTextBoxes(String name, String email, String password) {
@@ -239,7 +281,7 @@ public class HomeFragment extends android.support.v4.app.Fragment {
     public void onResume() {
         super.onResume();
         if(fragDataNeedsRefreshed){
-            moneyListAdapter.updateResults(databaseHandler.getIncomeAndExpensesBetweenDates(MainActivity.user, this.startRange, this.endRange));
+            moneyListAdapter.updateResults(databaseHandler.getIncomeAndExpensesBetweenDatesNotCompleted(MainActivity.user, this.startRange, this.endRange));
             leaseListAdapter.updateResults(databaseHandler.getLeasesStartingOrEndingInDateRange(MainActivity.user, this.startRange, this.endRange));
             incomeValues = databaseHandler.getIncomeTotalsForLineGraph(MainActivity.user, startOfYear, endOfYear);
             expenseValues = databaseHandler.getExpenseTotalsForLineGraph(MainActivity.user, startOfYear, endOfYear);
@@ -248,7 +290,7 @@ public class HomeFragment extends android.support.v4.app.Fragment {
     }
 
     private void setUpMoneyListAdaptor() {
-        moneyListAdapter = new MoneyListAdapter(getContext(), databaseHandler.getIncomeAndExpensesBetweenDates(MainActivity.user, this.startRange, this.endRange), accentColor, today, false);
+        moneyListAdapter = new MoneyListAdapter(getContext(), databaseHandler.getIncomeAndExpensesBetweenDatesNotCompleted(MainActivity.user, this.startRange, this.endRange), accentColor, today, false);
         upcomingPaymentsLV.setAdapter(moneyListAdapter);
         upcomingPaymentsLV.setOnTouchListener(new View.OnTouchListener() {
             // Setting on Touch Listener for handling the touch inside ScrollView
@@ -312,5 +354,11 @@ public class HomeFragment extends android.support.v4.app.Fragment {
             }
         });
         //upcomingPaymentsLV.setOnItemClickListener(this);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean("completedOnly", isCompletedOnly);
     }
 }

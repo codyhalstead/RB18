@@ -19,6 +19,10 @@
                 android:title="@string/change_receipt_picture" />
 
             <item
+                android:id="@+id/changeStatus"
+                android:title="@string/change_expense_status" />
+
+            <item
                 android:id="@+id/deleteExpense"
                 android:title="@string/delete_expense" />
 

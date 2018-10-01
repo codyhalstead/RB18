@@ -7,7 +7,9 @@ import org.joda.time.LocalDate;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Locale;
 
@@ -22,9 +24,9 @@ public class DateAndCurrencyDisplayer {
     public static final int DATE_YYYYMMDD = 302;
     public static final int DATE_YYYYDDMM = 303;
 
-    public static String getCurrencyToDisplay(int currencyCode, BigDecimal amount){
+    public static String getCurrencyToDisplay(int currencyCode, BigDecimal amount) {
         String convertedString = "";
-        if(amount != null) {
+        if (amount != null) {
             if (currencyCode == CURRENCY_US) {
                 amount = amount.setScale(2, RoundingMode.HALF_EVEN);
                 NumberFormat costFormat = NumberFormat.getCurrencyInstance(Locale.US);
@@ -62,9 +64,9 @@ public class DateAndCurrencyDisplayer {
         return convertedString;
     }
 
-    public static String getDateToDisplay(int dateDisplayCode, Date date){
+    public static String getDateToDisplay(int dateDisplayCode, Date date) {
         String convertedString = "";
-        if(date != null) {
+        if (date != null) {
             if (dateDisplayCode == DATE_MMDDYYYY) {
                 SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
                 convertedString = formatter.format(date);
@@ -82,9 +84,9 @@ public class DateAndCurrencyDisplayer {
         return convertedString;
     }
 
-    public static String getDateToDisplay(int dateDisplayCode, LocalDate date){
+    public static String getDateToDisplay(int dateDisplayCode, LocalDate date) {
         String convertedString = "";
-        if(date != null) {
+        if (date != null) {
             if (dateDisplayCode == DATE_MMDDYYYY) {
                 convertedString = date.toString("MM/dd/yyyy");
             } else if (dateDisplayCode == DATE_DDMMYYYY) {
@@ -95,17 +97,52 @@ public class DateAndCurrencyDisplayer {
                 convertedString = date.toString("yyyy/dd/MM");
             }
         }
+        convertedString.replaceAll("[-]", "/");
         return convertedString;
     }
 
-    public static String cleanMoneyString(String string){
+    public static Date getDateFromDisplay(int dateDisplayCode, String dateString) {
+        Date date = null;
+        if (dateDisplayCode == DATE_MMDDYYYY) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+            try {
+                date = dateFormat.parse(dateString);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        } else if (dateDisplayCode == DATE_DDMMYYYY) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.US);
+            try {
+                date = dateFormat.parse(dateString);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        } else if (dateDisplayCode == DATE_YYYYMMDD) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
+            try {
+                date = dateFormat.parse(dateString);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        } else if (dateDisplayCode == DATE_YYYYDDMM) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/dd/MM", Locale.US);
+            try {
+                date = dateFormat.parse(dateString);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        return date;
+    }
+
+    public static String cleanMoneyString(String string) {
         return string.replaceAll("[$£¥₩€￥,./\\s+/g]", "");
     }
 
-    public static int getEndCursorPositionForMoneyInput(int length, int currencyCode){
+    public static int getEndCursorPositionForMoneyInput(int length, int currencyCode) {
         int position = length;
-        if(currencyCode == CURRENCY_GERMANY){
-            position = position-2;
+        if (currencyCode == CURRENCY_GERMANY) {
+            position = position - 2;
         }
         return position;
     }

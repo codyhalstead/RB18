@@ -90,10 +90,10 @@ public class NewLeaseWizard extends BaseActivity implements
         }
         if(leaseToEdit == null){
             mWizardModel = new LeaseWizardModel(this);
-            this.setTitle(R.string.edit_lease);
+            this.setTitle(R.string.new_lease_creation);
         } else {
             mWizardModel = new LeaseEditingWizardModel(this);
-            this.setTitle(R.string.new_lease_creation);
+            this.setTitle(R.string.edit_lease);
         }
         if(extras != null) {
             mWizardModel.preloadData(extras);
@@ -275,22 +275,22 @@ public class NewLeaseWizard extends BaseActivity implements
             if (i == 0 && isFirstProrated) {
                 String description = generateAutoRentDescription(paymentDate, paymentEnd, dateFormatCode, tenantName, apartmentAddress, true);
                 PaymentLogEntry payment = new PaymentLogEntry(-1, paymentDate, 1, "", primaryTenant.getId(), leaseID, apartment.getId(),
-                        proratedFirstPayment, description, "");
+                        proratedFirstPayment, description, "", false);
                 paymentLogEntries.add(payment);
             } else if (i == DatesStringArray.size() - 1 && isLastProrated) {
                 String description = generateAutoRentDescription(paymentDate, leaseEndDate, dateFormatCode, tenantName, apartmentAddress, true);
                 PaymentLogEntry payment = new PaymentLogEntry(-1, paymentDate, 1, "", primaryTenant.getId(), leaseID, apartment.getId(),
-                        proratedLastPayment, description, "");
+                        proratedLastPayment, description, "", false);
                 paymentLogEntries.add(payment);
             } else if(i == DatesStringArray.size() - 1 && DatesStringArray.size() != 2) {
                 String description = generateAutoRentDescription(paymentDate, leaseEndDate, dateFormatCode, tenantName, apartmentAddress, false);
                 PaymentLogEntry payment = new PaymentLogEntry(-1, paymentDate, 1, "", primaryTenant.getId(), leaseID, apartment.getId(),
-                        rentCost, description, "");
+                        rentCost, description, "", false);
                 paymentLogEntries.add(payment);
             } else if(DatesStringArray.size() != 2){
                 String description = generateAutoRentDescription(paymentDate, paymentEnd, dateFormatCode, tenantName, apartmentAddress, false);
                 PaymentLogEntry payment = new PaymentLogEntry(-1, paymentDate, 1, "", primaryTenant.getId(), leaseID, apartment.getId(),
-                        rentCost, description, "");
+                        rentCost, description, "", false);
                 paymentLogEntries.add(payment);
             }
         }
@@ -303,9 +303,9 @@ public class NewLeaseWizard extends BaseActivity implements
         String apartmentAddress = apartment.getStreet1AndStreet2String();
         String tenantName = primaryTenant.getFirstAndLastNameString();
         String description = generateAutoDepositDescription(startDate, endDate, dateFormatCode, tenantName, apartmentAddress, false);
-        PaymentLogEntry deposit = new PaymentLogEntry(-1, startDate, 2, "", primaryTenant.getId(), leaseID, apartment.getId(), depositAmount, description, "");
+        PaymentLogEntry deposit = new PaymentLogEntry(-1, startDate, 2, "", primaryTenant.getId(), leaseID, apartment.getId(), depositAmount, description, "", false);
         description = generateAutoDepositDescription(startDate, endDate, dateFormatCode, tenantName, apartmentAddress, true);
-        ExpenseLogEntry depositWithheld = new ExpenseLogEntry(-1, endDate, depositAmount.multiply(new BigDecimal(-1)), apartment.getId(), leaseID, primaryTenant.getId(), description, 4, "", "");
+        ExpenseLogEntry depositWithheld = new ExpenseLogEntry(-1, endDate, depositAmount.multiply(new BigDecimal(-1)), apartment.getId(), leaseID, primaryTenant.getId(), description, 4, "", "", false);
         databaseHandler.addPaymentLogEntry(deposit, MainActivity.user.getId());
         databaseHandler.addExpenseLogEntry(depositWithheld, MainActivity.user.getId());
     }

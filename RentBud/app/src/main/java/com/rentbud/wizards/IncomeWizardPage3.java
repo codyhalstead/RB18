@@ -81,7 +81,7 @@ public class IncomeWizardPage3 extends Page {
                 //    leaseString = "";
                 //}
         //        mData.putInt(INCOME_RELATED_LEASE_ID_DATA_KEY, paymentLogEntry.getLeaseID());
-                //TODO get lease text and lease object
+
         //    }
             //mData.putString(INCOME_RELATED_LEASE_TEXT_DATA_KEY, leaseString);
         //    this.notifyDataChanged();

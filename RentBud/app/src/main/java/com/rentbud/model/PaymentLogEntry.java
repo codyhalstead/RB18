@@ -18,8 +18,8 @@ public class PaymentLogEntry extends MoneyLogEntry{
     private int apartmentID;
     private String receiptPic;
 
-    public PaymentLogEntry(int id, Date paymentDate, int typeID, String typeLabel, int tenantID, int leaseID, int apartmentID, BigDecimal amount, String description, String receiptPic){
-        super(id, paymentDate, amount, description);
+    public PaymentLogEntry(int id, Date paymentDate, int typeID, String typeLabel, int tenantID, int leaseID, int apartmentID, BigDecimal amount, String description, String receiptPic, boolean isReceived){
+        super(id, paymentDate, amount, description, isReceived);
         this.typeID = typeID;
         this.typeLabel = typeLabel;
         this.tenantID = tenantID;

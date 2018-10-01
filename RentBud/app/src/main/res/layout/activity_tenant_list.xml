@@ -36,6 +36,7 @@
                     android:background="@color/white"
                     android:drawableLeft="@drawable/ic_search_black_24dp"
                     android:ems="10"
+                    android:inputType="textNoSuggestions"
                     android:gravity="left|center"
                     android:hint="@string/search" />
             </LinearLayout>

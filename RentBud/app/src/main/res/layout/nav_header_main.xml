@@ -26,6 +26,7 @@
         android:layout_height="wrap_content"
         android:text="@string/rentbud"
         android:textColor="@color/white"
+        android:id="@+id/mainHeader"
         android:textSize="15sp"
         android:textStyle="bold"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>

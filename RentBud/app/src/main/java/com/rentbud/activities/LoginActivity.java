@@ -2,11 +2,15 @@ package com.rentbud.activities;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -25,13 +29,16 @@ import com.example.cody.rentbud.R;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.rentbud.helpers.AppFileManagementHelper;
+import com.rentbud.helpers.FileChooserDialog;
 import com.rentbud.helpers.GMailSender;
 import com.rentbud.helpers.RandomNumberGenerator;
 import com.rentbud.helpers.UserInputValidation;
 import com.rentbud.model.User;
 import com.rentbud.sqlite.DatabaseHandler;
 
+import java.io.File;
 import java.net.InetAddress;
+import java.util.ArrayList;
 
 /**
  * Created by Cody on 12/8/2017.
@@ -44,7 +51,7 @@ public class LoginActivity extends AppCompatActivity {
     TextInputEditText emailText;
     TextInputEditText passwordText;
     Button loginButton;
-    TextView signupLink, forgotPassTV;
+    TextView signupLink, forgotPassTV, backupRestoreLink;
     UserInputValidation validation;
     User user;
     DatabaseHandler databaseHandler;
@@ -148,9 +155,13 @@ public class LoginActivity extends AppCompatActivity {
         this.loginButton = (Button) findViewById(R.id.btn_login);
         this.signupLink = (TextView) findViewById(R.id.link_signup);
         this.forgotPassTV = findViewById(R.id.link_forgot_password);
+        this.backupRestoreLink = findViewById(R.id.backup_link_login);
         this.validation = new UserInputValidation(this);
         this.databaseHandler = new DatabaseHandler(this);
         randomNumberGenerator = new RandomNumberGenerator();
+        if (!databaseHandler.isUserTableEmpty()) {
+            backupRestoreLink.setVisibility(View.GONE);
+        }
     }
 
     private void setUpOnClickListeners() {
@@ -175,15 +186,54 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if (ContextCompat.checkSelfPermission(LoginActivity.this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(LoginActivity.this, new String[]{Manifest.permission.INTERNET}, MainActivity.REQUEST_PHONE_CALL_PERMISSION);
-                    Log.d(TAG, "onClick: >>>>>>>>>>");
                 } else {
-                    if(isInternetAvailable()) {
+                    if (isInternetAvailable()) {
                         showForgotPasswordGetEmailDialog();
                     } else {
                         Toast.makeText(LoginActivity.this, R.string.no_internet_connection, Toast.LENGTH_LONG).show();
                     }
                 }
 
+            }
+        });
+        backupRestoreLink.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //public void backup(View view) {
+                if (MainActivity.hasPermissions(LoginActivity.this, android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
+                    builder.setMessage(R.string.use_downloads_or_rentbud_folder);
+                    builder.setPositiveButton(R.string.rentbud_folder, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            File f = new File(Environment.getExternalStorageDirectory(), "Rentbud");
+                            if (!f.exists()) {
+                                f.mkdirs();
+                            }
+                            File downloads = new File(f.getAbsolutePath() + "/", "Backups");
+                            if (!downloads.exists()) {
+                                downloads.mkdirs();
+                            }
+                            displayFiles(downloads);
+                        }
+                    });
+                    builder.setNegativeButton(R.string.downloads, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            File downloads = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath());
+                            displayFiles(downloads);
+                        }
+                    });
+                    // create and show the alert dialog
+                    alertDialog = builder.create();
+                    alertDialog.show();
+                } else {
+                    ActivityCompat.requestPermissions(
+                            LoginActivity.this,
+                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                            MainActivity.REQUEST_FILE_PERMISSION
+                    );
+                }
             }
         });
     }
@@ -268,13 +318,15 @@ public class LoginActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                if(isInternetAvailable()) {
+                if (isInternetAvailable()) {
                     try {
                         String newPass = randomNumberGenerator.gererateVerificationNumber(6);
                         String subject = LoginActivity.this.getResources().getString(R.string.recovery_email_subject);
                         StringBuilder body = new StringBuilder(LoginActivity.this.getResources().getString(R.string.recovery_email_body));
                         body.append("\n");
                         body.append(newPass);
+                        body.append("\n");
+                        body.append(LoginActivity.this.getResources().getString(R.string.recovery_email_body2));
                         GMailSender sender = new GMailSender("noreply.rentbud@gmail.com", loadPass());
                         sender.sendMail(subject,
                                 body.toString(),
@@ -309,14 +361,36 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public boolean isInternetAvailable() {
-        try {
-            InetAddress ipAddr = InetAddress.getByName("google.com");
-            //You can replace it with your name
-            return !ipAddr.equals("");
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
 
-        } catch (Exception e) {
-            return false;
+    public void displayFiles(final File downloads) {
+        File[] fileList = downloads.listFiles();
+        ArrayList<String> theNamesOfFiles = new ArrayList<>();
+        for (int i = 0; i < fileList.length; i++) {
+            if (fileList[i].getPath().endsWith(".db")) {
+                theNamesOfFiles.add(fileList[i].getName());
+            }
+            //Log.d("TAG", "backup: " + filelist[i]);
+            //Toast.makeText(this, i, Toast.LENGTH_LONG).show();
         }
+        final FileChooserDialog typeChooserDialog2 = new FileChooserDialog(this, theNamesOfFiles);
+        typeChooserDialog2.show();
+        typeChooserDialog2.setDialogResult(new FileChooserDialog.OnTypeChooserDialogResult() {
+            @Override
+            public void finish(String fileName) {
+                if (fileName != null) {
+                    File backup = new File(downloads.getAbsolutePath() + "/" + fileName);
+                    if (backup.exists()) {
+                        databaseHandler.importBackupDB(backup);
+                        LoginActivity.this.finish();
+                    }
+                }
+            }
+        });
     }
 
     public void autoLog(View view) {

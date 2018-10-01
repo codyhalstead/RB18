@@ -45,7 +45,8 @@ import java.io.File;
 
 public class ExpenseViewActivity extends BaseActivity {
     ExpenseLogEntry expense;
-    TextView dateTV, amountTV, typeTV, descriptionTV, relatedLeaseTV, relatedTenantTV, relatedApartmentAddressTV;
+    TextView dateTV, amountTV, typeTV, descriptionTV, relatedLeaseTV, relatedTenantTV, relatedApartmentAddressTV,
+    statusTV;
     ImageView receiptPicIV;
     DatabaseHandler databaseHandler;
     String receiptPic;
@@ -89,9 +90,12 @@ public class ExpenseViewActivity extends BaseActivity {
         this.relatedLeaseTV = findViewById(R.id.expenseViewRelatedLeaseTV);
         this.relatedTenantTV = findViewById(R.id.expenseViewRelatedTenantTV);
         this.relatedApartmentAddressTV = findViewById(R.id.expenseViewRelatedApartmentAddressTV);
-        adView = findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
-        adView.loadAd(adRequest);
+        this.statusTV = findViewById(R.id.expenseViewStatusTV);
+        if (BuildConfig.FLAVOR.equals("free")) {
+            adView = findViewById(R.id.adView);
+            AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
+            adView.loadAd(adRequest);
+        }
         //this.relatedApartmentStreet2TV = findViewById(R.id.expenseViewRelatedApartmentStreet2TV);
         fillTextViews();
         setupBasicToolbar();
@@ -187,6 +191,11 @@ public class ExpenseViewActivity extends BaseActivity {
         dateTV.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, expense.getDate()));
         amountTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, expense.getAmount()));
         typeTV.setText(expense.getTypeLabel());
+        if(expense.getIsCompleted()){
+            statusTV.setText(R.string.paid);
+        } else {
+            statusTV.setText(R.string.not_paid);
+        }
         descriptionTV.setText(expense.getDescription());
         if (receiptPic != null) {
             Glide.with(this).load(receiptPic).placeholder(R.drawable.no_picture)
@@ -222,6 +231,17 @@ public class ExpenseViewActivity extends BaseActivity {
 
             case R.id.editReceiptPic:
                 launchCameraOrGalleryDialog();
+
+            case R.id.changeStatus:
+                if(expense.getIsCompleted()){
+                    expense.setIsCompleted(false);
+                } else {
+                    expense.setIsCompleted(true);
+                }
+                databaseHandler.editExpenseLogEntry(expense);
+                fillTextViews();
+                wasEdited = true;
+                setResult(MainActivity.RESULT_DATA_WAS_MODIFIED);
 
             default:
                 return super.onOptionsItemSelected(item);

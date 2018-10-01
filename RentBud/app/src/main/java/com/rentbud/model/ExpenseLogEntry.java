@@ -19,8 +19,8 @@ public class ExpenseLogEntry extends MoneyLogEntry {
     private String receiptPic;
 
     public ExpenseLogEntry(int id, Date expenseDate, BigDecimal amount, int apartmentID, int leaseID, int tenantID, String description, int typeID, String typeLabel,
-            String receiptPic) {
-        super(id, expenseDate, amount, description);
+            String receiptPic, boolean isPaid) {
+        super(id, expenseDate, amount, description, isPaid);
         this.apartmentID = apartmentID;
         this.leaseID = leaseID;
         this.tenantID = tenantID;

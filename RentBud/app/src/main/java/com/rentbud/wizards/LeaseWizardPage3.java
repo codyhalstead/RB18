@@ -33,8 +33,8 @@ public class LeaseWizardPage3 extends Page {
     public static final String LEASE_PAYMENT_FREQUENCY_DATA_KEY = "lease_payment_frequency";
     public static final String LEASE_PAYMENT_FREQUENCY_ID_DATA_KEY = "lease_payment_frequency_id";
 
-    public static final String LEASE_PAYMENT_CYCLE_DATA_KEY = "lease_payment_frequency";
-    public static final String LEASE_PAYMENT_CYCLE_FREQUENCY_ID_DATA_KEY = "lease_payment_frequency_id";
+    public static final String LEASE_PAYMENT_CYCLE_DATA_KEY = "lease_cycle";
+    public static final String LEASE_PAYMENT_CYCLE_FREQUENCY_ID_DATA_KEY = "lease_cycle_id";
 
     public static final String LEASE_DUE_DATE_ID_DATA_KEY = "lease_due_date_id";
 
@@ -52,10 +52,12 @@ public class LeaseWizardPage3 extends Page {
 
     public static final String LEASE_NEED_BRANCH = "lease_need_branch";
     private Context context;
+    private boolean isEdit;
 
-    public LeaseWizardPage3(ModelCallbacks callbacks, String title, Context context) {
+    public LeaseWizardPage3(ModelCallbacks callbacks, String title, boolean isEdit, Context context) {
         super(callbacks, title);
         this.context = context;
+        this.isEdit = isEdit;
         mData.putBoolean(WAS_PRELOADED, false);
        // mData.putString(LEASE_RENT_COST_DATA_KEY, "15");
         // mData.putString(LEASE_NEED_BRANCH, "Yes");
@@ -73,11 +75,18 @@ public class LeaseWizardPage3 extends Page {
         dest.add(new ReviewItem(context.getResources().getString(R.string.rent_cost), mData.getString(LEASE_RENT_COST_FORMATTED_STRING_DATA_KEY), getKey(), -1));
         dest.add(new ReviewItem(context.getResources().getString(R.string.payment_frequency), mData.getString(LEASE_PAYMENT_FREQUENCY_STRING_DATA_KEY), getKey(), -1));
         dest.add(new ReviewItem(context.getResources().getString(R.string.due_date), mData.getString(LEASE_DUE_DATE_STRING_DATA_KEY), getKey(), -1));
+        if(!isEdit) {
+            dest.add(new ReviewItem(context.getResources().getString(R.string.start_of_cycle), mData.getString(LEASE_PAYMENT_CYCLE_DATA_KEY), getKey(), -1));
+        }
     }
 
     @Override
     public boolean isCompleted() {
-        return (!TextUtils.isEmpty(mData.getString(LEASE_RENT_COST_DATA_KEY)) && !TextUtils.isEmpty(mData.getString(LEASE_NEED_BRANCH)) && !TextUtils.isEmpty(mData.getString(LEASE_PAYMENT_CYCLE_DATA_KEY)));
+        if(isEdit){
+            return (!TextUtils.isEmpty(mData.getString(LEASE_RENT_COST_DATA_KEY)) && !TextUtils.isEmpty(mData.getString(LEASE_NEED_BRANCH)));
+        } else {
+            return (!TextUtils.isEmpty(mData.getString(LEASE_RENT_COST_DATA_KEY)) && !TextUtils.isEmpty(mData.getString(LEASE_NEED_BRANCH)) );//&& !TextUtils.isEmpty(mData.getString(LEASE_PAYMENT_CYCLE_DATA_KEY)));
+        }
     }
 
     public LeaseWizardPage3 addBranch(String choice, Page... childPages) {

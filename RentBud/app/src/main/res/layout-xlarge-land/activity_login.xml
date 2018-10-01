@@ -24,7 +24,8 @@
             <android.support.design.widget.TextInputEditText android:id="@+id/input_email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textEmailAddress"
+                android:gravity="center_horizontal"
+                android:inputType="textEmailAddress|textNoSuggestions"
                 android:maxLength="50"
                 android:hint="@string/email"
                 />
@@ -39,8 +40,9 @@
             <android.support.design.widget.TextInputEditText android:id="@+id/input_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
                 android:maxLength="20"
-                android:inputType="textPassword"
+                android:inputType="textPassword|textNoSuggestions"
                 android:hint="@string/password"/>
         </android.support.design.widget.TextInputLayout>
 
@@ -71,6 +73,16 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
             android:text="@string/forgot_password_link"
+            android:gravity="center"
+            android:textSize="16sp"
+            android:textColor="@color/colorPrimary"
+            />
+
+        <TextView android:id="@+id/backup_link_login"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:text="@string/restore_accounts_with_backup"
             android:gravity="center"
             android:textSize="16sp"
             android:textColor="@color/colorPrimary"

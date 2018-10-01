@@ -149,9 +149,9 @@ public class LeaseWizardProratedRentPageFragment extends android.support.v4.app.
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         payments = mCallbacks.onGetPage("Page3").getData().getStringArrayList(LeaseWizardPage3.LEASE_PAYMENT_DATES_ARRAY_DATA_KEY);
         paymentMonthlyFrequency = mCallbacks.onGetPage("Page3").getData().getInt(LeaseWizardPage3.LEASE_PAYMENT_FREQUENCY_DATA_KEY);
+
         String rentCostString = mCallbacks.onGetPage("Page3").getData().getString(LeaseWizardPage3.LEASE_RENT_COST_DATA_KEY);
         rentCost = new BigDecimal(rentCostString);
         String endDate = mCallbacks.onGetPage("Page1").getData().getString(LeaseWizardPage1.LEASE_END_DATE_STRING_DATA_KEY);
@@ -327,7 +327,10 @@ public class LeaseWizardProratedRentPageFragment extends android.support.v4.app.
     private BigDecimal figureRecommendedProratedPayment(int amountOfDaysRented, int totalAmountOfDaysInPeriod, BigDecimal rentCost) {
         BigDecimal totalAmountOfDaysInPeriodBD = new BigDecimal(totalAmountOfDaysInPeriod).setScale(5, BigDecimal.ROUND_HALF_UP);
         BigDecimal amountOfDaysRentedBD = new BigDecimal(amountOfDaysRented).setScale(5, BigDecimal.ROUND_HALF_UP);
-        BigDecimal dailyAmount = amountOfDaysRentedBD.divide(totalAmountOfDaysInPeriodBD, BigDecimal.ROUND_FLOOR).setScale(5, BigDecimal.ROUND_HALF_UP);
+        BigDecimal dailyAmount = new BigDecimal(0.00);
+        if(totalAmountOfDaysInPeriodBD.compareTo(BigDecimal.ZERO) != 0 && amountOfDaysRentedBD.compareTo(BigDecimal.ZERO) != 0) {
+            dailyAmount = amountOfDaysRentedBD.divide(totalAmountOfDaysInPeriodBD, BigDecimal.ROUND_FLOOR).setScale(5, BigDecimal.ROUND_HALF_UP);
+        }
         return dailyAmount.multiply(rentCost).setScale(2, BigDecimal.ROUND_HALF_EVEN);
     }
 

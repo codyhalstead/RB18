@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">RentBud</string>
+    <!--<string name="app_name">RentalBud</string>-->
 
     <!-- general -->
     <string name="yes">Yes</string>
@@ -26,7 +26,7 @@
     <string name="income_view">Income View</string>
     <string name="new_tenant_creation">New Tenant Creation</string>
     <string name="edit_tenant">Edit Tenant</string>
-    <string name="new_lease_creation">New LeaseCreation</string>
+    <string name="new_lease_creation">New Lease Creation</string>
     <string name="edit_lease">Edit Lease</string>
     <string name="new_expense_creation">New Expense Creation</string>
     <string name="edit_expense">Edit Expense</string>
@@ -36,9 +36,10 @@
     <string name="edit_apartment">Edit Apartment</string>
     <string name="clear">Clear</string>
     <string name="cannot_be_empty">Cannot be empty</string>
-    <string name="rentbud">Rentbud</string>
+    <string name="rentbud">RentalBud</string>
+    <string name="rentbud_pro">RentalBud Pro</string>
     <string name="downloads">Downloads</string>
-    <string name="rentbud_folder">Rentbud Folder</string>
+    <string name="rentbud_folder">RentalBud Folder</string>
     <string name="failed_to_save_image">Failed to save image</string>
     <string name="could_not_find_file">Could not find file</string>
     <string name="pic_limit">Cannot exceed 10 pictures</string>
@@ -96,8 +97,9 @@
     <string name="enter_account_email">Enter Account Email</string>
     <string name="no_account_for_email">No Account Registered With That Email</string>
     <string name="password_recovery_confirmation">Receive New Password Through Email?</string>
-    <string name="recovery_email_subject">Rentbud account recovery</string>
+    <string name="recovery_email_subject">RentalBud account recovery</string>
     <string name="recovery_email_body">Your new password is:</string>
+    <string name="recovery_email_body2">Password should be changed as soon as possible</string>
     <string name="recovery_error">An Error Occurred, Password Not Reset</string>
 
     <!-- userInputValidation -->
@@ -152,6 +154,9 @@
     <string name="email_tenant">Email Tenant</string>
     <string name="call_emer_contact">Call Emergency Contact</string>
     <string name="sms_emer_contact">SMS Emergency Contact</string>
+    <string name="status">Status</string>
+    <string name="paid_received_only">Paid/Received Only</string>
+    <string name="projected">Projected</string>
 
     <!-- Permissions -->
     <string name="permission_picture_denied">"You don't have permission to access file location"</string>
@@ -185,6 +190,9 @@
     <string name="remove_image">Remove Image</string>
     <string name="change_image">Change Image</string>
     <string name="delete_tenant">Delete Tenant</string>
+    <string name="change_income_status">Mark Received/Unreceived</string>
+    <string name="change_expense_status">Mark Paid/Unpaid</string>
+    <string name="change_status">Change Status</string>
 
     <!-- Apartment Wizard -->
     <string name="create_apartment">Create Apartment</string>
@@ -212,6 +220,7 @@
     <string name="apt_main_picture">Apt. Main Picture</string>
     <string name="change">Change</string>
     <string name="other_pictures">Other Pictures</string>
+    <string name="folder">Folder</string>
 
     <!-- Expense Wizard -->
     <string name="create_expense">Create Expense</string>
@@ -299,7 +308,7 @@
     <string name="first_payment_req">*First Payment</string>
     <string name="last_payment_req">*Last Payment</string>
     <string name="recommended_price">Recommended price:&#160;</string>
-    <string name="for_cap">For&#160;</string>
+    <string name="from_cap">From&#160;</string>
     <string name="for_s">for&#160;</string>
     <string name="to_space">&#160;to&#160;</string>
     <string name="left_para">&#160;(</string>
@@ -310,6 +319,7 @@
     <string name="renting_s">renting&#160;</string>
     <string name="max_lease_duration_warning">Max Lease Duration Is 3 Years</string>
     <string name="start_of_cycle">Start Of Cycle</string>
+    <string name="start_of_cycle_req">*Start Of Cycle</string>
 
     <!-- Tenant Wizard -->
     <string name="create_tenant">Create Tenant</string>
@@ -336,9 +346,9 @@
     <string name="add_or_remove_expense_type">Add or remove expense type?</string>
     <string name="select_a_type_to_delete">Select A Type To Delete</string>
     <string name="no_types_to_display">No Types To Display</string>
-    <string name="send_backip_to_email_question">Would you like to send backup to an E-mail?</string>
+    <string name="send_backip_to_email_question">Where would you like to send the backup?</string>
     <string name="send_email">Send Email</string>
-    <string name="use_downloads_or_rentbud_folder">"Do you want to use backup data from the downloads folder(Received through E-mail) or the Rentbud folder(App created)?"</string>
+    <string name="use_downloads_or_rentbud_folder">"Do you want to use backup data from the downloads folder(Received through E-mail) or the RentalBud folder(App created)?"</string>
     <string name="backup_restored">Backup Restored</string>
     <string name="create_new_type">Create New Type</string>
     <string name="account_removed">Account Successfully Removed</string>
@@ -361,6 +371,7 @@
     <string name="change_email">Change Email</string>
     <string name="change_password">Change Password</string>
     <string name="remove_account">Remove Account</string>
+    <string name="import_not_available">Not Available For This Version</string>
 
     <!-- Adapters -->
     <string name="rented_by">Rented By:&#160;</string>
@@ -374,6 +385,10 @@
     <string name="space_occurrence">&#160;occurrence</string>
     <string name="until">Until:&#160;</string>
     <string name="lease_ends_on">Lease ends on&#160;</string>
+    <string name="paid">Paid</string>
+    <string name="not_paid">Not Paid</string>
+    <string name="received">Received</string>
+    <string name="not_received">Not Received</string>
 
     <!-- List views -->
     <string name="no_leases_within_14_days">No Lease Activities Within 14 Days</string>
@@ -395,6 +410,9 @@
     <string name="total">Total:</string>
     <string name="income_colon">Income:</string>
     <string name="expenses_colon">Expenses:</string>
+    <string name="received_total">Total Received:</string>
+    <string name="total_paid">Total Paid:</string>
+    <string name="projected_total">Projected Total:</string>
 
     <string-array name="DBTypes_array">
         <item>Income</item>
@@ -461,11 +479,13 @@
         <item>Every 4 Months</item>
         <item>Every 6 Months</item>
         <item>Every 9 Months</item>
+        <item>Yearly</item>
     </string-array>
 
     <string-array name="frequency_array_weekly">
         <item>Weekly</item>
         <item>Every 2 Weeks</item>
+        <item>Every 3 Weeks</item>
     </string-array>
 
     <string-array name="day_array">

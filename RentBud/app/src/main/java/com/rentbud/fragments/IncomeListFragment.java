@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -41,13 +42,14 @@ public class IncomeListFragment extends android.support.v4.app.Fragment implemen
     TextView noIncomeTV, totalAmountTV, totalAmountLabelTV;
     EditText searchBarET;
     Button dateRangeStartBtn, dateRangeEndBtn;
+    LinearLayout totalAmountLL;
     IncomeListAdapter incomeListAdapter;
     ColorStateList accentColor;
     ListView listView;
     Date filterDateStart, filterDateEnd;
     private BigDecimal total;
     private OnDatesChangedListener mCallback;
-    private boolean needsRefreshedOnResume;
+    private boolean needsRefreshedOnResume, completedOnly;
     private SharedPreferences preferences;
     private CustomDatePickerDialogLauncher datePickerDialogLauncher;
 
@@ -69,12 +71,19 @@ public class IncomeListFragment extends android.support.v4.app.Fragment implemen
         this.totalAmountLabelTV = view.findViewById(R.id.moneyListTotalAmountLabelTV);
         this.totalAmountTV = view.findViewById(R.id.moneyListTotalAmountTV);
         this.listView = view.findViewById(R.id.mainMoneyListView);
+        this.totalAmountLL = view.findViewById(R.id.moneyListTotalAmountLL);
+        this.totalAmountLL.setOnClickListener(this);
         this.filterDateEnd = ViewModelProviders.of(getActivity()).get(MainViewModel.class).getEndDateRangeDate().getValue();
         this.filterDateStart = ViewModelProviders.of(getActivity()).get(MainViewModel.class).getStartDateRangeDate().getValue();
         this.preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         int dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
         dateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateStart));
         dateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateEnd));
+        if(savedInstanceState != null){
+            completedOnly = savedInstanceState.getBoolean("completedOnly");
+        } else {
+            completedOnly = true;
+        }
         total = getTotal(ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedIncome().getValue());
         datePickerDialogLauncher = new CustomDatePickerDialogLauncher(filterDateStart, filterDateEnd, true, getContext());
         datePickerDialogLauncher.setDateSelectedListener(new CustomDatePickerDialogLauncher.DateSelectedListener() {
@@ -187,6 +196,18 @@ public class IncomeListFragment extends android.support.v4.app.Fragment implemen
                 datePickerDialogLauncher.launchEndDatePickerDialog();
                 break;
 
+            case R.id.moneyListTotalAmountLL:
+                if(completedOnly){
+                    completedOnly = false;
+                    total = getTotal(ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedIncome().getValue());
+                    setTotalTV();
+                } else {
+                    completedOnly = true;
+                    total = getTotal(ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedIncome().getValue());
+                    setTotalTV();
+                }
+                break;
+
             default:
                 break;
         }
@@ -225,6 +246,7 @@ public class IncomeListFragment extends android.support.v4.app.Fragment implemen
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        outState.putBoolean("completedOnly", completedOnly);
 
     }
 
@@ -232,8 +254,16 @@ public class IncomeListFragment extends android.support.v4.app.Fragment implemen
         BigDecimal total = new BigDecimal(0);
         if (filteredIncomeArray != null) {
             if (!filteredIncomeArray.isEmpty()) {
-                for (int i = 0; i < filteredIncomeArray.size(); i++) {
-                    total = total.add(filteredIncomeArray.get(i).getAmount());
+                if (completedOnly) {
+                    for (int i = 0; i < filteredIncomeArray.size(); i++) {
+                        if(filteredIncomeArray.get(i).getIsCompleted()) {
+                            total = total.add(filteredIncomeArray.get(i).getAmount());
+                        }
+                    }
+                } else {
+                    for (int i = 0; i < filteredIncomeArray.size(); i++) {
+                        total = total.add(filteredIncomeArray.get(i).getAmount());
+                    }
                 }
             }
         }
@@ -243,6 +273,11 @@ public class IncomeListFragment extends android.support.v4.app.Fragment implemen
     private void setTotalTV() {
         if(getActivity() != null) {
             totalAmountTV.setTextColor(getActivity().getResources().getColor(R.color.green_colorPrimaryDark));
+        }
+        if(completedOnly){
+            totalAmountLabelTV.setText(R.string.received_total);
+        } else {
+            totalAmountLabelTV.setText(R.string.projected_total);
         }
         if (total != null) {
             int moneyFormatCode = preferences.getInt("currency", DateAndCurrencyDisplayer.CURRENCY_US);
@@ -255,5 +290,4 @@ public class IncomeListFragment extends android.support.v4.app.Fragment implemen
         incomeListAdapter.getFilter().filter(searchBarET.getText());
         incomeListAdapter.notifyDataSetChanged();
     }
-
 }

@@ -163,6 +163,28 @@
 
                 </TableRow>
 
+                <TableRow
+                    android:id="@+id/tableRow0"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="@style/ViewInformationRowStyle">
+
+                    <!--Amount -->
+                    <TextView
+                        android:id="@+id/incomeViewStatusLabelTV"
+                        style="@style/ViewInformationRowLeftTextStyle"
+                        android:text="@string/status"
+                        />
+
+                    <!--Amount -->
+                    <TextView
+                        android:id="@+id/incomeViewStatusTV"
+                        style="@style/ViewInformationRowRightTextStyle"
+                        android:text="Not Received"
+                        />
+
+                </TableRow>
+
                 <TextView
                     style="@style/ViewInformationRowHeaderTextStyle"
                     android:text="@string/linked_information" />

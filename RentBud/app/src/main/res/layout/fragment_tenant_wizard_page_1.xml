@@ -35,7 +35,7 @@
                     android:layout_height="wrap_content"
                     android:maxLength="30"
                     android:hint="@string/first_name_req"
-                    android:inputType="textCapSentences" />
+                    android:inputType="textCapSentences|textNoSuggestions" />
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
@@ -51,7 +51,7 @@
                     android:layout_height="wrap_content"
                     android:hint="@string/last_name_req"
                     android:maxLength="30"
-                    android:inputType="textCapSentences" />
+                    android:inputType="textCapSentences|textNoSuggestions" />
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
@@ -67,7 +67,7 @@
                     android:layout_height="wrap_content"
                     android:hint="@string/phone_number"
                     android:maxLength="20"
-                    android:inputType="phone" />
+                    android:inputType="phone|textNoSuggestions" />
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
@@ -83,7 +83,7 @@
                     android:layout_height="wrap_content"
                     android:maxLength="50"
                     android:hint="@string/email"
-                    android:inputType="textEmailAddress" />
+                    android:inputType="textEmailAddress|textNoSuggestions" />
             </android.support.design.widget.TextInputLayout>
 <!--
             <TextView

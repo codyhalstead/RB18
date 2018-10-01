@@ -21,7 +21,9 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
+import com.example.cody.rentbud.BuildConfig;
 import com.example.cody.rentbud.R;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.InterstitialAd;
@@ -124,7 +126,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         setUpToolbar();
         setUpDrawer();
         setUpNavView();
-        prepareAd();
+        if (BuildConfig.FLAVOR.equals("free")) {
+            prepareAd();
+        }
         //Log.d("TAG", "onCreate: !!!!!!!!!!!!!" + stringFromJNI());
         viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
         //If user is empty (Last user logged out or fist time loading app), begin log in activity
@@ -477,17 +481,19 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     }
 
     private void handleAds() {
-        screenChanges++;
-        if (screenChanges >= adFrequency) {
-            if (mInterstitialAd.isLoaded()) {
-                mInterstitialAd.show();
-                screenChanges = 0;
-                prepareAd();
+        if (BuildConfig.FLAVOR.equals("free")) {
+            screenChanges++;
+            if (screenChanges >= adFrequency) {
+                if (mInterstitialAd.isLoaded()) {
+                    mInterstitialAd.show();
+                    screenChanges = 0;
+                    prepareAd();
+                }
             }
         }
     }
 
-    private void prepareAd(){
+    private void prepareAd() {
         mInterstitialAd = new InterstitialAd(this);
         mInterstitialAd.setAdUnitId("ca-app-pub-3940256099942544/1033173712");
         mInterstitialAd.loadAd(new AdRequest.Builder().build());
@@ -584,6 +590,13 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         this.navigationView = findViewById(R.id.nav_view);
         this.navigationView.setNavigationItemSelectedListener(this);
         this.navigationView.getMenu().getItem(0).setChecked(true);
+        View headerView = navigationView.getHeaderView(0);
+        TextView navHeader = headerView.findViewById(R.id.mainHeader);
+        if (BuildConfig.FLAVOR.equals("pro")) {
+            navHeader.setText(R.string.rentbud_pro);
+        } else {
+            navHeader.setText(R.string.rentbud);
+        }
     }
 
     //Checks if no user currently logged in

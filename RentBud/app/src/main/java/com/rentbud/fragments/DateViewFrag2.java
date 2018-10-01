@@ -159,7 +159,7 @@ public class DateViewFrag2 extends android.support.v4.app.Fragment implements Ad
                 }
             }
         });
-        inflater.inflate(R.menu.expense_income_click_menu, popupMenu.getMenu());
+        inflater.inflate(R.menu.lease_click_menu, popupMenu.getMenu());
         popupMenu.show();
     }
 

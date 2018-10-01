@@ -72,7 +72,6 @@ public class LeaseViewActivity extends BaseActivity implements LeaseViewFrag2.On
         } else {
             setResult(RESULT_OK);
         }
-        String ug = databaseHandler.getFrequencyByID(lease.getPaymentFrequencyID());
     }
 
     @Override
@@ -135,6 +134,11 @@ public class LeaseViewActivity extends BaseActivity implements LeaseViewFrag2.On
         // create and show the alert dialog
         alertDialog = builder.create();
         alertDialog.show();
+    }
+
+    @Override
+    public void onMoneyDataChanged() {
+        frag2.updateData();
     }
 
     @Override

@@ -11,12 +11,14 @@ public class MoneyLogEntry implements Parcelable {
     private Date date;
     private BigDecimal amount;
     private String description;
+    private Boolean completed;
 
-    public MoneyLogEntry(int id, Date date, BigDecimal amount, String description) {
+    public MoneyLogEntry(int id, Date date, BigDecimal amount, String description, boolean completed) {
         this.id = id;
         this.date = date;
         this.amount = amount;
         this.description = description;
+        this.completed = completed;
     }
 
     @Override
@@ -36,6 +38,7 @@ public class MoneyLogEntry implements Parcelable {
         String amountString = amount.toPlainString();
         parcel.writeString(amountString);
         parcel.writeString(this.description);
+        parcel.writeByte((byte) (completed? 1 : 0));
     }
 
     protected MoneyLogEntry(Parcel in) {
@@ -47,6 +50,7 @@ public class MoneyLogEntry implements Parcelable {
         String amountString = in.readString();
         this.amount = new BigDecimal(amountString);
         this.description = in.readString();
+        this.completed = in.readByte() != 0;
     }
 
     public static final Creator<MoneyLogEntry> CREATOR = new Creator<MoneyLogEntry>() {
@@ -91,5 +95,13 @@ public class MoneyLogEntry implements Parcelable {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public Boolean getIsCompleted() {
+        return completed;
+    }
+
+    public void setIsCompleted(Boolean completed) {
+        this.completed = completed;
     }
 }

@@ -30,7 +30,7 @@ public class LeaseWizardModel extends AbstractWizardModel {
 
                 new LeaseWizardPage4(this, "Page4", super.mContext).setRequired(false),
 
-                new LeaseWizardPage3(this, "Page3", super.mContext)
+                new LeaseWizardPage3(this, "Page3", false, super.mContext)
                         .addBranch("Yes", new LeaseWizardProratedRentPage(this, "ProratedRentPage", super.mContext).setRequired(true)).setRequired(true)
         );
     }

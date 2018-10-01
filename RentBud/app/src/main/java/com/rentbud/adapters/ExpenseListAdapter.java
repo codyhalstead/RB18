@@ -70,6 +70,7 @@ public class ExpenseListAdapter extends BaseAdapter implements Filterable {
         TextView dateTV;
         TextView typeTV;
         TextView descriptionTV;
+        TextView wasPaidTV;
     }
 
     @Override
@@ -103,6 +104,7 @@ public class ExpenseListAdapter extends BaseAdapter implements Filterable {
             viewHolder.dateTV = convertView.findViewById(R.id.expenseRowDateTV);
             viewHolder.typeTV = convertView.findViewById(R.id.expenseRowTypeTV);
             viewHolder.descriptionTV = convertView.findViewById(R.id.expenseRowDescriptionTV);
+            viewHolder.wasPaidTV = convertView.findViewById(R.id.expenseRowWasPaidTV);
             //viewHolder.position = position;
 
             convertView.setTag(viewHolder);
@@ -118,6 +120,13 @@ public class ExpenseListAdapter extends BaseAdapter implements Filterable {
                 convertView.setBackgroundColor(convertView.getResources().getColor(R.color.rowDarkenedBackground));
             } else {
                 convertView.setBackgroundColor(convertView.getResources().getColor(R.color.white));
+            }
+            if(expense.getIsCompleted()) {
+                viewHolder.wasPaidTV.setText(R.string.paid);
+                viewHolder.wasPaidTV.setTextColor(convertView.getResources().getColor(R.color.caldroid_black));
+            } else {
+                viewHolder.wasPaidTV.setText(R.string.not_paid);
+                viewHolder.wasPaidTV.setTextColor(convertView.getResources().getColor(R.color.red));
             }
             //viewHolder.typeTV.setText(expense.getTypeLabel());
             setTextHighlightSearch(viewHolder.typeTV, expense.getTypeLabel());

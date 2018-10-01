@@ -196,6 +196,7 @@
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:id="@+id/backupDataTV"
                     android:layout_weight="1"
                     android:text="@string/backup_data"
                     android:layout_marginLeft="10dp"
@@ -224,6 +225,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:id="@+id/importDataTV"
                     android:text="@string/import_data"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
