@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:id="@+id/totalsDateSelectorLL"
+        android:orientation="vertical"
+        >
+
+        <LinearLayout
+
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:background="?attr/colorPrimary"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
+            android:weightSum="2">
+
+            <Button
+                android:id="@+id/totalsDateRangeStartBtn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                style="@style/MainButtonStyle"
+                android:layout_weight="1"
+                android:text="1/15/2017" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/to"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:textColor="@color/white" />
+
+            <Button
+                android:id="@+id/totalsDateRangeEndBtn"
+                android:layout_width="0dp"
+                style="@style/MainButtonStyle"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="1/15/2018" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginRight="15dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="10dp"
+            android:background="@color/white"
+            >
+
+            <TextView
+                android:id="@+id/totalsIsCompletedFilterTV"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:paddingLeft="5dp"
+                android:background="@color/white"
+                android:gravity="center_horizontal"
+                android:textSize="20sp"
+                android:text="Paid/Recieved Only"/>
+
+        </LinearLayout>
+
+        <!--Border -->
+        <View
+            android:id="@+id/totalsDateBarBorder"
+            style="@style/RowBorder"
+            android:background="@color/caldroid_darker_gray" />
+
+    </LinearLayout>
+
+    <!--Totals list view -->
+    <ListView
+        android:id="@+id/totalsListView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/totalsDateSelectorLL"
+        style="@style/ListView"
+        android:paddingBottom="90dp"
+        android:clipToPadding="false"
+        >
+
+    </ListView>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:id="@+id/totalsListTotalBarLL"
+        android:background="?attr/colorPrimary"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical"
+        >
+
+        <!--Border -->
+        <View
+            android:layout_width="match_parent"
+            style="@style/RowBorder"
+            android:id="@+id/totalsListTotalBarBorder"
+            />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp"
+            android:background="@color/white"
+            >
+
+            <TextView
+                android:id="@+id/totalsListIncomeAmountLabelTV"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:layout_margin="5dp"
+                android:paddingLeft="10dp"
+                android:background="@color/white"
+                android:gravity="left"
+                android:textSize="20sp"
+                android:text="@string/income_colon"/>
+
+            <TextView
+                android:id="@+id/totalsListIncomeAmountTV"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:layout_margin="5dp"
+                android:paddingRight="10dp"
+                android:background="@color/white"
+                android:textColor="@color/green_colorPrimaryDark"
+                android:gravity="left"
+                android:textSize="20sp"
+                android:text="$0.00"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp"
+            android:background="@color/white"
+            >
+
+            <TextView
+                android:id="@+id/totalsListExpenseAmountLabelTV"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:layout_margin="5dp"
+                android:paddingLeft="10dp"
+                android:background="@color/white"
+                android:gravity="left"
+                android:textSize="20sp"
+                android:text="@string/expenses_colon"/>
+
+            <TextView
+                android:id="@+id/totalsListExpenseAmountTV"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:layout_margin="5dp"
+                android:paddingRight="10dp"
+                android:background="@color/white"
+                android:gravity="left"
+                android:textSize="20sp"
+                android:textColor="@color/red"
+                android:text="$0.00"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!--Text view if list empty -->
+    <TextView
+        android:id="@+id/totalsEmptyListTV"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:textSize="28sp"
+        android:visibility="invisible" />
+
+</RelativeLayout>

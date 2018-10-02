@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/incomeRowLL"
+        android:orientation="horizontal"
+        android:weightSum="5"
+        android:layout_marginRight="15dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginBottom="7dp"
+        android:layout_marginTop="5dp"
+        >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_weight="2"
+            >
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Rent collected from Burt Green for apt.235"
+                style="@style/RowText"
+                android:ellipsize="end"
+                android:maxLines="4"
+                android:id="@+id/incomeRowDescriptionTV"
+                />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_weight="3"
+            android:gravity="right"
+            >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1/21/15"
+                style="@style/RowLargeText"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:id="@+id/incomeRowDateTV"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="$355,000.58"
+                android:ellipsize="end"
+                style="@style/RowLargeText"
+                android:maxLines="1"
+                android:textColor="@color/green_colorPrimaryDark"
+                android:id="@+id/incomeRowAmountTV"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Type"
+                android:ellipsize="end"
+                android:maxLines="1"
+                style="@style/RowText"
+                android:id="@+id/incomeRowTypeTV"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/RowText"
+                android:text="Received"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:id="@+id/incomeRowWasReceivedTV"
+                />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>

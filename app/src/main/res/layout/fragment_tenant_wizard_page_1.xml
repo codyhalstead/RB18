@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/WizardPageContainer">
+
+    <TextView style="@style/WizardPageTitle" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:scrollbarStyle="outsideOverlay">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView style="@style/WizardTitle"
+                android:id="@+id/tenantWizardPageOneHeader"
+                android:text="@string/new_tenant_info"
+                />
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                hintTextAppearance="@style/WizardHintText"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/tenantWizardFirstNameET"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLength="30"
+                    android:hint="@string/first_name_req"
+                    android:inputType="textCapSentences|textNoSuggestions" />
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                hintTextAppearance="@style/WizardHintText"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/tenantWizardLastNameET"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/last_name_req"
+                    android:maxLength="30"
+                    android:inputType="textCapSentences|textNoSuggestions" />
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                hintTextAppearance="@style/WizardHintText"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/tenantWizardPhoneET"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/phone_number"
+                    android:maxLength="20"
+                    android:inputType="phone|textNoSuggestions" />
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                hintTextAppearance="@style/WizardHintText"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/tenantWizardEmailET"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLength="50"
+                    android:hint="@string/email"
+                    android:inputType="textEmailAddress|textNoSuggestions" />
+            </android.support.design.widget.TextInputLayout>
+<!--
+            <TextView
+                android:id="@+id/tenantWizardFirstNameLabelTV"
+                style="@style/WizardFormLabel"
+                android:text="*First Name" />
+
+            <EditText
+                android:id="@+id/tenantWizardFirstNameET"
+                android:layout_width="match_parent"
+                style="@style/FormText"
+                android:layout_height="40dp"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/rect_edit"
+                android:gravity="center_vertical"
+                android:text=""
+                android:hint=""
+                android:paddingEnd="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingStart="10dp"
+                android:saveEnabled="false"
+                android:inputType="textCapSentences"
+                />
+
+            <TextView
+                android:id="@+id/tenantWizardLasstNameLabelTV"
+                style="@style/WizardFormLabel"
+                android:text="*Last Name" />
+
+            <EditText
+                android:id="@+id/tenantWizardLastNameET"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginBottom="20dp"
+                style="@style/FormText"
+                android:background="@drawable/rect_edit"
+                android:gravity="center_vertical"
+                android:text=""
+                android:hint=""
+                android:paddingEnd="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingStart="10dp"
+                android:saveEnabled="false"
+                android:inputType="textCapSentences"
+                />
+
+            <TextView
+                android:id="@+id/tenantWizardPhoneLabelTV"
+                style="@style/WizardFormLabel"
+                android:text="Phone Number" />
+
+            <EditText
+                android:id="@+id/tenantWizardPhoneET"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginBottom="20dp"
+                style="@style/FormText"
+                android:background="@drawable/rect_edit"
+                android:gravity="center_vertical"
+                android:text=""
+                android:hint=""
+                android:paddingEnd="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingStart="10dp"
+                android:saveEnabled="false"
+                android:inputType="phone"
+                />
+
+            <TextView
+                android:id="@+id/tenantWizardEmailLabelTV"
+                style="@style/WizardFormLabel"
+                android:text="E-Mail" />
+
+            <EditText
+                android:id="@+id/tenantWizardEmailET"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginBottom="20dp"
+                style="@style/FormText"
+                android:background="@drawable/rect_edit"
+                android:gravity="center_vertical"
+                android:text=""
+                android:hint=""
+                android:paddingEnd="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingStart="10dp"
+                android:saveEnabled="false"
+                android:inputType="textEmailAddress"
+                />
+-->
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

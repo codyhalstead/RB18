@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+    <item
+        android:id="@+id/action_refresh_info"
+        android:icon="@drawable/ic_edit_white_24dp"
+        android:title=""
+        app:showAsAction="always">
+
+        <!--Options list -->
+        <menu>
+            <item
+                android:id="@+id/editLease"
+                android:title="@string/edit_lease" />
+
+            <item
+                android:id="@+id/editNotes"
+                android:title="@string/edit_notes" />
+
+            <item
+                android:id="@+id/deleteLease"
+                android:title="@string/delete_lease" />
+
+        </menu>
+
+    </item>
+</menu>

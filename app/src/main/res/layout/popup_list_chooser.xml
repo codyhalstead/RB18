@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <!--Text view if list empty -->
+    <TextView
+        android:id="@+id/popupListEmptyListTV"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="170dp"
+        android:gravity="center"
+        android:text="@string/no_apartments_to_display"
+        android:textSize="18sp"
+        android:visibility="invisible" />
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/popupListSelectTypeTV"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="@color/white"
+            android:background="?attr/colorPrimary"
+            android:text="Select A Tenant" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/popupListSearchET"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:maxLength="35"
+                android:background="@color/white"
+                android:drawableLeft="@drawable/ic_search_black_24dp"
+                android:ems="10"
+                android:gravity="left|center"
+                android:hint="@string/search" />
+
+            <!--Border -->
+            <View
+                style="@style/RowBorder" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="400dp">
+
+            <ListView
+                android:id="@+id/popupListListView"
+                android:layout_width="match_parent"
+                style="@style/ListView"
+                android:layout_height="400dp">
+
+            </ListView>
+        </LinearLayout>
+        <!--Border -->
+        <View
+            style="@style/RowBorder" />
+
+        <TextView
+            android:id="@+id/popupListCancelTV"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:gravity="center"
+            android:text="@string/cancel" />
+
+    </LinearLayout>
+</RelativeLayout>

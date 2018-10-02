@@ -1,0 +1,520 @@
+<resources>
+    <!--<string name="app_name">RentalBud</string>-->
+
+    <!-- general -->
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="save_changes">Save Changes</string>
+    <string name="next">Next</string>
+    <string name="review">Review</string>
+    <string name="add">Add</string>
+    <string name="remove">Remove</string>
+    <string name="error">ERROR</string>
+    <string name="apartment_list">Apartment List</string>
+    <string name="expense_list">Expense List</string>
+    <string name="income_list">Income List</string>
+    <string name="tenant_list">Tenant List</string>
+    <string name="lease_list">Lease List</string>
+    <string name="calendar">Calendar</string>
+    <string name="totals">Totals</string>
+    <string name="settings">Settings</string>
+    <string name="calendar_date_view">Calendar Date View</string>
+    <string name="apartment_view">Apartment View</string>
+    <string name="tenant_view">Tenant View</string>
+    <string name="lease_view">Lease View</string>
+    <string name="expense_view">Expense View</string>
+    <string name="income_view">Income View</string>
+    <string name="new_tenant_creation">New Tenant Creation</string>
+    <string name="edit_tenant">Edit Tenant</string>
+    <string name="new_lease_creation">New Lease Creation</string>
+    <string name="edit_lease">Edit Lease</string>
+    <string name="new_expense_creation">New Expense Creation</string>
+    <string name="edit_expense">Edit Expense</string>
+    <string name="new_income_creation">New Income Creation</string>
+    <string name="edit_income">Edit Income</string>
+    <string name="new_apartment_creation">New Apartment Creation</string>
+    <string name="edit_apartment">Edit Apartment</string>
+    <string name="clear">Clear</string>
+    <string name="cannot_be_empty">Cannot be empty</string>
+    <string name="rentbud">RentalBud</string>
+    <string name="rentbud_pro">RentalBud Pro</string>
+    <string name="downloads">Downloads</string>
+    <string name="rentbud_folder">RentalBud Folder</string>
+    <string name="failed_to_save_image">Failed to save image</string>
+    <string name="could_not_find_file">Could not find file</string>
+    <string name="pic_limit">Cannot exceed 10 pictures</string>
+    <string name="create">Create</string>
+    <string name="cancel">Cancel</string>
+    <string name="na">N/A</string>
+    <string name="camera">Camera</string>
+    <string name="gallery">Gallery</string>
+    <string name="camera_or_gallery">Use a photo from your gallery, or take a new one with your camera?</string>
+    <string name="ok">OK</string>
+    <string name="to">to</string>
+    <string name="no_internet_connection">No Internet Connection</string>
+
+    <!-- Home -->
+    <string name="home">Home</string>
+    <string name="expenses">Expenses</string>
+    <string name="upcoming_events_tab_title">Upcoming Events</string>
+    <string name="yearly_revenue_tab_title">Yearly Revenue</string>
+    <string name="jan">JAN</string>
+    <string name="feb">FEB</string>
+    <string name="mar">MAR</string>
+    <string name="apr">APR</string>
+    <string name="may">MAY</string>
+    <string name="jun">JUN</string>
+    <string name="jul">JUL</string>
+    <string name="aug">AUG</string>
+    <string name="sep">SEP</string>
+    <string name="oct">OCT</string>
+    <string name="nov">NOV</string>
+    <string name="dec">DEC</string>
+
+    <!-- login/signup -->
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="create_account_link"><u>No account yet? Create one</u></string>
+    <string name="create_account">Create Account</string>
+    <string name="already_a_member_link"><u>Already a member? Login</u></string>
+    <string name="enter_valid_email">Please enter a valid Email address ex: user@provider.com</string>
+    <string name="email_empty">Please enter a valid Email address</string>
+    <string name="password_requirements">Password must be between 4 and 15 alphanumeric characters</string>
+    <string name="password_empty">Please enter a password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="name">Name</string>
+    <string name="name_empty">Please enter your name</string>
+    <string name="password_doesnt_match">Password does not match</string>
+    <string name="password_confirmation_empty">Please confirm password</string>
+    <string name="email_used">Email already used</string>
+    <string name="account_creation_failed">Account creation failed</string>
+    <string name="account_creation_success">Account creation success</string>
+    <string name="login_failed">Login failed</string>
+    <string name="restore_accounts_with_backup"><u>Restore accounts with backup</u></string>
+    <string name="creating_account">Creating Account…</string>
+    <string name="forgot_password_link"><u>Forgot Password?</u></string>
+    <string name="enter_account_email">Enter Account Email</string>
+    <string name="no_account_for_email">No Account Registered With That Email</string>
+    <string name="password_recovery_confirmation">Receive New Password Through Email?</string>
+    <string name="recovery_email_subject">RentalBud account recovery</string>
+    <string name="recovery_email_body">Your new password is:</string>
+    <string name="recovery_email_body2">Password should be changed as soon as possible</string>
+    <string name="recovery_error">An Error Occurred, Password Not Reset</string>
+
+    <!-- userInputValidation -->
+    <string name="field_required">Field required</string>
+    <string name="please_use_10_digit_phone">Please use a 10 digit phone number</string>
+
+    <!-- View Fragments -->
+    <string name="info_tab_title">Info</string>
+    <string name="payments_tab_title">Payments</string>
+    <string name="lease_history_tab_title">History</string>
+    <string name="leases_tab_title">Leases</string>
+    <string name="apartment_deletion_confirmation">Are you sure you want to remove this apartment?</string>
+    <string name="expense_deletion_confirmation">Are you sure you want to remove this expense?</string>
+    <string name="income_deletion_confirmation">Are you sure you want to remove this income?</string>
+    <string name="lease_deletion_confirmation">Are you sure you want to remove this lease?</string>
+    <string name="lease_related_money_deletion_confirmation">"Remove all income/expenses related to this lease?"</string>
+    <string name="tenant_deletion_confirmation">Are you sure you want to remove this tenant?</string>
+    <string name="multiple_active_leases">Multiple Active Leases</string>
+    <string name="error_loading_primary_tenant">Error Loading Primary Tenant</string>
+    <string name="error_loading_apartment">Error Loading Apartment</string>
+    <string name="error_leading_lease">Error Loading Lease</string>
+    <string name="add_new_income_or_expense">Add new Income or Expense?</string>
+    <string name="income">Income</string>
+    <string name="expense">Expense</string>
+    <string name="primary_tenant">Primary Tenant</string>
+    <string name="secondary_tenant">Secondary Tenant</string>
+    <string name="call_e_contact_confirmation">Call emergency contact?</string>
+    <string name="sms_e_contact_confirmation">SMS emergency contact?</string>
+    <string name="max_dates_range">Max range is 2 years</string>
+    <string name="expense_information">Expense Information</string>
+    <string name="linked_information">Linked Information</string>
+    <string name="income_information">Income Information</string>
+    <string name="apartment_information">Apartment Information</string>
+    <string name="address">Address</string>
+    <string name="active_lease_information">Active Lease Information</string>
+    <string name="duration">Duration</string>
+    <string name="call_primary_tenant">Call Primary Tenant</string>
+    <string name="sms_primary_tenant">SMS Primary Tenant</string>
+    <string name="email_primary_tenant">Email Primary Tenant</string>
+    <string name="email_all_tenants">Email All Tenants</string>
+    <string name="lease_information">Lease Information</string>
+    <string name="tenant_information">Tenant Information</string>
+    <string name="find_date">Find Date</string>
+    <string name="go_to_today">Go To Today</string>
+    <string name="key">Key</string>
+    <string name="lease_begins">Lease Begins</string>
+    <string name="lease_ends">Lease Ends</string>
+    <string name="emer_contact_information">Emergency Contact Information</string>
+    <string name="emer_contact_name">Emergency Contact Name</string>
+    <string name="call_tenant">Call Tenant</string>
+    <string name="sms_tenant">SMS Tenant</string>
+    <string name="email_tenant">Email Tenant</string>
+    <string name="call_emer_contact">Call Emergency Contact</string>
+    <string name="sms_emer_contact">SMS Emergency Contact</string>
+    <string name="status">Status</string>
+    <string name="paid_received_only">Paid/Received Only</string>
+    <string name="projected">Projected</string>
+
+    <!-- Permissions -->
+    <string name="permission_picture_denied">"You don't have permission to access file location"</string>
+    <string name="permission_file_access_denied">"You don't have permission to access file location"</string>
+
+    <!-- Home -->
+    <string name="yearly_revenue">Yearly Revenue</string>
+    <string name="upcoming_payments">Upcoming Payments</string>
+    <string name="upcoming_lease_activities">Upcoming Lease Activities</string>
+
+    <!-- Menus -->
+    <string name="main_drawer_home">Home</string>
+    <string name="main_drawer_calendar">Calendar</string>
+    <string name="main_drawer_apartments">Apartments</string>
+    <string name="main_drawer_tenants">Tenants</string>
+    <string name="main_drawer_leases">Leases</string>
+    <string name="main_drawer_money_title">Money</string>
+    <string name="main_drawer_income">Income</string>
+    <string name="main_drawer_expenses">Expenses</string>
+    <string name="main_drawer_totals">Totals</string>
+    <string name="edit_notes">Edit Notes</string>
+    <string name="change_main_picture">Change Main Picture</string>
+    <string name="add_side_picture">Add Side Picture</string>
+    <string name="delete_apartment">Delete Apartment</string>
+    <string name="edit">Edit</string>
+    <string name="change_receipt_picture">Change Receipt Picture</string>
+    <string name="delete_expense">Delete Expense</string>
+    <string name="delete_income">Delete Income</string>
+    <string name="delete_lease">Delete Lease</string>
+    <string name="log_out">Log Out</string>
+    <string name="remove_image">Remove Image</string>
+    <string name="change_image">Change Image</string>
+    <string name="delete_tenant">Delete Tenant</string>
+    <string name="change_income_status">Mark Received/Unreceived</string>
+    <string name="change_expense_status">Mark Paid/Unpaid</string>
+    <string name="change_status">Change Status</string>
+
+    <!-- Apartment Wizard -->
+    <string name="create_apartment">Create Apartment</string>
+    <string name="edit_apt_info">Edit Apt. Info</string>
+    <string name="select_an_apartment">Select An Apartment</string>
+    <string name="no_available_apartments">No Available Apartments</string>
+    <string name="address_line_1">Address Line 1</string>
+    <string name="address_line_2">Address Line 2</string>
+    <string name="city">City</string>
+    <string name="state">State/Province</string>
+    <string name="zip">ZIP</string>
+    <string name="description">Description</string>
+    <string name="notes">Notes</string>
+    <string name="main_pic">Main Picture</string>
+    <string name="number_of_side_pics">Number Of Side Pictures</string>
+    <string name="exit_wizard_confirmation">Exit the wizard? Changes made will not be saved</string>
+    <string name="previous">Previous</string>
+    <string name="new_apt_address">New Apt. Address</string>
+    <string name="address_line_1_req">*Address Line 1</string>
+    <string name="address_line_2_req">*Address Line 2</string>
+    <string name="city_req">*City</string>
+    <string name="state__province_req">*State/Province</string>
+    <string name="zip_req">*ZIP</string>
+    <string name="more_apt_info">More Apt. Info</string>
+    <string name="apt_main_picture">Apt. Main Picture</string>
+    <string name="change">Change</string>
+    <string name="other_pictures">Other Pictures</string>
+    <string name="folder">Folder</string>
+
+    <!-- Expense Wizard -->
+    <string name="create_expense">Create Expense</string>
+    <string name="edit_expense_info">Edit Expense Info</string>
+    <string name="date">Date</string>
+    <string name="amount">Amount</string>
+    <string name="type">Type</string>
+    <string name="receipt_pic">Receipt Picture</string>
+    <string name="related_apt">Related Apartment</string>
+    <string name="related_tenant">Related Tenant</string>
+    <string name="related_lease">Related Lease</string>
+    <string name="new_expense_info">New Expense Info</string>
+    <string name="date_of_expense_req">*Date Of Expense</string>
+    <string name="expense_amount_req">*Expense Amount</string>
+    <string name="type_req">*Type</string>
+    <string name="add_new_expense_type">Add New Expense Type</string>
+    <string name="expense_description">Expense Description</string>
+    <string name="description_req">*Description</string>
+    <string name="expense_receipt_pic">Expense Receipt Pic</string>
+    <string name="expense_linking">Expense Linking</string>
+    <string name="expense_related_apt_ques">Is Expense Related To An Apartment?</string>
+    <string name="expense_related_tenant_ques">Is Expense Related To A Tenant?</string>
+    <string name="expense_related_lease_ques">Is Expense Related To A Lease?</string>
+    <string name="link_lease_hint">To link a lease, you need to link a related tenant and/or apartment</string>
+
+    <!-- Income Wizard -->
+    <string name="create_income">Create Income</string>
+    <string name="edit_income_info">Edit Income Info</string>
+    <string name="new_income_info">New Income Info</string>
+    <string name="date_of_income_req">*Date Of Income</string>
+    <string name="income_amount_req">*Income Amount</string>
+    <string name="add_new_income_type">Add New Income Type</string>
+    <string name="income_description">Income Description</string>
+    <string name="income_receipt_pic">Income Receipt Pic</string>
+    <string name="income_linking">Income Linking</string>
+    <string name="income_related_apt_ques">Is Income Related To An Apartment?</string>
+    <string name="income_related_tenant_ques">Is Income Related To A Tenant?</string>
+    <string name="income_related_lease_ques">Is Income Related To A Lease?</string>
+
+    <!-- Lease Wizard -->
+    <string name="create_lease">Create Lease</string>
+    <string name="prorated_rent_payment">Prorated rent payment</string>
+    <string name="rent_payment">Rent payment</string>
+    <string name="deposit">Deposit</string>
+    <string name="deposit_returned">Deposit returned</string>
+    <string name="click_to_select_date">Click To Select Date</string>
+    <string name="click_to_select_apartment">Click To Select Apartment</string>
+    <string name="req_apartment">*Apartment</string>
+    <string name="lease_was">Lease was&#160;</string>
+    <string name="lease_is">Lease is&#160;</string>
+    <string name="month_and">&#160;Month And&#160;</string>
+    <string name="months_and">&#160;Months And&#160;</string>
+    <string name="day_long">&#160;Day Long</string>
+    <string name="days_long">&#160;Days Long</string>
+    <string name="select_a_lease">Select A Lease</string>
+    <string name="no_available_leases">No Available Leases</string>
+    <string name="start_date">Start Date</string>
+    <string name="end_date">End Date</string>
+    <string name="apartment">Apartment</string>
+    <string name="other_tenants">Other Tenants</string>
+    <string name="rent_cost">Rent Cost</string>
+    <string name="payment_frequency">Payment Frequency</string>
+    <string name="due_date">Due Date</string>
+    <string name="prorated_first_payment">Prorated First Payment</string>
+    <string name="prorated_last_payment">Prorated Last Payment</string>
+    <string name="dates">Dates</string>
+    <string name="lease_start_date_req">*Lease Start Date</string>
+    <string name="lease_end_date_req">*Lease End Date</string>
+    <string name="invalid_dates">Invalid Start/End Dates</string>
+    <string name="apartment_req">*Apartment</string>
+    <string name="tenants">Tenants</string>
+    <string name="primary_tenant_req">*Primary Tenant</string>
+    <string name="deposit_amount">Deposit Amount</string>
+    <string name="rent">Rent</string>
+    <string name="rent_cost_req">*Rent Cost</string>
+    <string name="payment_frequency_req">*Payment Frequency</string>
+    <string name="due_day_req">*Due Day</string>
+    <string name="this_creates">This creates&#160;</string>
+    <string name="payment_s">&#160;payment(s)</string>
+    <string name="including">Including&#160;</string>
+    <string name="prorated_payment_s">&#160;prorated payment(s)</string>
+    <string name="if_rent_changes_occur_warning">If any changes occur, you will have to edit payments individually</string>
+    <string name="changes_for_display_only_warning">Changes made here are for display purposes only, payments will have to be edited separately</string>
+    <string name="prorated_payments">Prorated Payments</string>
+    <string name="first_payment_req">*First Payment</string>
+    <string name="last_payment_req">*Last Payment</string>
+    <string name="recommended_price">Recommended price:&#160;</string>
+    <string name="from_cap">From&#160;</string>
+    <string name="for_s">for&#160;</string>
+    <string name="to_space">&#160;to&#160;</string>
+    <string name="left_para">&#160;(</string>
+    <string name="day_s">&#160;Day(s))</string>
+    <string name="auto_generated">(Auto-generated)</string>
+    <string name="from_s_cap">From&#160;</string>
+    <string name="to_s_cap">To&#160;</string>
+    <string name="renting_s">renting&#160;</string>
+    <string name="max_lease_duration_warning">Max Lease Duration Is 3 Years</string>
+    <string name="start_of_cycle">Start Of Cycle</string>
+    <string name="start_of_cycle_req">*Start Of Cycle</string>
+
+    <!-- Tenant Wizard -->
+    <string name="create_tenant">Create Tenant</string>
+    <string name="edit_tenant_info">Edit Tenant Info</string>
+    <string name="select_a_tenant">Select A Tenant</string>
+    <string name="select_secondary_tenant">Select Secondary Tenant</string>
+    <string name="no_available_tenants">No Available Tenants</string>
+    <string name="first_name">First Name</string>
+    <string name="last_name">Last Name</string>
+    <string name="email_review">Email</string>
+    <string name="phone">Phone</string>
+    <string name="emer_contact_first_name">Emergency Contact First Name</string>
+    <string name="emer_contact_last_name">Emergency Contact Last Name</string>
+    <string name="emer_contact_phone">Emergency Contact Phone</string>
+    <string name="new_tenant_info">New Tenant Info</string>
+    <string name="first_name_req">*First Name</string>
+    <string name="last_name_req">*Last Name</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="emergency_contact">Emergency Contact</string>
+
+    <!-- Settings -->
+    <string name="type_question">type?</string>
+    <string name="add_or_remove_income_type">Add or remove income type?</string>
+    <string name="add_or_remove_expense_type">Add or remove expense type?</string>
+    <string name="select_a_type_to_delete">Select A Type To Delete</string>
+    <string name="no_types_to_display">No Types To Display</string>
+    <string name="send_backip_to_email_question">Where would you like to send the backup?</string>
+    <string name="send_email">Send Email</string>
+    <string name="use_downloads_or_rentbud_folder">"Do you want to use backup data from the downloads folder(Received through E-mail) or the RentalBud folder(App created)?"</string>
+    <string name="backup_restored">Backup Restored</string>
+    <string name="create_new_type">Create New Type</string>
+    <string name="account_removed">Account Successfully Removed</string>
+    <string name="incorrect_password">Incorrect Password</string>
+    <string name="comfirm_pass_to_delete_account_title">Confirm Password To Remove Account</string>
+    <string name="comfirm_pass_to_delete_account_message">Account Will Be Removed If Successful</string>
+    <string name="comfirm_pass_to_change_account_info">Confirm Password</string>
+    <string name="new_account_email">Type New E-Mail Address</string>
+    <string name="type_old_pass">Confirm Old Password</string>
+    <string name="new_account_password">Type New Password</string>
+    <string name="email_changed">E-Mail Successfully Changed</string>
+    <string name="password_changed">Password Successfully Changed</string>
+    <string name="change_theme">Change Theme</string>
+    <string name="add_remove_income_type">Add/Remove Income Type</string>
+    <string name="add_remove_expense_type">Add/Remove Expense Type</string>
+    <string name="change_currency">Change Currency</string>
+    <string name="change_date_format">Change Date Format</string>
+    <string name="backup_data">Backup Data</string>
+    <string name="import_data">Import Data</string>
+    <string name="change_email">Change Email</string>
+    <string name="change_password">Change Password</string>
+    <string name="remove_account">Remove Account</string>
+    <string name="import_not_available">Not Available For This Version</string>
+
+    <!-- Adapters -->
+    <string name="rented_by">Rented By:&#160;</string>
+    <string name="vacant">Vacant</string>
+    <string name="over99">99+</string>
+    <string name="primary">Primary</string>
+    <string name="secondary">Secondary</string>
+    <string name="not_currently_renting">Not Currently Renting</string>
+    <string name="renting">Renting</string>
+    <string name="space_occurrences">&#160;occurrences</string>
+    <string name="space_occurrence">&#160;occurrence</string>
+    <string name="until">Until:&#160;</string>
+    <string name="lease_ends_on">Lease ends on&#160;</string>
+    <string name="paid">Paid</string>
+    <string name="not_paid">Not Paid</string>
+    <string name="received">Received</string>
+    <string name="not_received">Not Received</string>
+
+    <!-- List views -->
+    <string name="no_leases_within_14_days">No Lease Activities Within 14 Days</string>
+    <string name="no_payments_within_14_days">No Payments Within 14 Days</string>
+    <string name="no_apartments_to_display">No Apartments To Display</string>
+    <string name="no_expenses_to_display">No Expenses To Display</string>
+    <string name="no_income_to_display">No Income To Display</string>
+    <string name="no_tenants_to_display">No Tenants To Display</string>
+    <string name="no_leases_to_display">No Leases To Display</string>
+    <string name="no_data_to_display">No Data To Display</string>
+    <string name="no_payments_to_display_date">No Payments Occurring On This Date</string>
+    <string name="no_leases_to_display_date">No Leases Starting Or Ending On This Date</string>
+    <string name="no_payments_to_display_apartment">No Payments Linked To This Apartment</string>
+    <string name="no_leases_to_display_apartment">No Leases Linked To This Apartment</string>
+    <string name="no_payments_to_display_tenant">No Payments Linked To This Tenant</string>
+    <string name="no_leases_to_display_tenant">No Leases Linked To This Tenant</string>
+    <string name="no_payments_to_display_lease">No Payments Linked To This Lease</string>
+    <string name="search">Search</string>
+    <string name="total">Total:</string>
+    <string name="income_colon">Income:</string>
+    <string name="expenses_colon">Expenses:</string>
+    <string name="received_total">Total Received:</string>
+    <string name="total_paid">Total Paid:</string>
+    <string name="projected_total">Projected Total:</string>
+
+    <string-array name="DBTypes_array">
+        <item>Income</item>
+        <item>Expense</item>
+        <item>Event</item>
+    </string-array>
+
+    <string-array name="DBIncomeLookupTypes_array">
+        <item>Rent</item>
+        <item>Deposit</item>
+        <item>Late Fee</item>
+    </string-array>
+
+    <string-array name="DBExpenseLookupTypes_array">
+        <item>Deposit Returned</item>
+        <item>Utility</item>
+        <item>Renovation</item>
+        <item>Repairs</item>
+    </string-array>
+
+    <string-array name="DBEventLookupTypes_array">
+        <item>Lease Started</item>
+        <item>Lease Ended</item>
+    </string-array>
+
+    <string-array name="date_array">
+        <item>1st</item>
+        <item>2nd</item>
+        <item>3rd</item>
+        <item>4th</item>
+        <item>5th</item>
+        <item>6th</item>
+        <item>7th</item>
+        <item>8th</item>
+        <item>9th</item>
+        <item>10th</item>
+        <item>11th</item>
+        <item>12th</item>
+        <item>13th</item>
+        <item>14th</item>
+        <item>15th</item>
+        <item>16th</item>
+        <item>17th</item>
+        <item>18th</item>
+        <item>19th</item>
+        <item>20th</item>
+        <item>21st</item>
+        <item>22nd</item>
+        <item>23rd</item>
+        <item>24th</item>
+        <item>25th</item>
+        <item>26th</item>
+        <item>27th</item>
+        <item>28th</item>
+        <item>29th</item>
+        <item>30th</item>
+        <item>31st</item>
+    </string-array>
+
+    <string-array name="frequency_array_monthly">
+        <item>Monthly</item>
+        <item>Every 2 Months</item>
+        <item>Every 3 Months</item>
+        <item>Every 4 Months</item>
+        <item>Every 6 Months</item>
+        <item>Every 9 Months</item>
+        <item>Yearly</item>
+    </string-array>
+
+    <string-array name="frequency_array_weekly">
+        <item>Weekly</item>
+        <item>Every 2 Weeks</item>
+        <item>Every 3 Weeks</item>
+    </string-array>
+
+    <string-array name="day_array">
+        <item>Monday</item>
+        <item>Tuesday</item>
+        <item>Wednesday</item>
+        <item>Thursday</item>
+        <item>Friday</item>
+        <item>Saturday</item>
+        <item>Sunday</item>
+    </string-array>
+
+    <string-array name="DBFrequencyLookupTypes_array">
+        <item>Monthly</item>
+        <item>Weekly</item>
+    </string-array>
+
+    <string-array name="currency_choices_array">
+        <item>$</item>
+        <item>£</item>
+        <item>¥‎</item>
+        <item>₩</item>
+        <item>€</item>
+    </string-array>
+
+    <string-array name="date_choices_array">
+        <item>MM/DD/YYYY</item>
+        <item>DD/MM/YYYY</item>
+        <item>YYYY/MM/DD‎</item>
+        <item>YYYY/DD/MM</item>
+    </string-array>
+</resources>

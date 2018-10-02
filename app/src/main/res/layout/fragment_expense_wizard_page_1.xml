@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/WizardPageContainer">
+
+    <TextView style="@style/WizardPageTitle" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:scrollbarStyle="outsideOverlay">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/expenseWizardPageOneHeader"
+                style="@style/WizardTitle"
+                android:text="@string/new_expense_info" />
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                hintTextAppearance="@style/WizardHintText"
+                android:layout_marginTop="10dp">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/expenseWizardDateTV"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:focusable="false"
+                    android:hint="@string/date_of_expense_req"
+                    android:inputType="none" />
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                hintTextAppearance="@style/WizardHintText"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/expenseWizardAmountET"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLength="14"
+                    android:hint="@string/expense_amount_req"
+                    android:inputType="number"
+                    android:text="$0.00" />
+            </android.support.design.widget.TextInputLayout>
+            <!--
+            <TextView
+                android:id="@+id/expenseWizardDateLabelTV"
+                style="@style/WizardFormLabel"
+                android:text="*Date Of Expense" />
+
+            <TextView
+                android:id="@+id/expenseWizardDateTV"
+                style="@style/FormText"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/rect_edit"
+                android:gravity="center_vertical"
+                android:hint="Click to add date"
+                android:paddingEnd="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingStart="10dp"
+                android:saveEnabled="false" />
+
+            <TextView
+                android:id="@+id/expenseWizardAmountLabelTV"
+                style="@style/WizardFormLabel"
+                android:text="*Expense Amount" />
+
+            <EditText
+                android:id="@+id/expenseWizardAmountET"
+                style="@style/FormText"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/rect_edit"
+                android:gravity="center_vertical"
+                android:hint=""
+                android:inputType="number"
+                android:paddingEnd="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingStart="10dp"
+                android:saveEnabled="false"
+                android:text="$0.00" />
+
+            <TextView
+                android:id="@+id/expenseWizardTypeLabelTV"
+                style="@style/WizardFormLabel"
+                android:text="*Expense Type" />
+                -->
+            <LinearLayout
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/expenseWizardTypeLabelTV"
+                    style="@style/SpinnerLabelStyle"
+                    android:text="@string/type_req" />
+
+                <RelativeLayout
+                    style="@style/MainSpinnerStyle"
+                    android:layout_width="200dp"
+                    android:layout_height="40dp">
+
+                    <Spinner
+                        android:id="@+id/expenseWizardTypeSpinner"
+                        style="@style/Widget.AppCompat.DropDownItem.Spinner"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp" />
+                </RelativeLayout>
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/expenseWizardAddNewTypeBtn"
+                style="@style/MainButtonStyle"
+                android:layout_width="200dp"
+                android:layout_marginTop="10dp"
+                android:layout_height="wrap_content"
+                android:text="@string/add_new_expense_type" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

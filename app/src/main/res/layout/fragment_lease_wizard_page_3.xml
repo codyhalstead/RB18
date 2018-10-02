@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/WizardPageContainer">
+
+    <TextView style="@style/WizardPageTitle" />
+
+    <ScrollView android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:scrollbarStyle="outsideOverlay">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+        <TextView style="@style/WizardTitle"
+            android:text="@string/rent"
+            />
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                hintTextAppearance="@style/WizardHintText"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/leaseWizardRentCostET"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:saveEnabled="false"
+                    android:maxLength="14"
+                    android:hint="@string/rent_cost"
+                    android:text="$0.00"
+                    android:inputType="number" />
+            </android.support.design.widget.TextInputLayout>
+            <!--
+            <TextView
+                android:id="@+id/leaseWizardRentCostLabelTV"
+                style="@style/WizardFormLabel"
+                android:text="*Rent Cost" />
+
+            <EditText
+                android:id="@+id/leaseWizardRentCostET"
+                android:layout_width="200dp"
+                android:layout_height="40dp"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/rect_edit"
+                android:gravity="center_vertical"
+                android:text="$0.00"
+                android:hint=""
+                android:paddingEnd="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingStart="10dp"
+                android:saveEnabled="false"
+                android:inputType="number"
+                />
+-->
+            <TextView
+                android:id="@+id/leaseWizardPaymentFrequencyLabelTV"
+                style="@style/SpinnerLabelStyle"
+                android:text="@string/payment_frequency_req" />
+
+            <RelativeLayout
+                android:layout_width="200dp"
+                android:layout_height="40dp"
+                style="@style/MainSpinnerStyle"
+                android:layout_marginBottom="20dp"
+                >
+                <Spinner
+                    style="@style/Widget.AppCompat.DropDownItem.Spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:id="@+id/leaseWizardRentFrequencySpinner"
+                    />
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/leaseWizardDueDateLabelTV"
+                style="@style/SpinnerLabelStyle"
+                android:text="@string/due_day_req" />
+
+            <RelativeLayout
+                android:layout_width="200dp"
+                android:layout_height="40dp"
+                style="@style/MainSpinnerStyle"
+                android:layout_marginBottom="20dp"
+                android:id="@+id/leaseWizardRentDueDateRL"
+                >
+                <Spinner
+                    style="@style/Widget.AppCompat.DropDownItem.Spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:id="@+id/leaseWizardRentDueDateSpinner"
+                    />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/leaseWizardWeeklyDueDayRL"
+                android:layout_width="200dp"
+                android:layout_height="40dp"
+                style="@style/MainSpinnerStyle"
+                android:layout_marginBottom="20dp"
+                >
+                <Spinner
+                    style="@style/Widget.AppCompat.DropDownItem.Spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:id="@+id/leaseWizardWeeklyDueDaySpinner"
+                    />
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/leaseWizardStartOfCycleTV"
+                style="@style/SpinnerLabelStyle"
+                android:text="@string/start_of_cycle_req" />
+
+            <RelativeLayout
+                android:layout_width="200dp"
+                android:layout_height="40dp"
+                style="@style/MainSpinnerStyle"
+                android:id="@+id/leaseWizardStartOfCycleRL"
+                android:layout_marginBottom="20dp"
+                >
+                <Spinner
+                    style="@style/Widget.AppCompat.DropDownItem.Spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:id="@+id/leaseWizardStartOfCycleSpinner"
+                    />
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:id="@+id/leaseWizardPaymentInfoRowLL"
+                >
+
+                <TextView
+                    android:id="@+id/leaseWizardThisCreatedTV"
+                    style="@style/FormText"
+                    android:layout_width="wrap_content"
+                    android:text="@string/this_creates" />
+
+                <TextView
+                    android:id="@+id/leaseWizardPaymentAmountsTV"
+                    style="@style/FormText"
+                    android:layout_width="wrap_content"
+                    android:textColor="@color/step_pager_selected_tab_color"
+                    android:text="12" />
+
+                <TextView
+                    android:id="@+id/leaseWizardPaymentsTV"
+                    style="@style/FormText"
+                    android:layout_width="wrap_content"
+                    android:text="@string/payment_s" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:id="@+id/leaseWizardProratedPaymentInfoRowLL"
+                >
+
+                <TextView
+                    android:id="@+id/leaseWizardIncludingTV"
+                    style="@style/FormText"
+                    android:layout_width="wrap_content"
+                    android:text="@string/including" />
+
+                <TextView
+                    android:id="@+id/leaseWizardProratedPaymentAmountTV"
+                    style="@style/FormText"
+                    android:layout_width="wrap_content"
+                    android:textColor="@color/step_pager_selected_tab_color"
+                    android:text="2" />
+
+                <TextView
+                    android:id="@+id/leaseWizardProratedPaymentsTV"
+                    style="@style/FormText"
+                    android:layout_width="wrap_content"
+                    android:text="@string/prorated_payment_s" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/leaseWizardNewChangeWarningTV"
+                android:layout_marginTop="20dp"
+                style="@style/FormText"
+                android:layout_width="wrap_content"
+                android:text="@string/if_rent_changes_occur_warning" />
+
+            <TextView
+                android:id="@+id/leaseWizardEditChangeWarningTV"
+                android:layout_marginTop="20dp"
+                style="@style/FormText"
+                android:layout_width="wrap_content"
+                android:text="@string/changes_for_display_only_warning" />
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

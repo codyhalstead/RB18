@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/WizardPageContainer">
+
+    <TextView style="@style/WizardPageTitle" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:scrollbarStyle="outsideOverlay">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView style="@style/WizardTitle"
+                android:text="@string/notes"
+                />
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                hintTextAppearance="@style/WizardHintText"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/tenantWizardNotesET"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLength="500"
+                    android:hint="@string/notes"
+                    android:inputType="textMultiLine|textCapSentences|textNoSuggestions" />
+            </android.support.design.widget.TextInputLayout>
+<!--
+            <TextView
+                android:id="@+id/tenantWizardNotesLabelTV"
+                style="@style/WizardFormLabel"
+                android:text="Notes" />
+
+            <EditText
+                android:id="@+id/tenantWizardNotesET"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textMultiLine"
+                android:ems="10"
+                android:enabled="true"
+                android:minLines="6"
+                android:maxLines="6"
+                android:isScrollContainer="true"
+                android:background="@drawable/rect_edit"
+                android:textIsSelectable="true"
+                android:focusable="true"
+                android:gravity="top"
+                android:padding="10dp"
+                style="@style/FormText"
+                android:layout_marginBottom="20dp"
+                />
+-->
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

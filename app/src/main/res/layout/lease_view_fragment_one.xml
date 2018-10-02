@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical"
+        android:id="@+id/adViewLL"
+        >
+        <View
+            android:id="@+id/apartmentListBarBorder"
+            android:layout_width="match_parent"
+            style="@style/RowBorder" />
+
+        <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/adView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
+            ads:adSize="BANNER"
+            ads:adUnitId="ca-app-pub-3940256099942544/6300978111" />
+
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/adViewLL"
+        >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                style="@style/ViewInformationRowHeaderTextStyle"
+                android:text="@string/lease_information" />
+
+            <!--Lease Duration -->
+            <TableRow
+                style="@style/ViewInformationRowStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/leaseViewDurationLabelTextView"
+                    style="@style/ViewInformationRowLeftTextStyle"
+                    android:text="@string/duration" />
+
+                <TextView
+                    android:id="@+id/leaseViewDurationTextView"
+                    style="@style/ViewInformationRowRightTextStyle"
+                    android:text="11/12/1234 - 11/12/1235" />
+
+            </TableRow>
+
+            <!--Rent -->
+            <TableRow
+                style="@style/ViewInformationRowStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/leaseViewRentLabelTextView"
+                    style="@style/ViewInformationRowLeftTextStyle"
+                    android:text="@string/rent" />
+
+                <TextView
+                    android:id="@+id/leaseViewRentTextView"
+                    style="@style/ViewInformationRowRightTextStyle"
+                    android:text="$5,000.00" />
+
+            </TableRow>
+
+            <!--Frequency -->
+            <TableRow
+                style="@style/ViewInformationRowStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/leaseViewFrequencyLabelTextView"
+                    style="@style/ViewInformationRowLeftTextStyle"
+                    android:text="@string/payment_frequency" />
+
+                <TextView
+                    android:id="@+id/leaseViewFrequencyTextView"
+                    style="@style/ViewInformationRowRightTextStyle"
+                    android:text="Monthly" />
+
+            </TableRow>
+
+            <!--Due Date -->
+            <TableRow
+                style="@style/ViewInformationRowStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/leaseViewDueDateLabelTV"
+                    style="@style/ViewInformationRowLeftTextStyle"
+                    android:text="@string/due_date" />
+
+                <TextView
+                    android:id="@+id/leaseViewDueDateTV"
+                    style="@style/ViewInformationRowRightTextStyle"
+                    android:text="1st" />
+
+            </TableRow>
+
+            <TextView
+                style="@style/ViewInformationRowHeaderTextStyle"
+                android:text="@string/tenant_information" />
+
+            <!--Primary Tenant -->
+            <TableRow
+                style="@style/ViewInformationRowStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/leaseViewPrimaryTenantLabelTextView"
+                    style="@style/ViewInformationRowLeftTextStyle"
+                    android:text="@string/primary_tenant" />
+
+                <TextView
+                    android:id="@+id/leaseViewPrimaryTenantTextView"
+                    style="@style/ViewInformationRowRightTextStyle"
+                    android:text="George Bush" />
+
+            </TableRow>
+
+            <!--Phone -->
+            <TableRow
+                style="@style/ViewInformationRowStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/leaseViewPhoneLabelTextView"
+                    style="@style/ViewInformationRowLeftTextStyle"
+                    android:text="@string/phone" />
+
+                <TextView
+                    android:id="@+id/leaseViewPhoneTextView"
+                    style="@style/ViewInformationRowRightTextStyle"
+                    android:text="234-435-6784" />
+
+            </TableRow>
+
+            <!--Email -->
+            <TableRow
+                style="@style/ViewInformationRowStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/leaseViewEmailLabelTextView"
+                    style="@style/ViewInformationRowLeftTextStyle"
+                    android:text="@string/email" />
+
+                <TextView
+                    android:id="@+id/leaseViewEmailTextView"
+                    style="@style/ViewInformationRowRightTextStyle"
+                    android:text="kft@hotmail.com" />
+
+            </TableRow>
+
+            <!--Other Tenants -->
+            <TableRow
+                style="@style/ViewInformationRowStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/leaseViewOtherTenantsLabelTextView"
+                    style="@style/ViewInformationRowLeftTextStyle"
+                    android:text="@string/other_tenants" />
+
+                <TextView
+                    android:id="@+id/leaseViewOtherTenantsTextView"
+                    style="@style/ViewInformationRowRightTextStyle"
+                    android:text="Bill Clinton" />
+
+            </TableRow>
+
+            <TextView
+                style="@style/ViewInformationRowHeaderTextStyle"
+                android:text="@string/apartment_information" />
+
+            <!--Apartment -->
+            <TableRow
+                style="@style/ViewInformationRowStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/leaseViewApartmentLabelTextView"
+                    style="@style/ViewInformationRowLeftTextStyle"
+                    android:text="@string/address" />
+
+                <TextView
+                    android:id="@+id/leaseViewApartmentTextView"
+                    style="@style/ViewInformationRowRightTextStyle"
+                    android:text="2390 Burlington Rd. Apt.123" />
+
+            </TableRow>
+
+            <TextView
+                style="@style/ViewInformationRowHeaderTextStyle"
+                android:text="@string/notes" />
+
+            <!--Notes -->
+            <TableRow
+                style="@style/ViewInformationRowStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="40dp">
+
+                <TextView
+                    android:id="@+id/leaseViewNotesTextView"
+                    style="@style/ViewInformationRowRightTextStyle"
+                    android:layout_weight="3"
+                    android:text="The notes" />
+
+            </TableRow>
+
+        </TableLayout>
+
+        <Button
+            android:id="@+id/leaseViewCallTenantBtn"
+            style="@style/ContactButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/ic_call_black_24dp"
+            android:text="@string/call_primary_tenant" />
+
+        <Button
+            android:id="@+id/leaseViewSMSTenantBtn"
+            style="@style/ContactButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/ic_textsms_black_24dp"
+            android:text="@string/sms_primary_tenant" />
+
+        <Button
+            android:id="@+id/leaseViewEmailTenantBtn"
+            style="@style/ContactButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/ic_email_black_24dp"
+            android:text="@string/email_primary_tenant" />
+
+        <Button
+            android:id="@+id/leaseViewEmailAllTenantsBtn"
+            style="@style/ContactButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/ic_email_black_24dp"
+            android:text="@string/email_all_tenants" />
+
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="20dp" />
+
+    </LinearLayout>
+    </ScrollView>
+</RelativeLayout>
