@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.RB18.activities.MainActivity">
+
+    <android.support.design.widget.TabLayout
+        android:id="@+id/tabs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:tabIndicatorHeight="5dp"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        app:tabIndicatorColor="?attr/colorAccent"
+        app:tabGravity="fill"
+        app:tabMode="fixed"
+        app:tabSelectedTextColor="@color/white"
+        app:tabTextColor="@color/nonSelectedTabColor" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:id="@+id/homeIsCompletedFilterLL"
+        android:paddingTop="10dp"
+        android:layout_height="55dp"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginBottom="10dp"
+        android:background="?attr/colorPrimary"
+        >
+
+        <TextView
+            android:id="@+id/homeIsCompletedFilterTV"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginLeft="15dp"
+            android:paddingLeft="5dp"
+            android:background="@color/white"
+            android:gravity="center_horizontal"
+            android:textSize="20sp"
+            android:text="Paid/Recieved Only"/>
+
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!--Profile picture and design -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/homeFragmentLineGraphLL"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="@string/yearly_revenue"
+                    android:textSize="21sp" />
+
+                <include layout="@layout/income_expense_line_graph">
+
+                </include>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/homeFragmentUpcomingListsLL"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:gravity="center"
+                    android:text="@string/upcoming_payments"
+                    android:textSize="21sp" />
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="50dp"
+                    android:layout_marginRight="50dp"
+                    android:background="@color/rowBorder">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"
+                        android:layout_margin="2dp"
+                        android:background="@color/white">
+
+                        <ListView
+                            android:id="@+id/homeFragmentUpcomingPaymentsLV"
+                            android:layout_width="match_parent"
+                            android:divider="@color/rowBorder"
+                            android:dividerHeight="2dp"
+                            android:layout_height="200dp" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/homeFragmentEmptyMoneyTV"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="40dp"
+                        android:gravity="center"
+                        android:text="" />
+                </RelativeLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:gravity="center"
+                    android:text="@string/upcoming_lease_activities"
+                    android:textSize="21sp" />
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="50dp"
+                    android:layout_marginRight="50dp"
+                    android:background="@color/rowBorder">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"
+                        android:layout_margin="2dp"
+                        android:background="@color/white">
+
+                        <ListView
+                            android:id="@+id/homeFragmentUpcomingLeasesLV"
+                            android:layout_width="match_parent"
+                            android:divider="@android:color/darker_gray"
+                            android:dividerHeight="2dp"
+                            android:layout_height="200dp" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/homeFragmentEmptyLeasesTV"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="40dp"
+                        android:gravity="center"
+                        android:text="" />
+
+                </RelativeLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="2">
+
+                    <Button
+                        android:id="@+id/add100TenantsBtn"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        style="@style/MainButtonStyle"
+                        android:onClick="add100Tenants"
+                        android:text="Add 100 tenants" />
+
+                    <Button
+                        android:id="@+id/add100ApartmentsBtn"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        style="@style/MainButtonStyle"
+                        android:onClick="add100Apartments"
+                        android:text="Add 100 apartments" />
+
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>
+
