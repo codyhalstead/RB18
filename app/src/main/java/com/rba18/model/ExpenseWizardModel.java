@@ -10,7 +10,6 @@ import com.rba18.wizards.ExpenseWizardPage1;
 import com.rba18.wizards.ExpenseWizardPage2;
 import com.rba18.wizards.ExpenseWizardPage3;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ExpenseWizardModel extends AbstractWizardModel {

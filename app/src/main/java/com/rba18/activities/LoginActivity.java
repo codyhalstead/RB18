@@ -5,7 +5,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -26,8 +25,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rba18.R;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
 import com.rba18.helpers.AppFileManagementHelper;
 import com.rba18.helpers.FileChooserDialog;
 import com.rba18.helpers.GMailSender;
@@ -37,7 +34,6 @@ import com.rba18.model.User;
 import com.rba18.sqlite.DatabaseHandler;
 
 import java.io.File;
-import java.net.InetAddress;
 import java.util.ArrayList;
 
 /**
@@ -150,10 +146,10 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void initializeVariables() {
-        this.emailText = (TextInputEditText) findViewById(R.id.input_email);
-        this.passwordText = (TextInputEditText) findViewById(R.id.input_password);
-        this.loginButton = (Button) findViewById(R.id.btn_login);
-        this.signupLink = (TextView) findViewById(R.id.link_signup);
+        this.emailText = findViewById(R.id.input_email);
+        this.passwordText = findViewById(R.id.input_password);
+        this.loginButton = findViewById(R.id.btn_login);
+        this.signupLink =  findViewById(R.id.link_signup);
         this.forgotPassTV = findViewById(R.id.link_forgot_password);
         this.backupRestoreLink = findViewById(R.id.backup_link_login);
         this.validation = new UserInputValidation(this);
@@ -199,7 +195,6 @@ public class LoginActivity extends AppCompatActivity {
         backupRestoreLink.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //public void backup(View view) {
                 if (MainActivity.hasPermissions(LoginActivity.this, android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
                     builder.setMessage(R.string.use_downloads_or_rentbud_folder);
@@ -244,7 +239,6 @@ public class LoginActivity extends AppCompatActivity {
         editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxLength)});
         editText.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
         alertDialog = new AlertDialog.Builder(LoginActivity.this)
-                //.setMessage("You are ready to type")
                 .setTitle(R.string.enter_account_email)
                 .setView(editText)
 
@@ -259,7 +253,7 @@ public class LoginActivity extends AppCompatActivity {
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
-                        // removes the AlertDialog in the screen
+
                     }
                 })
                 .create();
@@ -276,10 +270,10 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         alertDialog.show();
-        ((AlertDialog) alertDialog).getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+        (alertDialog).getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //if (validation.isInputEditTextPassword(editText, getString(R.string.password_requirements))) {
+                if (validation.isInputEditTextPassword(editText, getString(R.string.password_requirements))) {
                 if (databaseHandler.checkUser(editText.getText().toString().trim())) {
                     alertDialog.dismiss();
                     showPasswordResetConfirmationDialog(editText.getText().toString().trim());
@@ -287,7 +281,7 @@ public class LoginActivity extends AppCompatActivity {
                     editText.setText("");
                     Toast.makeText(LoginActivity.this, R.string.no_account_for_email, Toast.LENGTH_LONG).show();
                 }
-                //}
+                }
             }
         });
     }
@@ -327,14 +321,13 @@ public class LoginActivity extends AppCompatActivity {
                         body.append(newPass);
                         body.append("\n");
                         body.append(LoginActivity.this.getResources().getString(R.string.recovery_email_body2));
-                        GMailSender sender = new GMailSender("noreply.rentbud@gmail.com", loadPass());
+                        GMailSender sender = new GMailSender(LoginActivity.this.getResources().getString(R.string.pass_rec_email_addr), loadPass());
                         sender.sendMail(subject,
                                 body.toString(),
-                                "noreply.rentbud@gmail.com",
+                                LoginActivity.this.getResources().getString(R.string.pass_rec_email_addr),
                                 email);
                         changeAccountPassword(email, newPass);
                     } catch (Exception e) {
-                        Log.e("SendMail", e.getMessage(), e);
                         Toast.makeText(LoginActivity.this, R.string.recovery_error, Toast.LENGTH_LONG).show();
                     }
                 } else {
@@ -372,10 +365,10 @@ public class LoginActivity extends AppCompatActivity {
         ArrayList<String> theNamesOfFiles = new ArrayList<>();
         for (int i = 0; i < fileList.length; i++) {
             if (fileList[i].getPath().endsWith(".db")) {
-                theNamesOfFiles.add(fileList[i].getName());
+                if(fileList[i].getPath().contains(LoginActivity.this.getResources().getString(R.string.backup_file_name))) {
+                    theNamesOfFiles.add(fileList[i].getName());
+                }
             }
-            //Log.d("TAG", "backup: " + filelist[i]);
-            //Toast.makeText(this, i, Toast.LENGTH_LONG).show();
         }
         final FileChooserDialog typeChooserDialog2 = new FileChooserDialog(this, theNamesOfFiles);
         typeChooserDialog2.show();
@@ -393,9 +386,9 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    public void autoLog(View view) {
-        databaseHandler.addUser("c", "c@c.c", "ccccc");
-        this.user = databaseHandler.getUser("c@c.c", "ccccc");
-        onLoginSuccess();
-    }
+    //public void autoLog(View view) {
+    //    databaseHandler.addUser("c", "c@c.c", "ccccc");
+    //    this.user = databaseHandler.getUser("c@c.c", "ccccc");
+    //    onLoginSuccess();
+    //}
 }

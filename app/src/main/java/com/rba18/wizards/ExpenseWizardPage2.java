@@ -3,19 +3,14 @@ package com.rba18.wizards;
 import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.example.android.wizardpager.wizard.model.ModelCallbacks;
 import com.example.android.wizardpager.wizard.model.Page;
 import com.example.android.wizardpager.wizard.model.ReviewItem;
 import com.rba18.R;
-import com.rba18.activities.NewExpenseWizard;
 import com.rba18.fragments.ExpenseWizardPage2Fragment;
-import com.rba18.model.ExpenseLogEntry;
 
 import java.util.ArrayList;
-
-import static android.support.constraint.Constraints.TAG;
 
 public class ExpenseWizardPage2  extends Page {
     public static final String EXPENSE_DESCRIPTION_DATA_KEY = "expense_description";
@@ -48,6 +43,5 @@ public class ExpenseWizardPage2  extends Page {
     @Override
     public boolean isCompleted() {
         return (!TextUtils.isEmpty(mData.getString(EXPENSE_DESCRIPTION_DATA_KEY)));
-        //return true;
     }
 }

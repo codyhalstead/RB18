@@ -1,16 +1,12 @@
 package com.rba18.helpers;
 
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.rba18.BuildConfig;
 import com.rba18.R;
 import com.rba18.activities.MainActivity;
-import com.rba18.activities.SettingsActivity;
 import com.rba18.sqlite.DatabaseHandler;
 
 import java.io.File;
@@ -96,7 +92,6 @@ public class AppFileManagementHelper {
         if (!usersPhotos.exists()) {
             usersPhotos.mkdirs();
         }
-        Log.d("TAG", "createImageFile: " + usersPhotos.exists());
         File image = new File(usersPhotos + "/" + imageFileName + timeStamp + ".jpg");
         return image;
     }
@@ -109,7 +104,6 @@ public class AppFileManagementHelper {
     public static File copyDBToExternal(Context context) {
         try {
             File sd = Environment.getExternalStorageDirectory();
-            //File data = Environment.getDataDirectory();
             if (sd.canWrite()) {
                 File f = new File(Environment.getExternalStorageDirectory(), "Rentbud");
                 if (!f.exists()) {
@@ -120,7 +114,8 @@ public class AppFileManagementHelper {
                     backups.mkdirs();
                 }
                 Date today = Calendar.getInstance().getTime();
-                StringBuilder stringBuilder = new StringBuilder("RentbudBackup_");
+                StringBuilder stringBuilder = new StringBuilder(context.getResources().getString(R.string.backup_file_name));
+                stringBuilder.append("_");
                 SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy-hh:mmaa", Locale.US);
                 stringBuilder.append(formatter.format(today));
                 stringBuilder.append(".db");

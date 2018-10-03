@@ -1,27 +1,18 @@
 package com.rba18.helpers;
 
-import android.content.Context;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.util.Pair;
 
-import com.example.android.wizardpager.wizard.model.AbstractWizardModel;
 import com.rba18.activities.MainActivity;
 import com.rba18.model.Apartment;
-import com.rba18.model.ExpenseLogEntry;
 import com.rba18.model.Lease;
 import com.rba18.model.MoneyLogEntry;
-import com.rba18.model.PaymentLogEntry;
 import com.rba18.model.Tenant;
 import com.rba18.model.TypeTotal;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
-import java.util.Locale;
 
 import static android.support.constraint.Constraints.TAG;
 
@@ -89,16 +80,6 @@ public class MainArrayDataMethods {
         }
         return null;
     }
-
-    //public ArrayList<Tenant> getCachedSecondaryTenantsByApartmentID(int apartmentID) {
-    //    ArrayList<Tenant> secondaryTenants = new ArrayList<>();
-    //    for (int i = 0; i < MainActivity5.tenantList.size(); i++) {
-    //        if (MainActivity5.tenantList.get(i).getApartmentID() == apartmentID && !MainActivity5.tenantList.get(i).getIsPrimary()) {
-    //            secondaryTenants.add(MainActivity5.tenantList.get(i));
-    //        }
-    //    }
-    //    return secondaryTenants;
-    //}
 
     public Pair<Tenant, ArrayList<Tenant>> getCachedPrimaryAndSecondaryTenantsByLease(@Nullable Lease lease) {
         Tenant primaryTenant = null;
@@ -266,7 +247,6 @@ public class MainArrayDataMethods {
         });
     }
 
-    //TOdo sort add1 ignore int
     public void sortApartmentArrayAlphabetically(ArrayList<Apartment> apartments){
         Collections.sort(apartments, new Comparator<Apartment>() {
             @Override
@@ -286,46 +266,4 @@ public class MainArrayDataMethods {
             }
         });
     }
-
-    // public ExpenseLogEntry getCachedExpenseByID(int expenseID) {
-    //     ExpenseLogEntry expense = null;
-    //     for (int i = 0; i < MainActivity5.expenseList.size(); i++) {
-    //         if (MainActivity5.expenseList.get(i).getId() == expenseID) {
-    //             expense = MainActivity5.expenseList.get(i);
-    //             break;
-    //         }
-    //     }
-    //     return expense;
-    // }
-
-    // public PaymentLogEntry getCachedIncomeByID(int incomeID) {
-    //     PaymentLogEntry income = null;
-    //     for (int i = 0; i < MainActivity5.incomeList.size(); i++) {
-    //         if (MainActivity5.incomeList.get(i).getId() == incomeID) {
-    //             income = MainActivity5.incomeList.get(i);
-    //             break;
-    //         }
-    //     }
-    //     return income;
-    // }
-
-    // public void sortMainIncomeArray() {
-    //     Collections.sort(MainActivity5.incomeList, new Comparator<PaymentLogEntry>() {
-    //         @Override
-    //         public int compare(PaymentLogEntry ple, PaymentLogEntry p1) {
-    //
-    //             return ple.getDate().compareTo(p1.getDate());
-    //         }
-    //     });
-    // }
-
-    // public void sortMainExpenseArray() {
-    //     Collections.sort(MainActivity5.expenseList, new Comparator<ExpenseLogEntry>() {
-    //         @Override
-    //         public int compare(ExpenseLogEntry ele, ExpenseLogEntry e1) {
-
-    //             return ele.getDate().compareTo(e1.getDate());
-    //         }
-    //     });
-    // }
 }

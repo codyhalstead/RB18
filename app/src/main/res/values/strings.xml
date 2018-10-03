@@ -52,6 +52,9 @@
     <string name="ok">OK</string>
     <string name="to">to</string>
     <string name="no_internet_connection">No Internet Connection</string>
+    <string name="pass_rec_email_addr">noreply.rentbud@gmail.com</string>
+    <string name="backup_file_name">RentalBudBackup</string>
+    <string name="blank">&#160;</string>
 
     <!-- Home -->
     <string name="home">Home</string>
@@ -346,16 +349,17 @@
     <string name="add_or_remove_expense_type">Add or remove expense type?</string>
     <string name="select_a_type_to_delete">Select A Type To Delete</string>
     <string name="no_types_to_display">No Types To Display</string>
-    <string name="send_backip_to_email_question">Where would you like to send the backup?</string>
+    <string name="send_backup_to_email_question">Where would you like to send the backup?</string>
+    <string name="send_backup_to_email_question_free">Where would you like to send the file?</string>
     <string name="send_email">Send Email</string>
     <string name="use_downloads_or_rentbud_folder">"Do you want to use backup data from the downloads folder(Received through E-mail) or the RentalBud folder(App created)?"</string>
     <string name="backup_restored">Backup Restored</string>
     <string name="create_new_type">Create New Type</string>
     <string name="account_removed">Account Successfully Removed</string>
     <string name="incorrect_password">Incorrect Password</string>
-    <string name="comfirm_pass_to_delete_account_title">Confirm Password To Remove Account</string>
-    <string name="comfirm_pass_to_delete_account_message">Account Will Be Removed If Successful</string>
-    <string name="comfirm_pass_to_change_account_info">Confirm Password</string>
+    <string name="confirm_pass_to_delete_account_title">Confirm Password To Remove Account</string>
+    <string name="confirm_pass_to_delete_account_message">Account Will Be Removed If Successful</string>
+    <string name="confirm_pass_to_change_account_info">Confirm Password</string>
     <string name="new_account_email">Type New E-Mail Address</string>
     <string name="type_old_pass">Confirm Old Password</string>
     <string name="new_account_password">Type New Password</string>
@@ -372,6 +376,7 @@
     <string name="change_password">Change Password</string>
     <string name="remove_account">Remove Account</string>
     <string name="import_not_available">Not Available For This Version</string>
+    <string name="create_transfer_file">Create Transfer File For RentalBud Pro</string>
 
     <!-- Adapters -->
     <string name="rented_by">Rented By:&#160;</string>

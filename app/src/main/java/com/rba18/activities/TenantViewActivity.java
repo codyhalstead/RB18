@@ -12,7 +12,6 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.InputFilter;
 import android.text.InputType;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,7 +22,6 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 
 import com.rba18.R;
-import com.rba18.activities.BaseActivity;
 import com.rba18.fragments.TenantViewFrag1;
 import com.rba18.fragments.TenantViewFrag2;
 import com.rba18.fragments.TenantViewFrag3;
@@ -78,7 +76,7 @@ public class TenantViewActivity extends BaseActivity implements View.OnClickList
         this.dateRangeStartBtn.setOnClickListener(this);
         this.dateRangeEndBtn = findViewById(R.id.moneyListDateRangeEndBtn);
         this.dateRangeEndBtn.setOnClickListener(this);
-        viewPager = (ViewPager) findViewById(R.id.pager);
+        viewPager = findViewById(R.id.pager);
         adapter = new ViewPagerAdapter(getSupportFragmentManager());
         databaseHandler = new DatabaseHandler(this);
         dataMethods = new MainArrayDataMethods();
@@ -129,7 +127,6 @@ public class TenantViewActivity extends BaseActivity implements View.OnClickList
             wasExpenseEdited = false;
             wasTenantEdited = false;
         }
-
         viewModel.setMoneyArray(databaseHandler.getIncomeAndExpensesByTenantIDWithinDates(MainActivity.user, tenant.getId(), filterDateStart, filterDateEnd));
         viewModel.setLeaseArray(databaseHandler.getPrimaryAndSecondaryLeasesForTenant(MainActivity.user, tenant.getId()));
         ArrayList<Tenant> secondaryTenants = new ArrayList<>();
@@ -149,16 +146,13 @@ public class TenantViewActivity extends BaseActivity implements View.OnClickList
         viewModel.setSecondaryTenants(secondaryTenants);
         viewPager.setAdapter(adapter);
         mPageChangeListener = new ViewPager.OnPageChangeListener() {
-
             @Override
             public void onPageScrollStateChanged(int arg0) {
-                // TODO Auto-generated method stub
 
             }
 
             @Override
             public void onPageScrolled(int arg0, float arg1, int arg2) {
-                // TODO Auto-generated method stub
 
             }
 
@@ -170,11 +164,9 @@ public class TenantViewActivity extends BaseActivity implements View.OnClickList
                     dateSelectorLL.setVisibility(View.VISIBLE);
                 }
             }
-
         };
         viewPager.addOnPageChangeListener(mPageChangeListener);
-
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        TabLayout tabLayout = findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
         setupBasicToolbar();
         datePickerDialogLauncher = new CustomDatePickerDialogLauncher(filterDateStart, filterDateEnd, true, this);
@@ -189,7 +181,6 @@ public class TenantViewActivity extends BaseActivity implements View.OnClickList
                 dateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateStart));
                 updateFragmentDates();
             }
-
             @Override
             public void onEndDateSelected(Date startDate, Date endDate) {
                 filterDateStart = startDate;
@@ -200,7 +191,6 @@ public class TenantViewActivity extends BaseActivity implements View.OnClickList
                 dateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateStart));
                 updateFragmentDates();
             }
-
             @Override
             public void onDateSelected(Date date) {
 
@@ -391,13 +381,10 @@ public class TenantViewActivity extends BaseActivity implements View.OnClickList
         editText.setText(tenant.getNotes());
         editText.setInputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
         editText.setSelection(editText.getText().length());
-
         // create the AlertDialog as final
         alertDialog = new AlertDialog.Builder(TenantViewActivity.this)
-                //.setMessage(R.string.comfirm_pass_to_delete_account_message)
                 .setTitle(R.string.edit_notes)
                 .setView(editText)
-
                 // Set the action buttons
                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
@@ -413,7 +400,6 @@ public class TenantViewActivity extends BaseActivity implements View.OnClickList
                         }
                     }
                 })
-
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
@@ -421,7 +407,6 @@ public class TenantViewActivity extends BaseActivity implements View.OnClickList
                     }
                 })
                 .create();
-
         alertDialog.show();
     }
 
@@ -496,7 +481,6 @@ public class TenantViewActivity extends BaseActivity implements View.OnClickList
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         //builder.setTitle("AlertDialog");
         builder.setMessage(R.string.tenant_deletion_confirmation);
-
         // add the buttons
         builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             @Override
@@ -517,7 +501,6 @@ public class TenantViewActivity extends BaseActivity implements View.OnClickList
         alertDialog = builder.create();
         alertDialog.show();
     }
-
 }
 
 

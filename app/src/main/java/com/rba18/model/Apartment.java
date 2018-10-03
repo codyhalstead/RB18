@@ -4,7 +4,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 
 /**
  * Created by Cody on 1/27/2018.
@@ -15,7 +14,6 @@ public class Apartment implements Parcelable {
     private String street1;
     private String street2;
     private String city;
-    //private int stateID;
     private String state;
     private String zip;
     private String description;
@@ -31,7 +29,6 @@ public class Apartment implements Parcelable {
         this.street1 = street1;
         this.street2 = street2;
         this.city = city;
-        //this.stateID = stateID;
         this.state = state;
         this.zip = zip;
         this.description = description;
@@ -53,7 +50,6 @@ public class Apartment implements Parcelable {
         parcel.writeString(this.street1);
         parcel.writeString(this.street2);
         parcel.writeString(this.city);
-        //parcel.writeInt(this.stateID);
         parcel.writeString(this.state);
         parcel.writeString(this.zip);
         parcel.writeString(this.description);
@@ -79,7 +75,6 @@ public class Apartment implements Parcelable {
         this.street1 = in.readString();
         this.street2 = in.readString();
         this.city = in.readString();
-        //this.stateID = in.readInt();
         this.state = in.readString();
         this.zip = in.readString();
         this.description = in.readString();
@@ -87,8 +82,6 @@ public class Apartment implements Parcelable {
         this.notes = in.readString();
         int size = in.readInt();
         if(size > -1){
-            //this.mainPic = new byte[size];
-            //in.readByteArray(this.mainPic);
             this.mainPic = in.readString();
         } else {
             this.mainPic = null;
@@ -170,14 +163,6 @@ public class Apartment implements Parcelable {
     public void setId(int id) {
         this.id = id;
     }
-
-    //public int getStateID() {
-    //    return stateID;
-    //}
-
-    //public void setStateID(int stateID) {
-    //    this.stateID = stateID;
-    //}
 
     public String getNotes() {
         return notes;

@@ -34,7 +34,6 @@ public class ApartmentListFragment extends Fragment implements AdapterView.OnIte
     ApartmentListAdapter apartmentListAdapter;
     ColorStateList accentColor;
     ListView listView;
-    //public static boolean apartmentListAdapterNeedsRefreshed;
     private boolean needsRefreshedOnResume;
 
     @Override
@@ -50,7 +49,6 @@ public class ApartmentListFragment extends Fragment implements AdapterView.OnIte
         this.searchBarET = view.findViewById(R.id.apartmentListSearchET);
         this.listView = view.findViewById(R.id.mainApartmentListView);
         getActivity().setTitle(R.string.apartment_list);
-        //ApartmentListFragment.apartmentListAdapterNeedsRefreshed = false;
         //Get current theme accent color, which is passed into the list adapter for search highlighting
         TypedValue colorValue = new TypedValue();
         getActivity().getTheme().resolveAttribute(R.attr.colorAccent, colorValue, true);
@@ -102,10 +100,9 @@ public class ApartmentListFragment extends Fragment implements AdapterView.OnIte
                     apartmentListAdapter.getFilter().filter(cs);
                 }
             }
-
             @Override
             public void afterTextChanged(Editable editable) {
-                //apartmentListAdapter.notifyDataSetChanged();
+
             }
 
             @Override

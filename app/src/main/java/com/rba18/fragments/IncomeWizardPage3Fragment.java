@@ -156,18 +156,9 @@ public class IncomeWizardPage3Fragment extends android.support.v4.app.Fragment {
             tenant = mPage.getData().getParcelable(IncomeWizardPage3.INCOME_RELATED_TENANT_DATA_KEY);
             curTenantIDs.add(tenant.getId());
         }
-        //if (mPage.getData().getParcelableArrayList(LeaseWizardPage2.LEASE_SECONDARY_TENANTS_DATA_KEY) != null) {
-        //    secondaryTenants = mPage.getData().getParcelableArrayList(LeaseWizardPage2.LEASE_SECONDARY_TENANTS_DATA_KEY);
-        //    for (int z = 0; z < secondaryTenants.size(); z++) {
-        //        curTenantIDs.add(secondaryTenants.get(z).getId());
-        //    }
-        //}
 
         for (int i = 0; i < MainActivity.tenantList.size(); i++) {
             if (MainActivity.tenantList.get(i).isActive()) {
-                // if (!MainActivity.tenantList.get(i).getHasLease()) {
-                //     availableTenants.add(MainActivity.tenantList.get(i));
-                // } else {
                 boolean isUsed = false;
                 for (int y = 0; y < curTenantIDs.size(); y++) {
                     if (MainActivity.tenantList.get(i).getId() == curTenantIDs.get(y)) {
@@ -263,11 +254,6 @@ public class IncomeWizardPage3Fragment extends android.support.v4.app.Fragment {
                 tenantApartmentOrLeaseChooserDialog.setDialogResult(new TenantApartmentOrLeaseChooserDialog.OnTenantChooserDialogResult() {
                     @Override
                     public void finish(Tenant tenantResult, Apartment apartmentResult, Lease leaseResult) {
-                        //if (lease != null) {
-                        //    availableLeases.add(lease);
-                        //}
-                        //availableTenants.remove(tenantResult);
-                        //availableTenants.add(primaryTenant);
                         if (leaseResult != null) {
                             lease = leaseResult;
                             if (apartment == null) {
@@ -339,24 +325,6 @@ public class IncomeWizardPage3Fragment extends android.support.v4.app.Fragment {
             StringBuilder builder = new StringBuilder(formatter.format(lease.getLeaseStart()));
             builder.append(" - ");
             builder.append(formatter.format(lease.getLeaseEnd()));
-            //builder.append("\n");
-            //if (tenant != null) {
-            //    builder.append(tenant.getFirstName());
-            //    builder.append(" ");
-            //    builder.append(tenant.getLastName());
-            //    builder.append("\n");
-            //} else {
-            //    builder.append("\n");
-            //}
-            //if (apartment != null) {
-            //    builder.append(apartment.getStreet1());
-            //    builder.append("\n");
-            //    if (apartment.getStreet2() != null) {
-            //        builder.append(apartment.getStreet2());
-            //    }
-            //} else {
-            //    builder.append("\n");
-            //}
             return builder.toString();
         } else {
             return "";
@@ -408,10 +376,6 @@ public class IncomeWizardPage3Fragment extends android.support.v4.app.Fragment {
     }
 
     private void resetLeaseSelection() {
-        //if(lease != null) {
-        //    availableLeases.add(lease);
-        //    mainArrayDataMethods.sortLeaseArrayByStartDateDesc(availableLeases);
-        //}
         lease = null;
         linkedLeaseTV.setText("");
         mPage.getData().putInt(IncomeWizardPage3.INCOME_RELATED_LEASE_ID_DATA_KEY, 0);

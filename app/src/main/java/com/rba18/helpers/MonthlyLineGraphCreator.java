@@ -20,15 +20,15 @@ import java.util.Date;
 import java.util.List;
 
 public class MonthlyLineGraphCreator {
-    LineChart lineChart;
-    Button leftBtn, rightBtn;
-    TextView yearTV;
-    Context context;
-    Date initialYear;
-    float[] expenseValues;
-    float[] incomeValues;
+    private LineChart lineChart;
+    private Button leftBtn, rightBtn;
+    private TextView yearTV;
+    private Context context;
+    private Date initialYear;
+    private float[] expenseValues;
+    private float[] incomeValues;
     private LineData lineData;
-    MonthlyLineGraphCreator.OnButtonsClickedListener onButtonsClickedListener;
+    private MonthlyLineGraphCreator.OnButtonsClickedListener onButtonsClickedListener;
 
     public MonthlyLineGraphCreator(Context context, LineChart lineChart, Button leftBtn, Button rightBtn, TextView yearTV, Date initialYear){
         this.lineChart = lineChart;

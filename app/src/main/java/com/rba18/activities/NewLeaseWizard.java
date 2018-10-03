@@ -7,11 +7,9 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,14 +19,9 @@ import com.example.android.wizardpager.wizard.model.AbstractWizardModel;
 import com.example.android.wizardpager.wizard.model.ModelCallbacks;
 import com.example.android.wizardpager.wizard.model.Page;
 import com.example.android.wizardpager.wizard.ui.PageFragmentCallbacks;
-import com.example.android.wizardpager.wizard.ui.ReviewFragment;
 import com.example.android.wizardpager.wizard.ui.StepPagerStrip;
 import com.rba18.R;
-import com.rba18.activities.BaseActivity;
-import com.rba18.fragments.ApartmentListFragment;
-import com.rba18.fragments.LeaseListFragment;
 import com.rba18.fragments.ReviewFragmentCustom;
-import com.rba18.fragments.TenantListFragment;
 import com.rba18.helpers.DateAndCurrencyDisplayer;
 import com.rba18.helpers.MainArrayDataMethods;
 import com.rba18.model.Apartment;
@@ -60,21 +53,15 @@ public class NewLeaseWizard extends BaseActivity implements
         ModelCallbacks {
     private ViewPager mPager;
     private MyPagerAdapter mPagerAdapter;
-
     private boolean mEditingAfterReview;
-
     private AbstractWizardModel mWizardModel;
-
     private boolean mConsumePageSelectedEvent;
-
     private Button mNextButton;
     private Button mPrevButton;
-
     private DatabaseHandler dbhandler;
     MainArrayDataMethods dataMethods;
     public Lease leaseToEdit;
     private SharedPreferences preferences;
-
     private List<Page> mCurrentPageSequence;
     private StepPagerStrip mStepPagerStrip;
     private AlertDialog alertDialog;
@@ -120,24 +107,20 @@ public class NewLeaseWizard extends BaseActivity implements
             }
         });
 
-        mNextButton = (Button) findViewById(R.id.next_button);
-        mPrevButton = (Button) findViewById(R.id.prev_button);
-
+        mNextButton = findViewById(R.id.next_button);
+        mPrevButton = findViewById(R.id.prev_button);
         mPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
                 mStepPagerStrip.setCurrentPage(position);
-
                 if (mConsumePageSelectedEvent) {
                     mConsumePageSelectedEvent = false;
                     return;
                 }
-
                 mEditingAfterReview = false;
                 updateBottomBar();
             }
         });
-
         mNextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -178,10 +161,7 @@ public class NewLeaseWizard extends BaseActivity implements
                             paymentDateID = mWizardModel.findByKey("Page3").getData().getInt(LeaseWizardPage3.LEASE_DUE_DATE_ID_DATA_KEY);
                         }
                     }
-                    //String depositWithheldString = mWizardModel.findByKey("Page2").getData().getString(LeaseWizardPage2.LEASE_DEPOSIT_WITHHELD_STRING_DATA_KEY);
-                    //BigDecimal depositWithheld = new BigDecimal(depositWithheldString);
                     String notes = mWizardModel.findByKey("Page4").getData().getString(LeaseWizardPage4.LEASE_NOTES_DATA_KEY);
-
                     if (leaseToEdit != null) {
                         leaseToEdit.setPrimaryTenantID(primaryTenant.getId());
                         leaseToEdit.setSecondaryTenantIDs(secondaryTenantIDs);
@@ -214,11 +194,8 @@ public class NewLeaseWizard extends BaseActivity implements
                                 proratedLast = new BigDecimal(proratedLastString);
                             }
                         }
-                        //BigDecimal proratedFirst = new BigDecimal(500);
-                        //BigDecimal proratedLast = new BigDecimal(400);
-                        ArrayList<PaymentLogEntry> paymentsArray = new ArrayList<>();
+                        ArrayList<PaymentLogEntry> paymentsArray;
                         ArrayList<String> paymentDates = mWizardModel.findByKey("Page3").getData().getStringArrayList(LeaseWizardPage3.LEASE_PAYMENT_DATES_ARRAY_DATA_KEY);
-
                         paymentsArray = createLeasePayments(paymentDates, leaseEndDate, isFirstProrated, proratedFirst, isLastProrated, proratedLast, rentCost, primaryTenant, apartment, leaseID);
                         dbhandler.addPaymentLogEntryArray(paymentsArray, MainActivity.user.getId());
                         createAndSaveDeposit(dbhandler, leaseStartDate, leaseEndDate, deposit, apartment, primaryTenant, leaseID);
@@ -227,12 +204,7 @@ public class NewLeaseWizard extends BaseActivity implements
                     dataMethods.sortMainApartmentArray();
                     dataMethods.sortMainTenantArray();
                     MainActivity.currentLeasesList = dbhandler.getUsersActiveLeases(MainActivity.user);
-                    //MainActivity5.apartmentList = db.getUsersApartments(MainActivity5.user);
-                    //ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
-                   // TenantListFragment.tenantListAdapterNeedsRefreshed = true;
-                    //LeaseListFragment.leaseListAdapterNeedsRefreshed = true;
                     finish();
-
                 } else {
                     if (mEditingAfterReview) {
                         mPager.setCurrentItem(mPagerAdapter.getCount() - 1);
@@ -242,7 +214,6 @@ public class NewLeaseWizard extends BaseActivity implements
                 }
             }
         });
-
         mPrevButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -341,7 +312,6 @@ public class NewLeaseWizard extends BaseActivity implements
             mNextButton.setTextAppearance(this, v.resourceId);
             mNextButton.setEnabled(position != mPagerAdapter.getCutOffPage());
         }
-
         mPrevButton.setVisibility(position <= 0 ? View.INVISIBLE : View.VISIBLE);
     }
 
@@ -392,36 +362,29 @@ public class NewLeaseWizard extends BaseActivity implements
 
     private String generateAutoRentDescription(Date paymentDate, Date paymentEndDate, int dateFormatCode, String tenantName, String address, boolean isProrated){
         StringBuilder descriptionStringBuilder = new StringBuilder("");
-
         descriptionStringBuilder.append(getResources().getText(R.string.from_s_cap));
         descriptionStringBuilder.append(tenantName);
         descriptionStringBuilder.append("\n");
-
         descriptionStringBuilder.append(getResources().getText(R.string.renting_s));
         descriptionStringBuilder.append(address);
         descriptionStringBuilder.append("\n");
-
         descriptionStringBuilder.append(getResources().getText(R.string.for_s));
         descriptionStringBuilder.append(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, paymentDate));
         descriptionStringBuilder.append(" - ");
         descriptionStringBuilder.append(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, paymentEndDate));
         descriptionStringBuilder.append("\n");
-
         descriptionStringBuilder.append(getResources().getText(R.string.auto_generated));
         descriptionStringBuilder.append("\n");
-
         if(isProrated){
             descriptionStringBuilder.append(getResources().getText(R.string.prorated_rent_payment));
         } else {
             descriptionStringBuilder.append(getResources().getText(R.string.rent_payment));
         }
-
         return descriptionStringBuilder.toString();
     }
 
     private String generateAutoDepositDescription(Date leaseStartDate, Date leaseEndDate, int dateFormatCode, String tenantName, String address, boolean isReturned){
         StringBuilder descriptionStringBuilder = new StringBuilder("");
-
         if(isReturned){
             descriptionStringBuilder.append(getResources().getText(R.string.to_s_cap));
         } else {
@@ -429,26 +392,21 @@ public class NewLeaseWizard extends BaseActivity implements
         }
         descriptionStringBuilder.append(tenantName);
         descriptionStringBuilder.append("\n");
-
         descriptionStringBuilder.append(getResources().getText(R.string.renting_s));
         descriptionStringBuilder.append(address);
         descriptionStringBuilder.append("\n");
-
         descriptionStringBuilder.append(getResources().getText(R.string.for_s));
         descriptionStringBuilder.append(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, leaseStartDate));
         descriptionStringBuilder.append(" - ");
         descriptionStringBuilder.append(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, leaseEndDate));
         descriptionStringBuilder.append("\n");
-
         descriptionStringBuilder.append(getResources().getText(R.string.auto_generated));
         descriptionStringBuilder.append("\n");
-
         if(isReturned){
             descriptionStringBuilder.append(getResources().getText(R.string.deposit_returned));
         } else {
             descriptionStringBuilder.append(getResources().getText(R.string.deposit));
         }
-
         return descriptionStringBuilder.toString();
     }
 
@@ -495,12 +453,10 @@ public class NewLeaseWizard extends BaseActivity implements
                 break;
             }
         }
-
         if (mPagerAdapter.getCutOffPage() != cutOffPage) {
             mPagerAdapter.setCutOffPage(cutOffPage);
             return true;
         }
-
         return false;
     }
 
@@ -517,7 +473,6 @@ public class NewLeaseWizard extends BaseActivity implements
             if (i >= mCurrentPageSequence.size()) {
                 return new ReviewFragmentCustom();
             }
-
             return mCurrentPageSequence.get(i).createFragment();
         }
 
@@ -527,7 +482,6 @@ public class NewLeaseWizard extends BaseActivity implements
                 // Re-use the current fragment (its position never changes)
                 return POSITION_UNCHANGED;
             }
-
             return POSITION_NONE;
         }
 

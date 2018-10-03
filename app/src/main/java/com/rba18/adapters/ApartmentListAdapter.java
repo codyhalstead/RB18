@@ -3,18 +3,13 @@ package com.rba18.adapters;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.TextAppearanceSpan;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,26 +22,13 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.rba18.R;
-import com.rba18.activities.MainActivity;
 import com.rba18.helpers.DateAndCurrencyDisplayer;
 import com.rba18.helpers.MainArrayDataMethods;
 import com.rba18.model.Apartment;
-import com.rba18.model.ExpenseLogEntry;
 import com.rba18.model.Lease;
 import com.rba18.model.Tenant;
-
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.lang.ref.WeakReference;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Locale;
-
-import static android.content.ContentValues.TAG;
 
 /**
  * Created by Cody on 1/11/2018.
@@ -121,18 +103,9 @@ public class ApartmentListAdapter extends BaseAdapter implements Filterable {
             viewHolder.leaseEndTV = convertView.findViewById(R.id.apartmentRowLeaseEndTV);
             viewHolder.leaseLL = convertView.findViewById(R.id.apartmentRowLeaseLL);
             viewHolder.mainPicIV = convertView.findViewById(R.id.apartmentRowMainPicIV);
-            //viewHolder.position = position;
-
             convertView.setTag(viewHolder);
-
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
-            // viewHolder.position = position;
-            //  if(viewHolder.imageDownloaderTask != null){
-            //      viewHolder.imageDownloaderTask.cancel(true);
-            //    viewHolder.imageDownloaderTask = null;
-            // }
-
         }
 
 
@@ -174,18 +147,10 @@ public class ApartmentListAdapter extends BaseAdapter implements Filterable {
             viewHolder.mainPicIV.setImageBitmap(null);
             if (apartment.getMainPic() != null && !apartment.getMainPic().equals("")) {
                 if (viewHolder.mainPicIV != null) {
-                    //viewHolder.mainPicIV.setImageResource(R.drawable.blank_home_pic);
-                    // viewHolder.shouldHavePic = true;
-                    // ImageDownloaderTask imageDownloaderTask = new ImageDownloaderTask(viewHolder.mainPicIV, apartment.getMainPic(), viewHolder, position);
-                    /////// imageDownloaderTask.execute();
                     Glide.with(context).load(apartment.getMainPic()).override(120, 120).centerCrop().placeholder(R.drawable.no_picture).into(viewHolder.mainPicIV);
-
-                    //imageDownloaderTask.cancel(true);
-                    // new ImageLoaderTask(viewHolder.mainPicIV, apartment.getMainPic(), viewHolder, position).execute();
                 }
             } else {
                 Glide.with(context).load(R.drawable.blank_home_pic).override(120, 120).centerCrop().into(viewHolder.mainPicIV);
-                //viewHolder.shouldHavePic = false;
             }
         }
         return convertView;

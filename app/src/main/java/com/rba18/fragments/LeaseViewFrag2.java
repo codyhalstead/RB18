@@ -37,10 +37,7 @@ import com.rba18.model.PaymentLogEntry;
 import com.rba18.sqlite.DatabaseHandler;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Locale;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -114,10 +111,7 @@ public class LeaseViewFrag2 extends android.support.v4.app.Fragment implements A
                 showNewIncomeOrExpenseAlertDialog();
             }
         });
-        //Get apartment item
         setUpdateSelectedDateListeners();
-        // getActivity().setTitle("Income View");
-        // ExpenseListFragment.expenseListAdapterNeedsRefreshed = false;
         //Get current theme accent color, which is passed into the list adapter for search highlighting
         TypedValue colorValue = new TypedValue();
         getActivity().getTheme().resolveAttribute(R.attr.colorAccent, colorValue, true);
@@ -186,7 +180,6 @@ public class LeaseViewFrag2 extends android.support.v4.app.Fragment implements A
                         //On listView row click, launch ApartmentViewActivity passing the rows data into it.
                         selectedMoney = moneyListAdapter.getFilteredResults().get(position);
                         if (selectedMoney instanceof PaymentLogEntry) {
-                            //mCallback.onIncomeDataChanged();
                             PaymentLogEntry selectedIncome = (PaymentLogEntry) selectedMoney;
                             if(selectedIncome.getIsCompleted()){
                                 selectedIncome.setIsCompleted(false);
@@ -197,7 +190,6 @@ public class LeaseViewFrag2 extends android.support.v4.app.Fragment implements A
                             mCallback.onMoneyDataChanged();
                             mCallback.onIncomeDataChanged();
                         } else {
-                            //mCallback.onExpenseDataChanged();
                             ExpenseLogEntry selectedExpense = (ExpenseLogEntry) selectedMoney;
                             if(selectedExpense.getIsCompleted()){
                                 selectedExpense.setIsCompleted(false);
@@ -218,8 +210,6 @@ public class LeaseViewFrag2 extends android.support.v4.app.Fragment implements A
                             mCallback.onIncomeDataChanged();
                             Intent intent = new Intent(getActivity(), NewIncomeWizard.class);
                             PaymentLogEntry selectedIncome = (PaymentLogEntry) selectedMoney;
-                            Log.d("TAG", "setUpRelatedInfoSection: ++++++++ " + selectedIncome.getTenantID());
-                            Log.d("TAG", "setUpRelatedInfoSection: ++++++++ " + selectedIncome.getId());
                             intent.putExtra("incomeToEdit", selectedIncome);
                             startActivityForResult(intent, MainActivity.REQUEST_NEW_INCOME_FORM);
                         } else {
@@ -256,7 +246,6 @@ public class LeaseViewFrag2 extends android.support.v4.app.Fragment implements A
                 public void onClick(DialogInterface dialogInterface, int i) {
                     db.setPaymentLogEntryInactive((PaymentLogEntry) selectedMoney);
                     mCallback.onIncomeDataChanged();
-                   // IncomeListFragment.incomeListAdapterNeedsRefreshed = true;
                     getFilteredMoney();
                     moneyListAdapter.updateResults(currentFilteredMoney);
                     moneyListAdapter.notifyDataSetChanged();
@@ -271,7 +260,6 @@ public class LeaseViewFrag2 extends android.support.v4.app.Fragment implements A
                 public void onClick(DialogInterface dialogInterface, int i) {
                     db.setExpenseInactive((ExpenseLogEntry) selectedMoney);
                     mCallback.onExpenseDataChanged();
-                   // ExpenseListFragment.expenseListAdapterNeedsRefreshed = true;
                     getFilteredMoney();
                     moneyListAdapter.updateResults(currentFilteredMoney);
                     moneyListAdapter.notifyDataSetChanged();

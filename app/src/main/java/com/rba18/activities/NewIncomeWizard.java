@@ -9,7 +9,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,11 +18,8 @@ import com.example.android.wizardpager.wizard.model.AbstractWizardModel;
 import com.example.android.wizardpager.wizard.model.ModelCallbacks;
 import com.example.android.wizardpager.wizard.model.Page;
 import com.example.android.wizardpager.wizard.ui.PageFragmentCallbacks;
-import com.example.android.wizardpager.wizard.ui.ReviewFragment;
 import com.example.android.wizardpager.wizard.ui.StepPagerStrip;
 import com.rba18.R;
-import com.rba18.activities.BaseActivity;
-import com.rba18.fragments.IncomeListFragment;
 import com.rba18.fragments.ReviewFragmentCustom;
 import com.rba18.model.Apartment;
 import com.rba18.model.IncomeEditingWizardModel;
@@ -51,21 +47,14 @@ public class NewIncomeWizard extends BaseActivity implements
         ModelCallbacks {
     private ViewPager mPager;
     private NewIncomeWizard.MyPagerAdapter mPagerAdapter;
-
     private boolean mEditingAfterReview;
-
     private AbstractWizardModel mWizardModel;
-
     private boolean mConsumePageSelectedEvent;
-
     private Button mNextButton;
     private Button mPrevButton;
-
     private List<Page> mCurrentPageSequence;
     private StepPagerStrip mStepPagerStrip;
-
     private DatabaseHandler dbHandler;
-    //private MainArrayDataMethods dataMethods;
     public PaymentLogEntry incomeToEdit;
     private AlertDialog alertDialog;
 
@@ -94,7 +83,6 @@ public class NewIncomeWizard extends BaseActivity implements
         }
         mWizardModel.registerListener(this);
         dbHandler = new DatabaseHandler(this);
-        //dataMethods = new MainArrayDataMethods();
         mPagerAdapter = new NewIncomeWizard.MyPagerAdapter(getSupportFragmentManager());
         mPager = findViewById(R.id.pager);
         mPager.setAdapter(mPagerAdapter);
@@ -108,20 +96,16 @@ public class NewIncomeWizard extends BaseActivity implements
                 }
             }
         });
-
-        mNextButton = (Button) findViewById(R.id.next_button);
-        mPrevButton = (Button) findViewById(R.id.prev_button);
-
+        mNextButton = findViewById(R.id.next_button);
+        mPrevButton = findViewById(R.id.prev_button);
         mPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
                 mStepPagerStrip.setCurrentPage(position);
-
                 if (mConsumePageSelectedEvent) {
                     mConsumePageSelectedEvent = false;
                     return;
                 }
-
                 mEditingAfterReview = false;
                 updateBottomBar();
             }
@@ -144,9 +128,6 @@ public class NewIncomeWizard extends BaseActivity implements
                     int apartmentID = 0;
                     int tenantID = 0;
                     int leaseID = 0;
-                    //if(incomeToEdit != null){
-                    //    apartmentID = incomeToEdit.getApartmentID();
-                    //}
                     if (mWizardModel.findByKey("Page3") != null) {
                         if (mWizardModel.findByKey("Page3").getData().getParcelable(IncomeWizardPage3.INCOME_RELATED_APT_DATA_KEY) != null) {
                             Apartment apartment = mWizardModel.findByKey("Page3").getData().getParcelable(IncomeWizardPage3.INCOME_RELATED_APT_DATA_KEY);
@@ -165,7 +146,6 @@ public class NewIncomeWizard extends BaseActivity implements
                     int typeID = mWizardModel.findByKey("Page1").getData().getInt(IncomeWizardPage1.INCOME_TYPE_ID_DATA_KEY);
                     String type = mWizardModel.findByKey("Page1").getData().getString(IncomeWizardPage1.INCOME_TYPE_DATA_KEY);
                     String receiptPic = mWizardModel.findByKey("Page2").getData().getString(IncomeWizardPage2.INCOME_RECEIPT_PIC_DATA_KEY);
-
                     if (incomeToEdit != null) {
                         incomeToEdit.setDate(date);
                         incomeToEdit.setAmount(amount);
@@ -174,24 +154,18 @@ public class NewIncomeWizard extends BaseActivity implements
                         }
                         incomeToEdit.setTypeLabel(type);
                         incomeToEdit.setDescription(description);
-                        //incomeToEdit.setReceiptPic(receiptPic);
                         incomeToEdit.setApartmentID(apartmentID);
                         incomeToEdit.setTenantID(tenantID);
                         incomeToEdit.setLeaseID(leaseID);
-
                         dbHandler.editPaymentLogEntry(incomeToEdit);
-                        //dataMethods.sortMainIncomeArray();
                         Intent data = new Intent();
                         data.putExtra("editedIncomeID", incomeToEdit.getId());
                         setResult(RESULT_OK, data);
                     } else {
                         PaymentLogEntry income = new PaymentLogEntry(-1, date, typeID, type, tenantID, leaseID, apartmentID, amount, description, receiptPic, false);
                         dbHandler.addPaymentLogEntry(income, MainActivity.user.getId());
-                       // IncomeListFragment.incomeListAdapterNeedsRefreshed = true;
                         setResult(RESULT_OK);
                     }
-                    //Create new Tenant object with input data and add it to the database
-                    //MainActivity.apartmentList.add(apartment);
                     finish();
 
                 } else {
@@ -246,7 +220,6 @@ public class NewIncomeWizard extends BaseActivity implements
             mNextButton.setTextAppearance(this, v.resourceId);
             mNextButton.setEnabled(position != mPagerAdapter.getCutOffPage());
         }
-
         mPrevButton.setVisibility(position <= 0 ? View.INVISIBLE : View.VISIBLE);
     }
 
@@ -349,19 +322,16 @@ public class NewIncomeWizard extends BaseActivity implements
                 break;
             }
         }
-
         if (mPagerAdapter.getCutOffPage() != cutOffPage) {
             mPagerAdapter.setCutOffPage(cutOffPage);
             return true;
         }
-
         return false;
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         List<Fragment> fragments = getSupportFragmentManager().getFragments();
         if (fragments != null) {
             for (Fragment fragment : fragments) {
@@ -395,7 +365,6 @@ public class NewIncomeWizard extends BaseActivity implements
             if (i >= mCurrentPageSequence.size()) {
                 return new ReviewFragmentCustom();
             }
-
             return mCurrentPageSequence.get(i).createFragment();
         }
 
@@ -405,7 +374,6 @@ public class NewIncomeWizard extends BaseActivity implements
                 // Re-use the current fragment (its position never changes)
                 return POSITION_UNCHANGED;
             }
-
             return POSITION_NONE;
         }
 
@@ -433,7 +401,5 @@ public class NewIncomeWizard extends BaseActivity implements
         public int getCutOffPage() {
             return mCutOffPage;
         }
-
-
     }
 }

@@ -45,7 +45,6 @@ import java.util.Date;
 
 public class HomeFragment extends android.support.v4.app.Fragment {
     private LineChart lineChart;
-    private LineData lineData;
     Button graphLeftArrowBtn, graphRightArrowBtn;
     TextView graphYearTV, emptyLeasesTV, emptyMoneyTV, isCompletedToggleFilterTV;
     DatabaseHandler databaseHandler;
@@ -61,9 +60,6 @@ public class HomeFragment extends android.support.v4.app.Fragment {
     ColorStateList accentColor;
     Date today, startRange, endRange;
     Boolean fragDataNeedsRefreshed, isCompletedOnly;
-    //ImageView profilePic;
-    //TextView usernameTV, emailbox, passbox;
-
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -159,7 +155,6 @@ public class HomeFragment extends android.support.v4.app.Fragment {
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
         today = cal.getTime();
-
         datePickerDialogLauncher = new CustomDatePickerDialogLauncher(ViewModelProviders.of(getActivity()).get(MainViewModel.class).getHomeTabYearSelected(), true, getContext());
         monthlyLineGraphCreator = new MonthlyLineGraphCreator(getContext(), lineChart, graphLeftArrowBtn, graphRightArrowBtn, graphYearTV, ViewModelProviders.of(getActivity()).get(MainViewModel.class).getHomeTabYearSelected());
         monthlyLineGraphCreator.setDateSelectedListener(new MonthlyLineGraphCreator.OnButtonsClickedListener() {
@@ -224,7 +219,6 @@ public class HomeFragment extends android.support.v4.app.Fragment {
             @Override
             public void onDateSelected(Date date) {
                 Calendar cal = Calendar.getInstance();
-                //Date today = cal.getTime();
                 cal.setTime(date);
                 cal.set(Calendar.DAY_OF_YEAR, 1);
                 startOfYear = cal.getTime();
@@ -249,7 +243,6 @@ public class HomeFragment extends android.support.v4.app.Fragment {
         cal.set(Calendar.DAY_OF_YEAR, 1);
         startOfYear = cal.getTime();
         cal.set(Calendar.MONTH, 11);
-        //String year = (String) DateFormat.format("yyyy", startOfYear);
         cal.set(Calendar.DAY_OF_MONTH, 31);
         endOfYear = cal.getTime();
         if(isCompletedOnly) {
@@ -261,20 +254,11 @@ public class HomeFragment extends android.support.v4.app.Fragment {
         }
         monthlyLineGraphCreator.setIncomeExpenseData(incomeValues, expenseValues, ViewModelProviders.of(getActivity()).get(MainViewModel.class).getHomeTabYearSelected());
         getActivity().setTitle(R.string.home);
-
-        setTextBoxes(MainActivity.user.getName(), MainActivity.user.getEmail(), MainActivity.user.getPassword());
         TypedValue colorValue = new TypedValue();
         getActivity().getTheme().resolveAttribute(R.attr.colorAccent, colorValue, true);
         this.accentColor = getActivity().getResources().getColorStateList(colorValue.resourceId);
         setUpMoneyListAdaptor();
         setUpLeaseListAdaptor();
-    }
-
-    public void setTextBoxes(String name, String email, String password) {
-        //Sets user info to text boxes, TEMPORARY
-        //this.usernameTV.setText(name);
-        //this.emailbox.setText(email);
-        //this.passbox.setText(password);
     }
 
     @Override
@@ -323,7 +307,6 @@ public class HomeFragment extends android.support.v4.app.Fragment {
                 }
             }
         });
-        //upcomingPaymentsLV.setOnItemClickListener(this);
     }
 
     private void setUpLeaseListAdaptor() {
@@ -353,7 +336,6 @@ public class HomeFragment extends android.support.v4.app.Fragment {
                 getActivity().startActivityForResult(intent, MainActivity.REQUEST_LEASE_VIEW);
             }
         });
-        //upcomingPaymentsLV.setOnItemClickListener(this);
     }
 
     @Override

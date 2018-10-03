@@ -15,11 +15,9 @@ import android.widget.TextView;
 
 import com.rba18.R;
 import com.rba18.adapters.TypeDialogListAdapter;
-import com.rba18.model.Tenant;
 import com.rba18.model.TypeTotal;
 
 import java.util.ArrayList;
-import java.util.TreeMap;
 
 public class TypeChooserDialog extends Dialog implements AdapterView.OnItemClickListener {
     Context context;

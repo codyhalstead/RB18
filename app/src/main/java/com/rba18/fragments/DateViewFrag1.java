@@ -164,7 +164,6 @@ public class DateViewFrag1 extends android.support.v4.app.Fragment implements Ad
                         //On listView row click, launch ApartmentViewActivity passing the rows data into it.
                         selectedMoney = moneyListAdapter.getFilteredResults().get(position);
                         if (selectedMoney instanceof PaymentLogEntry) {
-                            //mCallback.onIncomeDataChanged();
                             PaymentLogEntry selectedIncome = (PaymentLogEntry) selectedMoney;
                             if(selectedIncome.getIsCompleted()){
                                 selectedIncome.setIsCompleted(false);
@@ -175,7 +174,6 @@ public class DateViewFrag1 extends android.support.v4.app.Fragment implements Ad
                             mCallback.onMoneyDataChanged();
                             mCallback.onIncomeDataChanged();
                         } else {
-                            //mCallback.onExpenseDataChanged();
                             ExpenseLogEntry selectedExpense = (ExpenseLogEntry) selectedMoney;
                             if(selectedExpense.getIsCompleted()){
                                 selectedExpense.setIsCompleted(false);
@@ -228,10 +226,6 @@ public class DateViewFrag1 extends android.support.v4.app.Fragment implements Ad
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     db.setPaymentLogEntryInactive((PaymentLogEntry) selectedMoneyEntry);
-                    //IncomeListFragment.incomeListAdapterNeedsRefreshed = true;
-                    //currentFilteredIncomeAndExpenses = db.getIncomeAndExpensesForDate(MainActivity.user, date);
-                    //moneyListAdapter.updateResults(currentFilteredIncomeAndExpenses);
-                    //moneyListAdapter.notifyDataSetChanged();
                     mCallback.onMoneyDataChanged();
                     mCallback.onIncomeDataChanged();
                     total = getTotal();
@@ -244,10 +238,6 @@ public class DateViewFrag1 extends android.support.v4.app.Fragment implements Ad
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     db.setExpenseInactive((ExpenseLogEntry) selectedMoneyEntry);
-                   // ExpenseListFragment.expenseListAdapterNeedsRefreshed = true;
-                   // currentFilteredIncomeAndExpenses = db.getIncomeAndExpensesForDate(MainActivity.user, date);
-                   // moneyListAdapter.updateResults(currentFilteredIncomeAndExpenses);
-                   // moneyListAdapter.notifyDataSetChanged();
                     mCallback.onMoneyDataChanged();
                     mCallback.onExpenseDataChanged();
                     total = getTotal();
@@ -310,9 +300,6 @@ public class DateViewFrag1 extends android.support.v4.app.Fragment implements Ad
         if (requestCode == MainActivity.REQUEST_NEW_EXPENSE_FORM) {
             //If successful(not cancelled, passed validation)
             if (resultCode == RESULT_OK) {
-                //currentFilteredIncomeAndExpenses = db.getIncomeAndExpensesForDate(MainActivity.user, date);
-                //moneyListAdapter.updateResults(currentFilteredIncomeAndExpenses);
-                //moneyListAdapter.notifyDataSetChanged();
                 mCallback.onMoneyDataChanged();
                 mCallback.onExpenseDataChanged();
                 total = getTotal();
@@ -322,9 +309,6 @@ public class DateViewFrag1 extends android.support.v4.app.Fragment implements Ad
         if (requestCode == MainActivity.REQUEST_NEW_INCOME_FORM) {
             //If successful(not cancelled, passed validation)
             if (resultCode == RESULT_OK) {
-                //currentFilteredIncomeAndExpenses = db.getIncomeAndExpensesForDate(MainActivity.user, date);
-                //moneyListAdapter.updateResults(currentFilteredIncomeAndExpenses);
-                //moneyListAdapter.notifyDataSetChanged();
                 mCallback.onMoneyDataChanged();
                 mCallback.onIncomeDataChanged();
                 total = getTotal();

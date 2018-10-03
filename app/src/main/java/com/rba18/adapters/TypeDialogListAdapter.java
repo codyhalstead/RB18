@@ -23,7 +23,6 @@ import android.widget.Filter;
 
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.TreeMap;
 
 public class TypeDialogListAdapter extends BaseAdapter implements Filterable {
     private Context context;

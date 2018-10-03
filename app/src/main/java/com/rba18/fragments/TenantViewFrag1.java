@@ -2,7 +2,6 @@ package com.rba18.fragments;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -17,12 +16,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.util.Pair;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
@@ -30,9 +26,7 @@ import com.rba18.BuildConfig;
 import com.rba18.R;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
-import com.rba18.activities.BaseActivity;
 import com.rba18.activities.MainActivity;
-import com.rba18.activities.NewTenantWizard;
 import com.rba18.helpers.ApartmentTenantViewModel;
 import com.rba18.helpers.DateAndCurrencyDisplayer;
 import com.rba18.helpers.MainArrayDataMethods;
@@ -41,11 +35,9 @@ import com.rba18.model.Lease;
 import com.rba18.model.Tenant;
 import com.rba18.sqlite.DatabaseHandler;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -59,8 +51,6 @@ public class TenantViewFrag1 extends Fragment {
     Button callTenantBtn, smsTenantBtn, emailTenantBtn, callEContactBtn, smsEContactBtn;
     TableRow durationTR, apartmentTR, primaryTenantTR, otherTenantsTR;
     Apartment apartment;
-    //Lease currentLease;
-    //LinearLayout leaseLL;
     DatabaseHandler databaseHandler;
     MainArrayDataMethods dataMethods;
     private AlertDialog alertDialog;
@@ -79,7 +69,6 @@ public class TenantViewFrag1 extends Fragment {
         } else {
             this.tenantViewed = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getViewedTenant().getValue();
         }
-        //this.otherTenants = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getSecondaryTenants().getValue();
         Date today = Calendar.getInstance().getTime();
         activeLeases = new ArrayList<>();
         for (int i = 0; i < ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getLeaseArray().getValue().size(); i++) {
@@ -96,28 +85,18 @@ public class TenantViewFrag1 extends Fragment {
                 this.otherTenants = tenants.second;
             }
         }
-        // multipleLeases = false;
-        // if(activeLeases.size() > 1){
-        //    multipleLeases = true;
-        // } else if(activeLeases.size() == 1){
-        //    currentLease = activeLeases.get(0);
-        //}
-        //getActivity().setTitle("Tenant View");
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        //Uses apartment form to edit data
+        //Uses tenant form to edit data
         if (requestCode == MainActivity.REQUEST_NEW_TENANT_FORM) {
             //If successful(not cancelled, passed validation)
             if (resultCode == RESULT_OK) {
-                //Re-query cached apartment array to update cache and refresh current textViews to display new data. Re-query to sort list
-
                 int tenantID = data.getIntExtra("editedTenantID", 0);
                 this.tenantViewed = dataMethods.getCachedTenantByTenantID(tenantID);
                 fillTextViews();
-                //ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
             }
         }
     }
@@ -135,8 +114,6 @@ public class TenantViewFrag1 extends Fragment {
                 activeLeaseDurationLabelTV.setVisibility(View.GONE);
                 apartmentAddressTV.setVisibility(View.GONE);
                 apartmentAddressLabelTV.setVisibility(View.GONE);
-                //leaseHolderTypeTV.setVisibility(View.GONE);
-                //leaseHolderTypeLabelTV.setVisibility(View.GONE);
                 primaryTenantTV.setVisibility(View.GONE);
                 primaryTenantLabelTV.setVisibility(View.GONE);
                 otherTenantsTV.setVisibility(View.GONE);
@@ -147,7 +124,6 @@ public class TenantViewFrag1 extends Fragment {
                 primaryTenantTV.setVisibility(View.GONE);
                 primaryTenantLabelTV.setVisibility(View.GONE);
                 primaryTenantTR.setVisibility(View.GONE);
-                //primarySecondaryTR.setVisibility(View.GONE);
                 primaryTenantTR.setVisibility(View.GONE);
                 otherTenantsTR.setVisibility(View.GONE);
             } else {
@@ -158,15 +134,12 @@ public class TenantViewFrag1 extends Fragment {
                     activeLeaseDurationTV.setText(R.string.multiple_active_leases);
                     apartmentAddressTV.setVisibility(View.GONE);
                     apartmentAddressLabelTV.setVisibility(View.GONE);
-                    //leaseHolderTypeTV.setVisibility(View.GONE);
-                    //leaseHolderTypeLabelTV.setVisibility(View.GONE);
                     primaryTenantTV.setVisibility(View.GONE);
                     primaryTenantLabelTV.setVisibility(View.GONE);
                     otherTenantsTV.setVisibility(View.GONE);
                     otherTenantsLabelTV.setVisibility(View.GONE);
                     durationTR.setVisibility(View.VISIBLE);
                     apartmentTR.setVisibility(View.GONE);
-                    //primarySecondaryTR.setVisibility(View.GONE);
                     primaryTenantTR.setVisibility(View.GONE);
                     otherTenantsTR.setVisibility(View.GONE);
                     primaryTenantTV.setVisibility(View.GONE);
@@ -178,8 +151,6 @@ public class TenantViewFrag1 extends Fragment {
                     activeLeaseDurationLabelTV.setVisibility(View.VISIBLE);
                     apartmentAddressTV.setVisibility(View.VISIBLE);
                     apartmentAddressLabelTV.setVisibility(View.VISIBLE);
-                    //leaseHolderTypeTV.setVisibility(View.VISIBLE);
-                    //leaseHolderTypeLabelTV.setVisibility(View.VISIBLE);
                     otherTenantsTV.setVisibility(View.VISIBLE);
                     otherTenantsLabelTV.setVisibility(View.VISIBLE);
                     durationTR.setVisibility(View.VISIBLE);
@@ -187,13 +158,7 @@ public class TenantViewFrag1 extends Fragment {
                     primaryTenantTV.setVisibility(View.VISIBLE);
                     primaryTenantLabelTV.setVisibility(View.VISIBLE);
                     primaryTenantTR.setVisibility(View.VISIBLE);
-                    //primarySecondaryTR.setVisibility(View.VISIBLE);
                     otherTenantsTR.setVisibility(View.VISIBLE);
-                    //if (tenantViewed.getId() == currentLease.getPrimaryTenantID()) {
-                        //leaseHolderTypeTV.setText(R.string.primary_tenant);
-                    //} else {
-                        //leaseHolderTypeTV.setText(R.string.secondary_tenant);
-                    //}
                     if (currentLease.getLeaseStart() != null && currentLease.getLeaseEnd() != null) {
                         int dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
                         activeLeaseDurationTV.setText(currentLease.getStartAndEndDatesString(dateFormatCode));
@@ -237,15 +202,12 @@ public class TenantViewFrag1 extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.tenant_view_fragment_one, container, false);
         nameTV = rootView.findViewById(R.id.tenantViewNameTextView);
-        //renterStatusTV = rootView.findViewById(R.id.tenantViewRentingStatusTextView);
         phoneTV = rootView.findViewById(R.id.tenantViewPhoneTextView);
         activeLeaseDurationTV = rootView.findViewById(R.id.tenantViewActiveLeaseDurationTextView);
         activeLeaseDurationLabelTV = rootView.findViewById(R.id.tenantViewActiveLeaseDurationLabelTextView);
         notesTV = rootView.findViewById(R.id.tenantViewNotesTextView);
         apartmentAddressTV = rootView.findViewById(R.id.tenantViewActiveLeaseApartmentTextView);
         apartmentAddressLabelTV = rootView.findViewById(R.id.tenantViewActiveLeaseApartmentLabelTextView);
-        //leaseHolderTypeTV = rootView.findViewById(R.id.tenantViewActiveLeasePrimarySecondaryTextView);
-        //leaseHolderTypeLabelTV = rootView.findViewById(R.id.tenantViewActiveLeasePrimarySecondaryLabelTextView);
         emailTV = rootView.findViewById(R.id.tenantViewEmailTextView);
         emergencyNameTV = rootView.findViewById(R.id.tenantViewEmergencyNameTextView);
         emergencyPhoneTV = rootView.findViewById(R.id.tenantViewEmergencyPhoneTextView);
@@ -254,7 +216,6 @@ public class TenantViewFrag1 extends Fragment {
         otherTenantsTV = rootView.findViewById(R.id.tenantViewActiveLeaseOtherTenantsTextView);
         otherTenantsLabelTV = rootView.findViewById(R.id.tenantViewActiveLeaseOtherTenantsLabelTextView);
         activeLeasesHeaderTV = rootView.findViewById(R.id.tenantViewActiveLeaseHeaderTV);
-        //leaseLL = rootView.findViewById(R.id.tenantViewLeaseLL);
         callTenantBtn = rootView.findViewById(R.id.tenantViewCallTenantBtn);
         callTenantBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -292,7 +253,6 @@ public class TenantViewFrag1 extends Fragment {
         });
         durationTR = rootView.findViewById(R.id.tenantViewActiveLeaseDurationTR);
         apartmentTR = rootView.findViewById(R.id.tenantViewActiveLeaseApartmentTR);
-        //primarySecondaryTR = rootView.findViewById(R.id.tenantViewActiveLeasePrimarySecondaryTR);
         primaryTenantTR = rootView.findViewById(R.id.tenantViewActiveLeasePrimaryTenantTR);
         otherTenantsTR = rootView.findViewById(R.id.tenantViewActiveLeaseOtherTenantsTR);
         if (BuildConfig.FLAVOR.equals("free")) {

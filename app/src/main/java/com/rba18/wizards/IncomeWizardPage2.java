@@ -8,15 +8,9 @@ import com.example.android.wizardpager.wizard.model.ModelCallbacks;
 import com.example.android.wizardpager.wizard.model.Page;
 import com.example.android.wizardpager.wizard.model.ReviewItem;
 import com.rba18.R;
-import com.rba18.activities.NewIncomeWizard;
 import com.rba18.fragments.IncomeWizardPage2Fragment;
-import com.rba18.model.PaymentLogEntry;
 
-import java.math.BigDecimal;
-import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Locale;
 
 public class IncomeWizardPage2 extends Page {
     public static final String INCOME_DESCRIPTION_DATA_KEY = "income_description";
@@ -49,6 +43,5 @@ public class IncomeWizardPage2 extends Page {
     @Override
     public boolean isCompleted() {
         return (!TextUtils.isEmpty(mData.getString(INCOME_DESCRIPTION_DATA_KEY)));
-        //return true;
     }
 }

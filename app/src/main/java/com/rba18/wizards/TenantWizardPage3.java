@@ -7,9 +7,7 @@ import com.example.android.wizardpager.wizard.model.ModelCallbacks;
 import com.example.android.wizardpager.wizard.model.Page;
 import com.example.android.wizardpager.wizard.model.ReviewItem;
 import com.rba18.R;
-import com.rba18.activities.NewTenantWizard;
 import com.rba18.fragments.TenantWizardPage3Fragment;
-import com.rba18.model.Tenant;
 
 import java.util.ArrayList;
 
@@ -22,12 +20,6 @@ public class TenantWizardPage3 extends Page {
         super(callbacks, title);
         this.context = context;
         mData.putBoolean(WAS_PRELOADED, false);
-        //Tenant tenant = NewTenantWizard.tenantToEdit;
-        // Log.d(TAG, "TenantWizardPage1: " + tenant.getFirstName());
-        //if(tenant != null){
-        //    mData.putString(TENANT_NOTES_DATA_KEY, tenant.getNotes());
-        //    this.notifyDataChanged();
-        //}
     }
 
 

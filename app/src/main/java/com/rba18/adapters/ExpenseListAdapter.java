@@ -20,12 +20,7 @@ import com.rba18.R;
 import com.rba18.helpers.DateAndCurrencyDisplayer;
 import com.rba18.helpers.MainArrayDataMethods;
 import com.rba18.model.ExpenseLogEntry;
-import com.rba18.model.PaymentLogEntry;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
@@ -105,7 +100,6 @@ public class ExpenseListAdapter extends BaseAdapter implements Filterable {
             viewHolder.typeTV = convertView.findViewById(R.id.expenseRowTypeTV);
             viewHolder.descriptionTV = convertView.findViewById(R.id.expenseRowDescriptionTV);
             viewHolder.wasPaidTV = convertView.findViewById(R.id.expenseRowWasPaidTV);
-            //viewHolder.position = position;
 
             convertView.setTag(viewHolder);
 
@@ -128,7 +122,6 @@ public class ExpenseListAdapter extends BaseAdapter implements Filterable {
                 viewHolder.wasPaidTV.setText(R.string.not_paid);
                 viewHolder.wasPaidTV.setTextColor(convertView.getResources().getColor(R.color.red));
             }
-            //viewHolder.typeTV.setText(expense.getTypeLabel());
             setTextHighlightSearch(viewHolder.typeTV, expense.getTypeLabel());
             setTextHighlightSearch(viewHolder.descriptionTV, expense.getDescription());
         }

@@ -84,12 +84,10 @@ public class ExpenseWizardPage2Fragment extends android.support.v4.app.Fragment 
                 loadDataForEdit(expenseToEdit);
                 isEdit = true;
             }  else {
-                //mPage.getData().putString(ExpenseWizardPage2.EXPENSE_RECEIPT_PIC_DATA_KEY, "");
-                //mPage.getData().putString(ExpenseWizardPage2.EXPENSE_WAS_RECEIPT_PIC_ADDED_DATA_KEY, getContext().getResources().getString(R.string.no));
+
             }
         } else {
-            //mPage.getData().putString(ExpenseWizardPage2.EXPENSE_RECEIPT_PIC_DATA_KEY, "");
-           // mPage.getData().putString(ExpenseWizardPage2.EXPENSE_WAS_RECEIPT_PIC_ADDED_DATA_KEY, getContext().getResources().getString(R.string.no));
+
         }
     }
 
@@ -250,7 +248,6 @@ public class ExpenseWizardPage2Fragment extends android.support.v4.app.Fragment 
             return;
         } else if (requestCode == MainActivity.REQUEST_CAMERA_FOR_MAIN_PIC) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                ;
                 Intent pictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 File photoFile = AppFileManagementHelper.createImageFileFromCamera();
                 cameraImageFilePath = photoFile.getAbsolutePath();
@@ -290,7 +287,6 @@ public class ExpenseWizardPage2Fragment extends android.support.v4.app.Fragment 
                 }
                 //file path of captured image
                 cursor.close();
-                //this.apartment.setMainPic(filePath);
                 mPage.notifyDataChanged();
             }
         } else if (requestCode == MainActivity.REQUEST_CAMERA_FOR_MAIN_PIC) {
@@ -307,7 +303,6 @@ public class ExpenseWizardPage2Fragment extends android.support.v4.app.Fragment 
                 mPage.getData().putString(ExpenseWizardPage2.EXPENSE_WAS_RECEIPT_PIC_ADDED_DATA_KEY, getContext().getResources().getString(R.string.yes));
             }
         }
-
     }
 
     @Override
@@ -324,11 +319,6 @@ public class ExpenseWizardPage2Fragment extends android.support.v4.app.Fragment 
             }
         }
     }
-
-    //private void preloadData(Bundle bundle){
-    //
-    //}
-
 
     @Override
     public void onSaveInstanceState(Bundle outState) {

@@ -1,7 +1,6 @@
 package com.rba18.activities;
 
 import android.Manifest;
-//import android.app.AlertDialog;
 import android.support.v7.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -55,7 +54,6 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
     SharedPreferences preferences;
     private ColorChooserDialog dialog;
     private AlertDialog alertDialog;
-    //private NewItemCreatorDialog newItemCreatorDialog;
     private DatabaseHandler dbHandler;
     private boolean wasDataEdited;
     UserInputValidation validation;
@@ -65,7 +63,7 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //Preferences must be initialized before setContentView because it is used in determining activities theme
-        //Will be different from static MainActivity5.currentThemeChoice when user selects themes within this activity
+        //Will be different from static MainActivity.currentThemeChoice when user selects themes within this activity
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         dbHandler = new DatabaseHandler(this);
         this.validation = new UserInputValidation(this);
@@ -147,7 +145,7 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
         changeUserPasswordLL.setOnClickListener(this);
         if (BuildConfig.FLAVOR.equals("free")) {
             importDataTV.setTextColor(getResources().getColor(R.color.caldroid_lighter_gray));
-            backupDataTV.setText(R.string.backup_data);
+            backupDataTV.setText(R.string.create_transfer_file);
         }
     }
 
@@ -225,7 +223,6 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
 
                 // create the AlertDialog as final
                 alertDialog = new AlertDialog.Builder(SettingsActivity.this)
-                        //.setMessage("You are ready to type")
                         .setTitle(R.string.create_new_type)
                         .setView(editText)
 
@@ -247,7 +244,7 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
                         .create();
 
                 // set the focus change listener of the EditText
-                // this part will make the soft keyboard automaticall visible
+                // this part will make the soft keyboard automatically visible
                 editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                     @Override
                     public void onFocusChange(View v, boolean hasFocus) {
@@ -302,7 +299,6 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
 
                 // create the AlertDialog as final
                 alertDialog = new AlertDialog.Builder(SettingsActivity.this)
-                        //.setMessage("You are ready to type")
                         .setTitle(R.string.create_new_type)
                         .setView(editText)
 
@@ -324,7 +320,7 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
                         .create();
 
                 // set the focus change listener of the EditText
-                // this part will make the soft keyboard automaticall visible
+                // this part will make the soft keyboard automatically visible
                 editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                     @Override
                     public void onFocusChange(View v, boolean hasFocus) {
@@ -415,11 +411,7 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
                             public void onClick(DialogInterface dialog, int id) {
                                 // user clicked OK, so save the mSelectedItems results somewhere
                                 // or return them to the component that opened the dialog
-                                int selectedPosition = ((AlertDialog) alertDialog).getListView().getCheckedItemPosition();
-                                //String choice = getResources().getStringArray(R.array.currency_choices_array)[selectedPosition];
-                                //Toast.makeText(SettingsActivity.this, choice, Toast.LENGTH_LONG).show();
-                                //Log.d(TAG, "onClick: " + selectedPosition);
-                                //showToast("selectedPosition: " + selectedPosition);
+                                int selectedPosition = ( alertDialog).getListView().getCheckedItemPosition();
                                 SharedPreferences.Editor editor = preferences.edit();
                                 if (selectedPosition == 0) {
                                     editor.putInt("currency", DateAndCurrencyDisplayer.CURRENCY_US);
@@ -459,14 +451,12 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
                 }
                 alertDialog = new AlertDialog.Builder(this)
 
-                        // Set the dialog title
                         // specify the list array, the items to be selected by default (null for none),
                         // and the listener through which to receive call backs when items are selected
                         // again, R.array.choices were set in the resources res/values/strings.xml
                         .setSingleChoiceItems(R.array.date_choices_array, defaultDateChoice, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface arg0, int arg1) {
-                                //showToast("Some actions maybe? Selected index: " + arg1);
                             }
 
                         })
@@ -477,7 +467,6 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
                             public void onClick(DialogInterface dialog, int id) {
                                 // user clicked OK, so save the mSelectedItems results somewhere
                                 // or return them to the component that opened the dialog
-
                                 int selectedPosition = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
                                 //showToast("selectedPosition: " + selectedPosition);
                                 SharedPreferences.Editor editor = preferences.edit();
@@ -500,10 +489,8 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
                             @Override
                             public void onClick(DialogInterface dialog, int id) {
                                 // removes the dialog from the screen
-
                             }
                         })
-
                         .show();
 
                 break;
@@ -516,13 +503,16 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
     public void sendEmail(View view) {
         if (MainActivity.hasPermissions(this, android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage(R.string.send_backip_to_email_question);
+            if (BuildConfig.FLAVOR.equals("free")) {
+                builder.setMessage(R.string.send_backup_to_email_question_free);
+            } else {
+                builder.setMessage(R.string.send_backup_to_email_question);
+            }
             builder.setPositiveButton(R.string.email, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     File file = null;
                     file = AppFileManagementHelper.copyDBToExternal(SettingsActivity.this);
-                    //lastEmailedFilePath = file.getAbsolutePath();
                     Intent intent = new Intent(Intent.ACTION_SEND);
                     intent.putExtra(Intent.EXTRA_EMAIL, new String[]{""});
                     intent.putExtra(Intent.EXTRA_SUBJECT, "Backup");
@@ -614,14 +604,14 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
     }
 
     public void displayFiles(final File downloads) {
-        File[] filelist = downloads.listFiles();
+        File[] fileList = downloads.listFiles();
         ArrayList<String> theNamesOfFiles = new ArrayList<>();
-        for (int i = 0; i < filelist.length; i++) {
-            if (filelist[i].getPath().endsWith(".db")) {
-                theNamesOfFiles.add(filelist[i].getName());
+        for (int i = 0; i < fileList.length; i++) {
+            if (fileList[i].getPath().endsWith(".db")) {
+                if(fileList[i].getPath().contains(SettingsActivity.this.getResources().getString(R.string.backup_file_name))) {
+                    theNamesOfFiles.add(fileList[i].getName());
+                }
             }
-            //Log.d("TAG", "backup: " + filelist[i]);
-            //Toast.makeText(this, i, Toast.LENGTH_LONG).show();
         }
         final FileChooserDialog typeChooserDialog2 = new FileChooserDialog(this, theNamesOfFiles);
         typeChooserDialog2.show();
@@ -648,7 +638,6 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
     private void endActivityAndRequestMainToLogUserOut() {
         Intent intent = new Intent();
         intent.putExtra("need_to_log_out", true);
-
         setResult(MainActivity.RESULT_DATA_WAS_MODIFIED, intent);
         finish();
     }
@@ -658,11 +647,9 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
         int maxLength = 20;
         editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxLength)});
         editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-
-        // create the AlertDialog as final
         alertDialog = new AlertDialog.Builder(SettingsActivity.this)
-                .setMessage(R.string.comfirm_pass_to_delete_account_message)
-                .setTitle(R.string.comfirm_pass_to_delete_account_title)
+                .setMessage(R.string.confirm_pass_to_delete_account_message)
+                .setTitle(R.string.confirm_pass_to_delete_account_title)
                 .setView(editText)
 
                 // Set the action buttons
@@ -689,7 +676,7 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
                 .create();
 
         // set the focus change listener of the EditText
-        // this part will make the soft keyboard automaticall visible
+        // this part will make the soft keyboard automatically visible
         editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
@@ -708,9 +695,8 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
         editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxLength)});
         editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
 
-        // create the AlertDialog as final
         alertDialog = new AlertDialog.Builder(SettingsActivity.this)
-                .setTitle(R.string.comfirm_pass_to_change_account_info)
+                .setTitle(R.string.confirm_pass_to_change_account_info)
                 .setView(editText)
 
                 // Set the action buttons
@@ -735,7 +721,7 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
                 .create();
 
         // set the focus change listener of the EditText
-        // this part will make the soft keyboard automaticall visible
+        // this part will make the soft keyboard automatically visible
         editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
@@ -753,12 +739,9 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
         int maxLength = 50;
         editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxLength)});
         editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-
-        // create the AlertDialog as final
         alertDialog = new AlertDialog.Builder(SettingsActivity.this)
                 .setTitle(R.string.new_account_email)
                 .setView(editText)
-
                 // Set the action buttons
                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
@@ -776,7 +759,7 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
                 .create();
 
         // set the focus change listener of the EditText
-        // this part will make the soft keyboard automaticall visible
+        // this part will make the soft keyboard automatically visible
         editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
@@ -787,7 +770,7 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
         });
 
         alertDialog.show();
-        ((AlertDialog) alertDialog).getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+        ( alertDialog).getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (validation.isInputEditTextEmail(editText, getString(R.string.enter_valid_email))) {
@@ -809,8 +792,6 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
         int maxLength = 20;
         editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxLength)});
         editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-
-        // create the AlertDialog as final
         alertDialog = new AlertDialog.Builder(SettingsActivity.this)
                 .setTitle(R.string.type_old_pass)
                 .setView(editText)
@@ -837,7 +818,7 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
                 .create();
 
         // set the focus change listener of the EditText
-        // this part will make the soft keyboard automaticall visible
+        // this part will make the soft keyboard automatically visible
         editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
@@ -856,7 +837,6 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
         editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxLength)});
         editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
 
-        // create the AlertDialog as final
         alertDialog = new AlertDialog.Builder(SettingsActivity.this)
                 .setTitle(R.string.new_account_password)
                 .setView(editText)
@@ -878,7 +858,7 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
                 .create();
 
         // set the focus change listener of the EditText
-        // this part will make the soft keyboard automaticall visible
+        // this part will make the soft keyboard automatically visible
         editText.setOnFocusChangeListener(new View.OnFocusChangeListener()
 
         {
@@ -891,7 +871,7 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
         });
 
         alertDialog.show();
-        ((AlertDialog) alertDialog).getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+        ( alertDialog).getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (validation.isInputEditTextPassword(editText, getString(R.string.password_requirements))) {
@@ -908,51 +888,4 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
         });
 
     }
-
-    //private class MyCopyTask extends AsyncTask<Uri, Integer, File> {
-    //    ProgressDialog progressDialog;
-
-    //    @Override
-    //    protected File doInBackground(Uri... params) {
-    //        File file = copyFileToExternal();
-    //        try {
-    //            Thread.sleep(5000);
-    //        } catch (InterruptedException e) {
-    //            e.printStackTrace();
-    //        }
-    //        return file;
-    //    }
-
-    //    @Override
-    //    protected void onPostExecute(File result) {
-    //        if (result.exists()) {
-    //            //sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(result)));
-
-//                Toast.makeText(getApplicationContext(), "Success", Toast.LENGTH_LONG).show();
-//
-    ///          } else {
-    //           Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_LONG).show();
-    //     }
-//
-    //          // Hide ProgressDialog here
-    //        //sendEmail();
-    //  }
-//
-    //      @Override
-    //    protected void onPreExecute() {
-    //      // Show ProgressDialog here
-//
-    //          progressDialog = new ProgressDialog(SettingsActivity.this);
-    //        progressDialog.setIndeterminate(true);
-    //      progressDialog.setMessage("Creating Backup...");
-    //    progressDialog.show();
-//        }//
-
-    //      @Override
-    //    protected void onProgressUpdate(Integer... values) {
-    //      super.onProgressUpdate(values);
-    //}
-
-    //}
-
 }

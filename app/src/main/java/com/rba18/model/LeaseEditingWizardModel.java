@@ -10,7 +10,6 @@ import com.rba18.wizards.LeaseWizardPage1;
 import com.rba18.wizards.LeaseWizardPage2;
 import com.rba18.wizards.LeaseWizardPage3;
 import com.rba18.wizards.LeaseWizardPage4;
-import com.rba18.wizards.LeaseWizardProratedRentPage;
 
 import java.util.List;
 

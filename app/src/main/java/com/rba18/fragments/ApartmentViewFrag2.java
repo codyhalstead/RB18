@@ -46,20 +46,14 @@ public class ApartmentViewFrag2 extends android.support.v4.app.Fragment implemen
     public ApartmentViewFrag2() {
         // Required empty public constructor
     }
+
     TextView noPaymentsTV, totalAmountTV, totalAmountLabelTV;
     LinearLayout totalAmountLL;
     FloatingActionButton fab;
-    //  EditText searchBarET;
-    //  Button dateRangeStartBtn, dateRangeEndBtn;
     MoneyListAdapter moneyListAdapter;
     ColorStateList accentColor;
     ListView listView;
-    //Date startDateRange, endDateRange;
-    //public static boolean incomeListAdapterNeedsRefreshed;
-    //  Date filterDateStart, filterDateEnd;
-    //  private DatePickerDialog.OnDateSetListener dateSetFilterStartListener, dateSetFilterEndListener;
     private DatabaseHandler db;
-    //private ArrayList<MoneyLogEntry> currentFilteredMoney;
     private MoneyLogEntry selectedMoney;
     private Apartment apartment;
     private BigDecimal total;
@@ -101,7 +95,6 @@ public class ApartmentViewFrag2 extends android.support.v4.app.Fragment implemen
                 showNewIncomeOrExpenseAlertDialog();
             }
         });
-        //Get apartment item
         TypedValue colorValue = new TypedValue();
         getActivity().getTheme().resolveAttribute(R.attr.colorAccent, colorValue, true);
         this.accentColor = getActivity().getResources().getColorStateList(colorValue.resourceId);
@@ -180,7 +173,6 @@ public class ApartmentViewFrag2 extends android.support.v4.app.Fragment implemen
                         //On listView row click, launch ApartmentViewActivity passing the rows data into it.
                         selectedMoney = moneyListAdapter.getFilteredResults().get(position);
                         if (selectedMoney instanceof PaymentLogEntry) {
-                            //mCallback.onIncomeDataChanged();
                             PaymentLogEntry selectedIncome = (PaymentLogEntry) selectedMoney;
                             if(selectedIncome.getIsCompleted()){
                                 selectedIncome.setIsCompleted(false);
@@ -191,7 +183,6 @@ public class ApartmentViewFrag2 extends android.support.v4.app.Fragment implemen
                             mCallback.onMoneyDataChanged();
                             mCallback.onIncomeDataChanged();
                         } else {
-                            //mCallback.onExpenseDataChanged();
                             ExpenseLogEntry selectedExpense = (ExpenseLogEntry) selectedMoney;
                             if(selectedExpense.getIsCompleted()){
                                 selectedExpense.setIsCompleted(false);
@@ -209,13 +200,11 @@ public class ApartmentViewFrag2 extends android.support.v4.app.Fragment implemen
                         //On listView row click, launch ApartmentViewActivity passing the rows data into it.
                         selectedMoney = moneyListAdapter.getFilteredResults().get(position);
                         if (selectedMoney instanceof PaymentLogEntry) {
-                            //mCallback.onIncomeDataChanged();
                             Intent intent = new Intent(getActivity(), NewIncomeWizard.class);
                             PaymentLogEntry selectedIncome = (PaymentLogEntry) selectedMoney;
                             intent.putExtra("incomeToEdit", selectedIncome);
                             startActivityForResult(intent, MainActivity.REQUEST_NEW_INCOME_FORM);
                         } else {
-                            //mCallback.onExpenseDataChanged();
                             Intent intent = new Intent(getActivity(), NewExpenseWizard.class);
                             ExpenseLogEntry selectedExpense = (ExpenseLogEntry) selectedMoney;
                             intent.putExtra("expenseToEdit", selectedExpense);
@@ -247,12 +236,8 @@ public class ApartmentViewFrag2 extends android.support.v4.app.Fragment implemen
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     db.setPaymentLogEntryInactive((PaymentLogEntry) selectedMoney);
-                    //IncomeListFragment.incomeListAdapterNeedsRefreshed = true;
-                    //currentFilteredMoney = db.getIncomeAndExpensesByApartmentIDWithinDates(MainActivity.user, apartment.getId(), startDateRange, endDateRange);
-                    //moneyListAdapter.updateResults(currentFilteredMoney);
                     mCallback.onMoneyDataChanged();
                     mCallback.onIncomeDataChanged();
-                    //moneyListAdapter.notifyDataSetChanged();
                     total = getTotal();
                     setTotalTV();
                 }
@@ -263,12 +248,8 @@ public class ApartmentViewFrag2 extends android.support.v4.app.Fragment implemen
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     db.setExpenseInactive((ExpenseLogEntry) selectedMoney);
-                   // ExpenseListFragment.expenseListAdapterNeedsRefreshed = true;
-                    //currentFilteredMoney = db.getIncomeAndExpensesByApartmentIDWithinDates(MainActivity.user, apartment.getId(), startDateRange, endDateRange);
-                    //moneyListAdapter.updateResults(currentFilteredMoney);
                     mCallback.onMoneyDataChanged();
                     mCallback.onExpenseDataChanged();
-                    //moneyListAdapter.notifyDataSetChanged();
                     total = getTotal();
                     setTotalTV();
                 }
@@ -316,9 +297,6 @@ public class ApartmentViewFrag2 extends android.support.v4.app.Fragment implemen
         if (requestCode == MainActivity.REQUEST_NEW_INCOME_FORM) {
             //If successful(not cancelled, passed validation)
             if (resultCode == RESULT_OK) {
-                //this.currentFilteredMoney = db.getIncomeAndExpensesByApartmentIDWithinDates(MainActivity.user, apartment.getId(), startDateRange, endDateRange);
-                //moneyListAdapter.updateResults(currentFilteredMoney);
-                //moneyListAdapter.notifyDataSetChanged();
                 mCallback.onMoneyDataChanged();
                 mCallback.onIncomeDataChanged();
                 total = getTotal();
@@ -328,9 +306,6 @@ public class ApartmentViewFrag2 extends android.support.v4.app.Fragment implemen
         if (requestCode == MainActivity.REQUEST_NEW_EXPENSE_FORM) {
             //If successful(not cancelled, passed validation)
             if (resultCode == RESULT_OK) {
-                //this.currentFilteredMoney = db.getIncomeAndExpensesByApartmentIDWithinDates(MainActivity.user, apartment.getId(), startDateRange, endDateRange);
-                //moneyListAdapter.updateResults(currentFilteredMoney);
-                //moneyListAdapter.notifyDataSetChanged();
                 mCallback.onMoneyDataChanged();
                 mCallback.onExpenseDataChanged();
                 total = getTotal();

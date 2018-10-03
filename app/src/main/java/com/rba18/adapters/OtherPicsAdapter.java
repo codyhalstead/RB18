@@ -42,7 +42,6 @@ public class OtherPicsAdapter extends RecyclerView.Adapter<OtherPicsAdapter.View
     }
 
     public interface OnDataChangedListener {
-        //void onPicDataChanged();
         void onPicSelectedToBeRemoved(String removedPicPath);
     }
 
@@ -58,12 +57,7 @@ public class OtherPicsAdapter extends RecyclerView.Adapter<OtherPicsAdapter.View
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        //holder.position = holder.getAdapterPosition();
         final String image = images.get(position);
-        //File imgFile = new File(image);
-        //Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-        //holder.imageView.setImageBitmap(bitmap);
-        // new ImageLoaderTask(holder, position, image).execute();
         Glide.with(context).load(image).placeholder(R.drawable.no_picture)
                 .override(100, 100).centerCrop().into(holder.imageView);
 
@@ -123,7 +117,6 @@ public class OtherPicsAdapter extends RecyclerView.Adapter<OtherPicsAdapter.View
                 return true;
             }
         });
-        //Glide.with(context).load(image).into(holder.imageView);
     }
 
     public void updateResults(ArrayList<String> results) {

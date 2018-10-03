@@ -40,7 +40,7 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
     private PageFragmentCallbacks mCallbacks;
     private String mKey;
     private LeaseWizardPage2 mPage;
-    private TextView primaryTenantTV, primaryTenantLabelTV, secondaryTenantsTV, secondaryTenantsLabelTV, depositAmountLabelTV, depositWithheldLabelTV, depositHeaderTV;
+    private TextView primaryTenantTV, secondaryTenantsTV, depositHeaderTV;
     private EditText depositAmountET, depositWithheldET;
     private Tenant primaryTenant;
     private ArrayList<Tenant> secondaryTenants, availableTenants;
@@ -78,8 +78,6 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
         preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         this.moneyFormatCode = preferences.getInt("currency", DateAndCurrencyDisplayer.CURRENCY_US);
         mainArrayDataMethods = new MainArrayDataMethods();
-        //availableTenants.addAll(MainActivity.tenantList);
-        //depositWithheld = new BigDecimal(0);
         isEdit = false;
         Bundle extras = mPage.getData();
         if (extras != null) {
@@ -111,16 +109,9 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
         primaryTenantTV.setMaxLines(5);
         primaryTenantTV.setVerticalScrollBarEnabled(true);
         primaryTenantTV.setMovementMethod(new ScrollingMovementMethod());
-        //primaryTenantLabelTV = rootView.findViewById(R.id.leaseWizardPrimaryTenantLabelTV);
 
         secondaryTenantsTV = rootView.findViewById(R.id.leaseWizardSecondaryTenantsTV);
         secondaryTenantsTV.setText(mPage.getData().getString(LeaseWizardPage2.LEASE_SECONDARY_TENANTS_STRING_DATA_KEY));
-        //secondaryTenantsLabelTV = rootView.findViewById(R.id.leaseWizardSecondaryTenantLabelTV);
-
-        //depositAmountLabelTV = rootView.findViewById(R.id.leaseWizardDepositLabelTV);
-        //depositWithheldLabelTV = rootView.findViewById(R.id.leaseWizardDepositWithheldLabelTV);
-        //depositWithheldLabelTV.setVisibility(View.GONE);
-
         depositAmountET = rootView.findViewById(R.id.leaseWizardDepositET);
         if (mPage.getData().getString(LeaseWizardPage2.LEASE_DEPOSIT_FORMATTED_STRING_DATA_KEY) != null) {
             depositAmountET.setText(mPage.getData().getString(LeaseWizardPage2.LEASE_DEPOSIT_FORMATTED_STRING_DATA_KEY));
@@ -128,17 +119,12 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
         depositAmountET.setSelection(depositAmountET.getText().length());
         depositHeaderTV = rootView.findViewById(R.id.leaseWizardDepositHeaderTV);
         if (isEdit) {
-//            depositAmountLabelTV.setVisibility(View.GONE);
             depositAmountET.setVisibility(View.GONE);
             depositHeaderTV.setVisibility(View.GONE);
         }
 
         depositWithheldET = rootView.findViewById(R.id.leaseWizardDepositWithheldET);
         depositWithheldET.setVisibility(View.GONE);
-        //if (mPage.getData().getString(LeaseWizardPage2.LEASE_DEPOSIT_WITHHELD_FORMATTED_STRING_DATA_KEY) != null) {
-        //    depositWithheldET.setText(mPage.getData().getString(LeaseWizardPage2.LEASE_DEPOSIT_WITHHELD_FORMATTED_STRING_DATA_KEY));
-        //}
-        //depositWithheldET.setSelection(depositWithheldET.getText().length());
 
         addSecondaryTenantBtn = rootView.findViewById(R.id.leaseWizardSecondaryTenantsAddBtn);
         removeSecondaryTenantBtn = rootView.findViewById(R.id.leaseWizardSecondaryTenantsRemoveBtn);
@@ -180,9 +166,6 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
 
         for (int i = 0; i < MainActivity.tenantList.size(); i++) {
             if (MainActivity.tenantList.get(i).isActive()) {
-                // if (!MainActivity.tenantList.get(i).getHasLease()) {
-                //     availableTenants.add(MainActivity.tenantList.get(i));
-                // } else {
                 boolean isUsed = false;
                 for (int y = 0; y < curTenantIDs.size(); y++) {
                     if (MainActivity.tenantList.get(i).getId() == curTenantIDs.get(y)) {
@@ -193,7 +176,6 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
                 if (!isUsed) {
                     availableTenants.add(MainActivity.tenantList.get(i));
                 }
-                //    }
             }
         }
 
@@ -211,7 +193,6 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
                         }
                         if (tenantResult != null) {
                             availableTenants.remove(tenantResult);
-                            //availableTenants.add(primaryTenant);
                             primaryTenant = tenantResult;
                             primaryTenantTV.setText(getTenantString());
                             mPage.getData().putString(LeaseWizardPage2.LEASE_PRIMARY_TENANT_STRING_DATA_KEY, primaryTenantTV.getText().toString());
@@ -300,7 +281,6 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
                 mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_FORMATTED_STRING_DATA_KEY, formatted);
                 mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_STRING_DATA_KEY, deposit.toPlainString());
                 mPage.notifyDataChanged();
-                //depositAmountET.setSelection(formatted.length());
                 depositAmountET.addTextChangedListener(this);
             }
         });
@@ -311,46 +291,11 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
             }
         });
 
-        //depositWithheldET.addTextChangedListener(new TextWatcher() {
-        //    @Override
-        //    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-        //    }
-
-        //    @Override
-        //    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-        //    }
-
-        //    @Override
-        //    public void afterTextChanged(Editable editable) {
-        //        if (depositWithheldET == null) return;
-        //        String s = editable.toString();
-        //        if (s.isEmpty()) return;
-        //        depositWithheldET.removeTextChangedListener(this);
-        //        String cleanString = s.replaceAll("[$,.]", "");
-        //        depositWithheld = new BigDecimal(cleanString).setScale(2, BigDecimal.ROUND_FLOOR).divide(new BigDecimal(100), BigDecimal.ROUND_FLOOR);
-        //        String formatted = NumberFormat.getCurrencyInstance().format(depositWithheld);
-        //        depositWithheldET.setText(formatted);
-        //        mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_WITHHELD_FORMATTED_STRING_DATA_KEY, formatted);
-        //        mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_WITHHELD_STRING_DATA_KEY, depositWithheld.toPlainString());
-        //        mPage.notifyDataChanged();
-        //        depositWithheldET.setSelection(formatted.length());
-        //        depositWithheldET.addTextChangedListener(this);
-        //    }
-        //});
-
         if (mPage.getData().getString(LeaseWizardPage2.LEASE_DEPOSIT_STRING_DATA_KEY) == null) {
             String formatted = NumberFormat.getCurrencyInstance().format(deposit);
             mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_FORMATTED_STRING_DATA_KEY, formatted);
             mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_STRING_DATA_KEY, deposit.toPlainString());
         }
-        //if (mPage.getData().getString(LeaseWizardPage2.LEASE_DEPOSIT_WITHHELD_STRING_DATA_KEY) == null) {
-        //    String formatted = NumberFormat.getCurrencyInstance().format(depositWithheld);
-        //    mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_WITHHELD_FORMATTED_STRING_DATA_KEY, formatted);
-        //    mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_WITHHELD_STRING_DATA_KEY, depositWithheld.toPlainString());
-        //}
-        //if (isEdit) {
         Handler handler = new Handler();
         handler.post(new Runnable() {
             @Override
@@ -358,9 +303,7 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
                 mPage.notifyDataChanged();
             }
         });
-        //}
         mainArrayDataMethods.sortTenantArrayAlphabetically(availableTenants);
-        //mPage.notifyDataChanged();
     }
 
     @Override

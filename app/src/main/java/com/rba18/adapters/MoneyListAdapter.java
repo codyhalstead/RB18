@@ -97,14 +97,12 @@ public class MoneyListAdapter extends BaseAdapter implements Filterable {
             viewHolder.typeTV = convertView.findViewById(R.id.expenseRowTypeTV);
             viewHolder.descriptionTV = convertView.findViewById(R.id.expenseRowDescriptionTV);
             viewHolder.wasCompletedTV = convertView.findViewById(R.id.expenseRowWasPaidTV);
-            //viewHolder.position = position;
 
             convertView.setTag(viewHolder);
 
         } else {
             viewHolder = (MoneyListAdapter.ViewHolder) convertView.getTag();
         }
-        //viewHolder.amountTV.setTextColor(context.getResources().getColor(R.color.red));
         if (moneyEntry != null) {
             viewHolder.dateTV.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, moneyEntry.getDate()));
             if(dateToHighlight != null){

@@ -21,10 +21,6 @@ import com.rba18.helpers.DateAndCurrencyDisplayer;
 import com.rba18.helpers.MainArrayDataMethods;
 import com.rba18.model.PaymentLogEntry;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
@@ -103,7 +99,6 @@ public class IncomeListAdapter extends BaseAdapter implements Filterable {
             viewHolder.typeTV = convertView.findViewById(R.id.incomeRowTypeTV);
             viewHolder.descriptionTV = convertView.findViewById(R.id.incomeRowDescriptionTV);
             viewHolder.wasReceivedTV = convertView.findViewById(R.id.incomeRowWasReceivedTV);
-            //viewHolder.position = position;
 
             convertView.setTag(viewHolder);
 

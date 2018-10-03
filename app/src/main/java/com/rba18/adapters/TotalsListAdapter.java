@@ -12,15 +12,11 @@ import android.widget.TextView;
 
 import com.rba18.R;
 import com.rba18.helpers.DateAndCurrencyDisplayer;
-import com.rba18.helpers.MainArrayDataMethods;
-import com.rba18.model.Tenant;
 import com.rba18.model.TypeTotal;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Locale;
 
 public class TotalsListAdapter extends BaseAdapter {
     private ArrayList<TypeTotal> typeTotals;

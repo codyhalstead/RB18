@@ -53,7 +53,6 @@ public class TenantListFragment extends Fragment implements AdapterView.OnItemCl
         this.listView = view.findViewById(R.id.maintenantListView);
         getActivity().setTitle(R.string.tenant_list);
         dataMethods = new MainArrayDataMethods();
-        //TenantListFragment.tenantListAdapterNeedsRefreshed = false;
         //Get current theme accent color, which is passed into the list adapter for search highlighting
         TypedValue colorValue = new TypedValue();
         getActivity().getTheme().resolveAttribute(R.attr.colorAccent, colorValue, true);
@@ -87,9 +86,7 @@ public class TenantListFragment extends Fragment implements AdapterView.OnItemCl
         Intent intent = new Intent(getContext(), TenantViewActivity.class);
         //Uses filtered results to match what is on screen
         Tenant tenant = tenantListAdapter.getFilteredResults().get(i);
-        //    Lease currentLease = dataMethods.getCachedActiveLeaseByTenantID(tenant.getId());
         intent.putExtra("tenantID", tenant.getId());
-        //    intent.putExtra("apartmentID", currentLease.getApartmentID());
         getActivity().startActivityForResult(intent, MainActivity.REQUEST_TENANT_VIEW);
     }
 
@@ -100,9 +97,8 @@ public class TenantListFragment extends Fragment implements AdapterView.OnItemCl
             public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
                 //When user changed the Text
                 if (tenantListAdapter != null) {
-                    listView.setFilterText(cs.toString());//.replace(" ", ""));
-                    tenantListAdapter.getFilter().filter(cs.toString());//.replace(" ", ""));
-                    //   tenantListAdapter.notifyDataSetChanged();
+                    listView.setFilterText(cs.toString());
+                    tenantListAdapter.getFilter().filter(cs.toString());
                 }
             }
 

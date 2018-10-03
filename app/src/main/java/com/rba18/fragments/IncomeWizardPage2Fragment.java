@@ -31,7 +31,6 @@ import com.bumptech.glide.Glide;
 import com.example.android.wizardpager.wizard.ui.PageFragmentCallbacks;
 import com.rba18.BuildConfig;
 import com.rba18.R;
-import com.rba18.activities.IncomeViewActivity;
 import com.rba18.activities.MainActivity;
 import com.rba18.helpers.AppFileManagementHelper;
 import com.rba18.model.PaymentLogEntry;
@@ -85,12 +84,10 @@ public class IncomeWizardPage2Fragment extends android.support.v4.app.Fragment {
                 loadDataForEdit(incomeToEdit);
                 isEdit = true;
             } else {
-                //mPage.getData().putString(IncomeWizardPage2.INCOME_RECEIPT_PIC_DATA_KEY, "");
-                //mPage.getData().putString(IncomeWizardPage2.INCOME_WAS_RECEIPT_PIC_ADDED_DATA_KEY, getContext().getResources().getString(R.string.no));
+
             }
         } else {
-            //mPage.getData().putString(IncomeWizardPage2.INCOME_RECEIPT_PIC_DATA_KEY, "");
-            //mPage.getData().putString(IncomeWizardPage2.INCOME_WAS_RECEIPT_PIC_ADDED_DATA_KEY, getContext().getResources().getString(R.string.no));
+
         }
     }
 
@@ -293,7 +290,6 @@ public class IncomeWizardPage2Fragment extends android.support.v4.app.Fragment {
                 }
                 //file path of captured image
                 cursor.close();
-                //this.apartment.setMainPic(filePath);
                 mPage.notifyDataChanged();
             }
         } else if (requestCode == MainActivity.REQUEST_CAMERA_FOR_MAIN_PIC) {
@@ -332,10 +328,6 @@ public class IncomeWizardPage2Fragment extends android.support.v4.app.Fragment {
         outState.putString("camera_image_file_path", cameraImageFilePath);
         super.onSaveInstanceState(outState);
     }
-
-    //private void preloadData(Bundle bundle){
-    //
-    //}
 
     private void loadDataForEdit(PaymentLogEntry IncomeToEdit) {
         if (!mPage.getData().getBoolean(IncomeWizardPage2.WAS_PRELOADED)) {

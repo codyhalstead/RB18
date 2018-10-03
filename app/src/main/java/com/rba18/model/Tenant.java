@@ -3,8 +3,6 @@ package com.rba18.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.util.Date;
-
 /**
  * Created by Cody on 1/27/2018.
  */

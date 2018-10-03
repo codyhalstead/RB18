@@ -7,20 +7,15 @@ package com.rba18.adapters;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.rba18.R;
 import com.roomorama.caldroid.CaldroidFragment;
 import com.roomorama.caldroid.CaldroidGridAdapter;
-import com.roomorama.caldroid.CellView;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -46,7 +41,6 @@ public class CustomCalendarAdapter extends CaldroidGridAdapter {
                                  HashMap<String, Integer> incomeDatesAndAmounts) {
         super(context, month, year, caldroidData, extraData);
         leaseStartDatesHM = leaseStartDatesAndAmounts;
-        //leaseStartDatesHM.put(7, 8);
         leaseEndDatesHM = leaseEndDatesAndAmounts;
         expenseDatesHM = expenseDatesAndAmounts;
         incomeDatesHM = incomeDatesAndAmounts;
@@ -73,10 +67,6 @@ public class CustomCalendarAdapter extends CaldroidGridAdapter {
         TextView leaseEndAmountTV = cellView.findViewById(R.id.customCalCellLeaseEndAmountTV);
         TextView expenseAmountTV = cellView.findViewById(R.id.customCalCellExpenseAmountTV);
         TextView incomeAmountTV = cellView.findViewById(R.id.customCalCellIncomeAmountTV);
-        //LinearLayout leaseBeginLL = cellView.findViewById(R.id.customCalCellLeaseBeginLL);
-        //LinearLayout leaseEndLL = cellView.findViewById(R.id.customCalCellLeaseEndLL);
-        //LinearLayout expenseLL = cellView.findViewById(R.id.customCalCellExpenseLL);
-        //LinearLayout incomeLL = cellView.findViewById(R.id.customCalCellIncomeLL);
         TextView spacer1 = cellView.findViewById(R.id.spacer1);
         TextView spacer2 = cellView.findViewById(R.id.spacer2);
         TextView spacer3 = cellView.findViewById(R.id.spacer3);
@@ -99,7 +89,6 @@ public class CustomCalendarAdapter extends CaldroidGridAdapter {
             spacer3.setVisibility(View.GONE);
             spacer4.setVisibility(View.GONE);
         }
-        ////////////////////////////////////////////////////////////////////////////////////////////
         int amount = 0;
         if (leaseStartDatesHM != null) {
             if (leaseStartDatesHM.containsKey(date.toString())) {
@@ -165,8 +154,6 @@ public class CustomCalendarAdapter extends CaldroidGridAdapter {
                 spacer4.setVisibility(View.INVISIBLE);
             }
         }
-
-        ////////////////////////////////////////////////////////////////////////////////////////////
         boolean shouldResetDiabledView = false;
         boolean shouldResetSelectedView = false;
         // Customize for disabled dates and date outside min/max dates
@@ -204,7 +191,6 @@ public class CustomCalendarAdapter extends CaldroidGridAdapter {
         //Set text
         String dateTimeString = "" + dateTime.getDay();
         dateTV.setText(dateTimeString);
-        //tv2.setText("");
         // Somehow after setBackgroundResource, the padding collapse.
         // This is to recover the padding
         cellView.setPadding(leftPadding, topPadding, rightPadding,

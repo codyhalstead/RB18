@@ -150,9 +150,6 @@ public class LeaseDialogListAdapter extends BaseAdapter implements Filterable {
                 ArrayList<Lease> FilteredArrayNames = leaseArray;
                 searchText = constraint.toString().toLowerCase();
                 //Perform users search
-                constraint = constraint.toString().toLowerCase();
-                //for (int i = 0; i < leaseArray.size(); i++) {
-                //}
                 results.count = FilteredArrayNames.size();
                 results.values = FilteredArrayNames;
                 return results;

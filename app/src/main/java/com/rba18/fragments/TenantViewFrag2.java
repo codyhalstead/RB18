@@ -95,8 +95,6 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
                 showNewIncomeOrExpenseAlertDialog();
             }
         });
-        // getActivity().setTitle("Income View");
-        // ExpenseListFragment.expenseListAdapterNeedsRefreshed = false;
         //Get current theme accent color, which is passed into the list adapter for search highlighting
         TypedValue colorValue = new TypedValue();
         getActivity().getTheme().resolveAttribute(R.attr.colorAccent, colorValue, true);
@@ -163,10 +161,8 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
                 switch (item.getItemId()) {
 
                     case R.id.changeStatus:
-                        //On listView row click, launch ApartmentViewActivity passing the rows data into it.
                         selectedMoney = moneyListAdapter.getFilteredResults().get(position);
                         if (selectedMoney instanceof PaymentLogEntry) {
-                            //mCallback.onIncomeDataChanged();
                             PaymentLogEntry selectedIncome = (PaymentLogEntry) selectedMoney;
                             if(selectedIncome.getIsCompleted()){
                                 selectedIncome.setIsCompleted(false);
@@ -177,7 +173,6 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
                             mCallback.onMoneyDataChanged();
                             mCallback.onIncomeDataChanged();
                         } else {
-                            //mCallback.onExpenseDataChanged();
                             ExpenseLogEntry selectedExpense = (ExpenseLogEntry) selectedMoney;
                             if(selectedExpense.getIsCompleted()){
                                 selectedExpense.setIsCompleted(false);
@@ -187,21 +182,17 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
                             db.editExpenseLogEntry(selectedExpense);
                             mCallback.onMoneyDataChanged();
                             mCallback.onExpenseDataChanged();
-
                         }
                         return true;
 
                     case R.id.edit:
-                        //On listView row click, launch ApartmentViewActivity passing the rows data into it.
                         selectedMoney = moneyListAdapter.getFilteredResults().get(position);
                         if (selectedMoney instanceof PaymentLogEntry) {
-                           // mCallback.onIncomeDataChanged();
                             Intent intent = new Intent(getActivity(), NewIncomeWizard.class);
                             PaymentLogEntry selectedIncome = (PaymentLogEntry) selectedMoney;
                             intent.putExtra("incomeToEdit", selectedIncome);
                             startActivityForResult(intent, MainActivity.REQUEST_NEW_INCOME_FORM);
                         } else {
-                          //  mCallback.onExpenseDataChanged();
                             Intent intent = new Intent(getActivity(), NewExpenseWizard.class);
                             ExpenseLogEntry selectedExpense = (ExpenseLogEntry) selectedMoney;
                             intent.putExtra("expenseToEdit", selectedExpense);
@@ -233,10 +224,6 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     db.setPaymentLogEntryInactive((PaymentLogEntry) selectedMoney);
-                    //IncomeListFragment.incomeListAdapterNeedsRefreshed = true;
-                    //currentFilteredMoney = db.getIncomeAndExpensesByTenantIDWithinDates(MainActivity.user, tenant.getId(), startDateRange, endDateRange);
-                    //moneyListAdapter.updateResults(currentFilteredMoney);
-                    //moneyListAdapter.notifyDataSetChanged();
                     mCallback.onMoneyDataChanged();
                     mCallback.onIncomeDataChanged();
                     total = getTotal();
@@ -249,10 +236,6 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     db.setExpenseInactive((ExpenseLogEntry) selectedMoney);
-                    //ExpenseListFragment.expenseListAdapterNeedsRefreshed = true;
-                    //currentFilteredMoney = db.getIncomeAndExpensesByTenantIDWithinDates(MainActivity.user, tenant.getId(), startDateRange, endDateRange);
-                    //moneyListAdapter.updateResults(currentFilteredMoney);
-                    //moneyListAdapter.notifyDataSetChanged();
                     mCallback.onMoneyDataChanged();
                     mCallback.onExpenseDataChanged();
                     total = getTotal();
@@ -291,7 +274,6 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
                 startActivityForResult(intent, MainActivity.REQUEST_NEW_EXPENSE_FORM);
             }
         });
-        // create and show the alert dialog
         dialog = builder.create();
         dialog.show();
     }
@@ -302,9 +284,6 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
         if (requestCode == MainActivity.REQUEST_NEW_INCOME_FORM) {
             //If successful(not cancelled, passed validation)
             if (resultCode == RESULT_OK) {
-                //this.currentFilteredMoney = db.getIncomeAndExpensesByTenantIDWithinDates(MainActivity.user, tenant.getId(), startDateRange, endDateRange);
-                //moneyListAdapter.updateResults(currentFilteredMoney);
-                //moneyListAdapter.notifyDataSetChanged();
                 mCallback.onMoneyDataChanged();
                 mCallback.onIncomeDataChanged();
                 total = getTotal();
@@ -314,9 +293,6 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
         if (requestCode == MainActivity.REQUEST_NEW_EXPENSE_FORM) {
             //If successful(not cancelled, passed validation)
             if (resultCode == RESULT_OK) {
-                //this.currentFilteredMoney = db.getIncomeAndExpensesByTenantIDWithinDates(MainActivity.user, tenant.getId(), startDateRange, endDateRange);
-                //moneyListAdapter.updateResults(currentFilteredMoney);
-                //moneyListAdapter.notifyDataSetChanged();
                 mCallback.onMoneyDataChanged();
                 mCallback.onExpenseDataChanged();
                 total = getTotal();

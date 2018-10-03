@@ -3,26 +3,16 @@ package com.rba18.wizards;
 import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
-import android.util.Log;
-import android.util.Pair;
 
 import com.example.android.wizardpager.wizard.model.ModelCallbacks;
 import com.example.android.wizardpager.wizard.model.Page;
 import com.example.android.wizardpager.wizard.model.PageList;
 import com.example.android.wizardpager.wizard.model.ReviewItem;
 import com.rba18.R;
-import com.rba18.activities.NewLeaseWizard;
 import com.rba18.fragments.LeaseWizardPage3Fragment;
-import com.rba18.helpers.MainArrayDataMethods;
-import com.rba18.model.Lease;
-import com.rba18.model.Tenant;
 
-import java.math.BigDecimal;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.support.constraint.Constraints.TAG;
 
 public class LeaseWizardPage3 extends Page {
     public static final String LEASE_RENT_COST_FORMATTED_STRING_DATA_KEY = "lease_rent_cost_formatted";
@@ -37,9 +27,6 @@ public class LeaseWizardPage3 extends Page {
     public static final String LEASE_PAYMENT_CYCLE_FREQUENCY_ID_DATA_KEY = "lease_cycle_id";
 
     public static final String LEASE_DUE_DATE_ID_DATA_KEY = "lease_due_date_id";
-
-    //public static final String LEASE_WEEKLY_DAY_ID_DATA_KEY = "lease_due_day_id";
-    //public static final String LEASE_MONTHLY_DAY_ID_DATA_KEY = "lease_due_day_id";
 
     public static final String WAS_PRELOADED = "lease_page_3_was_preloaded";
 
@@ -59,8 +46,6 @@ public class LeaseWizardPage3 extends Page {
         this.context = context;
         this.isEdit = isEdit;
         mData.putBoolean(WAS_PRELOADED, false);
-       // mData.putString(LEASE_RENT_COST_DATA_KEY, "15");
-        // mData.putString(LEASE_NEED_BRANCH, "Yes");
     }
     protected ArrayList<String> mChoices = new ArrayList<String>();
     private List<Branch> mBranches = new ArrayList<>();

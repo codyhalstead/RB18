@@ -3,13 +3,10 @@ package com.rba18.fragments;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
-import com.antonyt.infiniteviewpager.InfiniteViewPager;
 import com.rba18.adapters.CustomCalendarAdapter;
-import com.rba18.sqlite.DatabaseHandler;
 import com.roomorama.caldroid.CaldroidFragment;
 import com.roomorama.caldroid.CaldroidGridAdapter;
 
-import java.util.Date;
 import java.util.HashMap;
 
 /**

@@ -58,7 +58,6 @@ public class ExpenseWizardPage1Fragment extends android.support.v4.app.Fragment 
     private DatabaseHandler dbHandler;
     private boolean isEdit;
     private CustomDatePickerDialogLauncher datePickerDialogLauncher;
-    //private NewItemCreatorDialog newItemCreatorDialog;
     private SharedPreferences preferences;
     private int dateFormatCode, moneyFormatCode;
     private AlertDialog alertDialog;
@@ -82,7 +81,6 @@ public class ExpenseWizardPage1Fragment extends android.support.v4.app.Fragment 
         Bundle args = getArguments();
         mKey = args.getString(ARG_KEY);
         mPage = (ExpenseWizardPage1) mCallbacks.onGetPage(mKey);
-        //amount = new BigDecimal(0);
         dbHandler = new DatabaseHandler(getContext());
         preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         this.dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
@@ -215,10 +213,8 @@ public class ExpenseWizardPage1Fragment extends android.support.v4.app.Fragment 
                 amountET.setText(formatted);
                 amountET.setSelection(DateAndCurrencyDisplayer.getEndCursorPositionForMoneyInput(amountET.getText().length(), moneyFormatCode));
                 mPage.getData().putString(ExpenseWizardPage1.EXPENSE_AMOUNT_FORMATTED_STRING_DATA_KEY, formatted);
-                //formatted = formatted.replaceAll("[€\\s]", "");
                 mPage.getData().putString(ExpenseWizardPage1.EXPENSE_AMOUNT_STRING_DATA_KEY, amount.toPlainString());
                 mPage.notifyDataChanged();
-                //amountET.setSelection(formatted.length());
                 amountET.addTextChangedListener(this);
             }
         });
@@ -232,8 +228,6 @@ public class ExpenseWizardPage1Fragment extends android.support.v4.app.Fragment 
         typeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
-                // paymentFrequency = position + 1;
-
                 String type = typeSpinner.getSelectedItem().toString();
                 int typeID = 0;
                 if(MainActivity.expenseTypeLabels.get(type) != null) {
@@ -243,10 +237,7 @@ public class ExpenseWizardPage1Fragment extends android.support.v4.app.Fragment 
                 mPage.getData().putString(ExpenseWizardPage1.EXPENSE_TYPE_DATA_KEY, type);
 
                 if (getUserVisibleHint()) {
-                    //  figurePayments(leaseStartDate, leaseEndDate, paymentDay, paymentFrequency);
                     mPage.notifyDataChanged();
-                    //  paymentsAmountTV.setText(prorated + regular + "");
-                    //  proratedPaymentsAmountTV.setText(prorated + "");
                 }
             }
 
@@ -265,7 +256,6 @@ public class ExpenseWizardPage1Fragment extends android.support.v4.app.Fragment 
 
                 // create the AlertDialog as final
                  alertDialog = new AlertDialog.Builder(getContext())
-                        //.setMessage("You are ready to type")
                         .setTitle(R.string.create_new_type)
                         .setView(editText)
 
@@ -302,11 +292,6 @@ public class ExpenseWizardPage1Fragment extends android.support.v4.app.Fragment 
                 alertDialog.show();
             }
         });
-        //if (mPage.getData().getString(ExpenseWizardPage1.EXPENSE_AMOUNT_STRING_DATA_KEY) == null) {
-        //    String formatted = NumberFormat.getCurrencyInstance().format(amount);
-        //    mPage.getData().putString(ExpenseWizardPage1.EXPENSE_AMOUNT_FORMATTED_STRING_DATA_KEY, formatted);
-        //    mPage.getData().putString(ExpenseWizardPage1.EXPENSE_AMOUNT_STRING_DATA_KEY, amount.toPlainString());
-        //}
         if (mPage.getData().getString(ExpenseWizardPage1.EXPENSE_TYPE_DATA_KEY) != null) {
             int spinnerPosition = adapter.getPosition(mPage.getData().getString(ExpenseWizardPage1.EXPENSE_TYPE_DATA_KEY));
             if (isEdit && spinnerPosition == -1) {
@@ -315,10 +300,6 @@ public class ExpenseWizardPage1Fragment extends android.support.v4.app.Fragment 
             }
             typeSpinner.setSelection(spinnerPosition);
         }
-        //String state = stateSpinner.getSelectedItem().toString();
-        //int stateID = MainActivity.stateMap.get(state);
-        //mPage.getData().putInt(LeaseWizardPage3.LEASE_PAYMENT_FREQUENCY_DATA_KEY, stateID);
-        //mPage.getData().putString(LeaseWizardPage3.LEASE_PAYMENT_FREQUENCY_STRING_DATA_KEY, state);
     }
 
     @Override

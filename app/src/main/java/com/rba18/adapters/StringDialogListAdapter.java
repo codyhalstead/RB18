@@ -16,8 +16,6 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
 
-import android.widget.Filterable;
-
 import com.rba18.R;
 import com.rba18.helpers.MainArrayDataMethods;
 
@@ -102,8 +100,6 @@ public class StringDialogListAdapter extends BaseAdapter implements Filterable {
                 //Perform users search
                 constraint = constraint.toString().toLowerCase();
                 for (int i = 0; i < strings.size(); i++) {
-                    //TypeTotal dataNames = strings.get(i);
-                    //If users search matches any part of any apartment value, add to new filtered list
                     if (strings.get(i).contains(constraint.toString())) {
                         FilteredArrayNames.add(strings.get(i));
                     }

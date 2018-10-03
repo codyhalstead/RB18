@@ -5,7 +5,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -18,12 +17,9 @@ import com.example.android.wizardpager.wizard.model.AbstractWizardModel;
 import com.example.android.wizardpager.wizard.model.ModelCallbacks;
 import com.example.android.wizardpager.wizard.model.Page;
 import com.example.android.wizardpager.wizard.ui.PageFragmentCallbacks;
-import com.example.android.wizardpager.wizard.ui.ReviewFragment;
 import com.example.android.wizardpager.wizard.ui.StepPagerStrip;
 import com.rba18.R;
-import com.rba18.activities.BaseActivity;
 import com.rba18.fragments.ReviewFragmentCustom;
-import com.rba18.fragments.TenantListFragment;
 import com.rba18.helpers.MainArrayDataMethods;
 import com.rba18.model.Tenant;
 import com.rba18.model.TenantWizardModel;
@@ -40,19 +36,13 @@ public class NewTenantWizard extends BaseActivity implements
         ModelCallbacks {
     private ViewPager mPager;
     private MyPagerAdapter mPagerAdapter;
-
     private boolean mEditingAfterReview;
-
     private TenantWizardModel mWizardModel;
-
     private boolean mConsumePageSelectedEvent;
-
     private Button mNextButton;
     private Button mPrevButton;
-
     private List<Page> mCurrentPageSequence;
     private StepPagerStrip mStepPagerStrip;
-
     private DatabaseHandler dbhandler;
     private MainArrayDataMethods mainArrayDataMethods;
     public Tenant tenantToEdit;
@@ -91,25 +81,20 @@ public class NewTenantWizard extends BaseActivity implements
                 }
             }
         });
-
-        mNextButton = (Button) findViewById(R.id.next_button);
-        mPrevButton = (Button) findViewById(R.id.prev_button);
-
+        mNextButton = findViewById(R.id.next_button);
+        mPrevButton = findViewById(R.id.prev_button);
         mPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
                 mStepPagerStrip.setCurrentPage(position);
-
                 if (mConsumePageSelectedEvent) {
                     mConsumePageSelectedEvent = false;
                     return;
                 }
-
                 mEditingAfterReview = false;
                 updateBottomBar();
             }
         });
-
         mNextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -122,8 +107,6 @@ public class NewTenantWizard extends BaseActivity implements
                     String emergencyLastName = mWizardModel.findByKey("Page2").getData().getString(TenantWizardPage2.TENANT_EMERGENCY_LAST_NAME_DATA_KEY);
                     String emergencyPhone = mWizardModel.findByKey("Page2").getData().getString(TenantWizardPage2.TENANT_EMERGENCY_PHONE_DATA_KEY);
                     String notes = mWizardModel.findByKey("Page3").getData().getString(TenantWizardPage3.TENANT_NOTES_DATA_KEY);
-                    //Create new Tenant object with input data and add it to the database
-
                     if (tenantToEdit != null) {
                         //Is editing
                         Tenant tenant = mainArrayDataMethods.getCachedTenantByTenantID(tenantToEdit.getId());
@@ -148,7 +131,6 @@ public class NewTenantWizard extends BaseActivity implements
                         setResult(RESULT_OK);
                     }
                     mainArrayDataMethods.sortMainTenantArray();
-                    //TenantListFragment.tenantListAdapterNeedsRefreshed = true;
                     finish();
                 } else {
                     if (mEditingAfterReview) {
@@ -159,7 +141,6 @@ public class NewTenantWizard extends BaseActivity implements
                 }
             }
         });
-
         mPrevButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -325,7 +306,6 @@ public class NewTenantWizard extends BaseActivity implements
                 // Re-use the current fragment (its position never changes)
                 return POSITION_UNCHANGED;
             }
-
             return POSITION_NONE;
         }
 

@@ -29,7 +29,6 @@ import com.rba18.BuildConfig;
 import com.rba18.R;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
-import com.rba18.activities.BaseActivity;
 import com.rba18.helpers.AppFileManagementHelper;
 import com.rba18.helpers.DateAndCurrencyDisplayer;
 import com.rba18.helpers.MainArrayDataMethods;
@@ -367,7 +366,6 @@ public class IncomeViewActivity extends BaseActivity {
                 int incomeID = data.getIntExtra("editedIncomeID", 0);
                 this.income = databaseHandler.getPaymentLogEntryByID(incomeID, MainActivity.user);
                 fillTextViews();
-                //IncomeListFragment.incomeListAdapterNeedsRefreshed = true;
             }
         } else if (requestCode == MainActivity.REQUEST_GALLERY_FOR_MAIN_PIC) {
             if (resultCode == RESULT_OK && data != null) {

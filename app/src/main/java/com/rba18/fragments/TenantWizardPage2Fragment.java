@@ -17,7 +17,6 @@ import android.widget.Scroller;
 import com.example.android.wizardpager.wizard.ui.PageFragmentCallbacks;
 import com.rba18.R;
 import com.rba18.model.Tenant;
-import com.rba18.wizards.TenantWizardPage1;
 import com.rba18.wizards.TenantWizardPage2;
 
 public class TenantWizardPage2Fragment extends android.support.v4.app.Fragment {
@@ -31,7 +30,6 @@ public class TenantWizardPage2Fragment extends android.support.v4.app.Fragment {
     private boolean deletingHyphen;
     private int hyphenStart;
     private boolean deletingBackward;
-
 
     public static TenantWizardPage2Fragment create(String key) {
         Bundle args = new Bundle();
@@ -110,7 +108,6 @@ public class TenantWizardPage2Fragment extends android.support.v4.app.Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        //setPhoneNumberEditTextHelper();
         emerFirstNameET.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -163,7 +160,6 @@ public class TenantWizardPage2Fragment extends android.support.v4.app.Fragment {
             }
         });
     }
-
 
     @Override
     public void setMenuVisibility(boolean menuVisible) {

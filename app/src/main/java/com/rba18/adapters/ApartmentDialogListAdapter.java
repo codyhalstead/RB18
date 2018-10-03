@@ -14,13 +14,10 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.rba18.R;
 import com.rba18.model.Apartment;
-import com.rba18.model.Tenant;
 
 import java.util.ArrayList;
 import java.util.Locale;

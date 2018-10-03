@@ -21,14 +21,9 @@ import com.rba18.R;
 import com.rba18.helpers.DateAndCurrencyDisplayer;
 import com.rba18.helpers.MainArrayDataMethods;
 import com.rba18.model.Apartment;
-import com.rba18.model.ExpenseLogEntry;
 import com.rba18.model.Lease;
 import com.rba18.model.Tenant;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
@@ -101,7 +96,6 @@ public class LeaseListAdapter extends BaseAdapter implements Filterable {
             viewHolder.leaseEndDateTV = convertView.findViewById(R.id.leaseRowEndDateTV);
             viewHolder.primaryTenantNameTV = convertView.findViewById(R.id.leaseRowNameTV);
             viewHolder.apartmentAddressTV = convertView.findViewById(R.id.leaseRowApartmentAddressTV);
-            //viewHolder.position = position;
 
             convertView.setTag(viewHolder);
 

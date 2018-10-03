@@ -1,7 +1,5 @@
 package com.rba18.helpers;
 
-import android.widget.EditText;
-
 import org.joda.time.LocalDate;
 
 import java.math.BigDecimal;
@@ -9,7 +7,6 @@ import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Locale;
 
@@ -51,7 +48,6 @@ public class DateAndCurrencyDisplayer {
                 NumberFormat costFormat = NumberFormat.getCurrencyInstance(Locale.KOREA);
                 costFormat.setMinimumFractionDigits(2);
                 costFormat.setMaximumFractionDigits(2);
-                //amount.multiply(new BigDecimal(100));
                 convertedString = costFormat.format(amount.doubleValue());
             } else if (currencyCode == CURRENCY_GERMANY) {
                 amount = amount.setScale(2, RoundingMode.HALF_EVEN);

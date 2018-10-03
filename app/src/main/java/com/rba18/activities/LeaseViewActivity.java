@@ -46,10 +46,9 @@ public class LeaseViewActivity extends BaseActivity implements LeaseViewFrag2.On
         setContentView(R.layout.activity_lease_view_actual);
         dateSelectorLL = findViewById(R.id.moneyDateSelecterLL);
         dateSelectorLL.setVisibility(View.GONE);
-        viewPager = (ViewPager) findViewById(R.id.pager);
+        viewPager = findViewById(R.id.pager);
         adapter = new ViewPagerAdapter(getSupportFragmentManager());
         this.databaseHandler = new DatabaseHandler(this);
-        // Add Fragments to adapter one by one
         Bundle bundle = getIntent().getExtras();
         int leaseID = bundle.getInt("leaseID");
         this.lease = databaseHandler.getLeaseByID(MainActivity.user, leaseID);
@@ -64,7 +63,7 @@ public class LeaseViewActivity extends BaseActivity implements LeaseViewFrag2.On
             wasIncomeEdited = false;
             wasExpenseEdited = false;
         }
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        TabLayout tabLayout = findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
         setupBasicToolbar();
         this.setTitle(R.string.lease_view);

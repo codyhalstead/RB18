@@ -1,39 +1,27 @@
 package com.rba18.wizards;
 
 import android.content.Context;
-import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
-import android.util.Pair;
 
 import com.example.android.wizardpager.wizard.model.ModelCallbacks;
 import com.example.android.wizardpager.wizard.model.Page;
 import com.example.android.wizardpager.wizard.model.ReviewItem;
 import com.rba18.R;
-import com.rba18.activities.NewLeaseWizard;
 import com.rba18.fragments.LeaseWizardPage2Fragment;
-import com.rba18.helpers.MainArrayDataMethods;
-import com.rba18.model.Apartment;
-import com.rba18.model.Lease;
-import com.rba18.model.Tenant;
 
-import java.math.BigDecimal;
-import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Locale;
 
 public class LeaseWizardPage2 extends Page {
     public static final String LEASE_PRIMARY_TENANT_STRING_DATA_KEY = "lease_primary_tenant_string";
     public static final String LEASE_SECONDARY_TENANTS_STRING_DATA_KEY = "lease_secondary_tenants_string";
     public static final String LEASE_DEPOSIT_FORMATTED_STRING_DATA_KEY = "lease_deposit_string";
-    //public static final String LEASE_DEPOSIT_WITHHELD_FORMATTED_STRING_DATA_KEY = "lease_deposit_withheld_string";
 
     public static final String LEASE_PRIMARY_TENANT_DATA_KEY = "lease_primary_tenant";
     public static final String LEASE_SECONDARY_TENANTS_DATA_KEY = "lease_secondary_tenants";
     public static final String LEASE_DEPOSIT_STRING_DATA_KEY = "lease_deposit";
     public static final String WAS_PRELOADED = "lease_page_2_was_preloaded";
-    //public static final String LEASE_DEPOSIT_WITHHELD_STRING_DATA_KEY = "lease_deposit_withheld";
+
     private boolean isEdit;
     private Context context;
 
@@ -56,7 +44,6 @@ public class LeaseWizardPage2 extends Page {
         if(!isEdit) {
             dest.add(new ReviewItem(context.getResources().getString(R.string.deposit), mData.getString(LEASE_DEPOSIT_FORMATTED_STRING_DATA_KEY), getKey(), -1));
         }
-        //dest.add(new ReviewItem("Deposit Withheld", mData.getString(LEASE_DEPOSIT_WITHHELD_FORMATTED_STRING_DATA_KEY), getKey(), -1));
     }
 
     @Override

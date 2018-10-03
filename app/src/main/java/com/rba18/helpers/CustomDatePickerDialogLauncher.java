@@ -14,12 +14,12 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class CustomDatePickerDialogLauncher {
-    Date startDatePreset, endDatePreset, singleDatePreset, startDateLimit, endDateLimit;
-    DatePickerDialog datePickerDialog;
-    Context context;
-    Boolean limitToTwoYears, yearOnly;
-    DatePickerDialog.OnDateSetListener onStartDateSet, onEndDateSet, onSingleDateSet;
-    DateSelectedListener DateSelectedListener;
+    private Date startDatePreset, endDatePreset, singleDatePreset, startDateLimit, endDateLimit;
+    private DatePickerDialog datePickerDialog;
+    private Context context;
+    private Boolean limitToTwoYears, yearOnly;
+    private DatePickerDialog.OnDateSetListener onStartDateSet, onEndDateSet, onSingleDateSet;
+    private DateSelectedListener DateSelectedListener;
 
     public CustomDatePickerDialogLauncher(Date startDatePreset, Date endDatePreset, final boolean limitToTwoYears, Context context) {
         this.startDatePreset = startDatePreset;

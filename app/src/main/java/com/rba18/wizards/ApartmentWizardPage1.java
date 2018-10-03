@@ -8,9 +8,7 @@ import com.example.android.wizardpager.wizard.model.ModelCallbacks;
 import com.example.android.wizardpager.wizard.model.Page;
 import com.example.android.wizardpager.wizard.model.ReviewItem;
 import com.rba18.R;
-import com.rba18.activities.NewApartmentWizard;
 import com.rba18.fragments.ApartmentWizardPage1Fragment;
-import com.rba18.model.Apartment;
 
 import java.util.ArrayList;
 
@@ -19,7 +17,6 @@ public class ApartmentWizardPage1 extends Page {
     public static final String APARTMENT_ADDRESS_2_DATA_KEY = "apartment_address_2";
     public static final String APARTMENT_CITY_DATA_KEY = "apartment_city";
     public static final String APARTMENT_STATE_DATA_KEY = "apartment_state";
-    //public static final String APARTMENT_STATE_ID_DATA_KEY = "apartment_state_id";
     public static final String APARTMENT_ZIP_DATA_KEY = "apartment_zip";
     public static final String WAS_PRELOADED = "apartmant_page_1_was_preloaded";
     private Context context;
@@ -48,6 +45,5 @@ public class ApartmentWizardPage1 extends Page {
     public boolean isCompleted() {
         return (!TextUtils.isEmpty(mData.getString(APARTMENT_ADDRESS_1_DATA_KEY)) && !TextUtils.isEmpty(mData.getString(APARTMENT_CITY_DATA_KEY))
                 && !TextUtils.isEmpty(mData.getString(APARTMENT_STATE_DATA_KEY)) && !TextUtils.isEmpty(mData.getString(APARTMENT_ZIP_DATA_KEY)));
-        //return true;
     }
 }

@@ -24,7 +24,6 @@ public class Lease implements Parcelable {
     private BigDecimal monthlyRentCost;
     private BigDecimal deposit;
     private int paymentFrequencyID;
-    //private String paymentFrequency;
     private String notes;
 
     public Lease(int id, int primaryTenantID, ArrayList<Integer> secondaryTenantIDs, int apartmentID, Date leaseStart, Date leaseEnd,
@@ -39,7 +38,6 @@ public class Lease implements Parcelable {
         this.monthlyRentCost = monthlyRentCost;
         this.deposit = deposit;
         this.paymentFrequencyID = paymentFrequencyID;
-        //this.paymentFrequency = paymentFrequency;
         this.notes = notes;
     }
 
@@ -77,7 +75,6 @@ public class Lease implements Parcelable {
         amountString = this.deposit.toPlainString();
         parcel.writeString(amountString);
         parcel.writeInt(paymentFrequencyID);
-       // parcel.writeString(paymentFrequency);
         parcel.writeString(this.notes);
     }
 
@@ -109,7 +106,6 @@ public class Lease implements Parcelable {
         amountString = parcel.readString();
         this.deposit = new BigDecimal(amountString);
         this.paymentFrequencyID = parcel.readInt();
-        //this.paymentFrequency = parcel.readString();
         this.notes = parcel.readString();
     }
 
@@ -201,8 +197,6 @@ public class Lease implements Parcelable {
         this.deposit = deposit;
     }
 
-    //public BigDecimal getDepositWithheld() {
-
     public int getPaymentFrequencyID() {
         return paymentFrequencyID;
     }
@@ -210,20 +204,6 @@ public class Lease implements Parcelable {
     public void setPaymentFreuencyID(int paymentFreuencyID) {
         this.paymentFrequencyID = paymentFreuencyID;
     }
-
-    //public String getPaymentFrequency() {
-   //     return paymentFrequency;
-   // }
-
-   // public void setPaymentFrequency(String paymentFrequency) {
-    //    this.paymentFrequency = paymentFrequency;
-    //}
-    //    return depositWithheld;
-    //}
-
-    //public void setDepositWithheld(BigDecimal depositWithheld) {
-    //    this.depositWithheld = depositWithheld;
-    //}
 
     public String getNotes() {
         return notes;

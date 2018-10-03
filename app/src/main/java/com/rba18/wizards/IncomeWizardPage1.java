@@ -8,15 +8,9 @@ import com.example.android.wizardpager.wizard.model.ModelCallbacks;
 import com.example.android.wizardpager.wizard.model.Page;
 import com.example.android.wizardpager.wizard.model.ReviewItem;
 import com.rba18.R;
-import com.rba18.activities.NewIncomeWizard;
 import com.rba18.fragments.IncomeWizardPage1Fragment;
-import com.rba18.model.PaymentLogEntry;
 
-import java.math.BigDecimal;
-import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Locale;
 
 public class IncomeWizardPage1 extends Page {
     public static final String INCOME_DATE_STRING_DATA_KEY = "income_date";
@@ -32,19 +26,6 @@ public class IncomeWizardPage1 extends Page {
         super(callbacks, title);
         this.context = context;
         mData.putBoolean(WAS_PRELOADED, false);
-        //PaymentLogEntry paymentLogEntry = NewIncomeWizard.incomeToEdit;
-        //if(paymentLogEntry != null){
-        //    SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-        //    String dateString = formatter.format(paymentLogEntry.getDate());
-        //    mData.putString(INCOME_DATE_STRING_DATA_KEY, dateString);
-        //    BigDecimal amountBD = paymentLogEntry.getAmount();
-        //    String formatted = NumberFormat.getCurrencyInstance().format(amountBD);
-        //    mData.putString(INCOME_AMOUNT_FORMATTED_STRING_DATA_KEY, formatted);
-        //    mData.putString(INCOME_AMOUNT_STRING_DATA_KEY, amountBD.toPlainString());
-        //    mData.putInt(INCOME_TYPE_ID_DATA_KEY, paymentLogEntry.getTypeID());
-        //    mData.putString(INCOME_TYPE_DATA_KEY, paymentLogEntry.getTypeLabel());
-        //    this.notifyDataChanged();
-        //}
     }
 
     @Override
@@ -63,6 +44,5 @@ public class IncomeWizardPage1 extends Page {
     public boolean isCompleted() {
         return (!TextUtils.isEmpty(mData.getString(INCOME_DATE_STRING_DATA_KEY)) && !TextUtils.isEmpty(mData.getString(INCOME_TYPE_DATA_KEY))
                 && !TextUtils.isEmpty(mData.getString(INCOME_AMOUNT_STRING_DATA_KEY)));
-        //return true;
     }
 }

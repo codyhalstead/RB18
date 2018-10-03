@@ -1,7 +1,6 @@
 package com.rba18.model;
 
 import android.os.Parcel;
-import android.os.Parcelable;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -58,8 +57,6 @@ public class PaymentLogEntry extends MoneyLogEntry{
         this.apartmentID = in.readInt();
         int size = in.readInt();
         if(size > -1){
-            //this.mainPic = new byte[size];
-            //in.readByteArray(this.mainPic);
             this.receiptPic = in.readString();
         } else {
             this.receiptPic = null;

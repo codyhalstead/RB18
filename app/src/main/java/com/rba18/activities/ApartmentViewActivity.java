@@ -33,7 +33,6 @@ import android.widget.Toast;
 
 import com.rba18.BuildConfig;
 import com.rba18.R;
-import com.rba18.activities.BaseActivity;
 import com.rba18.fragments.ApartmentViewFrag1;
 import com.rba18.fragments.ApartmentViewFrag3;
 import com.rba18.fragments.ApartmentViewFrag2;
@@ -76,7 +75,7 @@ public class ApartmentViewActivity extends BaseActivity implements View.OnClickL
     Lease currentLease;
     private Boolean wasLeaseEdited, wasIncomeEdited, wasExpenseEdited, wasApartmentEdited;
     private CustomDatePickerDialogLauncher datePickerDialogLauncher;
-    Button dateRangeStartBtn, dateRangeEndBtn;
+    private Button dateRangeStartBtn, dateRangeEndBtn;
     private ApartmentViewFrag1 frag1;
     private ApartmentViewFrag2 frag2;
     private ApartmentViewFrag3 frag3;
@@ -165,27 +164,17 @@ public class ApartmentViewActivity extends BaseActivity implements View.OnClickL
             dateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateEnd));
             cameraImageFilePath = "";
         }
-        //ApartmentViewFrag3 ap2 = (ApartmentViewFrag3) frag2;
-        //ap2.updateDates();
-        //((ApartmentViewFrag3) frag2).updateDates();
-        // adapter.addFragment(new FragmentThree(), "FRAG3");
         viewPager.setAdapter(adapter);
         viewModel.setMoneyArray(databaseHandler.getIncomeAndExpensesByApartmentIDWithinDates(MainActivity.user, apartment.getId(), filterDateStart, filterDateEnd));
         viewModel.setLeaseArray(databaseHandler.getUsersLeasesForApartment(MainActivity.user, apartment.getId()));
-
-        //this.currentFilteredExpenses = db.getUsersExpensesWithinDates(MainActivity.user, startDate, endDate );
-
         mPageChangeListener = new ViewPager.OnPageChangeListener() {
-
             @Override
             public void onPageScrollStateChanged(int arg0) {
-                // TODO Auto-generated method stub
 
             }
 
             @Override
             public void onPageScrolled(int arg0, float arg1, int arg2) {
-                // TODO Auto-generated method stub
 
             }
 
@@ -200,8 +189,7 @@ public class ApartmentViewActivity extends BaseActivity implements View.OnClickL
 
         };
         viewPager.addOnPageChangeListener(mPageChangeListener);
-
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        TabLayout tabLayout = findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
         setupBasicToolbar();
         datePickerDialogLauncher = new CustomDatePickerDialogLauncher(filterDateStart, filterDateEnd, true, this);
@@ -347,7 +335,6 @@ public class ApartmentViewActivity extends BaseActivity implements View.OnClickL
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
-        Log.d(TAG, "onRequestPermissionsResult: " + requestCode);
         if (requestCode == MainActivity.REQUEST_GALLERY_FOR_MAIN_PIC) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Intent intent = new Intent(Intent.ACTION_PICK);
@@ -456,12 +443,8 @@ public class ApartmentViewActivity extends BaseActivity implements View.OnClickL
             //If successful(not cancelled, passed validation)
             if (resultCode == RESULT_OK) {
                 //Re-query cached apartment array to update cache and refresh current textViews to display new data. Re-query to sort list
-
-                //int apartmentID = data.getIntExtra("editedApartmentID", 0);
                 this.apartment = databaseHandler.getApartmentByID(apartment.getId(), MainActivity.user);
                 viewModel.setApartment(apartment);
-                //fillTextViews();
-                //ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
                 List<Fragment> fragments = getSupportFragmentManager().getFragments();
                 if (fragments != null) {
                     for (Fragment fragment : fragments) {
@@ -594,9 +577,6 @@ public class ApartmentViewActivity extends BaseActivity implements View.OnClickL
         outState.putBoolean("was_expense_edited", wasExpenseEdited);
         outState.putBoolean("was_apartment_edited", wasApartmentEdited);
         outState.putString("camera_image_file_path", cameraImageFilePath);
-        //getSupportFragmentManager().putFragment(outState, "frag1",  (adapter.getItem(0)));
-        //getSupportFragmentManager().putFragment(outState, "frag2",  (adapter.getItem(1)));
-        //getSupportFragmentManager().putFragment(outState, "frag3",  (adapter.getItem(2)));
     }
 
     @Override

@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -19,11 +18,8 @@ import com.example.android.wizardpager.wizard.model.AbstractWizardModel;
 import com.example.android.wizardpager.wizard.model.ModelCallbacks;
 import com.example.android.wizardpager.wizard.model.Page;
 import com.example.android.wizardpager.wizard.ui.PageFragmentCallbacks;
-import com.example.android.wizardpager.wizard.ui.ReviewFragment;
 import com.example.android.wizardpager.wizard.ui.StepPagerStrip;
 import com.rba18.R;
-import com.rba18.activities.BaseActivity;
-import com.rba18.fragments.ApartmentListFragment;
 import com.rba18.fragments.ReviewFragmentCustom;
 import com.rba18.helpers.MainArrayDataMethods;
 import com.rba18.model.Apartment;
@@ -44,19 +40,13 @@ public class NewApartmentWizard extends BaseActivity implements
         ModelCallbacks {
     private ViewPager mPager;
     private NewApartmentWizard.MyPagerAdapter mPagerAdapter;
-
     private boolean mEditingAfterReview;
-
     private AbstractWizardModel mWizardModel;
-
     private boolean mConsumePageSelectedEvent;
-
     private Button mNextButton;
     private Button mPrevButton;
-
     private List<Page> mCurrentPageSequence;
     private StepPagerStrip mStepPagerStrip;
-
     private DatabaseHandler dbhandler;
     private MainArrayDataMethods mainArrayDataMethods;
     public Apartment apartmentToEdit;
@@ -78,7 +68,7 @@ public class NewApartmentWizard extends BaseActivity implements
             mWizardModel = new ApartmentWizardModel(this);
             this.setTitle(R.string.new_apartment_creation);
         }
-        if(extras != null){
+        if (extras != null) {
             mWizardModel.preloadData(extras);
         }
         super.onCreate(savedInstanceState);
@@ -101,25 +91,20 @@ public class NewApartmentWizard extends BaseActivity implements
                 }
             }
         });
-
-        mNextButton = (Button) findViewById(R.id.next_button);
-        mPrevButton = (Button) findViewById(R.id.prev_button);
-
+        mNextButton = findViewById(R.id.next_button);
+        mPrevButton = findViewById(R.id.prev_button);
         mPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
                 mStepPagerStrip.setCurrentPage(position);
-
                 if (mConsumePageSelectedEvent) {
                     mConsumePageSelectedEvent = false;
                     return;
                 }
-
                 mEditingAfterReview = false;
                 updateBottomBar();
             }
         });
-
         mNextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -163,7 +148,6 @@ public class NewApartmentWizard extends BaseActivity implements
                     }
                     mainArrayDataMethods.sortMainApartmentArray();
                     finish();
-
                 } else {
                     if (mEditingAfterReview) {
                         mPager.setCurrentItem(mPagerAdapter.getCount() - 1);
@@ -173,7 +157,6 @@ public class NewApartmentWizard extends BaseActivity implements
                 }
             }
         });
-
         mPrevButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -216,7 +199,6 @@ public class NewApartmentWizard extends BaseActivity implements
             mNextButton.setTextAppearance(this, v.resourceId);
             mNextButton.setEnabled(position != mPagerAdapter.getCutOffPage());
         }
-
         mPrevButton.setVisibility(position <= 0 ? View.INVISIBLE : View.VISIBLE);
     }
 
@@ -225,13 +207,13 @@ public class NewApartmentWizard extends BaseActivity implements
         showCancelConfirmation();
     }
 
-    public void showCancelConfirmation(){
+    public void showCancelConfirmation() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.exit_wizard_confirmation);
         builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                if(apartmentToEdit != null) {
+                if (apartmentToEdit != null) {
                     if (mWizardModel.findByKey("Page3") != null) {
                         String mainPic = mWizardModel.findByKey("Page3").getData().getString(ApartmentWizardPage3.APARTMENT_MAIN_PIC_DATA_KEY);
                         ArrayList<String> otherPics = mWizardModel.findByKey("Page3").getData().getStringArrayList(ApartmentWizardPage3.APARTMENT_OTHER_PICS_DATA_KEY);
@@ -264,7 +246,7 @@ public class NewApartmentWizard extends BaseActivity implements
     @Override
     protected void onPause() {
         super.onPause();
-        if(alertDialog != null){
+        if (alertDialog != null) {
             alertDialog.dismiss();
         }
     }

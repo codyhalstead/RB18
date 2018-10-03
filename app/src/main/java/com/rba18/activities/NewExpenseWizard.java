@@ -9,7 +9,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,11 +18,8 @@ import com.example.android.wizardpager.wizard.model.AbstractWizardModel;
 import com.example.android.wizardpager.wizard.model.ModelCallbacks;
 import com.example.android.wizardpager.wizard.model.Page;
 import com.example.android.wizardpager.wizard.ui.PageFragmentCallbacks;
-import com.example.android.wizardpager.wizard.ui.ReviewFragment;
 import com.example.android.wizardpager.wizard.ui.StepPagerStrip;
 import com.rba18.R;
-import com.rba18.activities.BaseActivity;
-import com.rba18.fragments.ExpenseListFragment;
 import com.rba18.fragments.ReviewFragmentCustom;
 import com.rba18.model.Apartment;
 import com.rba18.model.ExpenseEditingWizardModel;
@@ -51,19 +47,13 @@ public class NewExpenseWizard extends BaseActivity implements
         ModelCallbacks {
     private ViewPager mPager;
     private NewExpenseWizard.MyPagerAdapter mPagerAdapter;
-
     private boolean mEditingAfterReview;
-
     private AbstractWizardModel mWizardModel;
-
     private boolean mConsumePageSelectedEvent;
-
     private Button mNextButton;
     private Button mPrevButton;
-
     private List<Page> mCurrentPageSequence;
     private StepPagerStrip mStepPagerStrip;
-
     private DatabaseHandler dbHandler;
     private ExpenseLogEntry expenseToEdit;
     private AlertDialog alertDialog;
@@ -106,25 +96,20 @@ public class NewExpenseWizard extends BaseActivity implements
                 }
             }
         });
-
-        mNextButton = (Button) findViewById(R.id.next_button);
-        mPrevButton = (Button) findViewById(R.id.prev_button);
-
+        mNextButton = findViewById(R.id.next_button);
+        mPrevButton = findViewById(R.id.prev_button);
         mPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
                 mStepPagerStrip.setCurrentPage(position);
-
                 if (mConsumePageSelectedEvent) {
                     mConsumePageSelectedEvent = false;
                     return;
                 }
-
                 mEditingAfterReview = false;
                 updateBottomBar();
             }
         });
-
         mNextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -142,9 +127,6 @@ public class NewExpenseWizard extends BaseActivity implements
                     int apartmentID = 0;
                     int tenantID = 0;
                     int leaseID = 0;
-                    //if(expenseToEdit != null){
-                    //    apartmentID = expenseToEdit.getApartmentID();
-                    //}
                     if(mWizardModel.findByKey("Page3") != null) {
                         if(mWizardModel.findByKey("Page3").getData().getParcelable(ExpenseWizardPage3.EXPENSE_RELATED_APT_DATA_KEY) != null){
                             Apartment apartment = mWizardModel.findByKey("Page3").getData().getParcelable(ExpenseWizardPage3.EXPENSE_RELATED_APT_DATA_KEY);
@@ -171,24 +153,19 @@ public class NewExpenseWizard extends BaseActivity implements
                         }
                         expenseToEdit.setTypeLabel(type);
                         expenseToEdit.setDescription(description);
-                        //expenseToEdit.setReceiptPic(receiptPic);
                         expenseToEdit.setApartmentID(apartmentID);
                         expenseToEdit.setTenantID(tenantID);
                         expenseToEdit.setLeaseID(leaseID);
-
                         dbHandler.editExpenseLogEntry(expenseToEdit);
-                        //dataMethods.sortMainIncomeArray();
                         Intent data = new Intent();
                         data.putExtra("editedExpenseID", expenseToEdit.getId());
                         setResult(RESULT_OK, data);
                     } else {
                         ExpenseLogEntry expense = new ExpenseLogEntry(-1, date, amount, apartmentID, leaseID, tenantID, description, typeID, type, receiptPic, false);
                         dbHandler.addExpenseLogEntry(expense, MainActivity.user.getId());
-                        //ExpenseListFragment.expenseListAdapterNeedsRefreshed = true;
                         setResult(RESULT_OK);
                     }
                     finish();
-
                 } else {
                     if (mEditingAfterReview) {
                         mPager.setCurrentItem(mPagerAdapter.getCount() - 1);
@@ -198,7 +175,6 @@ public class NewExpenseWizard extends BaseActivity implements
                 }
             }
         });
-
         mPrevButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -209,16 +185,7 @@ public class NewExpenseWizard extends BaseActivity implements
         setupBasicToolbar();
         onPageTreeChanged();
         updateBottomBar();
-        //mPagerAdapter.getItem(0).setArguments(extras);
     }
-
-    //public interface OnAboutDataReceivedListener {
-    //    void onDataReceived(AboutCompanyViewModel model);
-    //}
-
-    //public void setAboutDataListener(OnAboutDataReceivedListener listener) {
-    //    this.mAboutDataListener = listener;
-    //}
 
     @Override
     public void onPageTreeChanged() {
@@ -250,7 +217,6 @@ public class NewExpenseWizard extends BaseActivity implements
             mNextButton.setTextAppearance(this, v.resourceId);
             mNextButton.setEnabled(position != mPagerAdapter.getCutOffPage());
         }
-
         mPrevButton.setVisibility(position <= 0 ? View.INVISIBLE : View.VISIBLE);
     }
 
@@ -409,7 +375,6 @@ public class NewExpenseWizard extends BaseActivity implements
                 // Re-use the current fragment (its position never changes)
                 return POSITION_UNCHANGED;
             }
-
             return POSITION_NONE;
         }
 

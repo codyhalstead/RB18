@@ -11,10 +11,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
-import android.util.Pair;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,9 +32,7 @@ import com.rba18.model.Lease;
 import com.rba18.model.Tenant;
 import com.rba18.sqlite.DatabaseHandler;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Locale;
 
 import static android.app.Activity.RESULT_OK;
 import static android.support.constraint.Constraints.TAG;
@@ -63,8 +58,6 @@ public class LeaseViewFrag1 extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // setupUserAppTheme(MainActivity.curThemeChoice);
-        // setContentView(R.layout.activity_lease_view);
         this.databaseHandler = new DatabaseHandler(getContext());
         this.preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         dataMethods = new MainArrayDataMethods();
@@ -85,8 +78,6 @@ public class LeaseViewFrag1 extends Fragment {
         } else {
             //If new
             Bundle bundle = getArguments();
-            //Get apartment item
-            // int leaseID = bundle.getInt("leaseID");
             this.lease = bundle.getParcelable("lease");
             this.apartment = databaseHandler.getApartmentByID(lease.getApartmentID(), MainActivity.user);
             this.primaryTenant = databaseHandler.getTenantByID(lease.getPrimaryTenantID(), MainActivity.user);
@@ -97,9 +88,6 @@ public class LeaseViewFrag1 extends Fragment {
                 secondaryTenants.add(secondaryTenant);
             }
         }
-
-        //getActivity().setTitle("Lease View");
-        //  setupBasicToolbar();
     }
 
     private void fillTextViews() {
@@ -190,7 +178,6 @@ public class LeaseViewFrag1 extends Fragment {
             AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
             adView.loadAd(adRequest);
         }
-       // this.secondaryTenantsLL = rootView.findViewById(R.id.leaseViewSecondaryTenantsLL);
         fillTextViews();
         return rootView;
     }
@@ -289,12 +276,7 @@ public class LeaseViewFrag1 extends Fragment {
             //If successful(not cancelled, passed validation)
             if (resultCode == RESULT_OK) {
                 //Re - query cached apartment array to update cache and refresh current fragment to display new data
-                int leaseID = data.getIntExtra("editedLeaseID", 0);
                 this.lease = databaseHandler.getLeaseByID(MainActivity.user, lease.getId());
-                //this.apartment = dataMethods.getCachedApartmentByApartmentID(lease.getApartmentID());
-                //Pair<Tenant, ArrayList<Tenant>> tenants = dataMethods.getCachedPrimaryAndSecondaryTenantsByLease(lease);
-                //this.primaryTenant = tenants.first;
-                //this.secondaryTenants = tenants.second;
                 this.apartment = databaseHandler.getApartmentByID(lease.getApartmentID(), MainActivity.user);
                 this.primaryTenant = databaseHandler.getTenantByID(lease.getPrimaryTenantID(), MainActivity.user);
                 ArrayList<Integer> secondaryTenantIDs = lease.getSecondaryTenantIDs();

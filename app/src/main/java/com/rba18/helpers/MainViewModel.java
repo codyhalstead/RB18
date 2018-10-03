@@ -7,7 +7,6 @@ import android.arch.lifecycle.ViewModel;
 import com.rba18.model.Apartment;
 import com.rba18.model.ExpenseLogEntry;
 import com.rba18.model.Lease;
-import com.rba18.model.MoneyLogEntry;
 import com.rba18.model.PaymentLogEntry;
 import com.rba18.model.Tenant;
 

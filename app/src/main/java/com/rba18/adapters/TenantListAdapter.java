@@ -19,19 +19,13 @@ import android.widget.Filterable;
 import android.widget.TextView;
 
 import com.rba18.R;
-import com.rba18.activities.MainActivity;
 import com.rba18.helpers.DateAndCurrencyDisplayer;
 import com.rba18.helpers.MainArrayDataMethods;
 import com.rba18.model.Apartment;
-import com.rba18.model.ExpenseLogEntry;
 import com.rba18.model.Lease;
 import com.rba18.model.Tenant;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Locale;
 
 /**
@@ -132,7 +126,6 @@ public class TenantListAdapter extends BaseAdapter implements Filterable {
                     }
                 }
             }
-
             if (!tenant.getHasLease()) {
                 convertView.setBackgroundColor(convertView.getResources().getColor(R.color.rowDarkenedBackground));
                 viewHolder.rentingStatusTV.setText(R.string.not_currently_renting);
@@ -203,7 +196,6 @@ public class TenantListAdapter extends BaseAdapter implements Filterable {
     private void setTextHighlightSearch(TextView textView, String theTextToSet) {
         //If user has any text in the search bar
         if (searchText != null && !searchText.isEmpty()) {
-            //String theTextToSet2 = theTextToSet.replace(" ", "");
             int startPos = theTextToSet.toLowerCase(Locale.US).indexOf(searchText.toLowerCase(Locale.US));
             int endPos = startPos + searchText.length();
             if (startPos != -1) {

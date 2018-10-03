@@ -10,7 +10,6 @@
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:gravity="center"
-        android:maxLines="1"
         android:textColor="@color/blk"
         android:text="Type" />
 

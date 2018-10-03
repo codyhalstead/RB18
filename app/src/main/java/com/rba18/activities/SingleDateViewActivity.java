@@ -2,7 +2,6 @@ package com.rba18.activities;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
@@ -14,17 +13,12 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.rba18.R;
-import com.rba18.activities.BaseActivity;
 import com.rba18.fragments.DateViewFrag1;
 import com.rba18.fragments.DateViewFrag2;
 import com.rba18.helpers.ApartmentTenantViewModel;
 import com.rba18.sqlite.DatabaseHandler;
 
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -50,8 +44,7 @@ public class SingleDateViewActivity extends BaseActivity implements DateViewFrag
         super.onCreate(savedInstanceState);
         setupUserAppTheme(MainActivity.curThemeChoice);
         setContentView(R.layout.activity_single_date_view);
-
-        viewPager = (ViewPager) findViewById(R.id.pager);
+        viewPager = findViewById(R.id.pager);
         adapter = new SingleDateViewActivity.ViewPagerAdapter(getSupportFragmentManager());
         databaseHandler = new DatabaseHandler(this);
         Bundle bundle = getIntent().getExtras();
@@ -60,7 +53,6 @@ public class SingleDateViewActivity extends BaseActivity implements DateViewFrag
         dateTV = findViewById(R.id.selectedDateTV);
         dateTV.setText(formatter.format(date));
         setupBasicToolbar();
-
         if (savedInstanceState != null) {
             wasLeaseEdited = savedInstanceState.getBoolean("was_lease_edited");
             wasIncomeEdited = savedInstanceState.getBoolean("was_income_edited");
@@ -76,8 +68,7 @@ public class SingleDateViewActivity extends BaseActivity implements DateViewFrag
         viewModel.setLeaseArray(databaseHandler.getLeasesStartingOrEndingOnDate(MainActivity.user, date));
         viewModel.setMoneyArray(databaseHandler.getIncomeAndExpensesForDate(MainActivity.user, date));
         viewPager.setAdapter(adapter);
-
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        TabLayout tabLayout = findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
         setupBasicToolbar();
         toolbar.setTitle(R.string.calendar_date_view);
@@ -110,8 +101,6 @@ public class SingleDateViewActivity extends BaseActivity implements DateViewFrag
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        //Uses apartment form to edit data
-
         List<Fragment> fragments = getSupportFragmentManager().getFragments();
         if (fragments != null) {
             for (Fragment fragment : fragments) {
@@ -167,7 +156,6 @@ public class SingleDateViewActivity extends BaseActivity implements DateViewFrag
 
     // Adapter for the viewpager using FragmentPagerAdapter
     class ViewPagerAdapter extends FragmentPagerAdapter {
-
 
         public ViewPagerAdapter(FragmentManager manager) {
             super(manager);

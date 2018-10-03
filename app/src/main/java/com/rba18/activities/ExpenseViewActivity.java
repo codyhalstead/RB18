@@ -28,7 +28,6 @@ import com.rba18.BuildConfig;
 import com.rba18.R;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
-import com.rba18.activities.BaseActivity;
 import com.rba18.helpers.AppFileManagementHelper;
 import com.rba18.helpers.DateAndCurrencyDisplayer;
 import com.rba18.helpers.MainArrayDataMethods;
@@ -97,7 +96,6 @@ public class ExpenseViewActivity extends BaseActivity {
             AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
             adView.loadAd(adRequest);
         }
-        //this.relatedApartmentStreet2TV = findViewById(R.id.expenseViewRelatedApartmentStreet2TV);
         fillTextViews();
         setupBasicToolbar();
         this.setTitle(R.string.expense_view);

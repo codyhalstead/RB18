@@ -71,17 +71,11 @@ public class SignupActivity extends AppCompatActivity {
             emailText.setError(getString(R.string.email_used));
             onSignupFailed();
         }
-        //If creation successful, in 3 seconds empty text boxes empty and this Activity finishes
-        // new android.os.Handler().postDelayed(
-        //         new Runnable() {
-        //             public void run() {
         if (successfulAccountCreation) {
             emptyInputEditText();
             finish();
         }
         progressDialog.dismiss();
-        //              }
-        //         }, 3000);
     }
 
     @Override
@@ -192,10 +186,5 @@ public class SignupActivity extends AppCompatActivity {
                 finish();
             }
         });
-
-
-        //   }
-        // });
     }
-
 }

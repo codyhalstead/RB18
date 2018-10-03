@@ -42,17 +42,16 @@ public class LeaseWizardProratedRentPageFragment extends android.support.v4.app.
     private PageFragmentCallbacks mCallbacks;
     private String mKey;
     private LeaseWizardProratedRentPage mPage;
-    private TextView firstProratedLabelTV, lastProratedTV, firstProratedRentRecommendationTV, lastProratedRentRecommendationTV,
+    private TextView firstProratedRentRecommendationTV, lastProratedRentRecommendationTV,
             firstProratedStartDateTV, lastProratedStartDateTV, firstProratedEndDateTV, lastProratedEndDateTV,
             firstProratedDayAmountTV, lastProratedDayAmountTV;
     private EditText firstProratedAmountET, lastProratedAmountET;
-    private LinearLayout recommendedFirstPriceLL, recommendedLastPriceLL, firstDateInfoLL, lastDateInfoLL, firstProratedLL, lastProratedLL;
+    private LinearLayout firstProratedLL, lastProratedLL;
 
     private ArrayList<String> payments;
     private Date leaseEndDate;
-    private int paymentDay, paymentMonthlyFrequency;
+    private int paymentMonthlyFrequency;
     private BigDecimal rentCost, proratedFirst, proratedLast;
-    private Boolean hasFirstBeenModified, hasLastBeenModified;
     private SharedPreferences preferences;
     private int dateFormatCode, moneyFormatCode;
 
@@ -70,7 +69,6 @@ public class LeaseWizardProratedRentPageFragment extends android.support.v4.app.
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        Log.d(TAG, "onCreate: PRORATED PAGE CREATED");
         super.onCreate(savedInstanceState);
         preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         this.dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
@@ -86,8 +84,6 @@ public class LeaseWizardProratedRentPageFragment extends android.support.v4.app.
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_lease_wizard_prorated_rent_page, container, false);
         (rootView.findViewById(android.R.id.title)).setVisibility(View.GONE);
-        //firstProratedLabelTV = rootView.findViewById(R.id.leaseWizardFirstProratedLabelTV);
-        //lastProratedTV = rootView.findViewById(R.id.leaseWizardLastProratedLabelTV);
         firstProratedRentRecommendationTV = rootView.findViewById(R.id.leaseWizardProratedFirstPaymentAmountRecTV);
         lastProratedRentRecommendationTV = rootView.findViewById(R.id.leaseWizardProratedLastPaymentAmountRecTV);
         firstProratedStartDateTV = rootView.findViewById(R.id.leaseWizardProratedFirstPaymentRangeStartTV);
@@ -120,12 +116,6 @@ public class LeaseWizardProratedRentPageFragment extends android.support.v4.app.
             lastProratedLL.setVisibility(View.GONE);
             mPage.getData().putBoolean(LeaseWizardProratedRentPage.LEASE_PRORATED_LAST_SHOW_IN_REVIEW_DATA_KEY, false);
         }
-
-        recommendedFirstPriceLL = rootView.findViewById(R.id.leaseWizardProratedFirstRecommendedPriceLL);
-        recommendedLastPriceLL = rootView.findViewById(R.id.leaseWizardProratedLastRecommendedPriceLL);
-        firstDateInfoLL = rootView.findViewById(R.id.leaseWizardProratedFirstDateInfoLL);
-        lastDateInfoLL = rootView.findViewById(R.id.leaseWizardProratedLastDateInfoLL);
-
         return rootView;
     }
 

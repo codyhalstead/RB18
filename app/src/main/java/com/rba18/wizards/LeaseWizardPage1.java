@@ -9,16 +9,9 @@ import com.example.android.wizardpager.wizard.model.ModelCallbacks;
 import com.example.android.wizardpager.wizard.model.Page;
 import com.example.android.wizardpager.wizard.model.ReviewItem;
 import com.rba18.R;
-import com.rba18.activities.NewApartmentWizard;
-import com.rba18.activities.NewLeaseWizard;
 import com.rba18.fragments.LeaseWizardPage1Fragment;
-import com.rba18.helpers.MainArrayDataMethods;
-import com.rba18.model.Apartment;
-import com.rba18.model.Lease;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Locale;
 
 public class LeaseWizardPage1 extends Page{
     public static final String LEASE_START_DATE_STRING_DATA_KEY = "lease_start_date_string";

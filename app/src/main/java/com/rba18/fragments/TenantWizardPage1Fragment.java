@@ -18,7 +18,6 @@ import android.widget.TextView;
 
 import com.example.android.wizardpager.wizard.ui.PageFragmentCallbacks;
 import com.rba18.R;
-import com.rba18.activities.NewTenantWizard;
 import com.rba18.model.Tenant;
 import com.rba18.wizards.TenantWizardPage1;
 
@@ -35,7 +34,6 @@ public class TenantWizardPage1Fragment  extends android.support.v4.app.Fragment 
     private int hyphenStart;
     private boolean deletingBackward;
     private boolean isEdit;
-
 
     public static TenantWizardPage1Fragment create(String key) {
         Bundle args = new Bundle();
@@ -129,7 +127,6 @@ public class TenantWizardPage1Fragment  extends android.support.v4.app.Fragment 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        //setPhoneNumberEditTextHelper();
         firstNameET.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {

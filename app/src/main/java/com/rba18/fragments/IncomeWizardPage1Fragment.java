@@ -58,7 +58,6 @@ public class IncomeWizardPage1Fragment extends android.support.v4.app.Fragment {
     private DatabaseHandler dbHandler;
     boolean isEdit;
     private CustomDatePickerDialogLauncher datePickerDialogLauncher;
-    //private NewItemCreatorDialog newItemCreatorDialog;
     private SharedPreferences preferences;
     private int dateFormatCode, moneyFormatCode;
     private AlertDialog alertDialog;
@@ -230,8 +229,6 @@ public class IncomeWizardPage1Fragment extends android.support.v4.app.Fragment {
         typeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
-                // paymentFrequency = position + 1;
-
                 String type = typeSpinner.getSelectedItem().toString();
                 int typeID = 0;
                 if (MainActivity.incomeTypeLabels.get(type) != null) {
@@ -241,10 +238,7 @@ public class IncomeWizardPage1Fragment extends android.support.v4.app.Fragment {
                 mPage.getData().putString(IncomeWizardPage1.INCOME_TYPE_DATA_KEY, type);
 
                 if (getUserVisibleHint()) {
-                    //  figurePayments(leaseStartDate, leaseEndDate, paymentDay, paymentFrequency);
                     mPage.notifyDataChanged();
-                    //  paymentsAmountTV.setText(prorated + regular + "");
-                    //  proratedPaymentsAmountTV.setText(prorated + "");
                 }
             }
 
@@ -260,12 +254,9 @@ public class IncomeWizardPage1Fragment extends android.support.v4.app.Fragment {
                 editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
                 int maxLength = 25;
                 editText.setFilters(new InputFilter[] {new InputFilter.LengthFilter(maxLength)});
-                // create the AlertDialog as final
                 alertDialog = new AlertDialog.Builder(getContext())
-                        //.setMessage("You are ready to type")
                         .setTitle(R.string.create_new_type)
                         .setView(editText)
-
                         // Set the action buttons
                         .setPositiveButton(R.string.create, new DialogInterface.OnClickListener() {
                             @Override
@@ -277,7 +268,6 @@ public class IncomeWizardPage1Fragment extends android.support.v4.app.Fragment {
                                 typeSpinner.setSelection(spinnerPosition);
                             }
                         })
-
                         .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int id) {
@@ -285,7 +275,6 @@ public class IncomeWizardPage1Fragment extends android.support.v4.app.Fragment {
                             }
                         })
                         .create();
-
                 // set the focus change listener of the EditText
                 // this part will make the soft keyboard automaticall visible
                 editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -299,11 +288,6 @@ public class IncomeWizardPage1Fragment extends android.support.v4.app.Fragment {
                 alertDialog.show();
             }
         });
-        //if(mPage.getData().getString(IncomeWizardPage1.INCOME_AMOUNT_STRING_DATA_KEY) == null) {
-        //    String formatted = NumberFormat.getCurrencyInstance().format(amount);
-        //    mPage.getData().putString(IncomeWizardPage1.INCOME_AMOUNT_FORMATTED_STRING_DATA_KEY, formatted);
-        //    mPage.getData().putString(IncomeWizardPage1.INCOME_AMOUNT_STRING_DATA_KEY, amount.toPlainString());
-        //}
         if (mPage.getData().getString(IncomeWizardPage1.INCOME_TYPE_DATA_KEY) != null) {
             int spinnerPosition = adapter.getPosition(mPage.getData().getString(IncomeWizardPage1.INCOME_TYPE_DATA_KEY));
             if (isEdit && spinnerPosition == -1) {
@@ -311,12 +295,7 @@ public class IncomeWizardPage1Fragment extends android.support.v4.app.Fragment {
                 spinnerPosition = adapter.getPosition(mPage.getData().getString(IncomeWizardPage1.INCOME_TYPE_DATA_KEY));
             }
             typeSpinner.setSelection(spinnerPosition);
-            //typeSpinner.setSelection(mPage.getData().getInt(IncomeWizardPage1.INCOME_TYPE_ID_DATA_KEY));
         }
-        //String state = stateSpinner.getSelectedItem().toString();
-        //int stateID = MainActivity.stateMap.get(state);
-        //mPage.getData().putInt(LeaseWizardPage3.LEASE_PAYMENT_FREQUENCY_DATA_KEY, stateID);
-        //mPage.getData().putString(LeaseWizardPage3.LEASE_PAYMENT_FREQUENCY_STRING_DATA_KEY, state);
     }
 
     @Override
@@ -335,16 +314,13 @@ public class IncomeWizardPage1Fragment extends android.support.v4.app.Fragment {
     }
 
     private void populateIncomeTypeSpinner() {
-        //Create state array from MainActivity5.stateMap
         List<String> spinnerArray = new ArrayList<>();
         for (Map.Entry<String, Integer> entry : MainActivity.incomeTypeLabels.entrySet()) {
             spinnerArray.add(entry.getKey());
         }
-        //Create ArrayAdapter with state array
         adapter = new ArrayAdapter<>(
                 getContext(), android.R.layout.simple_spinner_item, spinnerArray);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        //Set ArrayAdapter to stateSpinner
         this.typeSpinner.setAdapter(adapter);
     }
 
@@ -369,7 +345,6 @@ public class IncomeWizardPage1Fragment extends android.support.v4.app.Fragment {
     private void preloadDate(Bundle bundle) {
         if (mPage.getData().getString(IncomeWizardPage1.INCOME_DATE_STRING_DATA_KEY) != null) {
             //If date exists (Was reloaded)
-
             String dateString = mPage.getData().getString(IncomeWizardPage1.INCOME_DATE_STRING_DATA_KEY);
             DateFormat formatFrom = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
             try {

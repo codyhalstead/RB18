@@ -14,7 +14,6 @@ import android.widget.EditText;
 import com.example.android.wizardpager.wizard.ui.PageFragmentCallbacks;
 import com.rba18.R;
 import com.rba18.model.Tenant;
-import com.rba18.wizards.TenantWizardPage1;
 import com.rba18.wizards.TenantWizardPage3;
 
 public class TenantWizardPage3Fragment extends android.support.v4.app.Fragment {

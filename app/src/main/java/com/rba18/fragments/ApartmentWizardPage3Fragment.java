@@ -53,7 +53,6 @@ public class ApartmentWizardPage3Fragment extends android.support.v4.app.Fragmen
     private String otherImageToRemove;
     private String cameraImageFilePath;
     private AlertDialog dialog;
-    //private int numberOfOtherPics;
 
     public static ApartmentWizardPage3Fragment create(String key) {
         Bundle args = new Bundle();
@@ -79,21 +78,16 @@ public class ApartmentWizardPage3Fragment extends android.support.v4.app.Fragmen
         }
         otherImageToRemove = "";
         otherPics = new ArrayList<>();
-        //numberOfOtherPics = 0;
         Bundle extras = mPage.getData();
         if (extras != null) {
             Apartment apartmentToEdit = extras.getParcelable("apartmentToEdit");
             if (apartmentToEdit != null) {
                 loadDataForEdit(apartmentToEdit);
             } else {
-                //mPage.getData().putString(ApartmentWizardPage3.APARTMENT_MAIN_PIC_DATA_KEY, "");
-                //mPage.getData().putString(ApartmentWizardPage3.APARTMENT_WAS_MAIN_PIC_ADDED_DATA_KEY, getContext().getResources().getString(R.string.no));
-                //mPage.getData().putInt(ApartmentWizardPage3.APARTMENT_AMOUNT_OF_OTHER_PICS_DATA_KEY, 0);
+
             }
         } else {
-            //mPage.getData().putString(ApartmentWizardPage3.APARTMENT_MAIN_PIC_DATA_KEY, "");
-            //mPage.getData().putString(ApartmentWizardPage3.APARTMENT_WAS_MAIN_PIC_ADDED_DATA_KEY, getContext().getResources().getString(R.string.no));
-            //mPage.getData().putInt(ApartmentWizardPage3.APARTMENT_AMOUNT_OF_OTHER_PICS_DATA_KEY, 0);
+
         }
     }
 
@@ -182,14 +176,6 @@ public class ApartmentWizardPage3Fragment extends android.support.v4.app.Fragmen
             mPage.getData().putString(ApartmentWizardPage3.APARTMENT_MAIN_PIC_DATA_KEY, "");
             mPage.getData().putString(ApartmentWizardPage3.APARTMENT_WAS_MAIN_PIC_ADDED_DATA_KEY, getContext().getResources().getString(R.string.no));
         }
-
-        //if(mPage.getData().getStringArrayList(ApartmentWizardPage3.APARTMENT_OTHER_PICS_DATA_KEY) != null){
-        //    otherPics = mPage.getData().getStringArrayList(ApartmentWizardPage3.APARTMENT_OTHER_PICS_DATA_KEY);
-        //    numberOfOtherPics = mPage.getData().getInt(ApartmentWizardPage3.APARTMENT_AMOUNT_OF_OTHER_PICS_DATA_KEY);
-        //} else {
-        //    mPage.getData().putInt(ApartmentWizardPage3.APARTMENT_AMOUNT_OF_OTHER_PICS_DATA_KEY, numberOfOtherPics);
-        //}
-
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         adapter = new OtherPicsAdapter(otherPics, getContext());
         adapter.setPhotoClick(false);
@@ -356,7 +342,6 @@ public class ApartmentWizardPage3Fragment extends android.support.v4.app.Fragmen
                 }
                 //file path of captured image
                 cursor.close();
-                //this.apartment.setMainPic(filePath);
                 mPage.notifyDataChanged();
             }
         } else if (requestCode == MainActivity.REQUEST_GALLERY_FOR_OTHER_PICS) {
@@ -370,17 +355,9 @@ public class ApartmentWizardPage3Fragment extends android.support.v4.app.Fragmen
                 String filePath = cursor.getString(columnIndex);
                 cursor.close();
                 File copiedFile = AppFileManagementHelper.copyPictureFileToApp(filePath, null);
-                //if (copiedFile != null) {
-                // apartment.setMainPic(copiedFile.getAbsolutePath());
-                //}
                 if (copiedFile != null) {
                     otherPics.add(filePath);
-                    // this.apartment.addOtherPic(filePath);
-                    // databaseHandler.addApartmentOtherPic(apartment, filePath, MainActivity.user);
-                    //MainActivity5.apartmentList = databaseHandler.getUsersApartments(MainActivity5.user);
-                    //ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
                     adapter.notifyDataSetChanged();
-                    //numberOfOtherPics++;
                     mPage.getData().putInt(ApartmentWizardPage3.APARTMENT_AMOUNT_OF_OTHER_PICS_DATA_KEY, adapter.getItemCount());
                     mPage.getData().putStringArrayList(ApartmentWizardPage3.APARTMENT_OTHER_PICS_DATA_KEY, otherPics);
                 }
@@ -442,7 +419,6 @@ public class ApartmentWizardPage3Fragment extends android.support.v4.app.Fragmen
                 } else {
                     mPage.getData().putString(ApartmentWizardPage3.APARTMENT_WAS_MAIN_PIC_ADDED_DATA_KEY, getContext().getResources().getString(R.string.no));
                 }
-                //mPage.getData().putString(ApartmentWizardPage3.APARTMENT_WAS_MAIN_PIC_ADDED_DATA_KEY, "No");
             } else {
                 mPage.getData().putString(ApartmentWizardPage3.APARTMENT_WAS_MAIN_PIC_ADDED_DATA_KEY, getContext().getResources().getString(R.string.no));
             }
@@ -461,7 +437,6 @@ public class ApartmentWizardPage3Fragment extends android.support.v4.app.Fragmen
 
     @Override
     public void onPicSelectedToBeRemoved(String removedPicPath) {
-        //numberOfOtherPics--;
         otherImageToRemove = removedPicPath;
         ActivityCompat.requestPermissions(
                 getActivity(),

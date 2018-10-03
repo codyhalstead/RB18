@@ -6,7 +6,6 @@ import android.os.Bundle;
 import com.example.android.wizardpager.wizard.model.AbstractWizardModel;
 import com.example.android.wizardpager.wizard.model.Page;
 import com.example.android.wizardpager.wizard.model.PageList;
-import com.rba18.activities.NewLeaseWizard;
 import com.rba18.wizards.LeaseWizardPage1;
 import com.rba18.wizards.LeaseWizardPage2;
 import com.rba18.wizards.LeaseWizardPage3;

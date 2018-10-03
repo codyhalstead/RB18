@@ -64,7 +64,6 @@ public class DateViewFrag2 extends android.support.v4.app.Fragment implements Ad
         super.onViewCreated(view, savedInstanceState);
         this.noLeasesTV = view.findViewById(R.id.emptyListTV);
         this.fab = view.findViewById(R.id.listFab);
-        //fab.setVisibility(View.GONE);
         this.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -171,10 +170,6 @@ public class DateViewFrag2 extends android.support.v4.app.Fragment implements Ad
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 db.setLeaseInactive(selectedLease);
-               // LeaseListFragment.leaseListAdapterNeedsRefreshed = true;
-                //currentFilteredLeases = db.getLeasesStartingOrEndingOnDate(MainActivity.user, date);
-                //leaseListAdapter.updateResults(currentFilteredLeases);
-                //leaseListAdapter.notifyDataSetChanged();
                 showDeleteAllRelatedMoneyAlertDialog();
             }
         });
@@ -193,9 +188,7 @@ public class DateViewFrag2 extends android.support.v4.app.Fragment implements Ad
     public void showDeleteAllRelatedMoneyAlertDialog() {
         // setup the alert builder
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        //builder.setTitle("AlertDialog");
         builder.setMessage(R.string.lease_related_money_deletion_confirmation);
-
         // add the buttons
         builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
             @Override
@@ -212,7 +205,6 @@ public class DateViewFrag2 extends android.support.v4.app.Fragment implements Ad
                 mCallback.onLeasePaymentsChanged();
             }
         });
-
         // create and show the alert dialog
         dialog = builder.create();
         dialog.show();
@@ -235,9 +227,6 @@ public class DateViewFrag2 extends android.support.v4.app.Fragment implements Ad
         if (requestCode == MainActivity.REQUEST_NEW_LEASE_FORM) {
             //If successful(not cancelled, passed validation)
             if (resultCode == RESULT_OK) {
-                //currentFilteredLeases = db.getLeasesStartingOrEndingOnDate(MainActivity.user, date);
-                //leaseListAdapter.updateResults(currentFilteredLeases);
-                //leaseListAdapter.notifyDataSetChanged();
                 mCallback.onLeaseDataChanged();
                 mCallback.onLeasePaymentsChanged();
             }
@@ -256,10 +245,7 @@ public class DateViewFrag2 extends android.support.v4.app.Fragment implements Ad
     }
 
     public void updateData(){
-        // currentFilteredLeases = db.getUsersLeasesForApartment(MainActivity.user, apartment.getId());
         leaseListAdapter.updateResults(ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getLeaseArray().getValue());
         leaseListAdapter.notifyDataSetChanged();
-        //this.total = getTotal();
-        //setTotalTV();
     }
 }

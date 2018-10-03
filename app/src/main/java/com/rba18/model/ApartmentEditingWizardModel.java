@@ -8,7 +8,6 @@ import com.example.android.wizardpager.wizard.model.Page;
 import com.example.android.wizardpager.wizard.model.PageList;
 import com.rba18.wizards.ApartmentWizardPage1;
 import com.rba18.wizards.ApartmentWizardPage2;
-import com.rba18.wizards.ApartmentWizardPage3;
 
 import java.util.List;
 

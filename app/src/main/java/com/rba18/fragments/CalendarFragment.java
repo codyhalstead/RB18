@@ -53,7 +53,6 @@ public class CalendarFragment extends android.support.v4.app.Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         databaseHandler = new DatabaseHandler(getActivity());
-        //caldroidFragment = new CustomCaldroidFragment();
         return inflater.inflate(R.layout.main_calendar_view, container, false);
     }
 
@@ -105,14 +104,11 @@ public class CalendarFragment extends android.support.v4.app.Fragment {
 
             @Override
             public void onDateSelected(Date date) {
-                //year = year - 1900;
-                //Date date = new Date(year, month, day);
                 highlightDateCell(date);
                 caldroidFragment.moveToDate(date);
                 caldroidFragment.refreshView();
             }
         });
-
         setUpFindDateBtnListener();
         setUpGoToTodayBtnListener();
         adapters = caldroidFragment.getDatePagerAdapters();

@@ -94,30 +94,20 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     NavigationView navigationView;
     //initialized with setUpUser()
     //initialized with cacheUserDB()
-    //public static TreeMap<String, Integer> stateMap;
     public static ArrayList<Tenant> tenantList;
     public static ArrayList<Apartment> apartmentList;
     public static ArrayList<Lease> currentLeasesList;
     private AlertDialog alertDialog;
-    //public static ArrayList<ExpenseLogEntry> expenseList;
-    //public static ArrayList<PaymentLogEntry> incomeList;
-    //public static ArrayList<TypeTotal> expenseTypes;
-    //public static ArrayList<TypeTotal> incomeTypes;
     public static TreeMap<String, Integer> expenseTypeLabels;
     public static TreeMap<String, Integer> incomeTypeLabels;
-    //public static TreeMap<String, Integer> eventTypeLabels;
-    //public Date filterDateStart, filterDateEnd;
     public MainViewModel viewModel;
     private InterstitialAd mInterstitialAd;
 
-    int testTenants = 0;
-    int testApartments = 0;
     int screenChanges = 0;
-    int adFrequency = 4;
+    int adFrequency = 7;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        //MobileAds.initialize(this, "ca-app-pub-3940256099942544/6300978111");
         initializeVariables();
         super.setupUserAppTheme(curThemeChoice);
         super.onCreate(savedInstanceState);
@@ -128,7 +118,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         if (BuildConfig.FLAVOR.equals("free")) {
             prepareAd();
         }
-        //Log.d("TAG", "onCreate: !!!!!!!!!!!!!" + stringFromJNI());
         viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
         //If user is empty (Last user logged out or fist time loading app), begin log in activity
         if (userIsEmpty()) {
@@ -148,19 +137,10 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 //Display home if initial load and user is logged in
                 displaySelectedScreen(R.id.nav_home);
             }
-            //Easy data loading for testing
-            //dbHandler.addTestData(user);
             //Cache users data into arrayLists
             initializeCachedData();
-            //deleteDir(Environment.getExternalStorageDirectory());
-            //File f = new File(Environment.getExternalStorageDirectory(), "Rentbud");
-            //if (!f.exists()) {
-            //    f.mkdirs(); q
-            //}
         }
     }
-
-    //public native String stringFromJNI();
 
     @Override
     protected void onResume() {
@@ -214,7 +194,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 editor.putString("last_user_password", user.getPassword());
                 editor.commit();
                 //Cache newly logged users data into arrayLists
-                //stateMap = dbHandler.getStateTreemap();
                 cacheDataForNewUser();
                 //Replace current frag with home frag
                 navigationView.getMenu().getItem(0).setChecked(true);
@@ -229,7 +208,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             if (resultCode == RESULT_OK) {
                 //Re-query cached apartment array to update cache and refresh current fragment to display new data
                 MainActivity.apartmentList = dbHandler.getUsersApartmentsIncludingInactive(MainActivity.user);
-                //refreshFragView();
             }
         }
         //NewTenantFormActivity result
@@ -238,7 +216,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             if (resultCode == RESULT_OK) {
                 //Re-query cached tenant array to update cache and refresh current fragment to display new data
                 MainActivity.tenantList = dbHandler.getUsersTenantsIncludingInactive(MainActivity.user);
-                //refreshFragView();
             }
         }
         if (requestCode == REQUEST_NEW_EXPENSE_FORM) {
@@ -246,8 +223,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             if (resultCode == RESULT_OK) {
                 //Re-query cached tenant array to update cache and refresh current fragment to display new data
                 viewModel.setCachedExpenses(dbHandler.getUsersExpensesWithinDates(MainActivity.user, viewModel.getStartDateRangeDate().getValue(), viewModel.getEndDateRangeDate().getValue()));
-                //dataMethods.sortMainExpenseArray();
-                //refreshFragView();
             }
         }
         if (requestCode == REQUEST_NEW_INCOME_FORM) {
@@ -255,8 +230,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             if (resultCode == RESULT_OK) {
                 viewModel.setCachedIncome(dbHandler.getUsersIncomeWithinDates(MainActivity.user, viewModel.getStartDateRangeDate().getValue(), viewModel.getEndDateRangeDate().getValue()));
                 //Re-query cached tenant array to update cache and refresh current fragment to display new data
-                //dataMethods.sortMainIncomeArray();
-                //refreshFragView();
             }
         }
         if (requestCode == REQUEST_NEW_LEASE_FORM) {
@@ -268,8 +241,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 MainActivity.tenantList = dbHandler.getUsersTenantsIncludingInactive(MainActivity.user);
                 MainActivity.apartmentList = dbHandler.getUsersApartmentsIncludingInactive(MainActivity.user);
                 //Re-query cached tenant array to update cache and refresh current fragment to display new data
-                //dataMethods.sortMainIncomeArray();
-                //refreshFragView();
             }
         }
         if (requestCode == REQUEST_INCOME_VIEW) {
@@ -434,9 +405,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             case R.id.nav_calendar:
                 //Calendar fragment
                 fragment = new CalendarFragment();
-                //Intent intent = new Intent(this, CaldroidTestFrag.class);
-                //startActivity(intent);
-                //fragment = new CaldroidTestFrag();
                 break;
 
             case R.id.nav_apartment:
@@ -544,14 +512,14 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }
     }
 
-    private void refreshFragView() {
+    //private void refreshFragView() {
         //Refreshes current frag by detaching then re-attaching
-        Fragment frg = getSupportFragmentManager().findFragmentByTag(CURRENT_FRAG_TAG);
-        final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.detach(frg);
-        ft.attach(frg);
-        ft.commit();
-    }
+    //    Fragment frg = getSupportFragmentManager().findFragmentByTag(CURRENT_FRAG_TAG);
+    //    final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+    //    ft.detach(frg);
+    //    ft.attach(frg);
+    //    ft.commit();
+    //}
 
     private void initializeVariables() {
         //Initialises variables, used in onCreate
@@ -578,8 +546,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         //Set up drawer, used in onCreate
         this.drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, this.drawer, getToolbar(), R.string.account_creation_success, R.string.account_creation_failed);
-        //TODO change drawer description                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                this, this.drawer, getToolbar(), R.string.blank, R.string.blank);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
     }
@@ -678,27 +645,27 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }
     }
 
-    public void add100Tenants(View view) {
-        int i = 0;
-        while (i < 100) {
-            Tenant tenant = new Tenant(-1, "Frank", "Lascelles " + testTenants, "563-598-8965", "snappydude@hotmail.com", "Matt",
-                    "Thurston", "568-785-8956", false, "Is frank " + testTenants, true);
-            dbHandler.addNewTenant(tenant, user.getId());
-            testTenants++;
-            i++;
-        }
-    }
+    //public void add100Tenants(View view) {
+    //    int i = 0;
+    //    while (i < 100) {
+    //        Tenant tenant = new Tenant(-1, "Frank", "Lascelles " + testTenants, "563-598-8965", "snappydude@hotmail.com", "Matt",
+    //                "Thurston", "568-785-8956", false, "Is frank " + testTenants, true);
+    //        dbHandler.addNewTenant(tenant, user.getId());
+    //        testTenants++;
+    //        i++;
+    //    }
+    //}
 
-    public void add100Apartments(View view) {
-        int i = 0;
-        while (i < 100) {
-            Apartment apartment = new Apartment(0, "2366 Lange Ave", "Apt." + testApartments, "Atalissa", "AL",
-                    "53654", "2 bed 1 bath", false, "Big ol building", null, null, true);
-            dbHandler.addNewApartment(apartment, user.getId());
-            testApartments++;
-            i++;
-        }
-    }
+    //public void add100Apartments(View view) {
+    //    int i = 0;
+    //    while (i < 100) {
+    //        Apartment apartment = new Apartment(0, "2366 Lange Ave", "Apt." + testApartments, "Atalissa", "AL",
+    //                "53654", "2 bed 1 bath", false, "Big ol building", null, null, true);
+    //        dbHandler.addNewApartment(apartment, user.getId());
+    //        testApartments++;
+    //        i++;
+    //    }
+    //}
 
     @Override
     public void onLeaseListDatesChanged(Date dateStart, Date dateEnd, LeaseListFragment fragment) {
@@ -749,6 +716,4 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }
         return true;
     }
-
-
 }

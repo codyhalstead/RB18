@@ -82,7 +82,6 @@ public class ApartmentViewFrag3 extends android.support.v4.app.Fragment implemen
         this.accentColor = getActivity().getResources().getColorStateList(colorValue.resourceId);
         setUpListAdapter();
         setUpSearchBar();
-        //setTotalTV();
     }
 
     @Override
@@ -158,8 +157,6 @@ public class ApartmentViewFrag3 extends android.support.v4.app.Fragment implemen
                         selectedLease = leaseListAdapter.getFilteredResults().get(position);
                         intent.putExtra("leaseToEdit", selectedLease);
                         startActivityForResult(intent, MainActivity.REQUEST_NEW_LEASE_FORM);
-                        //intent.putExtra("expenseID", expense.getId());
-                        //startActivity(intent);
                         return true;
 
                     case R.id.remove:
@@ -179,9 +176,7 @@ public class ApartmentViewFrag3 extends android.support.v4.app.Fragment implemen
     public void showDeleteConfirmationAlertDialog() {
         // setup the alert builder
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        //builder.setTitle("AlertDialog");
         builder.setMessage(R.string.lease_deletion_confirmation);
-
         // add the buttons
         builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
             @Override
@@ -205,9 +200,7 @@ public class ApartmentViewFrag3 extends android.support.v4.app.Fragment implemen
     public void showDeleteAllRelatedMoneyAlertDialog() {
         // setup the alert builder
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        //builder.setTitle("AlertDialog");
         builder.setMessage(R.string.lease_related_money_deletion_confirmation);
-
         // add the buttons
         builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
             @Override
@@ -236,14 +229,8 @@ public class ApartmentViewFrag3 extends android.support.v4.app.Fragment implemen
         if (requestCode == MainActivity.REQUEST_NEW_LEASE_FORM) {
             //If successful(not cancelled, passed validation)
             if (resultCode == RESULT_OK) {
-                //currentFilteredLeases = db.getUsersLeasesForApartment(MainActivity.user, apartment.getId());
-                //leaseListAdapter.updateResults(currentFilteredLeases);
-                //leaseListAdapter.notifyDataSetChanged();
                 mCallback.onLeaseDataChanged();
                 mCallback.onLeasePaymentsChanged();
-                //ApartmentListFragment.apartmentListAdapterNeedsRefreshed = true;
-                //total = getTotal();
-                //setTotalTV();
             }
         }
     }
@@ -260,10 +247,7 @@ public class ApartmentViewFrag3 extends android.support.v4.app.Fragment implemen
     }
 
     public void updateData() {
-        // currentFilteredLeases = db.getUsersLeasesForApartment(MainActivity.user, apartment.getId());
         leaseListAdapter.updateResults(ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getLeaseArray().getValue());
         leaseListAdapter.notifyDataSetChanged();
-        //this.total = getTotal();
-        //setTotalTV();
     }
 }
