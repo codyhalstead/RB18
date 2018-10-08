@@ -1,6 +1,11 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        config {
+
+        }
+    }
     compileSdkVersion 26
     defaultConfig {
         applicationId "rba18.rba18"
@@ -15,6 +20,7 @@ android {
                 cppFlags ""
             }
         }
+        signingConfig signingConfigs.config
     }
     productFlavors {
         free {
@@ -23,7 +29,17 @@ android {
             versionCode 1
             versionName '1.0.0'
             resValue "string", "app_name", "RentalBud"
-
+            signingConfig signingConfigs.config
+            minSdkVersion 16
+            vectorDrawables.useSupportLibrary = true
+            applicationId 'rba18.rba18'
+            targetSdkVersion 26
+            testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
+            externalNativeBuild {
+                cmake {
+                    cppFlags ""
+                }
+            }
         }
         pro {
             flavorDimensions "default"
@@ -31,13 +47,28 @@ android {
             versionCode 1
             versionName '1.0.0'
             resValue "string", "app_name", "RentalBud Pro"
-
+            vectorDrawables.useSupportLibrary = true
+            signingConfig signingConfigs.config
+            minSdkVersion 16
+            applicationId 'rba18.rba18'
+            targetSdkVersion 26
+            testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
+            externalNativeBuild {
+                cmake {
+                    cppFlags ""
+                }
+            }
+            signingConfig signingConfigs.config
         }
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.config
+        }
+        debug {
+            signingConfig signingConfigs.config
         }
     }
     externalNativeBuild {
