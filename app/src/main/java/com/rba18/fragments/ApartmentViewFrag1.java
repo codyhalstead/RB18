@@ -31,6 +31,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -62,6 +63,7 @@ public class ApartmentViewFrag1 extends Fragment {
     Apartment apartment;
     TextView addressTV, descriptionTV, notesTV, primaryTenantTV, activeLeaseDurationTV, otherTenantsTV,
             primaryTenantLabelTV, activeLeaseDurationLabelTV, otherTenantsLabelTV, activeLeaseHeaderTV;
+    LinearLayout adViewLL;
     TableRow durationTR, primarytenantTR, otherTenantsTR;
     ImageView mainPicIV;
     Button callPrimaryTenantBtn, smsPrimaryTenantBtn, emailPrimaryTenantBtn, emailAllBtn;
@@ -195,6 +197,7 @@ public class ApartmentViewFrag1 extends Fragment {
         primarytenantTR = rootView.findViewById(R.id.apartmentViewActiveLeasePrimaryTenantTR);
         otherTenantsTR = rootView.findViewById(R.id.apartmentViewActiveLeaseOtherTenantsTR);
         mainPicIV = rootView.findViewById(R.id.apartmentViewMainPicIV);
+        adViewLL = rootView.findViewById(R.id.adViewLL);
         callPrimaryTenantBtn = rootView.findViewById(R.id.apartmentViewCallTenantBtn);
         callPrimaryTenantBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -227,6 +230,8 @@ public class ApartmentViewFrag1 extends Fragment {
             adview = rootView.findViewById(R.id.adView);
             AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
             adview.loadAd(adRequest);
+        } else {
+            adViewLL.setVisibility(View.GONE);
         }
         fillTextViews();
         setUpTenantContactButtons();

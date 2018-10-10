@@ -45,8 +45,8 @@ public class FileChooserDialog extends Dialog implements AdapterView.OnItemClick
         this.cancelTV = findViewById(R.id.popupListCancelTV);
         this.selectionTypeTV = findViewById(R.id.popupListSelectTypeTV);
         this.emptyListTV = findViewById(R.id.popupListEmptyListTV);
-        selectionTypeTV.setText(R.string.select_a_type_to_delete);
-        emptyListTV.setText(R.string.no_types_to_display);
+        selectionTypeTV.setText(R.string.select_a_backup);
+        emptyListTV.setText(R.string.no_backups_to_display);
         TypedValue colorValue = new TypedValue();
         context.getTheme().resolveAttribute(R.attr.colorAccent, colorValue, true);
         this.accentColor = context.getResources().getColorStateList(colorValue.resourceId);

@@ -21,6 +21,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,6 +49,7 @@ public class IncomeViewActivity extends BaseActivity {
     PaymentLogEntry income;
     TextView dateTV, amountTV, typeTV, descriptionTV, relatedLeaseTV, relatedTenantTV, relatedApartmentAddressTV,
     statusTV;
+    LinearLayout adViewLL;
     DatabaseHandler databaseHandler;
     MainArrayDataMethods dataMethods;
     ImageView receiptPicIV;
@@ -92,10 +94,13 @@ public class IncomeViewActivity extends BaseActivity {
         this.relatedTenantTV = findViewById(R.id.incomeViewRelatedTenantTV);
         this.relatedApartmentAddressTV = findViewById(R.id.incomeViewRelatedApartmentAddressTV);
         this.statusTV = findViewById(R.id.incomeViewStatusTV);
+        this.adViewLL = findViewById(R.id.adViewLL);
         if (BuildConfig.FLAVOR.equals("free")) {
             adView = findViewById(R.id.adView);
             AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
             adView.loadAd(adRequest);
+        } else {
+            adViewLL.setVisibility(View.GONE);
         }
         fillTextViews();
         setupBasicToolbar();

@@ -19,6 +19,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
@@ -48,6 +49,7 @@ public class TenantViewFrag1 extends Fragment {
     TextView nameTV, phoneTV, activeLeaseDurationTV, activeLeaseDurationLabelTV, notesTV, apartmentAddressTV,
             apartmentAddressLabelTV, emailTV, emergencyNameTV, emergencyPhoneTV,
             primaryTenantTV, primaryTenantLabelTV, otherTenantsTV, otherTenantsLabelTV, activeLeasesHeaderTV;
+    LinearLayout adViewLL;
     Button callTenantBtn, smsTenantBtn, emailTenantBtn, callEContactBtn, smsEContactBtn;
     TableRow durationTR, apartmentTR, primaryTenantTR, otherTenantsTR;
     Apartment apartment;
@@ -216,6 +218,7 @@ public class TenantViewFrag1 extends Fragment {
         otherTenantsTV = rootView.findViewById(R.id.tenantViewActiveLeaseOtherTenantsTextView);
         otherTenantsLabelTV = rootView.findViewById(R.id.tenantViewActiveLeaseOtherTenantsLabelTextView);
         activeLeasesHeaderTV = rootView.findViewById(R.id.tenantViewActiveLeaseHeaderTV);
+        adViewLL = rootView.findViewById(R.id.adViewLL);
         callTenantBtn = rootView.findViewById(R.id.tenantViewCallTenantBtn);
         callTenantBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -259,6 +262,8 @@ public class TenantViewFrag1 extends Fragment {
             adView = rootView.findViewById(R.id.adView);
             AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
             adView.loadAd(adRequest);
+        } else {
+            adViewLL.setVisibility(View.GONE);
         }
         return rootView;
     }

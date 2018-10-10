@@ -20,6 +20,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,6 +48,7 @@ public class ExpenseViewActivity extends BaseActivity {
     ExpenseLogEntry expense;
     TextView dateTV, amountTV, typeTV, descriptionTV, relatedLeaseTV, relatedTenantTV, relatedApartmentAddressTV,
     statusTV;
+    LinearLayout adViewLL;
     ImageView receiptPicIV;
     DatabaseHandler databaseHandler;
     String receiptPic;
@@ -91,10 +93,13 @@ public class ExpenseViewActivity extends BaseActivity {
         this.relatedTenantTV = findViewById(R.id.expenseViewRelatedTenantTV);
         this.relatedApartmentAddressTV = findViewById(R.id.expenseViewRelatedApartmentAddressTV);
         this.statusTV = findViewById(R.id.expenseViewStatusTV);
+        this.adViewLL = findViewById(R.id.adViewLL);
         if (BuildConfig.FLAVOR.equals("free")) {
             adView = findViewById(R.id.adView);
             AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
             adView.loadAd(adRequest);
+        } else {
+            adViewLL.setVisibility(View.GONE);
         }
         fillTextViews();
         setupBasicToolbar();

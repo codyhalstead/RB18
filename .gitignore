@@ -92,3 +92,4 @@ $RECYCLE.BIN/
 .DS_Store
 /captures
 .externalNativeBuild
+app/build.gradle

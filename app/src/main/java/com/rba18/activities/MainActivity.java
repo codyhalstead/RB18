@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import com.rba18.BuildConfig;
 import com.rba18.R;
@@ -90,7 +91,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     MainArrayDataMethods dataMethods;
     //initialized with setUpDrawer
     DrawerLayout drawer;
-    //initialized with setUpNavView()
+    //initialized with setUpNavView()z
     NavigationView navigationView;
     //initialized with setUpUser()
     //initialized with cacheUserDB()
@@ -556,6 +557,13 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         this.navigationView = findViewById(R.id.nav_view);
         this.navigationView.setNavigationItemSelectedListener(this);
         this.navigationView.getMenu().getItem(0).setChecked(true);
+        View headerView = navigationView.getHeaderView(0);
+        TextView navUsername = headerView.findViewById(R.id.navHeaderTV);
+        if (BuildConfig.FLAVOR.equals("pro")) {
+            navUsername.setText(R.string.rentbud_pro);
+        } else {
+            navUsername.setText(R.string.rentbud);
+        }
     }
 
     //Checks if no user currently logged in

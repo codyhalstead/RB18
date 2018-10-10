@@ -11,6 +11,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -41,7 +42,7 @@ public class LeaseViewFrag1 extends Fragment {
     Lease lease;
     TextView apartmentAddressTV, rentCostTV, paymentFrequencyTV,
             primaryTenantNameTV, primaryTenantPhoneTV, primaryTenantEmailTV, leaseDurationTV, secondaryTenantsTV, notesTV, dueDateTV;
-    LinearLayout secondaryTenantsLL;
+    LinearLayout secondaryTenantsLL, adViewLL;
     DatabaseHandler databaseHandler;
     MainArrayDataMethods dataMethods;
     Apartment apartment;
@@ -145,6 +146,7 @@ public class LeaseViewFrag1 extends Fragment {
         this.leaseDurationTV = rootView.findViewById(R.id.leaseViewDurationTextView);
         this.secondaryTenantsTV = rootView.findViewById(R.id.leaseViewOtherTenantsTextView);
         this.notesTV = rootView.findViewById(R.id.leaseViewNotesTextView);
+        adViewLL = rootView.findViewById(R.id.adViewLL);
         callPrimaryTenantBtn = rootView.findViewById(R.id.leaseViewCallTenantBtn);
         callPrimaryTenantBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -177,6 +179,8 @@ public class LeaseViewFrag1 extends Fragment {
             adView = rootView.findViewById(R.id.adView);
             AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
             adView.loadAd(adRequest);
+        } else {
+            adViewLL.setVisibility(View.GONE);
         }
         fillTextViews();
         return rootView;
@@ -280,6 +284,7 @@ public class LeaseViewFrag1 extends Fragment {
                 this.apartment = databaseHandler.getApartmentByID(lease.getApartmentID(), MainActivity.user);
                 this.primaryTenant = databaseHandler.getTenantByID(lease.getPrimaryTenantID(), MainActivity.user);
                 ArrayList<Integer> secondaryTenantIDs = lease.getSecondaryTenantIDs();
+                secondaryTenants.clear();
                 for (int i = 0; i < secondaryTenantIDs.size(); i++) {
                     Tenant secondaryTenant = databaseHandler.getTenantByID(secondaryTenantIDs.get(i), MainActivity.user);
                     secondaryTenants.add(secondaryTenant);

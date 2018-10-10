@@ -24,6 +24,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.rba18.BuildConfig;
 import com.rba18.R;
 import com.rba18.helpers.AppFileManagementHelper;
 import com.rba18.helpers.FileChooserDialog;
@@ -157,6 +158,9 @@ public class LoginActivity extends AppCompatActivity {
         randomNumberGenerator = new RandomNumberGenerator();
         if (!databaseHandler.isUserTableEmpty()) {
             backupRestoreLink.setVisibility(View.GONE);
+        }
+        if (BuildConfig.FLAVOR.equals("free")) {
+        backupRestoreLink.setVisibility(View.GONE);
         }
     }
 
@@ -379,7 +383,8 @@ public class LoginActivity extends AppCompatActivity {
                     File backup = new File(downloads.getAbsolutePath() + "/" + fileName);
                     if (backup.exists()) {
                         databaseHandler.importBackupDB(backup);
-                        LoginActivity.this.finish();
+                        //LoginActivity.this.finish();
+                        Toast.makeText(LoginActivity.this, R.string.account_recovery_success, Toast.LENGTH_LONG).show();
                     }
                 }
             }

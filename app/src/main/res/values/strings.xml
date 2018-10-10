@@ -377,6 +377,9 @@
     <string name="remove_account">Remove Account</string>
     <string name="import_not_available">Not Available For This Version</string>
     <string name="create_transfer_file">Create Transfer File For RentalBud Pro</string>
+    <string name="select_a_backup">Select A Backup</string>
+    <string name="no_backups_to_display">No Backups To Display</string>
+    <string name="account_recovery_success">Accounts Successfully Recovered</string>
 
     <!-- Adapters -->
     <string name="rented_by">Rented By:&#160;</string>
