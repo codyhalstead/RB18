@@ -20,11 +20,11 @@ public class IncomeWizardPage1 extends Page {
     public static final String INCOME_TYPE_ID_DATA_KEY = "income_type_id";
     public static final String INCOME_TYPE_DATA_KEY = "income_type";
     public static final String WAS_PRELOADED = "income_page_1_was_preloaded";
-    private Context context;
+    private Context mContext;
 
     public IncomeWizardPage1(ModelCallbacks callbacks, String title, Context context) {
         super(callbacks, title);
-        this.context = context;
+        mContext = context;
         mData.putBoolean(WAS_PRELOADED, false);
     }
 
@@ -35,9 +35,9 @@ public class IncomeWizardPage1 extends Page {
 
     @Override
     public void getReviewItems(ArrayList<ReviewItem> dest) {
-        dest.add(new ReviewItem(context.getResources().getString(R.string.date), mData.getString(INCOME_DATE_STRING_FORMATTED_DATA_KEY), getKey(), -1));
-        dest.add(new ReviewItem(context.getResources().getString(R.string.amount), mData.getString(INCOME_AMOUNT_FORMATTED_STRING_DATA_KEY), getKey(), -1));
-        dest.add(new ReviewItem(context.getResources().getString(R.string.type), mData.getString(INCOME_TYPE_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(mContext.getResources().getString(R.string.date), mData.getString(INCOME_DATE_STRING_FORMATTED_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(mContext.getResources().getString(R.string.amount), mData.getString(INCOME_AMOUNT_FORMATTED_STRING_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(mContext.getResources().getString(R.string.type), mData.getString(INCOME_TYPE_DATA_KEY), getKey(), -1));
     }
 
     @Override

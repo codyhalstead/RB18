@@ -39,18 +39,17 @@ import java.util.Date;
  */
 
 public class LeaseListFragment extends Fragment implements AdapterView.OnItemClickListener, View.OnClickListener {
-    TextView noLeasesTV;
-    EditText searchBarET;
-    LinearLayout totalBarLL;
-    LeaseListAdapter leaseListAdapter;
-    ColorStateList accentColor;
-    ListView listView;
-    Button dateRangeStartBtn, dateRangeEndBtn;
-    Date filterDateStart, filterDateEnd;
+    private TextView mNoLeasesTV;
+    private EditText mSearchBarET;
+    private LeaseListAdapter mLeaseListAdapter;
+    private ColorStateList mAccentColor;
+    private ListView mListView;
+    private Button mDateRangeStartBtn, mDateRangeEndBtn;
+    private Date mFilterDateStart, mFilterDateEnd;
     private OnDatesChangedListener mCallback;
-    private boolean needsRefreshedOnResume;
-    private SharedPreferences preferences;
-    private CustomDatePickerDialogLauncher datePickerDialogLauncher;
+    private boolean mNeedsRefreshedOnResume;
+    private SharedPreferences mPreferences;
+    private CustomDatePickerDialogLauncher mDatePickerDialogLauncher;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -61,49 +60,49 @@ public class LeaseListFragment extends Fragment implements AdapterView.OnItemCli
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        this.noLeasesTV = view.findViewById(R.id.emptyListTV);
-        this.totalBarLL = view.findViewById(R.id.moneyListTotalBarLL);
+        mNoLeasesTV = view.findViewById(R.id.emptyListTV);
+        LinearLayout totalBarLL = view.findViewById(R.id.moneyListTotalBarLL);
         totalBarLL.setVisibility(View.GONE);
-        this.searchBarET = view.findViewById(R.id.moneyListSearchET);
-        this.dateRangeStartBtn = view.findViewById(R.id.moneyListDateRangeStartBtn);
-        this.dateRangeStartBtn.setOnClickListener(this);
-        this.dateRangeEndBtn = view.findViewById(R.id.moneyListDateRangeEndBtn);
-        this.dateRangeEndBtn.setOnClickListener(this);
-        this.listView = view.findViewById(R.id.mainMoneyListView);
-        filterDateStart = ViewModelProviders.of(getActivity()).get(MainViewModel.class).getStartDateRangeDate().getValue();
-        filterDateEnd = ViewModelProviders.of(getActivity()).get(MainViewModel.class).getEndDateRangeDate().getValue();
-        this.preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        int dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
-        dateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateStart));
-        dateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateEnd));
+        mSearchBarET = view.findViewById(R.id.moneyListSearchET);
+        mDateRangeStartBtn = view.findViewById(R.id.moneyListDateRangeStartBtn);
+        mDateRangeStartBtn.setOnClickListener(this);
+        mDateRangeEndBtn = view.findViewById(R.id.moneyListDateRangeEndBtn);
+        mDateRangeEndBtn.setOnClickListener(this);
+        mListView = view.findViewById(R.id.mainMoneyListView);
+        mFilterDateStart = ViewModelProviders.of(getActivity()).get(MainViewModel.class).getStartDateRangeDate().getValue();
+        mFilterDateEnd = ViewModelProviders.of(getActivity()).get(MainViewModel.class).getEndDateRangeDate().getValue();
+        mPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        int dateFormatCode = mPreferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
+        mDateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, mFilterDateStart));
+        mDateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, mFilterDateEnd));
         getActivity().setTitle(R.string.lease_list);
         //Get current theme accent color, which is passed into the list adapter for search highlighting
         TypedValue colorValue = new TypedValue();
         getActivity().getTheme().resolveAttribute(R.attr.colorAccent, colorValue, true);
-        this.accentColor = getActivity().getResources().getColorStateList(colorValue.resourceId);
+        mAccentColor = getActivity().getResources().getColorStateList(colorValue.resourceId);
         setUpListAdapter();
         setUpSearchBar();
-        needsRefreshedOnResume = false;
-        datePickerDialogLauncher = new CustomDatePickerDialogLauncher(filterDateStart, filterDateEnd, true, getContext());
-        datePickerDialogLauncher.setDateSelectedListener(new CustomDatePickerDialogLauncher.DateSelectedListener() {
+        mNeedsRefreshedOnResume = false;
+        mDatePickerDialogLauncher = new CustomDatePickerDialogLauncher(mFilterDateStart, mFilterDateEnd, true, getContext());
+        mDatePickerDialogLauncher.setDateSelectedListener(new CustomDatePickerDialogLauncher.DateSelectedListener() {
             @Override
             public void onStartDateSelected(Date startDate, Date endDate) {
-                filterDateStart = startDate;
-                filterDateEnd = endDate;
-                int dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
-                dateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateStart));
-                dateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateEnd));
-                mCallback.onLeaseListDatesChanged(filterDateStart, filterDateEnd, LeaseListFragment.this);
+                mFilterDateStart = startDate;
+                mFilterDateEnd = endDate;
+                int dateFormatCode = mPreferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
+                mDateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, mFilterDateStart));
+                mDateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, mFilterDateEnd));
+                mCallback.onLeaseListDatesChanged(mFilterDateStart, mFilterDateEnd, LeaseListFragment.this);
             }
 
             @Override
             public void onEndDateSelected(Date startDate, Date endDate) {
-                filterDateStart = startDate;
-                filterDateEnd = endDate;
-                int dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
-                dateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateStart));
-                dateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateEnd));
-                mCallback.onLeaseListDatesChanged(filterDateStart, filterDateEnd, LeaseListFragment.this);
+                mFilterDateStart = startDate;
+                mFilterDateEnd = endDate;
+                int dateFormatCode = mPreferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
+                mDateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, mFilterDateStart));
+                mDateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, mFilterDateEnd));
+                mCallback.onLeaseListDatesChanged(mFilterDateStart, mFilterDateEnd, LeaseListFragment.this);
             }
 
             @Override
@@ -116,22 +115,22 @@ public class LeaseListFragment extends Fragment implements AdapterView.OnItemCli
     @Override
     public void onResume() {
         super.onResume();
-        if (needsRefreshedOnResume) {
-            leaseListAdapter.updateResults(ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedLeases().getValue());
-            searchBarET.setText(searchBarET.getText());
-            searchBarET.setSelection(searchBarET.getText().length());
+        if (mNeedsRefreshedOnResume) {
+            mLeaseListAdapter.updateResults(ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedLeases().getValue());
+            mSearchBarET.setText(mSearchBarET.getText());
+            mSearchBarET.setSelection(mSearchBarET.getText().length());
         }
-        needsRefreshedOnResume = true;
+        mNeedsRefreshedOnResume = true;
     }
 
     private void setUpSearchBar() {
-        searchBarET.addTextChangedListener(new TextWatcher() {
-            //For updating search results as user types
+        mSearchBarET.addTextChangedListener(new TextWatcher() {
+            //For updating search results as sUser types
             @Override
             public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
-                //When user changed the Text
-                if (leaseListAdapter != null) {
-                    leaseListAdapter.getFilter().filter(cs);
+                //When sUser changed the Text
+                if (mLeaseListAdapter != null) {
+                    mLeaseListAdapter.getFilter().filter(cs);
 
                 }
             }
@@ -150,11 +149,11 @@ public class LeaseListFragment extends Fragment implements AdapterView.OnItemCli
     }
 
     private void setUpListAdapter() {
-        leaseListAdapter = new LeaseListAdapter(getActivity(), ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedLeases().getValue(), accentColor, null);
-        listView.setAdapter(leaseListAdapter);
-        listView.setOnItemClickListener(this);
-        noLeasesTV.setText(R.string.no_leases_to_display);
-        this.listView.setEmptyView(noLeasesTV);
+        mLeaseListAdapter = new LeaseListAdapter(getActivity(), ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedLeases().getValue(), mAccentColor, null);
+        mListView.setAdapter(mLeaseListAdapter);
+        mListView.setOnItemClickListener(this);
+        mNoLeasesTV.setText(R.string.no_leases_to_display);
+        mListView.setEmptyView(mNoLeasesTV);
     }
 
     @Override
@@ -162,7 +161,7 @@ public class LeaseListFragment extends Fragment implements AdapterView.OnItemCli
         //On listView row click, launch ApartmentViewActivity passing the rows data into it.
         Intent intent = new Intent(getContext(), LeaseViewActivity.class);
         //Uses filtered results to match what is on screen
-        Lease lease = leaseListAdapter.getFilteredResults().get(i);
+        Lease lease = mLeaseListAdapter.getFilteredResults().get(i);
         intent.putExtra("leaseID", lease.getId());
         getActivity().startActivityForResult(intent, MainActivity.REQUEST_LEASE_VIEW);
     }
@@ -172,11 +171,11 @@ public class LeaseListFragment extends Fragment implements AdapterView.OnItemCli
         switch (view.getId()) {
 
             case R.id.moneyListDateRangeStartBtn:
-                datePickerDialogLauncher.launchStartDatePickerDialog();
+                mDatePickerDialogLauncher.launchStartDatePickerDialog();
                 break;
 
             case R.id.moneyListDateRangeEndBtn:
-                datePickerDialogLauncher.launchEndDatePickerDialog();
+                mDatePickerDialogLauncher.launchEndDatePickerDialog();
                 break;
 
             default:
@@ -191,7 +190,7 @@ public class LeaseListFragment extends Fragment implements AdapterView.OnItemCli
     @Override
     public void onPause() {
         super.onPause();
-        datePickerDialogLauncher.dismissDatePickerDialog();
+        mDatePickerDialogLauncher.dismissDatePickerDialog();
     }
 
     @Override
@@ -215,9 +214,9 @@ public class LeaseListFragment extends Fragment implements AdapterView.OnItemCli
     }
 
     public void updateData(ArrayList<Lease> leaseList) {
-        leaseListAdapter.updateResults(leaseList);
-        leaseListAdapter.getFilter().filter(searchBarET.getText());
-        leaseListAdapter.notifyDataSetChanged();
+        mLeaseListAdapter.updateResults(leaseList);
+        mLeaseListAdapter.getFilter().filter(mSearchBarET.getText());
+        mLeaseListAdapter.notifyDataSetChanged();
     }
 
     @Override

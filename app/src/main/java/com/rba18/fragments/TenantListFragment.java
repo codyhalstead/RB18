@@ -20,7 +20,6 @@ import com.rba18.R;
 import com.rba18.activities.MainActivity;
 import com.rba18.activities.TenantViewActivity;
 import com.rba18.adapters.TenantListAdapter;
-import com.rba18.helpers.MainArrayDataMethods;
 import com.rba18.model.Tenant;
 
 import java.util.ArrayList;
@@ -30,13 +29,12 @@ import java.util.ArrayList;
  */
 
 public class TenantListFragment extends Fragment implements AdapterView.OnItemClickListener {
-    TextView noTenantsTV;
-    EditText searchBarET;
-    TenantListAdapter tenantListAdapter;
-    ColorStateList accentColor;
-    ListView listView;
-    MainArrayDataMethods dataMethods;
-    private boolean needsRefreshedOnResume;
+    private TextView mNoTenantsTV;
+    private EditText mSearchBarET;
+    private TenantListAdapter mTenantListAdapter;
+    private ColorStateList mAccentColor;
+    private ListView mListView;
+    private boolean mNeedsRefreshedOnResume;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -48,57 +46,56 @@ public class TenantListFragment extends Fragment implements AdapterView.OnItemCl
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        this.noTenantsTV = view.findViewById(R.id.notenantEmptyListTV);
-        this.searchBarET = view.findViewById(R.id.tenantListSearchET);
-        this.listView = view.findViewById(R.id.maintenantListView);
+        mNoTenantsTV = view.findViewById(R.id.notenantEmptyListTV);
+        mSearchBarET = view.findViewById(R.id.tenantListSearchET);
+        mListView = view.findViewById(R.id.maintenantListView);
         getActivity().setTitle(R.string.tenant_list);
-        dataMethods = new MainArrayDataMethods();
         //Get current theme accent color, which is passed into the list adapter for search highlighting
         TypedValue colorValue = new TypedValue();
         getActivity().getTheme().resolveAttribute(R.attr.colorAccent, colorValue, true);
-        accentColor = getActivity().getResources().getColorStateList(colorValue.resourceId);
+        mAccentColor = getActivity().getResources().getColorStateList(colorValue.resourceId);
         setUpListAdapter();
         setUpSearchBar();
-        needsRefreshedOnResume = false;
+        mNeedsRefreshedOnResume = false;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        if (needsRefreshedOnResume) {
+        if (mNeedsRefreshedOnResume) {
             ArrayList<Tenant> activeTenantArray = new ArrayList<>();
-            for (int i = 0; i < MainActivity.tenantList.size(); i++) {
-                if (MainActivity.tenantList.get(i).isActive()) {
-                    activeTenantArray.add(MainActivity.tenantList.get(i));
+            for (int i = 0; i < MainActivity.sTenantList.size(); i++) {
+                if (MainActivity.sTenantList.get(i).isActive()) {
+                    activeTenantArray.add(MainActivity.sTenantList.get(i));
                 }
             }
-            tenantListAdapter.updateResults(activeTenantArray);
-            searchBarET.setText(searchBarET.getText());
-            searchBarET.setSelection(searchBarET.getText().length());
+            mTenantListAdapter.updateResults(activeTenantArray);
+            mSearchBarET.setText(mSearchBarET.getText());
+            mSearchBarET.setSelection(mSearchBarET.getText().length());
         }
-        needsRefreshedOnResume = true;
+        mNeedsRefreshedOnResume = true;
 
     }
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        //On listView row click, launch TenantViewActivity passing the rows data into it.
+        //On mListView row click, launch TenantViewActivity passing the rows data into it.
         Intent intent = new Intent(getContext(), TenantViewActivity.class);
         //Uses filtered results to match what is on screen
-        Tenant tenant = tenantListAdapter.getFilteredResults().get(i);
+        Tenant tenant = mTenantListAdapter.getFilteredResults().get(i);
         intent.putExtra("tenantID", tenant.getId());
         getActivity().startActivityForResult(intent, MainActivity.REQUEST_TENANT_VIEW);
     }
 
     private void setUpSearchBar() {
-        searchBarET.addTextChangedListener(new TextWatcher() {
-            //For updating search results as user types
+        mSearchBarET.addTextChangedListener(new TextWatcher() {
+            //For updating search results as sUser types
             @Override
             public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
-                //When user changed the Text
-                if (tenantListAdapter != null) {
-                    listView.setFilterText(cs.toString());
-                    tenantListAdapter.getFilter().filter(cs.toString());
+                //When sUser changed the Text
+                if (mTenantListAdapter != null) {
+                    mListView.setFilterText(cs.toString());
+                    mTenantListAdapter.getFilter().filter(cs.toString());
                 }
             }
 
@@ -117,15 +114,15 @@ public class TenantListFragment extends Fragment implements AdapterView.OnItemCl
 
     private void setUpListAdapter() {
         ArrayList<Tenant> activeTenantArray = new ArrayList<>();
-        for (int i = 0; i < MainActivity.tenantList.size(); i++) {
-            if (MainActivity.tenantList.get(i).isActive()) {
-                activeTenantArray.add(MainActivity.tenantList.get(i));
+        for (int i = 0; i < MainActivity.sTenantList.size(); i++) {
+            if (MainActivity.sTenantList.get(i).isActive()) {
+                activeTenantArray.add(MainActivity.sTenantList.get(i));
             }
         }
-        tenantListAdapter = new TenantListAdapter(getActivity(), activeTenantArray, accentColor);
-        listView.setAdapter(tenantListAdapter);
-        listView.setOnItemClickListener(this);
-        noTenantsTV.setText(R.string.no_tenants_to_display);
-        listView.setEmptyView(noTenantsTV);
+        mTenantListAdapter = new TenantListAdapter(getActivity(), activeTenantArray, mAccentColor);
+        mListView.setAdapter(mTenantListAdapter);
+        mListView.setOnItemClickListener(this);
+        mNoTenantsTV.setText(R.string.no_tenants_to_display);
+        mListView.setEmptyView(mNoTenantsTV);
     }
 }

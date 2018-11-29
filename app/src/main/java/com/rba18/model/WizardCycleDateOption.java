@@ -3,28 +3,28 @@ package com.rba18.model;
 import org.joda.time.LocalDate;
 
 public class WizardCycleDateOption {
-    private int id;
-    private LocalDate date;
+    private int mID;
+    private LocalDate mDate;
 
     public WizardCycleDateOption(int id, LocalDate date){
-        this.id = id;
-        this.date = date;
+        mID = id;
+        mDate = date;
     }
 
     public int getID() {
-        return id;
+        return mID;
     }
 
     public void setID(int databaseID) {
-        this.id = databaseID;
+        mID = databaseID;
     }
 
     public LocalDate getDate() {
-        return date;
+        return mDate;
     }
 
     public void setDate(LocalDate date) {
-        this.date = date;
+        mDate = date;
     }
 }
 

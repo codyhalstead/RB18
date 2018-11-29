@@ -17,13 +17,13 @@ public class ExpenseWizardPage2  extends Page {
     public static final String EXPENSE_RECEIPT_PIC_DATA_KEY = "expense_receipt_pic";
     public static final String EXPENSE_WAS_RECEIPT_PIC_ADDED_DATA_KEY = "expense_was_receipt_pic_added";
     public static final String WAS_PRELOADED = "expense_page_2_was_preloaded";
-    private boolean isEdit;
-    private Context context;
+    private boolean mIsEdit;
+    private Context mContext;
 
     public ExpenseWizardPage2(ModelCallbacks callbacks, String title, boolean isEdit, Context context) {
         super(callbacks, title);
-        this.isEdit = isEdit;
-        this.context = context;
+        mIsEdit = isEdit;
+        mContext = context;
         mData.putBoolean(WAS_PRELOADED, false);
     }
 
@@ -34,9 +34,9 @@ public class ExpenseWizardPage2  extends Page {
 
     @Override
     public void getReviewItems(ArrayList<ReviewItem> dest) {
-        dest.add(new ReviewItem(context.getResources().getString(R.string.description), mData.getString(EXPENSE_DESCRIPTION_DATA_KEY), getKey(), -1));
-        if(!isEdit) {
-            dest.add(new ReviewItem(context.getResources().getString(R.string.receipt_pic), mData.getString(EXPENSE_WAS_RECEIPT_PIC_ADDED_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(mContext.getResources().getString(R.string.description), mData.getString(EXPENSE_DESCRIPTION_DATA_KEY), getKey(), -1));
+        if(!mIsEdit) {
+            dest.add(new ReviewItem(mContext.getResources().getString(R.string.receipt_pic), mData.getString(EXPENSE_WAS_RECEIPT_PIC_ADDED_DATA_KEY), getKey(), -1));
         }
     }
 

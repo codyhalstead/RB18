@@ -1,6 +1,6 @@
 package com.rba18.fragments;
 
-/**
+/*
  * Created by Cody on 1/10/2018.
  */
 
@@ -33,26 +33,24 @@ import java.util.Date;
 import java.util.HashMap;
 
 public class CalendarFragment extends android.support.v4.app.Fragment {
-    private CustomCaldroidFragment caldroidFragment;
-    private Date currentSelectedDate;
-    private Date today;
-    Button findDateBtn, goToTodayBtn;
-    Button calendarKeyBtn;
-    private HashMap<String, Integer> leaseStartDatesHM = new HashMap<>();
-    private HashMap<String, Integer> leaseEndDatesHM = new HashMap<>();
-    private HashMap<String, Integer> expenseDatesHM = new HashMap<>();
-    private HashMap<String, Integer> incomeDatesHM = new HashMap<>();
-    private DatabaseHandler databaseHandler;
-    private ArrayList<CaldroidGridAdapter> adapters;
-    private CustomDatePickerDialogLauncher datePickerDialogLauncher;
-    private PopupWindow keyPopup;
-    int selectedMonth, selectedYear;
+    private CustomCaldroidFragment mCaldroidFragment;
+    private Date mCurrentSelectedDate, mToday;
+    private Button mFindDateBtn, mGoToTodayBtn, mCalendarKeyBtn;
+    private HashMap<String, Integer> mLeaseStartDatesHM = new HashMap<>();
+    private HashMap<String, Integer> mLeaseEndDatesHM = new HashMap<>();
+    private HashMap<String, Integer> mExpenseDatesHM = new HashMap<>();
+    private HashMap<String, Integer> mIncomeDatesHM = new HashMap<>();
+    private DatabaseHandler mDatabaseHandler;
+    private ArrayList<CaldroidGridAdapter> mAdapters;
+    private CustomDatePickerDialogLauncher mDatePickerDialogLauncher;
+    private PopupWindow mKeyPopup;
+    private int mSelectedMonth, mSelectedYear;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        databaseHandler = new DatabaseHandler(getActivity());
+        mDatabaseHandler = new DatabaseHandler(getActivity());
         return inflater.inflate(R.layout.main_calendar_view, container, false);
     }
 
@@ -60,38 +58,38 @@ public class CalendarFragment extends android.support.v4.app.Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         getActivity().setTitle(R.string.calendar);
-        calendarKeyBtn = getActivity().findViewById(R.id.calendarKeyImageButton);
-        findDateBtn = getActivity().findViewById(R.id.findDateBtn);
-        goToTodayBtn = getActivity().findViewById(R.id.goToTodayBtn);
+        mCalendarKeyBtn = getActivity().findViewById(R.id.calendarKeyImageButton);
+        mFindDateBtn = getActivity().findViewById(R.id.findDateBtn);
+        mGoToTodayBtn = getActivity().findViewById(R.id.goToTodayBtn);
         // Setup caldroid fragment
-        caldroidFragment = new CustomCaldroidFragment();
+        mCaldroidFragment = new CustomCaldroidFragment();
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.HOUR_OF_DAY, 0);
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
-        today = cal.getTime();
+        mToday = cal.getTime();
 
         // If Activity is created after rotation, get previous state and date selected
         if (savedInstanceState != null) {
-            caldroidFragment.restoreStatesFromKey(savedInstanceState, "CALDROID_SAVED_STATE");
-            currentSelectedDate = new Date(savedInstanceState.getLong("selected_Date"));
+            mCaldroidFragment.restoreStatesFromKey(savedInstanceState, "CALDROID_SAVED_STATE");
+            mCurrentSelectedDate = new Date(savedInstanceState.getLong("selected_Date"));
         } else {
-            currentSelectedDate = today;
+            mCurrentSelectedDate = mToday;
         }
         // Attach to the activity
         FragmentTransaction t = getActivity().getSupportFragmentManager().beginTransaction();
-        t.replace(R.id.calendar1, caldroidFragment);
+        t.replace(R.id.calendar1, mCaldroidFragment);
         t.commit();
         //If there was a selected date, go to and highlight date
-        if (currentSelectedDate != null) {
-            highlightDateCell(currentSelectedDate);
-            caldroidFragment.refreshView();
+        if (mCurrentSelectedDate != null) {
+            highlightDateCell(mCurrentSelectedDate);
+            mCaldroidFragment.refreshView();
         }
         setUpCaldroidListener();
         setUpCalendarKeyListener();
-        datePickerDialogLauncher = new CustomDatePickerDialogLauncher(currentSelectedDate, false, getContext());
-        datePickerDialogLauncher.setDateSelectedListener(new CustomDatePickerDialogLauncher.DateSelectedListener() {
+        mDatePickerDialogLauncher = new CustomDatePickerDialogLauncher(mCurrentSelectedDate, false, getContext());
+        mDatePickerDialogLauncher.setDateSelectedListener(new CustomDatePickerDialogLauncher.DateSelectedListener() {
             @Override
             public void onStartDateSelected(Date startDate, Date endDate) {
 
@@ -105,27 +103,27 @@ public class CalendarFragment extends android.support.v4.app.Fragment {
             @Override
             public void onDateSelected(Date date) {
                 highlightDateCell(date);
-                caldroidFragment.moveToDate(date);
-                caldroidFragment.refreshView();
+                mCaldroidFragment.moveToDate(date);
+                mCaldroidFragment.refreshView();
             }
         });
         setUpFindDateBtnListener();
         setUpGoToTodayBtnListener();
-        adapters = caldroidFragment.getDatePagerAdapters();
-        selectedMonth = 1;
-        selectedYear = 1;
+        mAdapters = mCaldroidFragment.getDatePagerAdapters();
+        mSelectedMonth = 1;
+        mSelectedYear = 1;
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         //Save state
-        if (caldroidFragment != null) {
-            caldroidFragment.saveStatesToKey(outState, "CALDROID_SAVED_STATE");
+        if (mCaldroidFragment != null) {
+            mCaldroidFragment.saveStatesToKey(outState, "CALDROID_SAVED_STATE");
         }
         //Save selected date
-        if (currentSelectedDate != null) {
-            outState.putLong("selected_Date", currentSelectedDate.getTime());
+        if (mCurrentSelectedDate != null) {
+            outState.putLong("selected_Date", mCurrentSelectedDate.getTime());
         }
     }
 
@@ -133,39 +131,39 @@ public class CalendarFragment extends android.support.v4.app.Fragment {
         //Display key pop-up
         LayoutInflater layoutInflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final View popupView = layoutInflater.inflate(R.layout.popup_calendar_key, null);
-        keyPopup = new PopupWindow(
+        mKeyPopup = new PopupWindow(
                 popupView,
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
-        keyPopup.setBackgroundDrawable(new BitmapDrawable());
-        keyPopup.setOutsideTouchable(true);
-        keyPopup.setOnDismissListener(new PopupWindow.OnDismissListener() {
+        mKeyPopup.setBackgroundDrawable(new BitmapDrawable());
+        mKeyPopup.setOutsideTouchable(true);
+        mKeyPopup.setOnDismissListener(new PopupWindow.OnDismissListener() {
             @Override
             public void onDismiss() {
                 //Nothing, just close
             }
         });
-        keyPopup.showAsDropDown(v, 35, -435);
+        mKeyPopup.showAsDropDown(v, 35, -435);
     }
 
     public void highlightDateCell(Date newDateToHighlight) {
         //If previous date selected, revert its text color to black
-        if (currentSelectedDate != null && currentSelectedDate != newDateToHighlight) {
-            caldroidFragment.setTextColorForDate(R.color.caldroid_black, currentSelectedDate);
-            if (currentSelectedDate.equals(today)) {
-                caldroidFragment.setBackgroundDrawableForDate(getResources().getDrawable(R.drawable.red_border), currentSelectedDate);
+        if (mCurrentSelectedDate != null && mCurrentSelectedDate != newDateToHighlight) {
+            mCaldroidFragment.setTextColorForDate(R.color.caldroid_black, mCurrentSelectedDate);
+            if (mCurrentSelectedDate.equals(mToday)) {
+                mCaldroidFragment.setBackgroundDrawableForDate(getResources().getDrawable(R.drawable.red_border), mCurrentSelectedDate);
             } else {
-                caldroidFragment.setBackgroundDrawableForDate(getResources().getDrawable(R.drawable.cell_bg), currentSelectedDate);
+                mCaldroidFragment.setBackgroundDrawableForDate(getResources().getDrawable(R.drawable.cell_bg), mCurrentSelectedDate);
             }
         }
         //Set selected dates text color to red
-        caldroidFragment.setBackgroundDrawableForDate(getResources().getDrawable(R.drawable.calendar_blue_border), newDateToHighlight);
-        currentSelectedDate = newDateToHighlight;
+        mCaldroidFragment.setBackgroundDrawableForDate(getResources().getDrawable(R.drawable.calendar_blue_border), newDateToHighlight);
+        mCurrentSelectedDate = newDateToHighlight;
     }
 
     private void setUpCalendarKeyListener() {
         //Calendar key button listener
-        calendarKeyBtn.setOnClickListener(new View.OnClickListener() {
+        mCalendarKeyBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 showCalendarKeyPopup(view);
@@ -176,24 +174,24 @@ public class CalendarFragment extends android.support.v4.app.Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        DateTime startRange = new DateTime(selectedYear, selectedMonth, 1, 0, 0);
-        DateTime endRange = new DateTime(selectedYear, selectedMonth, 28, 0, 0);
+        DateTime startRange = new DateTime(mSelectedYear, mSelectedMonth, 1, 0, 0);
+        DateTime endRange = new DateTime(mSelectedYear, mSelectedMonth, 28, 0, 0);
         startRange = startRange.minusDays(14);
         endRange = endRange.plusDays(14);
-        expenseDatesHM = databaseHandler.getExpensesHMForCalendar(startRange, endRange, MainActivity.user);
-        incomeDatesHM = databaseHandler.getIncomeHMForCalendar(startRange, endRange, MainActivity.user);
-        leaseEndDatesHM = databaseHandler.getLeaseEndHMForCalendar(startRange, endRange, MainActivity.user);
-        leaseStartDatesHM = databaseHandler.getLeaseStartHMForCalendar(startRange, endRange, MainActivity.user);
-        caldroidFragment.setEventIcons(leaseStartDatesHM, leaseEndDatesHM, expenseDatesHM, incomeDatesHM);
-        for(int i = 0; i < adapters.size(); i++){
-            CustomCalendarAdapter c = (CustomCalendarAdapter) adapters.get(i);
-            c.updateDateData(leaseStartDatesHM, leaseEndDatesHM, expenseDatesHM, incomeDatesHM);
+        mExpenseDatesHM = mDatabaseHandler.getExpensesHMForCalendar(startRange, endRange, MainActivity.sUser);
+        mIncomeDatesHM = mDatabaseHandler.getIncomeHMForCalendar(startRange, endRange, MainActivity.sUser);
+        mLeaseEndDatesHM = mDatabaseHandler.getLeaseEndHMForCalendar(startRange, endRange, MainActivity.sUser);
+        mLeaseStartDatesHM = mDatabaseHandler.getLeaseStartHMForCalendar(startRange, endRange, MainActivity.sUser);
+        mCaldroidFragment.setEventIcons(mLeaseStartDatesHM, mLeaseEndDatesHM, mExpenseDatesHM, mIncomeDatesHM);
+        for(int i = 0; i < mAdapters.size(); i++){
+            CustomCalendarAdapter c = (CustomCalendarAdapter) mAdapters.get(i);
+            c.updateDateData(mLeaseStartDatesHM, mLeaseEndDatesHM, mExpenseDatesHM, mIncomeDatesHM);
         }
     }
 
     private void setUpCaldroidListener() {
         //Caldroid listener()
-        caldroidFragment.setCaldroidListener(new CaldroidListener() {
+        mCaldroidFragment.setCaldroidListener(new CaldroidListener() {
 
             @Override
             public void onSelectDate(Date date, View view) {
@@ -205,20 +203,20 @@ public class CalendarFragment extends android.support.v4.app.Fragment {
 
             @Override
             public void onChangeMonth(int month, int year) {
-                selectedYear = year;
-                selectedMonth = month;
+                mSelectedYear = year;
+                mSelectedMonth = month;
                 DateTime startRange = new DateTime(year, month, 1, 0, 0);
                 DateTime endRange = new DateTime(year, month, 28, 0, 0);
                 startRange = startRange.minusDays(14);
                 endRange = endRange.plusDays(14);
-                expenseDatesHM = databaseHandler.getExpensesHMForCalendar(startRange, endRange, MainActivity.user);
-                incomeDatesHM = databaseHandler.getIncomeHMForCalendar(startRange, endRange, MainActivity.user);
-                leaseEndDatesHM = databaseHandler.getLeaseEndHMForCalendar(startRange, endRange, MainActivity.user);
-                leaseStartDatesHM = databaseHandler.getLeaseStartHMForCalendar(startRange, endRange, MainActivity.user);
-                caldroidFragment.setEventIcons(leaseStartDatesHM, leaseEndDatesHM, expenseDatesHM, incomeDatesHM);
-                for(int i = 0; i < adapters.size(); i++){
-                    CustomCalendarAdapter c = (CustomCalendarAdapter) adapters.get(i);
-                    c.updateDateData(leaseStartDatesHM, leaseEndDatesHM, expenseDatesHM, incomeDatesHM);
+                mExpenseDatesHM = mDatabaseHandler.getExpensesHMForCalendar(startRange, endRange, MainActivity.sUser);
+                mIncomeDatesHM = mDatabaseHandler.getIncomeHMForCalendar(startRange, endRange, MainActivity.sUser);
+                mLeaseEndDatesHM = mDatabaseHandler.getLeaseEndHMForCalendar(startRange, endRange, MainActivity.sUser);
+                mLeaseStartDatesHM = mDatabaseHandler.getLeaseStartHMForCalendar(startRange, endRange, MainActivity.sUser);
+                mCaldroidFragment.setEventIcons(mLeaseStartDatesHM, mLeaseEndDatesHM, mExpenseDatesHM, mIncomeDatesHM);
+                for(int i = 0; i < mAdapters.size(); i++){
+                    CustomCalendarAdapter c = (CustomCalendarAdapter) mAdapters.get(i);
+                    c.updateDateData(mLeaseStartDatesHM, mLeaseEndDatesHM, mExpenseDatesHM, mIncomeDatesHM);
                 }
             }
 
@@ -235,10 +233,10 @@ public class CalendarFragment extends android.support.v4.app.Fragment {
     }
 
     private void setUpFindDateBtnListener() {
-        findDateBtn.setOnClickListener(new View.OnClickListener() {
+        mFindDateBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                datePickerDialogLauncher.launchSingleDatePickerDialog();
+                mDatePickerDialogLauncher.launchSingleDatePickerDialog();
             }
         });
     }
@@ -246,19 +244,19 @@ public class CalendarFragment extends android.support.v4.app.Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        datePickerDialogLauncher.dismissDatePickerDialog();
-        if(keyPopup != null){
-            keyPopup.dismiss();
+        mDatePickerDialogLauncher.dismissDatePickerDialog();
+        if(mKeyPopup != null){
+            mKeyPopup.dismiss();
         }
     }
 
     private void setUpGoToTodayBtnListener(){
-        goToTodayBtn.setOnClickListener(new View.OnClickListener() {
+        mGoToTodayBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                highlightDateCell(today);
-                caldroidFragment.moveToDate(today);
-                caldroidFragment.refreshView();
+                highlightDateCell(mToday);
+                mCaldroidFragment.moveToDate(mToday);
+                mCaldroidFragment.refreshView();
             }
         });
     }

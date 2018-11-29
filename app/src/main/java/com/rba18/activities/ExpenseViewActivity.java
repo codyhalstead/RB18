@@ -27,11 +27,8 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.rba18.BuildConfig;
 import com.rba18.R;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
 import com.rba18.helpers.AppFileManagementHelper;
 import com.rba18.helpers.DateAndCurrencyDisplayer;
-import com.rba18.helpers.MainArrayDataMethods;
 import com.rba18.model.Apartment;
 import com.rba18.model.ExpenseLogEntry;
 import com.rba18.model.Lease;
@@ -45,86 +42,84 @@ import java.io.File;
  */
 
 public class ExpenseViewActivity extends BaseActivity {
-    ExpenseLogEntry expense;
-    TextView dateTV, amountTV, typeTV, descriptionTV, relatedLeaseTV, relatedTenantTV, relatedApartmentAddressTV,
-    statusTV;
-    LinearLayout adViewLL;
-    ImageView receiptPicIV;
-    DatabaseHandler databaseHandler;
-    String receiptPic;
-    MainArrayDataMethods dataMethods;
-    Boolean wasEdited;
-    private String cameraImageFilePath = "";
-    private AlertDialog dialog;
-    AdView adView;
+    private ExpenseLogEntry mExpense;
+    private TextView mDateTV, mAmountTV, mTypeTV, mDescriptionTV, mRelatedLeaseTV, mRelatedTenantTV, mRelatedApartmentAddressTV,
+    mStatusTV;
+    private ImageView mReceiptPicIV;
+    private DatabaseHandler mDatabaseHandler;
+    private String mReceiptPic;
+    private Boolean mWasEdited;
+    private String mCameraImageFilePath = "";
+    private AlertDialog mDialog;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setupUserAppTheme(MainActivity.curThemeChoice);
+        setupUserAppTheme(MainActivity.sCurThemeChoice);
         setContentView(R.layout.activity_expense_view);
-        this.databaseHandler = new DatabaseHandler(this);
-        dataMethods = new MainArrayDataMethods();
+        mDatabaseHandler = new DatabaseHandler(this);
         //if recreated
         if (savedInstanceState != null) {
-            if (savedInstanceState.getParcelable("expense") != null) {
-                this.expense = savedInstanceState.getParcelable("expense");
-                this.receiptPic = expense.getReceiptPic();
+            if (savedInstanceState.getParcelable("mExpense") != null) {
+                mExpense = savedInstanceState.getParcelable("mExpense");
+                mReceiptPic = mExpense.getReceiptPic();
             }
-            wasEdited = savedInstanceState.getBoolean("was_edited");
-            cameraImageFilePath = savedInstanceState.getString("camera_image_file_path");
+            mWasEdited = savedInstanceState.getBoolean("was_edited");
+            mCameraImageFilePath = savedInstanceState.getString("camera_image_file_path");
         } else {
             //If new
             Bundle bundle = getIntent().getExtras();
-            wasEdited = false;
+            mWasEdited = false;
             //Get apartment item
             int expenseID = bundle.getInt("expenseID");
-            this.expense = databaseHandler.getExpenseLogEntryByID(expenseID, MainActivity.user);
-            if (expense.getReceiptPic() != null) {
-                this.receiptPic = expense.getReceiptPic();
+            mExpense = mDatabaseHandler.getExpenseLogEntryByID(expenseID, MainActivity.sUser);
+            if (mExpense.getReceiptPic() != null) {
+                mReceiptPic = mExpense.getReceiptPic();
             }
         }
-        this.dateTV = findViewById(R.id.expenseViewDateTV);
-        this.amountTV = findViewById(R.id.expenseViewAmountTV);
-        this.typeTV = findViewById(R.id.expenseViewTypeTV);
-        this.descriptionTV = findViewById(R.id.expenseViewDescriptionTV);
-        this.receiptPicIV = findViewById(R.id.expenseViewReceiptPicIV);
-        this.relatedLeaseTV = findViewById(R.id.expenseViewRelatedLeaseTV);
-        this.relatedTenantTV = findViewById(R.id.expenseViewRelatedTenantTV);
-        this.relatedApartmentAddressTV = findViewById(R.id.expenseViewRelatedApartmentAddressTV);
-        this.statusTV = findViewById(R.id.expenseViewStatusTV);
-        this.adViewLL = findViewById(R.id.adViewLL);
+        mDateTV = findViewById(R.id.expenseViewDateTV);
+        mAmountTV = findViewById(R.id.expenseViewAmountTV);
+        mTypeTV = findViewById(R.id.expenseViewTypeTV);
+        mDescriptionTV = findViewById(R.id.expenseViewDescriptionTV);
+        mReceiptPicIV = findViewById(R.id.expenseViewReceiptPicIV);
+        mRelatedLeaseTV = findViewById(R.id.expenseViewRelatedLeaseTV);
+        mRelatedTenantTV = findViewById(R.id.expenseViewRelatedTenantTV);
+        mRelatedApartmentAddressTV = findViewById(R.id.expenseViewRelatedApartmentAddressTV);
+        mStatusTV = findViewById(R.id.expenseViewStatusTV);
+        LinearLayout adViewLL = findViewById(R.id.adViewLL);
         if (BuildConfig.FLAVOR.equals("free")) {
-            adView = findViewById(R.id.adView);
-            AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
-            adView.loadAd(adRequest);
+            //TODO enable for release
+            //AdView adView = findViewById(R.id.adView);
+            //AdRequest adRequest = new AdRequest.Builder().build();
+            //adView.loadAd(adRequest);
         } else {
             adViewLL.setVisibility(View.GONE);
         }
         fillTextViews();
         setupBasicToolbar();
-        this.setTitle(R.string.expense_view);
-        if (wasEdited) {
+        addToolbarBackButton();
+        setTitle(R.string.expense_view);
+        if (mWasEdited) {
             setResult(MainActivity.RESULT_DATA_WAS_MODIFIED);
         } else {
             setResult(RESULT_OK);
         }
-        receiptPicIV.setOnClickListener(new View.OnClickListener() {
+        mReceiptPicIV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (receiptPic != null) {
-                    if (new File(receiptPic).exists()) {
+                if (mReceiptPic != null) {
+                    if (new File(mReceiptPic).exists()) {
                         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
                             Intent intent = new Intent();
                             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                             intent.setAction(Intent.ACTION_VIEW);
-                            intent.setDataAndType(Uri.fromFile(new File(receiptPic)), "image/*");
+                            intent.setDataAndType(Uri.fromFile(new File(mReceiptPic)), "image/*");
                             startActivity(intent);
                         } else {
                             Intent intent = new Intent();
                             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                             intent.setAction(Intent.ACTION_VIEW);
-                            Uri photoUri = FileProvider.getUriForFile(ExpenseViewActivity.this, BuildConfig.APPLICATION_ID + ".helpers.fileprovider", new File(receiptPic));
+                            Uri photoUri = FileProvider.getUriForFile(ExpenseViewActivity.this, BuildConfig.APPLICATION_ID + ".helpers.fileprovider", new File(mReceiptPic));
                             intent.setData(photoUri);
                             startActivity(intent);
                         }
@@ -134,10 +129,10 @@ public class ExpenseViewActivity extends BaseActivity {
                 }
             }
         });
-        receiptPicIV.setOnLongClickListener(new View.OnLongClickListener() {
+        mReceiptPicIV.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                if (receiptPic != null) {
+                if (mReceiptPic != null) {
                     PopupMenu popup = new PopupMenu(ExpenseViewActivity.this, view);
                     MenuInflater inflater = popup.getMenuInflater();
                     popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
@@ -192,20 +187,20 @@ public class ExpenseViewActivity extends BaseActivity {
     private void fillTextViews() {
         int dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
         int moneyFormatCode = preferences.getInt("currency", DateAndCurrencyDisplayer.CURRENCY_US);
-        dateTV.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, expense.getDate()));
-        amountTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, expense.getAmount()));
-        typeTV.setText(expense.getTypeLabel());
-        if(expense.getIsCompleted()){
-            statusTV.setText(R.string.paid);
+        mDateTV.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, mExpense.getDate()));
+        mAmountTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, mExpense.getAmount()));
+        mTypeTV.setText(mExpense.getTypeLabel());
+        if(mExpense.getIsCompleted()){
+            mStatusTV.setText(R.string.paid);
         } else {
-            statusTV.setText(R.string.not_paid);
+            mStatusTV.setText(R.string.not_paid);
         }
-        descriptionTV.setText(expense.getDescription());
-        if (receiptPic != null) {
-            Glide.with(this).load(receiptPic).placeholder(R.drawable.no_picture)
-                    .override(200, 200).centerCrop().into(receiptPicIV);
+        mDescriptionTV.setText(mExpense.getDescription());
+        if (mReceiptPic != null) {
+            Glide.with(this).load(mReceiptPic).placeholder(R.drawable.no_picture)
+                    .override(200, 200).centerCrop().into(mReceiptPicIV);
         } else {
-            Glide.with(this).load(R.drawable.no_picture).override(200, 200).centerCrop().into(receiptPicIV);
+            Glide.with(this).load(R.drawable.no_picture).override(200, 200).centerCrop().into(mReceiptPicIV);
         }
         setUpRelatedInfoSection();
     }
@@ -223,8 +218,8 @@ public class ExpenseViewActivity extends BaseActivity {
         switch (item.getItemId()) {
             case R.id.editExpense:
                 Intent intent = new Intent(this, NewExpenseWizard.class);
-                intent.putExtra("expenseToEdit", expense);
-                wasEdited = true;
+                intent.putExtra("expenseToEdit", mExpense);
+                mWasEdited = true;
                 setResult(MainActivity.RESULT_DATA_WAS_MODIFIED);
                 startActivityForResult(intent, MainActivity.REQUEST_NEW_EXPENSE_FORM);
                 return true;
@@ -237,14 +232,14 @@ public class ExpenseViewActivity extends BaseActivity {
                 launchCameraOrGalleryDialog();
 
             case R.id.changeStatus:
-                if(expense.getIsCompleted()){
-                    expense.setIsCompleted(false);
+                if(mExpense.getIsCompleted()){
+                    mExpense.setIsCompleted(false);
                 } else {
-                    expense.setIsCompleted(true);
+                    mExpense.setIsCompleted(true);
                 }
-                databaseHandler.editExpenseLogEntry(expense);
+                mDatabaseHandler.editExpenseLogEntry(mExpense);
                 fillTextViews();
-                wasEdited = true;
+                mWasEdited = true;
                 setResult(MainActivity.RESULT_DATA_WAS_MODIFIED);
 
             default:
@@ -276,15 +271,15 @@ public class ExpenseViewActivity extends BaseActivity {
                         );
                     }
                 });
-        dialog = builder.create();
-        dialog.show();
+        mDialog = builder.create();
+        mDialog.show();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        if(dialog != null){
-            dialog.dismiss();
+        if(mDialog != null){
+            mDialog.dismiss();
         }
     }
 
@@ -301,20 +296,20 @@ public class ExpenseViewActivity extends BaseActivity {
             return;
         } else if (requestCode == MainActivity.REQUEST_IMAGE_DELETE_PERMISSION) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                databaseHandler.removeExpenseLogReceiptPic(expense);
-                Glide.with(ExpenseViewActivity.this).load(R.drawable.no_picture).override(200, 200).centerCrop().into(receiptPicIV);
-                new File(receiptPic).delete();
-                receiptPic = null;
-                expense.setReceiptPic(null);
+                mDatabaseHandler.removeExpenseLogReceiptPic(mExpense);
+                Glide.with(ExpenseViewActivity.this).load(R.drawable.no_picture).override(200, 200).centerCrop().into(mReceiptPicIV);
+                new File(mReceiptPic).delete();
+                mReceiptPic = null;
+                mExpense.setReceiptPic(null);
             } else {
                 Toast.makeText(this, R.string.permission_picture_denied, Toast.LENGTH_SHORT).show();
             }
             return;
         } else if (requestCode == MainActivity.REQUEST_CAMERA_FOR_MAIN_PIC) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) { ;
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Intent pictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 File photoFile = AppFileManagementHelper.createImageFileFromCamera();
-                cameraImageFilePath = photoFile.getAbsolutePath();
+                mCameraImageFilePath = photoFile.getAbsolutePath();
                 Uri photoUri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".helpers.fileprovider", photoFile);
                 pictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
                 startActivityForResult(pictureIntent, MainActivity.REQUEST_CAMERA_FOR_MAIN_PIC);
@@ -335,12 +330,12 @@ public class ExpenseViewActivity extends BaseActivity {
         builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                if (expense.getReceiptPic() != null) {
-                    if (!expense.getReceiptPic().equals("")) {
-                        new File(expense.getReceiptPic()).delete();
+                if (mExpense.getReceiptPic() != null) {
+                    if (!mExpense.getReceiptPic().equals("")) {
+                        new File(mExpense.getReceiptPic()).delete();
                     }
                 }
-                databaseHandler.setExpenseInactive(expense);
+                mDatabaseHandler.setExpenseInactive(mExpense);
                 setResult(MainActivity.RESULT_DATA_WAS_MODIFIED);
                 ExpenseViewActivity.this.finish();
             }
@@ -352,9 +347,9 @@ public class ExpenseViewActivity extends BaseActivity {
             }
         });
 
-        // create and show the alert dialog
-        dialog = builder.create();
-        dialog.show();
+        // create and show the alert mDialog
+        mDialog = builder.create();
+        mDialog.show();
     }
 
     @Override
@@ -364,7 +359,7 @@ public class ExpenseViewActivity extends BaseActivity {
             //If successful(not cancelled, passed validation)
             if (resultCode == RESULT_OK) {
                 int expenseID = data.getIntExtra("editedExpenseID", 0);
-                this.expense = databaseHandler.getExpenseLogEntryByID(expenseID, MainActivity.user);
+                mExpense = mDatabaseHandler.getExpenseLogEntryByID(expenseID, MainActivity.sUser);
                 fillTextViews();
             }
         } else if (requestCode == MainActivity.REQUEST_GALLERY_FOR_MAIN_PIC) {
@@ -378,30 +373,30 @@ public class ExpenseViewActivity extends BaseActivity {
                 String filePath = cursor.getString(columnIndex);
                 cursor.close();
                 String oldPic = null;
-                if (this.expense.getReceiptPic() != null) {
-                    oldPic = this.expense.getReceiptPic();
+                if (mExpense.getReceiptPic() != null) {
+                    oldPic = mExpense.getReceiptPic();
                 }
                 File copiedFile = AppFileManagementHelper.copyPictureFileToApp(filePath, oldPic);
                 if (copiedFile != null) {
-                    expense.setReceiptPic(copiedFile.getAbsolutePath());
-                    databaseHandler.changeExpenseLogReceiptPic(this.expense);
-                    updateMainPicIV(expense.getReceiptPic());
+                    mExpense.setReceiptPic(copiedFile.getAbsolutePath());
+                    mDatabaseHandler.changeExpenseLogReceiptPic(mExpense);
+                    updateMainPicIV(mExpense.getReceiptPic());
                 } else {
                     Toast.makeText(ExpenseViewActivity.this, R.string.failed_to_save_image, Toast.LENGTH_LONG).show();
                 }
             }
         } else if (requestCode == MainActivity.REQUEST_CAMERA_FOR_MAIN_PIC) {
             if (resultCode == RESULT_OK) {
-                if (expense.getReceiptPic() != null) {
-                    String oldPicPath = expense.getReceiptPic();
+                if (mExpense.getReceiptPic() != null) {
+                    String oldPicPath = mExpense.getReceiptPic();
                     File oldPic = new File(oldPicPath);
                     if (oldPic.exists()) {
                         oldPic.delete();
                     }
                 }
-                expense.setReceiptPic(cameraImageFilePath);
-                databaseHandler.changeExpenseLogReceiptPic(expense);
-                updateMainPicIV(expense.getReceiptPic());
+                mExpense.setReceiptPic(mCameraImageFilePath);
+                mDatabaseHandler.changeExpenseLogReceiptPic(mExpense);
+                updateMainPicIV(mExpense.getReceiptPic());
             }
         }
     }
@@ -410,37 +405,37 @@ public class ExpenseViewActivity extends BaseActivity {
     protected void onSaveInstanceState(Bundle outState) {
         //Save the fragment's instance
         super.onSaveInstanceState(outState);
-        outState.putParcelable("expense", expense);
-        outState.putBoolean("was_edited", wasEdited);
-        outState.putString("camera_image_file_path", cameraImageFilePath);
+        outState.putParcelable("mExpense", mExpense);
+        outState.putBoolean("was_edited", mWasEdited);
+        outState.putString("camera_image_file_path", mCameraImageFilePath);
     }
 
     private void setUpRelatedInfoSection() {
         int dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
-        Apartment relatedApartment = databaseHandler.getApartmentByID(expense.getApartmentID(), MainActivity.user);
-        Tenant relatedTenant = databaseHandler.getTenantByID(expense.getTenantID(), MainActivity.user);
-        Lease relatedLease = databaseHandler.getLeaseByID(MainActivity.user, expense.getLeaseID());
+        Apartment relatedApartment = mDatabaseHandler.getApartmentByID(mExpense.getApartmentID(), MainActivity.sUser);
+        Tenant relatedTenant = mDatabaseHandler.getTenantByID(mExpense.getTenantID(), MainActivity.sUser);
+        Lease relatedLease = mDatabaseHandler.getLeaseByID(MainActivity.sUser, mExpense.getLeaseID());
         if (relatedApartment != null) {
-            relatedApartmentAddressTV.setText(relatedApartment.getFullAddressString());
+            mRelatedApartmentAddressTV.setText(relatedApartment.getFullAddressString());
         } else {
-            relatedApartmentAddressTV.setText(R.string.na);
+            mRelatedApartmentAddressTV.setText(R.string.na);
         }
         if (relatedTenant != null) {
-            relatedTenantTV.setText(relatedTenant.getFirstAndLastNameString());
+            mRelatedTenantTV.setText(relatedTenant.getFirstAndLastNameString());
         } else {
-            relatedTenantTV.setText(R.string.na);
+            mRelatedTenantTV.setText(R.string.na);
         }
         if (relatedLease != null) {
-            relatedLeaseTV.setText(relatedLease.getStartAndEndDatesString(dateFormatCode));
+            mRelatedLeaseTV.setText(relatedLease.getStartAndEndDatesString(dateFormatCode));
         } else {
-            relatedLeaseTV.setText(R.string.na);
+            mRelatedLeaseTV.setText(R.string.na);
         }
     }
 
     public void updateMainPicIV(String picFileName) {
         Glide.with(this).load(picFileName).placeholder(R.drawable.no_picture)
-                .override(200, 200).centerCrop().into(receiptPicIV);
-        this.receiptPic = picFileName;
+                .override(200, 200).centerCrop().into(mReceiptPicIV);
+        mReceiptPic = picFileName;
 
     }
 }

@@ -10,21 +10,21 @@ import java.util.Date;
  */
 
 public class PaymentLogEntry extends MoneyLogEntry{
-    private int typeID;
-    private String typeLabel;
-    private int tenantID;
-    private int leaseID;
-    private int apartmentID;
-    private String receiptPic;
+    private int mTypeID;
+    private String mTypeLabel;
+    private int mTenantID;
+    private int mLeaseID;
+    private int mApartmentID;
+    private String mReceiptPic;
 
     public PaymentLogEntry(int id, Date paymentDate, int typeID, String typeLabel, int tenantID, int leaseID, int apartmentID, BigDecimal amount, String description, String receiptPic, boolean isReceived){
         super(id, paymentDate, amount, description, isReceived);
-        this.typeID = typeID;
-        this.typeLabel = typeLabel;
-        this.tenantID = tenantID;
-        this.leaseID = leaseID;
-        this.apartmentID = apartmentID;
-        this.receiptPic = receiptPic;
+        mTypeID = typeID;
+        mTypeLabel = typeLabel;
+        mTenantID = tenantID;
+        mLeaseID = leaseID;
+        mApartmentID = apartmentID;
+        mReceiptPic = receiptPic;
     }
 
     @Override
@@ -35,14 +35,14 @@ public class PaymentLogEntry extends MoneyLogEntry{
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         super.writeToParcel(parcel, i);
-        parcel.writeInt(this.typeID);
-        parcel.writeString(this.typeLabel);
-        parcel.writeInt(this.tenantID);
-        parcel.writeInt(this.leaseID);
-        parcel.writeInt(this.apartmentID);
-        if (this.receiptPic != null) {
+        parcel.writeInt(mTypeID);
+        parcel.writeString(mTypeLabel);
+        parcel.writeInt(mTenantID);
+        parcel.writeInt(mLeaseID);
+        parcel.writeInt(mApartmentID);
+        if (mReceiptPic != null) {
             parcel.writeInt(1);
-            parcel.writeString(this.receiptPic);
+            parcel.writeString(mReceiptPic);
         } else {
             parcel.writeInt(-1);
         }
@@ -50,16 +50,16 @@ public class PaymentLogEntry extends MoneyLogEntry{
 
     protected PaymentLogEntry(Parcel in) {
         super(in);
-        this.typeID = in.readInt();
-        this.typeLabel = in.readString();
-        this.tenantID = in.readInt();
-        this.leaseID = in.readInt();
-        this.apartmentID = in.readInt();
+        mTypeID = in.readInt();
+        mTypeLabel = in.readString();
+        mTenantID = in.readInt();
+        mLeaseID = in.readInt();
+        mApartmentID = in.readInt();
         int size = in.readInt();
         if(size > -1){
-            this.receiptPic = in.readString();
+            mReceiptPic = in.readString();
         } else {
-            this.receiptPic = null;
+            mReceiptPic = null;
         }
     }
 
@@ -76,50 +76,50 @@ public class PaymentLogEntry extends MoneyLogEntry{
     };
 
     public int getTypeID() {
-        return typeID;
+        return mTypeID;
     }
 
     public void setTypeID(int typeID) {
-        this.typeID = typeID;
+        mTypeID = typeID;
     }
 
     public int getTenantID() {
-        return tenantID;
+        return mTenantID;
     }
 
     public void setTenantID(int tenantID) {
-        this.tenantID = tenantID;
+        mTenantID = tenantID;
     }
 
     public String getTypeLabel() {
-        return typeLabel;
+        return mTypeLabel;
     }
 
     public void setTypeLabel(String typeLabel) {
-        this.typeLabel = typeLabel;
+        mTypeLabel = typeLabel;
     }
 
     public int getLeaseID() {
-        return leaseID;
+        return mLeaseID;
     }
 
     public void setLeaseID(int leaseID) {
-        this.leaseID = leaseID;
+        mLeaseID = leaseID;
     }
 
     public String getReceiptPic() {
-        return receiptPic;
+        return mReceiptPic;
     }
 
     public void setReceiptPic(String receiptPic) {
-        this.receiptPic = receiptPic;
+        mReceiptPic = receiptPic;
     }
 
     public int getApartmentID() {
-        return apartmentID;
+        return mApartmentID;
     }
 
     public void setApartmentID(int apartmentID) {
-        this.apartmentID = apartmentID;
+        mApartmentID = apartmentID;
     }
 }

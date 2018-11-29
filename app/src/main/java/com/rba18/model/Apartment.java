@@ -10,33 +10,33 @@ import java.util.ArrayList;
  */
 
 public class Apartment implements Parcelable {
-    private int id;
-    private String street1;
-    private String street2;
-    private String city;
-    private String state;
-    private String zip;
-    private String description;
-    private boolean isRented;
-    private String notes;
-    private String mainPic;
-    private ArrayList<String> otherPics;
-    private boolean isActive;
+    private int mID;
+    private String mStreet1;
+    private String mStreet2;
+    private String mCity;
+    private String mState;
+    private String mZIP;
+    private String mDescription;
+    private boolean mIsRented;
+    private String mNotes;
+    private String mMainPic;
+    private ArrayList<String> mOtherPics;
+    private boolean mIsActive;
 
     public Apartment(int id, String street1, String street2, String city, String state, String zip,
                      String description, Boolean isRented, String notes, String mainPic, ArrayList<String> otherPics, boolean isActive) {
-        this.id = id;
-        this.street1 = street1;
-        this.street2 = street2;
-        this.city = city;
-        this.state = state;
-        this.zip = zip;
-        this.description = description;
-        this.isRented = isRented;
-        this.notes = notes;
-        this.mainPic = mainPic;
-        this.otherPics = otherPics;
-        this.isActive = isActive;
+        mID = id;
+        mStreet1 = street1;
+        mStreet2 = street2;
+        mCity = city;
+        mState = state;
+        mZIP = zip;
+        mDescription = description;
+        mIsRented = isRented;
+        mNotes = notes;
+        mMainPic = mainPic;
+        mOtherPics = otherPics;
+        mIsActive = isActive;
     }
 
     @Override
@@ -46,53 +46,53 @@ public class Apartment implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeInt(this.id);
-        parcel.writeString(this.street1);
-        parcel.writeString(this.street2);
-        parcel.writeString(this.city);
-        parcel.writeString(this.state);
-        parcel.writeString(this.zip);
-        parcel.writeString(this.description);
-        parcel.writeByte((byte) (isRented? 1 : 0));
-        parcel.writeString(this.notes);
-        if (this.mainPic != null) {
+        parcel.writeInt(mID);
+        parcel.writeString(mStreet1);
+        parcel.writeString(mStreet2);
+        parcel.writeString(mCity);
+        parcel.writeString(mState);
+        parcel.writeString(mZIP);
+        parcel.writeString(mDescription);
+        parcel.writeByte((byte) (mIsRented ? 1 : 0));
+        parcel.writeString(mNotes);
+        if (mMainPic != null) {
             parcel.writeInt(1);
-            parcel.writeString(this.mainPic);
+            parcel.writeString(mMainPic);
         } else {
             parcel.writeInt(-1);
         }
-        if (this.otherPics != null) {
-            parcel.writeInt(this.otherPics.size());
-            parcel.writeList(this.otherPics);
+        if (mOtherPics != null) {
+            parcel.writeInt(mOtherPics.size());
+            parcel.writeList(mOtherPics);
         } else {
             parcel.writeInt(-1);
         }
-        parcel.writeByte((byte) (isActive? 1 : 0));
+        parcel.writeByte((byte) (mIsActive ? 1 : 0));
     }
 
     private Apartment(Parcel in) {
-        this.id = in.readInt();
-        this.street1 = in.readString();
-        this.street2 = in.readString();
-        this.city = in.readString();
-        this.state = in.readString();
-        this.zip = in.readString();
-        this.description = in.readString();
-        this.isRented = in.readByte() != 0;
-        this.notes = in.readString();
+        mID = in.readInt();
+        mStreet1 = in.readString();
+        mStreet2 = in.readString();
+        mCity = in.readString();
+        mState = in.readString();
+        mZIP = in.readString();
+        mDescription = in.readString();
+        mIsRented = in.readByte() != 0;
+        mNotes = in.readString();
         int size = in.readInt();
         if(size > -1){
-            this.mainPic = in.readString();
+            mMainPic = in.readString();
         } else {
-            this.mainPic = null;
+            mMainPic = null;
         }
         int size2 = in.readInt();
         if(size2 > -1){
-            this.otherPics = in.readArrayList(null);
+            mOtherPics = in.readArrayList(null);
         } else {
-            this.otherPics = new ArrayList<>();
+            mOtherPics = new ArrayList<>();
         }
-        this.isActive = in.readByte() != 0;
+        mIsActive = in.readByte() != 0;
     }
 
 
@@ -113,133 +113,133 @@ public class Apartment implements Parcelable {
     };
 
     public String getStreet1() {
-        return street1;
+        return mStreet1;
     }
 
     public void setStreet1(String street1) {
-        this.street1 = street1;
+        mStreet1 = street1;
     }
 
     public String getStreet2() {
-        if(street2 != null) {
-            return street2;
+        if(mStreet2 != null) {
+            return mStreet2;
         } else {
             return "";
         }
     }
 
     public void setStreet2(String street2) {
-        this.street2 = street2;
+        mStreet2 = street2;
     }
 
     public String getCity() {
-        return city;
+        return mCity;
     }
 
     public void setCity(String city) {
-        this.city = city;
+        mCity = city;
     }
 
     public String getState() {
-        return state;
+        return mState;
     }
 
     public void setState(String state) {
-        this.state = state;
+        mState = state;
     }
 
     public String getZip() {
-        return zip;
+        return mZIP;
     }
 
     public void setZip(String zip) {
-        this.zip = zip;
+        mZIP = zip;
     }
 
     public int getId() {
-        return id;
+        return mID;
     }
 
     public void setId(int id) {
-        this.id = id;
+        mID = id;
     }
 
     public String getNotes() {
-        return notes;
+        return mNotes;
     }
 
     public void setNotes(String notes) {
-        this.notes = notes;
+        mNotes = notes;
     }
 
     public String getMainPic() {
-        return mainPic;
+        return mMainPic;
     }
 
     public void setMainPic(String mainPic) {
-        this.mainPic = mainPic;
+        mMainPic = mainPic;
     }
 
     public ArrayList<String> getOtherPics() {
-        return otherPics;
+        return mOtherPics;
     }
 
     public void setOtherPics(ArrayList<String> otherPics) {
-        this.otherPics = otherPics;
+        mOtherPics = otherPics;
     }
 
     public String getDescription() {
-        return description;
+        return mDescription;
     }
 
     public void setDescription(String description) {
-        this.description = description;
+        mDescription = description;
     }
 
     public void addOtherPic(String otherPic){
-        this.otherPics.add(otherPic);
+        mOtherPics.add(otherPic);
     }
 
     public boolean isRented() {
-        return isRented;
+        return mIsRented;
     }
 
     public void setRented(boolean rented) {
-        isRented = rented;
+        mIsRented = rented;
     }
 
     public boolean isActive() {
-        return isActive;
+        return mIsActive;
     }
 
     public void setActive(boolean active) {
-        isActive = active;
+        mIsActive = active;
     }
 
     public String getCityStateZipString() {
-        StringBuilder csz = new StringBuilder(city);
+        StringBuilder csz = new StringBuilder(mCity);
         csz.append(", ");
-        csz.append(state);
+        csz.append(mState);
         csz.append(" ");
-        csz.append(zip);
+        csz.append(mZIP);
         return csz.toString();
     }
 
     public String getStreet1AndStreet2String() {
-        StringBuilder s1s2 = new StringBuilder(street1);
-        if(street2 != null) {
+        StringBuilder s1s2 = new StringBuilder(mStreet1);
+        if(mStreet2 != null) {
             s1s2.append(" ");
-            s1s2.append(street2);
+            s1s2.append(mStreet2);
         }
         return s1s2.toString();
     }
 
     public String getFullAddressString(){
-        StringBuilder fa = new StringBuilder(street1);
-        if(street2 != null){
-            if(!street2.equals("")) {
+        StringBuilder fa = new StringBuilder(mStreet1);
+        if(mStreet2 != null){
+            if(!mStreet2.equals("")) {
                 fa.append("\n");
-                fa.append(street2);
+                fa.append(mStreet2);
             }
         }
         fa.append("\n");

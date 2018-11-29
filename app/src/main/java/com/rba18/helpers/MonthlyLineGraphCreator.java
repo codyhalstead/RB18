@@ -20,23 +20,22 @@ import java.util.Date;
 import java.util.List;
 
 public class MonthlyLineGraphCreator {
-    private LineChart lineChart;
-    private Button leftBtn, rightBtn;
-    private TextView yearTV;
-    private Context context;
-    private Date initialYear;
-    private float[] expenseValues;
-    private float[] incomeValues;
-    private LineData lineData;
-    private MonthlyLineGraphCreator.OnButtonsClickedListener onButtonsClickedListener;
+    private LineChart mLineChart;
+    private Button mLeftBtn, mRightBtn;
+    private TextView mYearTV;
+    private Context mContext;
+    private Date mInitialYear;
+    private float[] mExpenseValues, mIncomeValues;
+    private LineData mLineData;
+    private MonthlyLineGraphCreator.OnButtonsClickedListener mOnButtonsClickedListener;
 
     public MonthlyLineGraphCreator(Context context, LineChart lineChart, Button leftBtn, Button rightBtn, TextView yearTV, Date initialYear){
-        this.lineChart = lineChart;
-        this.leftBtn = leftBtn;
-        this.rightBtn = rightBtn;
-        this.yearTV = yearTV;
-        this.context = context;
-        this.initialYear = initialYear;
+        this.mLineChart = lineChart;
+        this.mLeftBtn = leftBtn;
+        this.mRightBtn = rightBtn;
+        this.mYearTV = yearTV;
+        this.mContext = context;
+        this.mInitialYear = initialYear;
         lineChart.setDescription("");
         lineChart.setClickable(false);
         lineChart.setHighlightPerTapEnabled(false);
@@ -49,20 +48,20 @@ public class MonthlyLineGraphCreator {
 
     public void setDateSelectedListener(final OnButtonsClickedListener listener) {
         //Sets color listener
-        this.onButtonsClickedListener = listener;
-        leftBtn.setOnClickListener(new View.OnClickListener() {
+        this.mOnButtonsClickedListener = listener;
+        mLeftBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 listener.onLeftBtnClicked();
             }
         });
-        rightBtn.setOnClickListener(new View.OnClickListener() {
+        mRightBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 listener.onRightBtnClicked();
             }
         });
-        yearTV.setOnClickListener(new View.OnClickListener() {
+        mYearTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 listener.onDateTVClicked();
@@ -78,30 +77,30 @@ public class MonthlyLineGraphCreator {
 
     public void setIncomeExpenseData(float[] monthlyIncomeList, float[] monthlyExpenseList, Date yearChangedTo){
         String year = (String) DateFormat.format("yyyy", yearChangedTo);
-        this.expenseValues = monthlyExpenseList;
-        this.incomeValues = monthlyIncomeList;
-        lineData = new LineData(getXValues(), getLineDataValues());
-        yearTV.setText(year);
-        lineChart.setData(lineData);
-        lineChart.animateY(1000);
+        this.mExpenseValues = monthlyExpenseList;
+        this.mIncomeValues = monthlyIncomeList;
+        mLineData = new LineData(getXValues(), getLineDataValues());
+        mYearTV.setText(year);
+        mLineChart.setData(mLineData);
+        mLineChart.animateY(1000);
     }
 
     private List<ILineDataSet> getLineDataValues() {
         ArrayList<ILineDataSet> lineDataSets;
         ArrayList<Entry> expenseEntries = new ArrayList<>();
         ArrayList<Entry> incomeEntries = new ArrayList<>();
-        for (int i = 0; i < expenseValues.length; i++) {
-            expenseEntries.add(new Entry(expenseValues[i], i));
+        for (int i = 0; i < mExpenseValues.length; i++) {
+            expenseEntries.add(new Entry(mExpenseValues[i], i));
         }
-        for (int i = 0; i < incomeValues.length; i++) {
-            incomeEntries.add(new Entry(incomeValues[i], i));
+        for (int i = 0; i < mIncomeValues.length; i++) {
+            incomeEntries.add(new Entry(mIncomeValues[i], i));
         }
-        LineDataSet incomeLineDataSet = new LineDataSet(incomeEntries, context.getResources().getString(R.string.income));
+        LineDataSet incomeLineDataSet = new LineDataSet(incomeEntries, mContext.getResources().getString(R.string.income));
         incomeLineDataSet.setColor(Color.GREEN);
         incomeLineDataSet.setDrawValues(false);
         incomeLineDataSet.setCircleColor(Color.BLACK);
         incomeLineDataSet.setLineWidth(2);
-        LineDataSet expenseLineDataSet = new LineDataSet(expenseEntries, context.getResources().getString(R.string.expenses));
+        LineDataSet expenseLineDataSet = new LineDataSet(expenseEntries, mContext.getResources().getString(R.string.expenses));
         expenseLineDataSet.setColor(Color.RED);
         expenseLineDataSet.setDrawValues(false);
         expenseLineDataSet.setCircleColor(Color.BLACK);
@@ -114,18 +113,18 @@ public class MonthlyLineGraphCreator {
 
     private List<String> getXValues() {
         ArrayList<String> xValues = new ArrayList<>();
-        xValues.add(context.getResources().getString(R.string.jan));
-        xValues.add(context.getResources().getString(R.string.feb));
-        xValues.add(context.getResources().getString(R.string.mar));
-        xValues.add(context.getResources().getString(R.string.apr));
-        xValues.add(context.getResources().getString(R.string.may));
-        xValues.add(context.getResources().getString(R.string.jun));
-        xValues.add(context.getResources().getString(R.string.jul));
-        xValues.add(context.getResources().getString(R.string.aug));
-        xValues.add(context.getResources().getString(R.string.sep));
-        xValues.add(context.getResources().getString(R.string.oct));
-        xValues.add(context.getResources().getString(R.string.nov));
-        xValues.add(context.getResources().getString(R.string.dec));
+        xValues.add(mContext.getResources().getString(R.string.jan));
+        xValues.add(mContext.getResources().getString(R.string.feb));
+        xValues.add(mContext.getResources().getString(R.string.mar));
+        xValues.add(mContext.getResources().getString(R.string.apr));
+        xValues.add(mContext.getResources().getString(R.string.may));
+        xValues.add(mContext.getResources().getString(R.string.jun));
+        xValues.add(mContext.getResources().getString(R.string.jul));
+        xValues.add(mContext.getResources().getString(R.string.aug));
+        xValues.add(mContext.getResources().getString(R.string.sep));
+        xValues.add(mContext.getResources().getString(R.string.oct));
+        xValues.add(mContext.getResources().getString(R.string.nov));
+        xValues.add(mContext.getResources().getString(R.string.dec));
         return xValues;
     }
 }

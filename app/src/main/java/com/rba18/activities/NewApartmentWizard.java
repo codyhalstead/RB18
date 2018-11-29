@@ -47,26 +47,26 @@ public class NewApartmentWizard extends BaseActivity implements
     private Button mPrevButton;
     private List<Page> mCurrentPageSequence;
     private StepPagerStrip mStepPagerStrip;
-    private DatabaseHandler dbhandler;
-    private MainArrayDataMethods mainArrayDataMethods;
-    public Apartment apartmentToEdit;
-    private AlertDialog alertDialog;
+    private DatabaseHandler mDBHandler;
+    private MainArrayDataMethods mMainArrayDataMethods;
+    private Apartment mApartmentToEdit;
+    private AlertDialog mAlertDialog;
 
     public void onCreate(Bundle savedInstanceState) {
-        setupUserAppTheme(MainActivity.curThemeChoice);
+        setupUserAppTheme(MainActivity.sCurThemeChoice);
         setContentView(R.layout.activity_fragment_wizard);
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            apartmentToEdit = extras.getParcelable("apartmentToEdit");
+            mApartmentToEdit = extras.getParcelable("mApartmentToEdit");
         } else {
-            apartmentToEdit = null;
+            mApartmentToEdit = null;
         }
-        if (apartmentToEdit != null) {
+        if (mApartmentToEdit != null) {
             mWizardModel = new ApartmentEditingWizardModel(this);
-            this.setTitle(R.string.edit_apartment);
+            setTitle(R.string.edit_apartment);
         } else {
             mWizardModel = new ApartmentWizardModel(this);
-            this.setTitle(R.string.new_apartment_creation);
+            setTitle(R.string.new_apartment_creation);
         }
         if (extras != null) {
             mWizardModel.preloadData(extras);
@@ -76,8 +76,8 @@ public class NewApartmentWizard extends BaseActivity implements
             mWizardModel.load(savedInstanceState.getBundle("model"));
         }
         mWizardModel.registerListener(this);
-        dbhandler = new DatabaseHandler(this);
-        mainArrayDataMethods = new MainArrayDataMethods();
+        mDBHandler = new DatabaseHandler(this);
+        mMainArrayDataMethods = new MainArrayDataMethods();
         mPagerAdapter = new NewApartmentWizard.MyPagerAdapter(getSupportFragmentManager());
         mPager = findViewById(R.id.pager);
         mPager.setAdapter(mPagerAdapter);
@@ -123,30 +123,27 @@ public class NewApartmentWizard extends BaseActivity implements
                         mainPic = mWizardModel.findByKey("Page3").getData().getString(ApartmentWizardPage3.APARTMENT_MAIN_PIC_DATA_KEY);
                         otherPics = mWizardModel.findByKey("Page3").getData().getStringArrayList(ApartmentWizardPage3.APARTMENT_OTHER_PICS_DATA_KEY);
                     }
-                    if (apartmentToEdit != null) {
-                        Apartment apartment = mainArrayDataMethods.getCachedApartmentByApartmentID(apartmentToEdit.getId());
+                    if (mApartmentToEdit != null) {
+                        Apartment apartment = mMainArrayDataMethods.getCachedApartmentByApartmentID(mApartmentToEdit.getId());
                         apartment.setStreet1(street1);
                         apartment.setStreet2(street2);
                         apartment.setCity(city);
-                        //apartment.setStateID(stateID);
                         apartment.setState(state);
                         apartment.setZip(zip);
                         apartment.setDescription(description);
                         apartment.setNotes(notes);
-                        //apartment.setMainPic(mainPic);
-                        //apartment.setOtherPics(otherPics);
-                        dbhandler.editApartment(apartment, MainActivity.user.getId());
+                        mDBHandler.editApartment(apartment, MainActivity.sUser.getId());
                         Intent data = new Intent();
-                        data.putExtra("editedApartmentID", apartmentToEdit.getId());
+                        data.putExtra("editedApartmentID", mApartmentToEdit.getId());
                         setResult(RESULT_OK, data);
                     } else {
                         Apartment apartment = new Apartment(-1, street1, street2, city, state, zip, description, false,
                                 notes, mainPic, otherPics, true);
-                        dbhandler.addNewApartment(apartment, MainActivity.user.getId());
-                        MainActivity.apartmentList.add(apartment);
+                        mDBHandler.addNewApartment(apartment, MainActivity.sUser.getId());
+                        MainActivity.sApartmentList.add(apartment);
                         setResult(RESULT_OK);
                     }
-                    mainArrayDataMethods.sortMainApartmentArray();
+                    mMainArrayDataMethods.sortMainApartmentArray();
                     finish();
                 } else {
                     if (mEditingAfterReview) {
@@ -165,6 +162,7 @@ public class NewApartmentWizard extends BaseActivity implements
         });
         mStepPagerStrip.setProgressColors(fetchPrimaryColor(), fetchPrimaryColor(), fetchAccentColor());
         setupBasicToolbar();
+        addToolbarBackButton();
         onPageTreeChanged();
         updateBottomBar();
     }
@@ -181,7 +179,7 @@ public class NewApartmentWizard extends BaseActivity implements
     private void updateBottomBar() {
         int position = mPager.getCurrentItem();
         if (position == mCurrentPageSequence.size()) {
-            if (apartmentToEdit == null) {
+            if (mApartmentToEdit == null) {
                 mNextButton.setText(R.string.create_apartment);
             } else {
                 mNextButton.setText(R.string.save_changes);
@@ -213,7 +211,7 @@ public class NewApartmentWizard extends BaseActivity implements
         builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                if (apartmentToEdit != null) {
+                if (mApartmentToEdit != null) {
                     if (mWizardModel.findByKey("Page3") != null) {
                         String mainPic = mWizardModel.findByKey("Page3").getData().getString(ApartmentWizardPage3.APARTMENT_MAIN_PIC_DATA_KEY);
                         ArrayList<String> otherPics = mWizardModel.findByKey("Page3").getData().getStringArrayList(ApartmentWizardPage3.APARTMENT_OTHER_PICS_DATA_KEY);
@@ -239,15 +237,15 @@ public class NewApartmentWizard extends BaseActivity implements
             }
         });
         // create and show the alert dialog
-        alertDialog = builder.create();
-        alertDialog.show();
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if (alertDialog != null) {
-            alertDialog.dismiss();
+        if (mAlertDialog != null) {
+            mAlertDialog.dismiss();
         }
     }
 
@@ -339,11 +337,11 @@ public class NewApartmentWizard extends BaseActivity implements
         }
     }
 
-    public class MyPagerAdapter extends FragmentStatePagerAdapter {
+    private class MyPagerAdapter extends FragmentStatePagerAdapter {
         private int mCutOffPage;
         private Fragment mPrimaryItem;
 
-        public MyPagerAdapter(FragmentManager fm) {
+        private MyPagerAdapter(FragmentManager fm) {
             super(fm);
         }
 
@@ -380,14 +378,14 @@ public class NewApartmentWizard extends BaseActivity implements
             return Math.min(mCutOffPage + 1, mCurrentPageSequence.size() + 1);
         }
 
-        public void setCutOffPage(int cutOffPage) {
+        private void setCutOffPage(int cutOffPage) {
             if (cutOffPage < 0) {
                 cutOffPage = Integer.MAX_VALUE;
             }
             mCutOffPage = cutOffPage;
         }
 
-        public int getCutOffPage() {
+        private int getCutOffPage() {
             return mCutOffPage;
         }
 

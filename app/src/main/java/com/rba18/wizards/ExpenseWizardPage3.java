@@ -24,11 +24,11 @@ public class ExpenseWizardPage3 extends Page {
     public static final String EXPENSE_RELATED_LEASE_TEXT_DATA_KEY = "expense_related_lease_text";
     public static final String EXPENSE_RELATED_LEASE_ID_DATA_KEY = "expense_related_lease_id";
     public static final String WAS_PRELOADED = "expense_page_3_was_preloaded";
-    private Context context;
+    private Context mContext;
 
     public ExpenseWizardPage3(ModelCallbacks callbacks, String title, Context context) {
         super(callbacks, title);
-        this.context = context;
+        mContext = context;
         mData.putBoolean(WAS_PRELOADED, false);
     }
 
@@ -39,9 +39,9 @@ public class ExpenseWizardPage3 extends Page {
 
     @Override
     public void getReviewItems(ArrayList<ReviewItem> dest) {
-        dest.add(new ReviewItem(context.getResources().getString(R.string.related_apt), mData.getString(EXPENSE_RELATED_APT_TEXT_DATA_KEY), getKey(), -1));
-        dest.add(new ReviewItem(context.getResources().getString(R.string.related_tenant), mData.getString(EXPENSE_RELATED_TENANT_TEXT_DATA_KEY), getKey(), -1));
-        dest.add(new ReviewItem(context.getResources().getString(R.string.related_lease), mData.getString(EXPENSE_RELATED_LEASE_TEXT_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(mContext.getResources().getString(R.string.related_apt), mData.getString(EXPENSE_RELATED_APT_TEXT_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(mContext.getResources().getString(R.string.related_tenant), mData.getString(EXPENSE_RELATED_TENANT_TEXT_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(mContext.getResources().getString(R.string.related_lease), mData.getString(EXPENSE_RELATED_LEASE_TEXT_DATA_KEY), getKey(), -1));
     }
 
     @Override

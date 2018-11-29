@@ -21,11 +21,11 @@ public class ExpenseWizardPage1 extends Page {
     public static final String EXPENSE_TYPE_ID_DATA_KEY = "expense_type_id";
     public static final String EXPENSE_TYPE_DATA_KEY = "expense_type";
     public static final String WAS_PRELOADED = "expense_page_1_was_preloaded";
-    private Context context;
+    private Context mContext;
 
     public ExpenseWizardPage1(ModelCallbacks callbacks, String title, Context context) {
         super(callbacks, title);
-        this.context = context;
+        mContext = context;
         mData.putBoolean(WAS_PRELOADED, false);
     }
 
@@ -36,9 +36,9 @@ public class ExpenseWizardPage1 extends Page {
 
     @Override
     public void getReviewItems(ArrayList<ReviewItem> dest) {
-        dest.add(new ReviewItem(context.getResources().getString(R.string.date), mData.getString(EXPENSE_DATE_STRING_FORMATTED_DATA_KEY), getKey(), -1));
-        dest.add(new ReviewItem(context.getResources().getString(R.string.amount), mData.getString(EXPENSE_AMOUNT_FORMATTED_STRING_DATA_KEY), getKey(), -1));
-        dest.add(new ReviewItem(context.getResources().getString(R.string.type), mData.getString(EXPENSE_TYPE_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(mContext.getResources().getString(R.string.date), mData.getString(EXPENSE_DATE_STRING_FORMATTED_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(mContext.getResources().getString(R.string.amount), mData.getString(EXPENSE_AMOUNT_FORMATTED_STRING_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(mContext.getResources().getString(R.string.type), mData.getString(EXPENSE_TYPE_DATA_KEY), getKey(), -1));
     }
 
     @Override

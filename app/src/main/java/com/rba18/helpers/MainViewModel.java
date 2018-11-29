@@ -14,102 +14,102 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class MainViewModel extends ViewModel {
-    private MutableLiveData<ArrayList<Tenant>> cachedTenants;
-    private MutableLiveData<ArrayList<Apartment>> cachedApartments;
-    private MutableLiveData<ArrayList<Lease>> cachedLeases;
-    private MutableLiveData<ArrayList<PaymentLogEntry>> cachedIncome;
-    private MutableLiveData<ArrayList<ExpenseLogEntry>> cachedExpenses;
-    private MutableLiveData<Date> startDateRange;
-    private MutableLiveData<Date> endDateRange;
-    private MutableLiveData<Integer> homeTabSelection;
-    private MutableLiveData<Date> homeTabYearSelected;
+    private MutableLiveData<ArrayList<Tenant>> mCachedTenants;
+    private MutableLiveData<ArrayList<Apartment>> mCachedApartments;
+    private MutableLiveData<ArrayList<Lease>> mCachedLeases;
+    private MutableLiveData<ArrayList<PaymentLogEntry>> mCachedIncome;
+    private MutableLiveData<ArrayList<ExpenseLogEntry>> mCachedExpenses;
+    private MutableLiveData<Date> mStartDateRange;
+    private MutableLiveData<Date> mEndDateRange;
+    private MutableLiveData<Integer> mHomeTabSelection;
+    private MutableLiveData<Date> mHomeTabYearSelected;
 
     public void init() {
-        cachedTenants = new MutableLiveData<>();
-        cachedApartments = new MutableLiveData<>();
-        cachedLeases = new MutableLiveData<>();
-        cachedIncome = new MutableLiveData<>();
-        cachedExpenses = new MutableLiveData<>();
-        startDateRange = new MutableLiveData<>();
-        endDateRange = new MutableLiveData<>();
-        homeTabSelection = new MutableLiveData<>();
-        homeTabSelection.setValue(0);
-        homeTabYearSelected = new MutableLiveData<>();
+        mCachedTenants = new MutableLiveData<>();
+        mCachedApartments = new MutableLiveData<>();
+        mCachedLeases = new MutableLiveData<>();
+        mCachedIncome = new MutableLiveData<>();
+        mCachedExpenses = new MutableLiveData<>();
+        mStartDateRange = new MutableLiveData<>();
+        mEndDateRange = new MutableLiveData<>();
+        mHomeTabSelection = new MutableLiveData<>();
+        mHomeTabSelection.setValue(0);
+        mHomeTabYearSelected = new MutableLiveData<>();
     }
 
     public LiveData<ArrayList<Tenant>> getCachedTenants() {
-        return cachedTenants;
+        return mCachedTenants;
     }
 
     public void setCachedTenants(ArrayList<Tenant> cachedTenants) {
-        this.cachedTenants.setValue(cachedTenants);
+        mCachedTenants.setValue(cachedTenants);
     }
 
     public LiveData<ArrayList<Apartment>> getCachedApartments() {
-        return cachedApartments;
+        return mCachedApartments;
     }
 
     public void setCachedApartments(ArrayList<Apartment> cachedApartments) {
-        this.cachedApartments.setValue(cachedApartments);
+        mCachedApartments.setValue(cachedApartments);
     }
 
     public LiveData<ArrayList<Lease>> getCachedLeases() {
-        return cachedLeases;
+        return mCachedLeases;
     }
 
     public void setCachedLeases(ArrayList<Lease> cachedLeases) {
-        this.cachedLeases.setValue(cachedLeases);
+        mCachedLeases.setValue(cachedLeases);
     }
 
     public LiveData<ArrayList<PaymentLogEntry>> getCachedIncome() {
-        return cachedIncome;
+        return mCachedIncome;
     }
 
     public void setCachedIncome(ArrayList<PaymentLogEntry> cachedIncome) {
-        this.cachedIncome.setValue(cachedIncome);
+        mCachedIncome.setValue(cachedIncome);
     }
 
     public LiveData<ArrayList<ExpenseLogEntry>> getCachedExpenses() {
-        return cachedExpenses;
+        return mCachedExpenses;
     }
 
     public void setCachedExpenses(ArrayList<ExpenseLogEntry> cachedExpenses) {
-        this.cachedExpenses.setValue(cachedExpenses);
+        mCachedExpenses.setValue(cachedExpenses);
     }
 
     public MutableLiveData<Date> getStartDateRangeDate() {
-        return startDateRange;
+        return mStartDateRange;
     }
 
     public void setStartDateRange(Date date) {
-        this.startDateRange.setValue(date);
+        mStartDateRange.setValue(date);
     }
 
     public MutableLiveData<Date> getEndDateRangeDate() {
-        return endDateRange;
+        return mEndDateRange;
     }
 
     public void setEndDateRange(Date date) {
-        this.endDateRange.setValue(date);
+        mEndDateRange.setValue(date);
     }
 
     public int getHomeTabSelection() {
-        if (homeTabSelection != null) {
-            return homeTabSelection.getValue();
+        if (mHomeTabSelection != null) {
+            return mHomeTabSelection.getValue();
         } else {
             return 0;
         }
     }
 
     public void setHomeTabSelection(int homeTabSelection) {
-        this.homeTabSelection.setValue(homeTabSelection);
+        mHomeTabSelection.setValue(homeTabSelection);
     }
 
     public Date getHomeTabYearSelected() {
-        return homeTabYearSelected.getValue();
+        return mHomeTabYearSelected.getValue();
     }
 
     public void setHomeTabYearSelected(Date homeTabYearSelected) {
-        this.homeTabYearSelected.setValue(homeTabYearSelected);
+        mHomeTabYearSelected.setValue(homeTabYearSelected);
     }
 }

@@ -20,16 +20,14 @@ import com.rba18.model.Tenant;
 import com.rba18.wizards.TenantWizardPage2;
 
 public class TenantWizardPage2Fragment extends android.support.v4.app.Fragment {
-    private static final String ARG_KEY = "key";
 
+    private static final String ARG_KEY = "key";
     private PageFragmentCallbacks mCallbacks;
     private String mKey;
     private TenantWizardPage2 mPage;
-    private EditText emerFirstNameET, emerLastNameET, emerPhoneET;
-    private boolean isFormatting;
-    private boolean deletingHyphen;
-    private int hyphenStart;
-    private boolean deletingBackward;
+    private EditText mEmerFirstNameET, mEmerLastNameET, mEmerPhoneET;
+    private boolean mIsFormatting, mDeletingBackward, mDeletingHyphen;
+    private int mHyphenStart;
 
     public static TenantWizardPage2Fragment create(String key) {
         Bundle args = new Bundle();
@@ -65,25 +63,25 @@ public class TenantWizardPage2Fragment extends android.support.v4.app.Fragment {
         View rootView = inflater.inflate(R.layout.fragment_tenant_wizard_page_2, container, false);
         (rootView.findViewById(android.R.id.title)).setVisibility(View.GONE);
 
-        emerFirstNameET = (rootView.findViewById(R.id.tenantWizardEFirstNameET));
-        emerFirstNameET.setText(mPage.getData().getString(TenantWizardPage2.TENANT_EMERGENCY_FIRST_NAME_DATA_KEY));
-        emerFirstNameET.setScroller(new Scroller(getContext()));
-        emerFirstNameET.setMaxLines(5);
-        emerFirstNameET.setVerticalScrollBarEnabled(true);
-        emerFirstNameET.setMovementMethod(new ScrollingMovementMethod());
-        emerFirstNameET.setSelection(emerFirstNameET.getText().length());
+        mEmerFirstNameET = (rootView.findViewById(R.id.tenantWizardEFirstNameET));
+        mEmerFirstNameET.setText(mPage.getData().getString(TenantWizardPage2.TENANT_EMERGENCY_FIRST_NAME_DATA_KEY));
+        mEmerFirstNameET.setScroller(new Scroller(getContext()));
+        mEmerFirstNameET.setMaxLines(5);
+        mEmerFirstNameET.setVerticalScrollBarEnabled(true);
+        mEmerFirstNameET.setMovementMethod(new ScrollingMovementMethod());
+        mEmerFirstNameET.setSelection(mEmerFirstNameET.getText().length());
 
-        emerLastNameET = (rootView.findViewById(R.id.tenantWizardELastNameET));
-        emerLastNameET.setText(mPage.getData().getString(TenantWizardPage2.TENANT_EMERGENCY_LAST_NAME_DATA_KEY));
-        emerLastNameET.setScroller(new Scroller(getContext()));
-        emerLastNameET.setMaxLines(5);
-        emerLastNameET.setVerticalScrollBarEnabled(true);
-        emerLastNameET.setMovementMethod(new ScrollingMovementMethod());
-        emerLastNameET.setSelection(emerLastNameET.getText().length());
+        mEmerLastNameET = (rootView.findViewById(R.id.tenantWizardELastNameET));
+        mEmerLastNameET.setText(mPage.getData().getString(TenantWizardPage2.TENANT_EMERGENCY_LAST_NAME_DATA_KEY));
+        mEmerLastNameET.setScroller(new Scroller(getContext()));
+        mEmerLastNameET.setMaxLines(5);
+        mEmerLastNameET.setVerticalScrollBarEnabled(true);
+        mEmerLastNameET.setMovementMethod(new ScrollingMovementMethod());
+        mEmerLastNameET.setSelection(mEmerLastNameET.getText().length());
 
-        emerPhoneET = (rootView.findViewById(R.id.tenantWizardEPhoneET));
-        emerPhoneET.setText(mPage.getData().getString(TenantWizardPage2.TENANT_EMERGENCY_PHONE_DATA_KEY));
-        emerPhoneET.setSelection(emerPhoneET.getText().length());
+        mEmerPhoneET = (rootView.findViewById(R.id.tenantWizardEPhoneET));
+        mEmerPhoneET.setText(mPage.getData().getString(TenantWizardPage2.TENANT_EMERGENCY_PHONE_DATA_KEY));
+        mEmerPhoneET.setSelection(mEmerPhoneET.getText().length());
 
         return rootView;
     }
@@ -108,7 +106,7 @@ public class TenantWizardPage2Fragment extends android.support.v4.app.Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        emerFirstNameET.addTextChangedListener(new TextWatcher() {
+        mEmerFirstNameET.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -125,7 +123,7 @@ public class TenantWizardPage2Fragment extends android.support.v4.app.Fragment {
                 mPage.notifyDataChanged();
             }
         });
-        emerLastNameET.addTextChangedListener(new TextWatcher() {
+        mEmerLastNameET.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -142,7 +140,7 @@ public class TenantWizardPage2Fragment extends android.support.v4.app.Fragment {
                 mPage.notifyDataChanged();
             }
         });
-        emerPhoneET.addTextChangedListener(new TextWatcher() {
+        mEmerPhoneET.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -167,7 +165,7 @@ public class TenantWizardPage2Fragment extends android.support.v4.app.Fragment {
 
         // In a future update to the support library, this should override setUserVisibleHint
         // instead of setMenuVisibility.
-        if (emerFirstNameET != null) {
+        if (mEmerFirstNameET != null) {
             InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(
                     Context.INPUT_METHOD_SERVICE);
             if (!menuVisible) {
@@ -176,18 +174,18 @@ public class TenantWizardPage2Fragment extends android.support.v4.app.Fragment {
         }
     }
 
-    //Automatically enters hyphens for the user
+    //Automatically enters hyphens for the sUser
     private void setPhoneNumberEditTextHelper() {
-        this.emerPhoneET.addTextChangedListener(createPhoneNumberTextWatcher());
+        mEmerPhoneET.addTextChangedListener(createPhoneNumberTextWatcher());
     }
 
     private TextWatcher createPhoneNumberTextWatcher() {
         return new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (isFormatting)
+                if (mIsFormatting)
                     return;
-                // Make sure user is deleting one char, without a selection
+                // Make sure sUser is deleting one char, without a selection
                 final int selStart = Selection.getSelectionStart(charSequence);
                 final int selEnd = Selection.getSelectionEnd(charSequence);
                 if (charSequence.length() > 1 // Can delete another character
@@ -195,16 +193,16 @@ public class TenantWizardPage2Fragment extends android.support.v4.app.Fragment {
                         && i2 == 0 // Deleting
                         && charSequence.charAt(i) == '-' // a hyphen
                         && selStart == selEnd) { // no selection
-                    deletingHyphen = true;
-                    hyphenStart = i;
-                    // Check if the user is deleting forward or backward
+                    mDeletingHyphen = true;
+                    mHyphenStart = i;
+                    // Check if the sUser is deleting forward or backward
                     if (selStart == i + 1) {
-                        deletingBackward = true;
+                        mDeletingBackward = true;
                     } else {
-                        deletingBackward = false;
+                        mDeletingBackward = false;
                     }
                 } else {
-                    deletingHyphen = false;
+                    mDeletingHyphen = false;
                 }
             }
 
@@ -215,23 +213,23 @@ public class TenantWizardPage2Fragment extends android.support.v4.app.Fragment {
 
             @Override
             public void afterTextChanged(Editable text) {
-                if (isFormatting)
+                if (mIsFormatting)
                     return;
-                isFormatting = true;
+                mIsFormatting = true;
                 // If deleting hyphen, also delete character before or after it
-                if (deletingHyphen && hyphenStart > 0) {
-                    if (deletingBackward) {
-                        if (hyphenStart - 1 < text.length()) {
-                            text.delete(hyphenStart - 1, hyphenStart);
+                if (mDeletingHyphen && mHyphenStart > 0) {
+                    if (mDeletingBackward) {
+                        if (mHyphenStart - 1 < text.length()) {
+                            text.delete(mHyphenStart - 1, mHyphenStart);
                         }
-                    } else if (hyphenStart < text.length()) {
-                        text.delete(hyphenStart, hyphenStart + 1);
+                    } else if (mHyphenStart < text.length()) {
+                        text.delete(mHyphenStart, mHyphenStart + 1);
                     }
                 }
                 if (text.length() == 3 || text.length() == 7) {
                     text.append('-');
                 }
-                isFormatting = false;
+                mIsFormatting = false;
                 mPage.getData().putString(TenantWizardPage2.TENANT_EMERGENCY_PHONE_DATA_KEY, text.toString());
                 mPage.notifyDataChanged();
             }

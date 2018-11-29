@@ -17,12 +17,12 @@ import com.rba18.model.Tenant;
 import com.rba18.wizards.TenantWizardPage3;
 
 public class TenantWizardPage3Fragment extends android.support.v4.app.Fragment {
-    private static final String ARG_KEY = "key";
 
+    private static final String ARG_KEY = "key";
     private PageFragmentCallbacks mCallbacks;
     private String mKey;
     private TenantWizardPage3 mPage;
-    private EditText notesET;
+    private EditText mNotesET;
 
 
     public static TenantWizardPage3Fragment create(String key) {
@@ -59,9 +59,9 @@ public class TenantWizardPage3Fragment extends android.support.v4.app.Fragment {
         View rootView = inflater.inflate(R.layout.fragment_tenant_wizard_page_3, container, false);
         (rootView.findViewById(android.R.id.title)).setVisibility(View.GONE);
 
-        notesET = (rootView.findViewById(R.id.tenantWizardNotesET));
-        notesET.setText(mPage.getData().getString(TenantWizardPage3.TENANT_NOTES_DATA_KEY));
-        notesET.setSelection(notesET.getText().length());
+        mNotesET = (rootView.findViewById(R.id.tenantWizardNotesET));
+        mNotesET.setText(mPage.getData().getString(TenantWizardPage3.TENANT_NOTES_DATA_KEY));
+        mNotesET.setSelection(mNotesET.getText().length());
 
         return rootView;
     }
@@ -86,7 +86,7 @@ public class TenantWizardPage3Fragment extends android.support.v4.app.Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        notesET.addTextChangedListener(new TextWatcher() {
+        mNotesET.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -112,7 +112,7 @@ public class TenantWizardPage3Fragment extends android.support.v4.app.Fragment {
 
         // In a future update to the support library, this should override setUserVisibleHint
         // instead of setMenuVisibility.
-        if (notesET != null) {
+        if (mNotesET != null) {
             InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(
                     Context.INPUT_METHOD_SERVICE);
             if (!menuVisible) {

@@ -15,10 +15,10 @@ import java.util.HashMap;
 
 public class CustomCaldroidFragment extends CaldroidFragment {
     //Class may be used to further customize calendar
-    private HashMap<String, Integer> leaseStartDatesHM = new HashMap<>();
-    private HashMap<String, Integer> leaseEndDatesHM = new HashMap<>();
-    private HashMap<String, Integer> expenseDatesHM = new HashMap<>();
-    private HashMap<String, Integer> incomeDatesHM = new HashMap<>();
+    private HashMap<String, Integer> mLeaseStartDatesHM = new HashMap<>();
+    private HashMap<String, Integer> mLeaseEndDatesHM = new HashMap<>();
+    private HashMap<String, Integer> mExpenseDatesHM = new HashMap<>();
+    private HashMap<String, Integer> mIncomeDatesHM = new HashMap<>();
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -28,17 +28,17 @@ public class CustomCaldroidFragment extends CaldroidFragment {
     @Override
     public CaldroidGridAdapter getNewDatesGridAdapter(int month, int year) {
         return new CustomCalendarAdapter(getActivity(), month, year,
-                getCaldroidData(), extraData, leaseStartDatesHM, leaseEndDatesHM, expenseDatesHM, incomeDatesHM);
+                getCaldroidData(), extraData, mLeaseStartDatesHM, mLeaseEndDatesHM, mExpenseDatesHM, mIncomeDatesHM);
     }
 
     public void setEventIcons(HashMap<String, Integer> leaseStartDatesAndAmounts,
                               HashMap<String, Integer> leaseEndDatesAndAmounts,
                               HashMap<String, Integer> expenseDatesAndAmounts,
                               HashMap<String, Integer> incomeDatesAndAmounts) {
-        this.leaseStartDatesHM = leaseStartDatesAndAmounts;
-        this.leaseEndDatesHM = leaseEndDatesAndAmounts;
-        this.expenseDatesHM = expenseDatesAndAmounts;
-        this.incomeDatesHM = incomeDatesAndAmounts;
+        mLeaseStartDatesHM = leaseStartDatesAndAmounts;
+        mLeaseEndDatesHM = leaseEndDatesAndAmounts;
+        mExpenseDatesHM = expenseDatesAndAmounts;
+        mIncomeDatesHM = incomeDatesAndAmounts;
     }
 
 }

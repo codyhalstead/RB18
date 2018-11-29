@@ -17,14 +17,12 @@ import com.rba18.R;
 import com.rba18.model.Lease;
 import com.rba18.wizards.LeaseWizardPage4;
 
-import static android.support.constraint.Constraints.TAG;
-
 public class LeaseWizardPage4Fragment extends Fragment {
     private static final String ARG_KEY = "key";
     private PageFragmentCallbacks mCallbacks;
     private String mKey;
     private LeaseWizardPage4 mPage;
-    private EditText notesET;
+    private EditText mNotesET;
 
 
     public static LeaseWizardPage4Fragment create(String key) {
@@ -59,9 +57,9 @@ public class LeaseWizardPage4Fragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_lease_wizard_page_4, container, false);
         (rootView.findViewById(android.R.id.title)).setVisibility(View.GONE);
 
-        notesET = (rootView.findViewById(R.id.leaseWizardNotesET));
-        notesET.setText(mPage.getData().getString(LeaseWizardPage4.LEASE_NOTES_DATA_KEY));
-        notesET.setSelection(notesET.getText().length());
+        mNotesET = (rootView.findViewById(R.id.leaseWizardNotesET));
+        mNotesET.setText(mPage.getData().getString(LeaseWizardPage4.LEASE_NOTES_DATA_KEY));
+        mNotesET.setSelection(mNotesET.getText().length());
 
         return rootView;
     }
@@ -87,7 +85,7 @@ public class LeaseWizardPage4Fragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        notesET.addTextChangedListener(new TextWatcher() {
+        mNotesET.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -113,7 +111,7 @@ public class LeaseWizardPage4Fragment extends Fragment {
 
         // In a future update to the support library, this should override setUserVisibleHint
         // instead of setMenuVisibility.
-        if (notesET != null) {
+        if (mNotesET != null) {
             InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(
                     Context.INPUT_METHOD_SERVICE);
             if (!menuVisible) {

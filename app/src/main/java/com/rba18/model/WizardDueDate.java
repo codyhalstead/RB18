@@ -1,27 +1,27 @@
 package com.rba18.model;
 
 public class WizardDueDate {
-    private int databaseID;
-    private String label;
+    private int mDatabaseID;
+    private String mLabel;
 
     public WizardDueDate(int databaseID, String label){
-        this.databaseID = databaseID;
-        this.label = label;
+        mDatabaseID = databaseID;
+        mLabel = label;
     }
 
     public int getDatabaseID() {
-        return databaseID;
+        return mDatabaseID;
     }
 
     public void setDatabaseID(int databaseID) {
-        this.databaseID = databaseID;
+        mDatabaseID = databaseID;
     }
 
     public String getLabel() {
-        return label;
+        return mLabel;
     }
 
     public void setLabel(String label) {
-        this.label = label;
+        mLabel = label;
     }
 }

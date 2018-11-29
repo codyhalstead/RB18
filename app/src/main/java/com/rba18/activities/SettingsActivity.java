@@ -11,7 +11,6 @@ import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -47,40 +46,40 @@ import java.util.ArrayList;
  */
 
 public class SettingsActivity extends BaseActivity implements View.OnClickListener {
-    ImageButton colorBtn;
-    LinearLayout changeThemeLL, removeIncomeTypeLL, removeExpenseTypeLL, backupDataLL, importDataLL, changeCurrencyLL, changeDateTypeLL, removeUserLL,
-            changeUserPasswordLL, changeUserEmailLL;
-    TextView importDataTV, backupDataTV;
-    SharedPreferences preferences;
-    private ColorChooserDialog dialog;
-    private AlertDialog alertDialog;
-    private DatabaseHandler dbHandler;
-    private boolean wasDataEdited;
-    UserInputValidation validation;
+    private ImageButton mColorBtn;
+    private LinearLayout mChangeThemeLL, mRemoveIncomeTypeLL, mRemoveExpenseTypeLL, mBackupDataLL, mImportDataLL, mChangeCurrencyLL, mChangeDateTypeLL, mRemoveUserLL,
+            mChangeUserPasswordLL, mChangeUserEmailLL;
+    private TextView mImportDataTV, mBackupDataTV;
+    private ColorChooserDialog mDialog;
+    private AlertDialog mAlertDialog;
+    private DatabaseHandler mDBHandler;
+    private boolean mWasDataEdited;
+    private UserInputValidation mValidation;
 
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //Preferences must be initialized before setContentView because it is used in determining activities theme
-        //Will be different from static MainActivity.currentThemeChoice when user selects themes within this activity
-        preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        dbHandler = new DatabaseHandler(this);
-        this.validation = new UserInputValidation(this);
-        int theme = preferences.getInt(MainActivity.user.getEmail(), 0);
+        //Will be different from static MainActivity.currentThemeChoice when sUser selects themes within this activity
+        //preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        mDBHandler = new DatabaseHandler(this);
+        mValidation = new UserInputValidation(this);
+        int theme = preferences.getInt(MainActivity.sUser.getEmail(), 0);
         setupUserAppTheme(theme);
         setContentView(R.layout.activity_settings);
         if (savedInstanceState != null) {
-            wasDataEdited = savedInstanceState.getBoolean("was_edited");
+            mWasDataEdited = savedInstanceState.getBoolean("was_edited");
         } else {
-            wasDataEdited = false;
+            mWasDataEdited = false;
         }
         initializeVariables();
         setupBasicToolbar();
-        this.setTitle(R.string.settings);
+        addToolbarBackButton();
+        setTitle(R.string.settings);
         //Color theme selection button to current theme choice
-        Colorize(colorBtn);
-        if (wasDataEdited) {
+        Colorize(mColorBtn);
+        if (mWasDataEdited) {
             setResult(MainActivity.RESULT_DATA_WAS_MODIFIED);
         }
     }
@@ -99,16 +98,16 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
         colorBtn.setBackground(d);
     }
 
-    //Shows theme chooser dialog
+    //Shows theme chooser mDialog
     public void showColorPopup(View v) {
-        //Create the dialog
-        dialog = new ColorChooserDialog(SettingsActivity.this);
-        dialog.setColorListener(new ColorChooserDialog.ColorListener() {
+        //Create the mDialog
+        mDialog = new ColorChooserDialog(SettingsActivity.this);
+        mDialog.setColorListener(new ColorChooserDialog.ColorListener() {
             @Override
             public void OnColorClick(View v, int color) {
                 //On selection, change current theme choice saved in shared preferences
                 SharedPreferences.Editor editor = preferences.edit();
-                editor.putInt(MainActivity.user.getEmail(), color);
+                editor.putInt(MainActivity.sUser.getEmail(), color);
                 editor.commit();
                 //Re-create activity with new theme
                 Intent intent = new Intent(SettingsActivity.this, SettingsActivity.class);
@@ -116,47 +115,53 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
                 startActivity(intent);
             }
         });
-        dialog.show();
+        mDialog.show();
     }
 
     private void initializeVariables() {
-        colorBtn = findViewById(R.id.button_color);
-        changeThemeLL = findViewById(R.id.changeThemeLL);
-        changeThemeLL.setOnClickListener(this);
-        removeIncomeTypeLL = findViewById(R.id.removeIncomeTypeLL);
-        removeIncomeTypeLL.setOnClickListener(this);
-        removeExpenseTypeLL = findViewById(R.id.removeExpenseTypeLL);
-        removeExpenseTypeLL.setOnClickListener(this);
-        backupDataLL = findViewById(R.id.backupDataLL);
-        backupDataLL.setOnClickListener(this);
-        backupDataTV = findViewById(R.id.backupDataTV);
-        importDataLL = findViewById(R.id.importDataLL);
-        importDataLL.setOnClickListener(this);
-        importDataTV = findViewById(R.id.importDataTV);
-        changeCurrencyLL = findViewById(R.id.changeCurrencyLL);
-        changeCurrencyLL.setOnClickListener(this);
-        changeDateTypeLL = findViewById(R.id.changeDateTypeLL);
-        changeDateTypeLL.setOnClickListener(this);
-        removeUserLL = findViewById(R.id.removeUserLL);
-        removeUserLL.setOnClickListener(this);
-        changeUserEmailLL = findViewById(R.id.changeEmailLL);
-        changeUserEmailLL.setOnClickListener(this);
-        changeUserPasswordLL = findViewById(R.id.changePasswordLL);
-        changeUserPasswordLL.setOnClickListener(this);
+        mColorBtn = findViewById(R.id.button_color);
+        mChangeThemeLL = findViewById(R.id.changeThemeLL);
+        mChangeThemeLL.setOnClickListener(this);
+        mRemoveIncomeTypeLL = findViewById(R.id.removeIncomeTypeLL);
+        mRemoveIncomeTypeLL.setOnClickListener(this);
+        mRemoveExpenseTypeLL = findViewById(R.id.removeExpenseTypeLL);
+        mRemoveExpenseTypeLL.setOnClickListener(this);
+        mBackupDataLL = findViewById(R.id.backupDataLL);
+        mBackupDataLL.setOnClickListener(this);
+        mBackupDataTV = findViewById(R.id.backupDataTV);
+        mImportDataLL = findViewById(R.id.importDataLL);
+        mImportDataLL.setOnClickListener(this);
+        mImportDataTV = findViewById(R.id.importDataTV);
+        mChangeCurrencyLL = findViewById(R.id.changeCurrencyLL);
+        mChangeCurrencyLL.setOnClickListener(this);
+        mChangeDateTypeLL = findViewById(R.id.changeDateTypeLL);
+        mChangeDateTypeLL.setOnClickListener(this);
+        mRemoveUserLL = findViewById(R.id.removeUserLL);
+        mChangeUserEmailLL = findViewById(R.id.changeEmailLL);
+        mChangeUserPasswordLL = findViewById(R.id.changePasswordLL);
+        if(!MainActivity.sUser.IsGoogleAccount()) {
+            mChangeUserEmailLL.setOnClickListener(this);
+            mChangeUserPasswordLL.setOnClickListener(this);
+            mRemoveUserLL.setOnClickListener(this);
+        } else {
+            mChangeUserEmailLL.setVisibility(View.GONE);
+            mChangeUserPasswordLL.setVisibility(View.GONE);
+            mRemoveUserLL.setVisibility(View.GONE);
+        }
         if (BuildConfig.FLAVOR.equals("free")) {
-            importDataTV.setTextColor(getResources().getColor(R.color.caldroid_lighter_gray));
-            backupDataTV.setText(R.string.create_transfer_file);
+            mImportDataTV.setTextColor(getResources().getColor(R.color.caldroid_lighter_gray));
+            mBackupDataTV.setText(R.string.create_transfer_file);
         }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if (dialog != null) {
-            dialog.dismiss();
+        if (mDialog != null) {
+            mDialog.dismiss();
         }
-        if (alertDialog != null) {
-            alertDialog.dismiss();
+        if (mAlertDialog != null) {
+            mAlertDialog.dismiss();
         }
     }
 
@@ -180,17 +185,17 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 if (type == 1) {
-                    dbHandler.setTypeInactive(typeTotal);
-                    MainActivity.expenseTypeLabels = dbHandler.getExpenseTypeLabelsTreeMap();
+                    mDBHandler.setTypeInactive(typeTotal);
+                    MainActivity.sExpenseTypeLabels = mDBHandler.getExpenseTypeLabelsTreeMap();
                 } else if (type == 2) {
-                    dbHandler.setTypeInactive(typeTotal);
-                    MainActivity.incomeTypeLabels = dbHandler.getExpenseTypeLabelsTreeMap();
+                    mDBHandler.setTypeInactive(typeTotal);
+                    MainActivity.sIncomeTypeLabels = mDBHandler.getExpenseTypeLabelsTreeMap();
                 }
             }
         });
-        // create and show the alert dialog
-        alertDialog = builder.create();
-        alertDialog.show();
+        // create and show the alert mDialog
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
     }
 
     public void showAddRemoveIncomeTypeAlertDialog() {
@@ -200,7 +205,7 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
         builder.setNegativeButton(R.string.remove, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                ArrayList<TypeTotal> incomeTypes = dbHandler.getIncomeTypeLabelsForRemoval();
+                ArrayList<TypeTotal> incomeTypes = mDBHandler.getIncomeTypeLabelsForRemoval();
                 TypeChooserDialog typeChooserDialog2 = new TypeChooserDialog(SettingsActivity.this, incomeTypes);
                 typeChooserDialog2.show();
                 typeChooserDialog2.setDialogResult(new TypeChooserDialog.OnTypeChooserDialogResult() {
@@ -222,7 +227,7 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
                 editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
 
                 // create the AlertDialog as final
-                alertDialog = new AlertDialog.Builder(SettingsActivity.this)
+                mAlertDialog = new AlertDialog.Builder(SettingsActivity.this)
                         .setTitle(R.string.create_new_type)
                         .setView(editText)
 
@@ -230,8 +235,8 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
                         .setPositiveButton(R.string.create, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int id) {
-                                dbHandler.addNewIncomeType(editText.getText().toString());
-                                MainActivity.incomeTypeLabels = dbHandler.getIncomeTypeLabelsTreeMap();
+                                mDBHandler.addNewIncomeType(editText.getText().toString());
+                                MainActivity.sIncomeTypeLabels = mDBHandler.getIncomeTypeLabelsTreeMap();
                             }
                         })
 
@@ -249,12 +254,12 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
                     @Override
                     public void onFocusChange(View v, boolean hasFocus) {
                         if (hasFocus) {
-                            alertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                            mAlertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
                         }
                     }
                 });
 
-                alertDialog.show();
+                mAlertDialog.show();
             }
 
         }).setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -263,9 +268,9 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
 
             }
         });
-        // create and show the alert dialog
-        alertDialog = builder.create();
-        alertDialog.show();
+        // create and show the alert mDialog
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
     }
 
     public void showAddRemoveExpenseTypeAlertDialog() {
@@ -275,7 +280,7 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
         builder.setNegativeButton(R.string.remove, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                ArrayList<TypeTotal> expenseTypes = dbHandler.getExpenseTypeLabelsForRemoval();
+                ArrayList<TypeTotal> expenseTypes = mDBHandler.getExpenseTypeLabelsForRemoval();
                 TypeChooserDialog typeChooserDialog2 = new TypeChooserDialog(SettingsActivity.this, expenseTypes);
                 typeChooserDialog2.show();
                 typeChooserDialog2.setDialogResult(new TypeChooserDialog.OnTypeChooserDialogResult() {
@@ -298,7 +303,7 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
                 editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
 
                 // create the AlertDialog as final
-                alertDialog = new AlertDialog.Builder(SettingsActivity.this)
+                mAlertDialog = new AlertDialog.Builder(SettingsActivity.this)
                         .setTitle(R.string.create_new_type)
                         .setView(editText)
 
@@ -306,8 +311,8 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
                         .setPositiveButton(R.string.create, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int id) {
-                                dbHandler.addNewExpenseType(editText.getText().toString());
-                                MainActivity.expenseTypeLabels = dbHandler.getExpenseTypeLabelsTreeMap();
+                                mDBHandler.addNewExpenseType(editText.getText().toString());
+                                MainActivity.sExpenseTypeLabels = mDBHandler.getExpenseTypeLabelsTreeMap();
                             }
                         })
 
@@ -325,12 +330,12 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
                     @Override
                     public void onFocusChange(View v, boolean hasFocus) {
                         if (hasFocus) {
-                            alertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                            mAlertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
                         }
                     }
                 });
 
-                alertDialog.show();
+                mAlertDialog.show();
             }
 
         }).setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -339,14 +344,18 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
 
             }
         });
-        // create and show the alert dialog
-        alertDialog = builder.create();
-        alertDialog.show();
+        // create and show the alert mDialog
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
+
+            case R.id.button_color:
+                showColorPopup(view);
+                break;
 
             case R.id.changeThemeLL:
                 showColorPopup(view);
@@ -395,7 +404,7 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
                 } else if (oldSelection == DateAndCurrencyDisplayer.CURRENCY_GERMANY) {
                     defaultChoice = 4;
                 }
-                alertDialog = new AlertDialog.Builder(this)
+                mAlertDialog = new AlertDialog.Builder(this)
                         // specify the list array, the items to be selected by default (null for none),
                         // and the listener through which to receive call backs when items are selected
                         // again, R.array.choices were set in the resources res/values/strings.xml
@@ -409,9 +418,9 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
                         .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int id) {
-                                // user clicked OK, so save the mSelectedItems results somewhere
-                                // or return them to the component that opened the dialog
-                                int selectedPosition = ( alertDialog).getListView().getCheckedItemPosition();
+                                // sUser clicked OK, so save the mSelectedItems results somewhere
+                                // or return them to the component that opened the mDialog
+                                int selectedPosition = (mAlertDialog).getListView().getCheckedItemPosition();
                                 SharedPreferences.Editor editor = preferences.edit();
                                 if (selectedPosition == 0) {
                                     editor.putInt("currency", DateAndCurrencyDisplayer.CURRENCY_US);
@@ -425,14 +434,14 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
                                     editor.putInt("currency", DateAndCurrencyDisplayer.CURRENCY_GERMANY);
                                 }
                                 editor.commit();
-                                wasDataEdited = true;
+                                mWasDataEdited = true;
                                 setResult(MainActivity.RESULT_DATA_WAS_MODIFIED, null);
                             }
                         })
                         .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int id) {
-                                // removes the dialog from the screen
+                                // removes the mDialog from the screen
                             }
                         })
                         .show();
@@ -449,7 +458,7 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
                 } else if (oldDateSelection == DateAndCurrencyDisplayer.DATE_YYYYDDMM) {
                     defaultDateChoice = 3;
                 }
-                alertDialog = new AlertDialog.Builder(this)
+                mAlertDialog = new AlertDialog.Builder(this)
 
                         // specify the list array, the items to be selected by default (null for none),
                         // and the listener through which to receive call backs when items are selected
@@ -465,8 +474,8 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
                         .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int id) {
-                                // user clicked OK, so save the mSelectedItems results somewhere
-                                // or return them to the component that opened the dialog
+                                // sUser clicked OK, so save the mSelectedItems results somewhere
+                                // or return them to the component that opened the mDialog
                                 int selectedPosition = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
                                 //showToast("selectedPosition: " + selectedPosition);
                                 SharedPreferences.Editor editor = preferences.edit();
@@ -480,7 +489,7 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
                                     editor.putInt("dateFormat", DateAndCurrencyDisplayer.DATE_YYYYDDMM);
                                 }
                                 editor.commit();
-                                wasDataEdited = true;
+                                mWasDataEdited = true;
                                 setResult(MainActivity.RESULT_DATA_WAS_MODIFIED, null);
                             }
                         })
@@ -488,7 +497,7 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
                         .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int id) {
-                                // removes the dialog from the screen
+                                // removes the mDialog from the screen
                             }
                         })
                         .show();
@@ -511,7 +520,7 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
             builder.setPositiveButton(R.string.email, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    File file = null;
+                    File file;
                     file = AppFileManagementHelper.copyDBToExternal(SettingsActivity.this);
                     Intent intent = new Intent(Intent.ACTION_SEND);
                     intent.putExtra(Intent.EXTRA_EMAIL, new String[]{""});
@@ -541,9 +550,9 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
 
                 }
             });
-            // create and show the alert dialog
-            alertDialog = builder.create();
-            alertDialog.show();
+            // create and show the alert mDialog
+            mAlertDialog = builder.create();
+            mAlertDialog.show();
         } else {
             ActivityCompat.requestPermissions(
                     SettingsActivity.this,
@@ -562,7 +571,6 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
             } else {
                 Toast.makeText(this, R.string.permission_file_access_denied, Toast.LENGTH_SHORT).show();
             }
-            return;
         }
     }
 
@@ -573,7 +581,7 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
             builder.setPositiveButton(R.string.rentbud_folder, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    File f = new File(Environment.getExternalStorageDirectory(), "Rentbud");
+                    File f = new File(Environment.getExternalStorageDirectory(), "RentalBud");
                     if (!f.exists()) {
                         f.mkdirs();
                     }
@@ -591,9 +599,9 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
                     displayFiles(downloads);
                 }
             });
-            // create and show the alert dialog
-            alertDialog = builder.create();
-            alertDialog.show();
+            // create and show the alert mDialog
+            mAlertDialog = builder.create();
+            mAlertDialog.show();
         } else {
             ActivityCompat.requestPermissions(
                     SettingsActivity.this,
@@ -621,7 +629,7 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
                 if (fileName != null) {
                     File backup = new File(downloads.getAbsolutePath() + "/" + fileName);
                     if (backup.exists()) {
-                        dbHandler.importBackupDB(backup);
+                        mDBHandler.importBackupDB(backup);
                         endActivityAndRequestMainToLogUserOut();
                     }
                 }
@@ -632,7 +640,7 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBoolean("was_edited", wasDataEdited);
+        outState.putBoolean("was_edited", mWasDataEdited);
     }
 
     private void endActivityAndRequestMainToLogUserOut() {
@@ -647,7 +655,7 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
         int maxLength = 20;
         editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxLength)});
         editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-        alertDialog = new AlertDialog.Builder(SettingsActivity.this)
+        mAlertDialog = new AlertDialog.Builder(SettingsActivity.this)
                 .setMessage(R.string.confirm_pass_to_delete_account_message)
                 .setTitle(R.string.confirm_pass_to_delete_account_title)
                 .setView(editText)
@@ -657,8 +665,8 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         String input = AppFileManagementHelper.SHA512Hash(editText.getText().toString());
-                        if (dbHandler.checkUser(MainActivity.user.getEmail(), input)) {
-                            dbHandler.setUserInactive(MainActivity.user);
+                        if (mDBHandler.checkUser(MainActivity.sUser.getEmail(), input)) {
+                            mDBHandler.setUserInactive(MainActivity.sUser);
                             endActivityAndRequestMainToLogUserOut();
                             Toast.makeText(SettingsActivity.this, R.string.account_removed, Toast.LENGTH_SHORT).show();
                         } else {
@@ -681,12 +689,12 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
-                    alertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                    mAlertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
                 }
             }
         });
 
-        alertDialog.show();
+        mAlertDialog.show();
     }
 
     public void showConfirmPasswordForEmailChangeDialog() {
@@ -695,7 +703,7 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
         editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxLength)});
         editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
 
-        alertDialog = new AlertDialog.Builder(SettingsActivity.this)
+        mAlertDialog = new AlertDialog.Builder(SettingsActivity.this)
                 .setTitle(R.string.confirm_pass_to_change_account_info)
                 .setView(editText)
 
@@ -704,7 +712,7 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         String input = AppFileManagementHelper.SHA512Hash(editText.getText().toString());
-                        if (dbHandler.checkUser(MainActivity.user.getEmail(), input)) {
+                        if (mDBHandler.checkUser(MainActivity.sUser.getEmail(), input)) {
                             showChangeEmailDialog();
                         } else {
                             Toast.makeText(SettingsActivity.this, R.string.incorrect_password, Toast.LENGTH_SHORT).show();
@@ -726,12 +734,12 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
-                    alertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                    mAlertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
                 }
             }
         });
 
-        alertDialog.show();
+        mAlertDialog.show();
     }
 
     public void showChangeEmailDialog() {
@@ -739,7 +747,7 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
         int maxLength = 50;
         editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxLength)});
         editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-        alertDialog = new AlertDialog.Builder(SettingsActivity.this)
+        mAlertDialog = new AlertDialog.Builder(SettingsActivity.this)
                 .setTitle(R.string.new_account_email)
                 .setView(editText)
                 // Set the action buttons
@@ -764,24 +772,24 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
-                    alertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                    mAlertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
                 }
             }
         });
 
-        alertDialog.show();
-        ( alertDialog).getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+        mAlertDialog.show();
+        (mAlertDialog).getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (validation.isInputEditTextEmail(editText, getString(R.string.enter_valid_email))) {
+                if (mValidation.isInputEditTextEmail(editText, getString(R.string.enter_valid_email))) {
                     String input = editText.getText().toString();
-                    MainActivity.user.setEmail(input);
-                    dbHandler.updateUser(MainActivity.user);
+                    MainActivity.sUser.setEmail(input);
+                    mDBHandler.updateUser(MainActivity.sUser);
                     SharedPreferences.Editor editor = preferences.edit();
-                    editor.putString("last_user_email", MainActivity.user.getEmail());
+                    editor.putString("last_user_email", MainActivity.sUser.getEmail());
                     editor.commit();
                     Toast.makeText(SettingsActivity.this, R.string.email_changed, Toast.LENGTH_SHORT).show();
-                    alertDialog.dismiss();
+                    mAlertDialog.dismiss();
                 }
             }
         });
@@ -792,7 +800,7 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
         int maxLength = 20;
         editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxLength)});
         editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-        alertDialog = new AlertDialog.Builder(SettingsActivity.this)
+        mAlertDialog = new AlertDialog.Builder(SettingsActivity.this)
                 .setTitle(R.string.type_old_pass)
                 .setView(editText)
 
@@ -801,7 +809,7 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         String input = AppFileManagementHelper.SHA512Hash(editText.getText().toString());
-                        if (dbHandler.checkUser(MainActivity.user.getEmail(), input)) {
+                        if (mDBHandler.checkUser(MainActivity.sUser.getEmail(), input)) {
                             showChangePassDialog();
                         } else {
                             Toast.makeText(SettingsActivity.this, R.string.incorrect_password, Toast.LENGTH_SHORT).show();
@@ -823,12 +831,12 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
-                    alertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                    mAlertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
                 }
             }
         });
 
-        alertDialog.show();
+        mAlertDialog.show();
     }
 
     public void showChangePassDialog() {
@@ -837,7 +845,7 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
         editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxLength)});
         editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
 
-        alertDialog = new AlertDialog.Builder(SettingsActivity.this)
+        mAlertDialog = new AlertDialog.Builder(SettingsActivity.this)
                 .setTitle(R.string.new_account_password)
                 .setView(editText)
 
@@ -865,24 +873,24 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
-                    alertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                    mAlertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
                 }
             }
         });
 
-        alertDialog.show();
-        ( alertDialog).getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+        mAlertDialog.show();
+        (mAlertDialog).getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (validation.isInputEditTextPassword(editText, getString(R.string.password_requirements))) {
+                if (mValidation.isInputEditTextPassword(editText, getString(R.string.password_requirements))) {
                     String input = AppFileManagementHelper.SHA512Hash(editText.getText().toString());
-                    MainActivity.user.setPassword(input);
-                    dbHandler.updateUser(MainActivity.user);
+                    MainActivity.sUser.setPassword(input);
+                    mDBHandler.updateUser(MainActivity.sUser);
                     SharedPreferences.Editor editor = preferences.edit();
-                    editor.putString("last_user_password", MainActivity.user.getPassword());
+                    editor.putString("last_user_password", MainActivity.sUser.getPassword());
                     editor.commit();
                     Toast.makeText(SettingsActivity.this, R.string.password_changed, Toast.LENGTH_SHORT).show();
-                    alertDialog.dismiss();
+                    mAlertDialog.dismiss();
                 }
             }
         });

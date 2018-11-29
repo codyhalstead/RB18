@@ -14,11 +14,11 @@ import java.util.ArrayList;
 public class TenantWizardPage3 extends Page {
     public static final String TENANT_NOTES_DATA_KEY = "tenant_notes";
     public static final String WAS_PRELOADED = "tenant_page_3_was_preloaded";
-    Context context;
+    Context mContext;
 
     public TenantWizardPage3(ModelCallbacks callbacks, String title, Context context) {
         super(callbacks, title);
-        this.context = context;
+        mContext = context;
         mData.putBoolean(WAS_PRELOADED, false);
     }
 
@@ -30,7 +30,7 @@ public class TenantWizardPage3 extends Page {
 
     @Override
     public void getReviewItems(ArrayList<ReviewItem> dest) {
-        dest.add(new ReviewItem(context.getResources().getString(R.string.notes), mData.getString(TENANT_NOTES_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(mContext.getResources().getString(R.string.notes), mData.getString(TENANT_NOTES_DATA_KEY), getKey(), -1));
     }
 
     @Override

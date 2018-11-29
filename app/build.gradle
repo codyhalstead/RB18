@@ -1,8 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
+    compileSdkVersion 28
+    testOptions.unitTests.includeAndroidResources = true
+
     signingConfigs {
         config {
+            //TODO set up config for release
 
         }
     }
@@ -26,7 +30,7 @@ android {
         free {
             flavorDimensions "default"
             applicationIdSuffix ".free"
-            versionCode 1
+            versionCode 4
             versionName '1.0.0'
             resValue "string", "app_name", "RentalBud"
             signingConfig signingConfigs.config
@@ -44,7 +48,7 @@ android {
         pro {
             flavorDimensions "default"
             applicationIdSuffix ".pro"
-            versionCode 1
+            versionCode 3
             versionName '1.0.0'
             resValue "string", "app_name", "RentalBud Pro"
             vectorDrawables.useSupportLibrary = true
@@ -76,15 +80,27 @@ android {
             path "CMakeLists.txt"
         }
     }
+
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+            unitTests.returnDefaultValues = true
+        }
+    }
+
+
 }
 repositories{
     maven { url "http://jitpack.io"}
 }
 
+
+
 dependencies {
     androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
+    testImplementation "org.robolectric:robolectric:4.0.1"
     def lifecycle_version = "1.1.1"
     implementation 'com.android.support:appcompat-v7:26.1.0'
     implementation 'com.android.support.constraint:constraint-layout:1.1.0'
@@ -101,6 +117,7 @@ dependencies {
     implementation "android.arch.lifecycle:viewmodel:$lifecycle_version"
     implementation "android.arch.lifecycle:extensions:$lifecycle_version"
     implementation 'com.roomorama:caldroid:3.0.1'
+    implementation 'com.google.android.gms:play-services-auth:16.0.1'
     implementation(project(':Android-WizardPager-master')) {
         exclude group: 'com.android.support'
         exclude module: 'appcompat-v7'
@@ -110,3 +127,5 @@ dependencies {
     implementation files('libs/activation.jar')
     implementation 'com.google.android.gms:play-services-ads:15.0.1'
 }
+
+

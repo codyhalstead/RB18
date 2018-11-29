@@ -15,11 +15,11 @@ public class ApartmentWizardPage2 extends Page {
     public static final String APARTMENT_DESCRIPTION_DATA_KEY = "apartment_description";
     public static final String APARTMENT_NOTES_DATA_KEY = "apartment_notes";
     public static final String WAS_PRELOADED = "apartmant_page_2_was_preloaded";
-    private Context context;
+    private Context mContext;
 
     public ApartmentWizardPage2(ModelCallbacks callbacks, String title, Context context) {
         super(callbacks, title);
-        this.context = context;
+        mContext = context;
         mData.putBoolean(WAS_PRELOADED, false);
     }
 
@@ -30,8 +30,8 @@ public class ApartmentWizardPage2 extends Page {
 
     @Override
     public void getReviewItems(ArrayList<ReviewItem> dest) {
-        dest.add(new ReviewItem(context.getResources().getString(R.string.description), mData.getString(APARTMENT_DESCRIPTION_DATA_KEY), getKey(), -1));
-        dest.add(new ReviewItem(context.getResources().getString(R.string.notes), mData.getString(APARTMENT_NOTES_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(mContext.getResources().getString(R.string.description), mData.getString(APARTMENT_DESCRIPTION_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(mContext.getResources().getString(R.string.notes), mData.getString(APARTMENT_NOTES_DATA_KEY), getKey(), -1));
     }
 
     @Override

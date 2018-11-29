@@ -33,27 +33,26 @@ import java.util.Locale;
  */
 
 public class TenantListAdapter extends BaseAdapter implements Filterable {
-    private ArrayList<Tenant> tenantArray;
-    private ArrayList<Tenant> filteredResults;
-    private Context context;
-    private String searchText;
-    private SharedPreferences preferences;
-    private ColorStateList highlightColor;
-    MainArrayDataMethods dataMethods;
-    private int dateFormatCode;
+    private ArrayList<Tenant> mTenantArray;
+    private ArrayList<Tenant> mFilteredResults;
+    private Context mContext;
+    private String mSearchText;
+    private ColorStateList mHighlightColor;
+    private MainArrayDataMethods mDataMethods;
+    private int mDateFormatCode;
 
     public TenantListAdapter(Context context, ArrayList<Tenant> tenantArray, ColorStateList highlightColor) {
-        this.tenantArray = tenantArray;
-        this.filteredResults = tenantArray;
-        this.context = context;
-        this.preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        this.searchText = "";
-        this.highlightColor = highlightColor;
-        this.dataMethods = new MainArrayDataMethods();
-        this.dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
+        mTenantArray = tenantArray;
+        mFilteredResults = tenantArray;
+        mContext = context;
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        mSearchText = "";
+        mHighlightColor = highlightColor;
+        mDataMethods = new MainArrayDataMethods();
+        mDateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
     }
 
-    static class ViewHolder {
+    private static class ViewHolder {
         TextView nameTV;
         TextView phoneNumberTV;
         TextView leaseEndsTextDisplayTV;
@@ -65,15 +64,15 @@ public class TenantListAdapter extends BaseAdapter implements Filterable {
 
     @Override
     public int getCount() {
-        if(filteredResults != null) {
-            return filteredResults.size();
+        if(mFilteredResults != null) {
+            return mFilteredResults.size();
         }
         return 0;
     }
 
     @Override
     public Tenant getItem(int i) {
-        return filteredResults.get(i);
+        return mFilteredResults.get(i);
     }
 
     @Override
@@ -88,7 +87,7 @@ public class TenantListAdapter extends BaseAdapter implements Filterable {
         ViewHolder viewHolder;
         // Check if an existing view is being reused, otherwise inflate the view
         if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.row_tenant, parent, false);
+            convertView = LayoutInflater.from(mContext).inflate(R.layout.row_tenant, parent, false);
             viewHolder = new ViewHolder();
 
             viewHolder.nameTV = convertView.findViewById(R.id.nameTV);
@@ -114,11 +113,11 @@ public class TenantListAdapter extends BaseAdapter implements Filterable {
                 viewHolder.leaseEndsTextDisplayTV.setText("");
                 viewHolder.isPrimaryTV.setText("");
             } else {
-                currentLease = dataMethods.getCachedActiveLeaseByTenantID(tenant.getId());
+                currentLease = mDataMethods.getCachedActiveLeaseByTenantID(tenant.getId());
                 viewHolder.leaseEndsTV.setText(R.string.error);
                 viewHolder.isPrimaryTV.setText(R.string.error);
                 if(currentLease != null) {
-                    viewHolder.leaseEndsTV.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, currentLease.getLeaseEnd()));
+                    viewHolder.leaseEndsTV.setText(DateAndCurrencyDisplayer.getDateToDisplay(mDateFormatCode, currentLease.getLeaseEnd()));
                     if (tenant.getId() == currentLease.getPrimaryTenantID()) {
                         viewHolder.isPrimaryTV.setText(R.string.primary);
                     } else {
@@ -131,11 +130,11 @@ public class TenantListAdapter extends BaseAdapter implements Filterable {
                 viewHolder.rentingStatusTV.setText(R.string.not_currently_renting);
                 viewHolder.apartmentAddressTV.setText("");
             } else {
-                String renting = context.getResources().getString(R.string.renting) + " ";
+                String renting = mContext.getResources().getString(R.string.renting) + " ";
                 viewHolder.rentingStatusTV.setText(renting);
                 if(currentLease != null) {
                     convertView.setBackgroundColor(convertView.getResources().getColor(R.color.white));
-                    Apartment apartment = dataMethods.getCachedApartmentByApartmentID(currentLease.getApartmentID());
+                    Apartment apartment = mDataMethods.getCachedApartmentByApartmentID(currentLease.getApartmentID());
                     if (apartment != null) {
                         viewHolder.apartmentAddressTV.setText(apartment.getStreet1AndStreet2String());
                     } else {
@@ -159,7 +158,7 @@ public class TenantListAdapter extends BaseAdapter implements Filterable {
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
                 //Update filtered results and notify change
-                filteredResults = (ArrayList<Tenant>) results.values;
+                mFilteredResults = (ArrayList<Tenant>) results.values;
                 notifyDataSetChanged();
             }
 
@@ -167,11 +166,11 @@ public class TenantListAdapter extends BaseAdapter implements Filterable {
             protected FilterResults performFiltering(CharSequence constraint) {
                 FilterResults results = new FilterResults();
                 ArrayList<Tenant> FilteredArrayNames = new ArrayList<>();
-                searchText = constraint.toString().toLowerCase();
+                mSearchText = constraint.toString().toLowerCase();
                 //Perform users search
                 constraint = constraint.toString().toLowerCase();
-                for (int i = 0; i < tenantArray.size(); i++) {
-                    Tenant dataNames = tenantArray.get(i);
+                for (int i = 0; i < mTenantArray.size(); i++) {
+                    Tenant dataNames = mTenantArray.get(i);
                     String phone = "";
                     if(dataNames.getPhone() != null){
                         phone = dataNames.getPhone();
@@ -195,13 +194,13 @@ public class TenantListAdapter extends BaseAdapter implements Filterable {
     //Used to change color of any text matching search
     private void setTextHighlightSearch(TextView textView, String theTextToSet) {
         //If user has any text in the search bar
-        if (searchText != null && !searchText.isEmpty()) {
-            int startPos = theTextToSet.toLowerCase(Locale.US).indexOf(searchText.toLowerCase(Locale.US));
-            int endPos = startPos + searchText.length();
+        if (mSearchText != null && !mSearchText.isEmpty()) {
+            int startPos = theTextToSet.toLowerCase(Locale.US).indexOf(mSearchText.toLowerCase(Locale.US));
+            int endPos = startPos + mSearchText.length();
             if (startPos != -1) {
                 //If theTextToSet contains match, highlight match
                 Spannable spannable = new SpannableString(theTextToSet);
-                TextAppearanceSpan highlightSpan = new TextAppearanceSpan(null, Typeface.BOLD, -1, highlightColor, null);
+                TextAppearanceSpan highlightSpan = new TextAppearanceSpan(null, Typeface.BOLD, -1, mHighlightColor, null);
                 spannable.setSpan(highlightSpan, startPos, endPos, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 textView.setText(spannable);
             } else {
@@ -216,12 +215,12 @@ public class TenantListAdapter extends BaseAdapter implements Filterable {
 
     //Retrieve filtered results
     public ArrayList<Tenant> getFilteredResults() {
-        return filteredResults;
+        return mFilteredResults;
     }
 
     public void updateResults(ArrayList<Tenant> results) {
-        tenantArray = results;
-        filteredResults = results;
+        mTenantArray = results;
+        mFilteredResults = results;
 
         //Triggers the list update
         notifyDataSetChanged();

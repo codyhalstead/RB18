@@ -19,11 +19,11 @@ public class ApartmentWizardPage1 extends Page {
     public static final String APARTMENT_STATE_DATA_KEY = "apartment_state";
     public static final String APARTMENT_ZIP_DATA_KEY = "apartment_zip";
     public static final String WAS_PRELOADED = "apartmant_page_1_was_preloaded";
-    private Context context;
+    private Context mContext;
 
     public ApartmentWizardPage1(ModelCallbacks callbacks, String title, Context context) {
         super(callbacks, title);
-        this.context = context;
+        mContext = context;
         mData.putBoolean(WAS_PRELOADED, false);
     }
 
@@ -34,11 +34,11 @@ public class ApartmentWizardPage1 extends Page {
 
     @Override
     public void getReviewItems(ArrayList<ReviewItem> dest) {
-        dest.add(new ReviewItem(context.getResources().getString(R.string.address_line_1), mData.getString(APARTMENT_ADDRESS_1_DATA_KEY), getKey(), -1));
-        dest.add(new ReviewItem(context.getResources().getString(R.string.address_line_2), mData.getString(APARTMENT_ADDRESS_2_DATA_KEY), getKey(), -1));
-        dest.add(new ReviewItem(context.getResources().getString(R.string.city), mData.getString(APARTMENT_CITY_DATA_KEY), getKey(), -1));
-        dest.add(new ReviewItem(context.getResources().getString(R.string.state), mData.getString(APARTMENT_STATE_DATA_KEY), getKey(), -1));
-        dest.add(new ReviewItem(context.getResources().getString(R.string.zip), mData.getString(APARTMENT_ZIP_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(mContext.getResources().getString(R.string.address_line_1), mData.getString(APARTMENT_ADDRESS_1_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(mContext.getResources().getString(R.string.address_line_2), mData.getString(APARTMENT_ADDRESS_2_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(mContext.getResources().getString(R.string.city), mData.getString(APARTMENT_CITY_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(mContext.getResources().getString(R.string.state), mData.getString(APARTMENT_STATE_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(mContext.getResources().getString(R.string.zip), mData.getString(APARTMENT_ZIP_DATA_KEY), getKey(), -1));
     }
 
     @Override

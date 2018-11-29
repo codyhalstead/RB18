@@ -14,31 +14,31 @@ import java.util.Date;
  */
 
 public class Lease implements Parcelable {
-    private int id;
-    private int primaryTenantID;
-    private ArrayList<Integer> secondaryTenantIDs;
-    private int apartmentID;
-    private Date leaseStart;
-    private Date leaseEnd;
-    private int paymentDayID;
-    private BigDecimal monthlyRentCost;
-    private BigDecimal deposit;
-    private int paymentFrequencyID;
-    private String notes;
+    private int mID;
+    private int mPrimaryTenantID;
+    private ArrayList<Integer> mSecondaryTenantIDs;
+    private int mApartmentID;
+    private Date mLeaseStart;
+    private Date mLeaseEnd;
+    private int mPaymentDayID;
+    private BigDecimal mMonthlyRentCost;
+    private BigDecimal mDeposit;
+    private int mPaymentFrequencyID;
+    private String mNotes;
 
     public Lease(int id, int primaryTenantID, ArrayList<Integer> secondaryTenantIDs, int apartmentID, Date leaseStart, Date leaseEnd,
                  int paymentDayID, BigDecimal monthlyRentCost, BigDecimal deposit, int paymentFrequencyID, String notes) {
-        this.id = id;
-        this.primaryTenantID = primaryTenantID;
-        this.secondaryTenantIDs = secondaryTenantIDs;
-        this.apartmentID = apartmentID;
-        this.leaseStart = leaseStart;
-        this.leaseEnd = leaseEnd;
-        this.paymentDayID = paymentDayID;
-        this.monthlyRentCost = monthlyRentCost;
-        this.deposit = deposit;
-        this.paymentFrequencyID = paymentFrequencyID;
-        this.notes = notes;
+        mID = id;
+        mPrimaryTenantID = primaryTenantID;
+        mSecondaryTenantIDs = secondaryTenantIDs;
+        mApartmentID = apartmentID;
+        mLeaseStart = leaseStart;
+        mLeaseEnd = leaseEnd;
+        mPaymentDayID = paymentDayID;
+        mMonthlyRentCost = monthlyRentCost;
+        mDeposit = deposit;
+        mPaymentFrequencyID = paymentFrequencyID;
+        mNotes = notes;
     }
 
     @Override
@@ -48,65 +48,65 @@ public class Lease implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeInt(this.id);
-        parcel.writeInt(this.primaryTenantID);
-        if (this.secondaryTenantIDs != null) {
-            parcel.writeInt(this.secondaryTenantIDs.size());
-            parcel.writeList(this.secondaryTenantIDs);
+        parcel.writeInt(mID);
+        parcel.writeInt(mPrimaryTenantID);
+        if (mSecondaryTenantIDs != null) {
+            parcel.writeInt(mSecondaryTenantIDs.size());
+            parcel.writeList(mSecondaryTenantIDs);
         } else {
             parcel.writeInt(-1);
         }
-        parcel.writeInt(this.apartmentID);
-        if(this.leaseStart != null){
+        parcel.writeInt(mApartmentID);
+        if(mLeaseStart != null){
             parcel.writeInt(1);
-            parcel.writeLong(this.leaseStart.getTime());
+            parcel.writeLong(mLeaseStart.getTime());
         }else{
             parcel.writeInt(0);
         }
-        if(this.leaseEnd != null){
+        if(mLeaseEnd != null){
             parcel.writeInt(1);
-            parcel.writeLong(this.leaseEnd.getTime());
+            parcel.writeLong(mLeaseEnd.getTime());
         }else{
             parcel.writeInt(0);
         }
-        parcel.writeInt(this.paymentDayID);
-        String amountString = this.monthlyRentCost.toPlainString();
+        parcel.writeInt(mPaymentDayID);
+        String amountString = mMonthlyRentCost.toPlainString();
         parcel.writeString(amountString);
-        amountString = this.deposit.toPlainString();
+        amountString = mDeposit.toPlainString();
         parcel.writeString(amountString);
-        parcel.writeInt(paymentFrequencyID);
-        parcel.writeString(this.notes);
+        parcel.writeInt(mPaymentFrequencyID);
+        parcel.writeString(mNotes);
     }
 
     public Lease(Parcel parcel) {
-        this.id = parcel.readInt();
-        this.primaryTenantID = parcel.readInt();
+        mID = parcel.readInt();
+        mPrimaryTenantID = parcel.readInt();
         int size = parcel.readInt();
         if(size > -1){
-            this.secondaryTenantIDs = parcel.readArrayList(null);
+            mSecondaryTenantIDs = parcel.readArrayList(null);
         } else {
-            this.secondaryTenantIDs = new ArrayList<>();
+            mSecondaryTenantIDs = new ArrayList<>();
         }
-        this.apartmentID = parcel.readInt();
+        mApartmentID = parcel.readInt();
         int leaseStartDateIsNotNull = parcel.readInt();
         if(leaseStartDateIsNotNull == 1) {
-            this.leaseStart = new Date(parcel.readLong());
+            mLeaseStart = new Date(parcel.readLong());
         } else {
-            this.leaseStart = null;
+            mLeaseStart = null;
         }
         int leaseEndDateIsNotNull = parcel.readInt();
         if(leaseEndDateIsNotNull == 1) {
-            this.leaseEnd = new Date(parcel.readLong());
+            mLeaseEnd = new Date(parcel.readLong());
         } else {
-            this.leaseEnd = null;
+            mLeaseEnd = null;
         }
-        this.paymentDayID = parcel.readInt();
+        mPaymentDayID = parcel.readInt();
         String amountString = parcel.readString();
-        this.monthlyRentCost = new BigDecimal(amountString);
+        mMonthlyRentCost = new BigDecimal(amountString);
         amountString = parcel.readString();
-        this.deposit = new BigDecimal(amountString);
-        this.paymentFrequencyID = parcel.readInt();
-        this.notes = parcel.readString();
+        mDeposit = new BigDecimal(amountString);
+        mPaymentFrequencyID = parcel.readInt();
+        mNotes = parcel.readString();
     }
 
     public static final Parcelable.Creator<Lease> CREATOR
@@ -126,97 +126,97 @@ public class Lease implements Parcelable {
     };
 
     public int getId() {
-        return id;
+        return mID;
     }
 
     public void setId(int id) {
-        this.id = id;
+        mID = id;
     }
 
     public int getPrimaryTenantID() {
-        return primaryTenantID;
+        return mPrimaryTenantID;
     }
 
     public void setPrimaryTenantID(int primaryTenantID) {
-        this.primaryTenantID = primaryTenantID;
+        mPrimaryTenantID = primaryTenantID;
     }
 
     public ArrayList<Integer> getSecondaryTenantIDs() {
-        return secondaryTenantIDs;
+        return mSecondaryTenantIDs;
     }
 
     public void setSecondaryTenantIDs(ArrayList<Integer> secondaryTenantIDs) {
-        this.secondaryTenantIDs = secondaryTenantIDs;
+        mSecondaryTenantIDs = secondaryTenantIDs;
     }
 
     public int getApartmentID() {
-        return apartmentID;
+        return mApartmentID;
     }
 
     public void setApartmentID(int apartmentID) {
-        this.apartmentID = apartmentID;
+        mApartmentID = apartmentID;
     }
 
     public Date getLeaseStart() {
-        return leaseStart;
+        return mLeaseStart;
     }
 
     public void setLeaseStart(Date leaseStart) {
-        this.leaseStart = leaseStart;
+        mLeaseStart = leaseStart;
     }
 
     public Date getLeaseEnd() {
-        return leaseEnd;
+        return mLeaseEnd;
     }
 
     public void setLeaseEnd(Date leaseEnd) {
-        this.leaseEnd = leaseEnd;
+        mLeaseEnd = leaseEnd;
     }
 
     public int getPaymentDayID() {
-        return paymentDayID;
+        return mPaymentDayID;
     }
 
     public void setPaymentDayID(int paymentDay) {
-        this.paymentDayID = paymentDay;
+        mPaymentDayID = paymentDay;
     }
 
     public BigDecimal getMonthlyRentCost() {
-        return monthlyRentCost;
+        return mMonthlyRentCost;
     }
 
     public void setMonthlyRentCost(BigDecimal monthlyRentCost) {
-        this.monthlyRentCost = monthlyRentCost;
+        mMonthlyRentCost = monthlyRentCost;
     }
 
     public BigDecimal getDeposit() {
-        return deposit;
+        return mDeposit;
     }
 
     public void setDeposit(BigDecimal deposit) {
-        this.deposit = deposit;
+        mDeposit = deposit;
     }
 
     public int getPaymentFrequencyID() {
-        return paymentFrequencyID;
+        return mPaymentFrequencyID;
     }
 
     public void setPaymentFreuencyID(int paymentFreuencyID) {
-        this.paymentFrequencyID = paymentFreuencyID;
+        mPaymentFrequencyID = paymentFreuencyID;
     }
 
     public String getNotes() {
-        return notes;
+        return mNotes;
     }
 
     public void setNotes(String notes) {
-        this.notes = notes;
+        mNotes = notes;
     }
 
     public String getStartAndEndDatesString(int dateFormatCode) {
-        StringBuilder sae = new StringBuilder(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, leaseStart));
+        StringBuilder sae = new StringBuilder(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, mLeaseStart));
         sae.append(" - ");
-        sae.append(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, leaseEnd));
+        sae.append(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, mLeaseEnd));
         return sae.toString();
     }
 }

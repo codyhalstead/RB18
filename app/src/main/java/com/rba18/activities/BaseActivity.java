@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
+import android.view.View;
 
 import com.rba18.R;
 
@@ -15,7 +16,7 @@ import com.rba18.R;
  * Created by Cody on 1/25/2018.
  */
 
-//Base activity with theme and toolbar set-ups
+//Base activity with theme and mToolbar set-ups
 public class BaseActivity extends AppCompatActivity {
     //Theme constants
     public final static int THEME_PURPLE = 0;
@@ -30,14 +31,14 @@ public class BaseActivity extends AppCompatActivity {
     public final static int THEME_BLUE = 9;
 
     public SharedPreferences preferences;
-    public Toolbar toolbar;
+    private Toolbar mToolbar;
 
     //onCreate
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        this.toolbar = null;
+        this.mToolbar = null;
     }
 
     //gets current primary theme color
@@ -113,14 +114,24 @@ public class BaseActivity extends AppCompatActivity {
         }
     }
 
-    //sets up a basic toolbar, layout xml must include R.id.toolbar
+    public void addToolbarBackButton(){
+        mToolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_arrow_back_white_24dp));
+        mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+    }
+
+    //sets up a basic mToolbar, layout xml must include R.id.mToolbar
     public void setupBasicToolbar(){
-        this.toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        this.mToolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
     }
 
     public Toolbar getToolbar(){
-        return this.toolbar;
+        return this.mToolbar;
     }
 
 }

@@ -11,7 +11,6 @@ import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.PopupMenu;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
@@ -43,28 +42,25 @@ import static android.app.Activity.RESULT_OK;
 
 public class LeaseViewFrag2 extends android.support.v4.app.Fragment implements AdapterView.OnItemClickListener, View.OnClickListener {
 
-
     public LeaseViewFrag2() {
         // Required empty public constructor
     }
 
-    TextView noPaymentsTV, totalAmountTV, totalAmountLabelTV;
-    LinearLayout totalAmountLL;
-    MoneyListAdapter moneyListAdapter;
-    ColorStateList accentColor;
-    ListView listView;
-    MainArrayDataMethods dm;
-    private DatabaseHandler db;
-    private ArrayList<MoneyLogEntry> currentFilteredMoney;
-    private BigDecimal total;
-    private Lease lease;
-    private MoneyLogEntry selectedMoney;
-    FloatingActionButton fab;
+    private TextView mNoPaymentsTV, mTotalAmountTV, mTotalAmountLabelTV;
+    private MoneyListAdapter mMoneyListAdapter;
+    private ColorStateList mAccentColor;
+    private ListView mListView;
+    private MainArrayDataMethods mDM;
+    private DatabaseHandler mDB;
+    private ArrayList<MoneyLogEntry> mCurrentFilteredMoney;
+    private BigDecimal mTotal;
+    private Lease mLease;
+    private MoneyLogEntry mSelectedMoney;
     private OnMoneyDataChangedListener mCallback;
-    private SharedPreferences preferences;
-    private AlertDialog dialog;
-    private PopupMenu popupMenu;
-    private boolean completedOnly;
+    private SharedPreferences mPreferences;
+    private AlertDialog mDialog;
+    private PopupMenu mPopupMenu;
+    private boolean mCompletedOnly;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -75,37 +71,37 @@ public class LeaseViewFrag2 extends android.support.v4.app.Fragment implements A
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        this.noPaymentsTV = view.findViewById(R.id.emptyListTV);
-        this.totalAmountLabelTV = view.findViewById(R.id.moneyListTotalAmountLabelTV);
-        this.totalAmountTV = view.findViewById(R.id.moneyListTotalAmountTV);
-        this.fab = view.findViewById(R.id.listFab);
-        this.listView = view.findViewById(R.id.mainMoneyListView);
-        this.totalAmountLL = view.findViewById(R.id.moneyListTotalAmountLL);
-        this.totalAmountLL.setOnClickListener(this);
-        dm = new MainArrayDataMethods();
-        this.db = new DatabaseHandler(getContext());
+        mNoPaymentsTV = view.findViewById(R.id.emptyListTV);
+        mTotalAmountLabelTV = view.findViewById(R.id.moneyListTotalAmountLabelTV);
+        mTotalAmountTV = view.findViewById(R.id.moneyListTotalAmountTV);
+        FloatingActionButton fab = view.findViewById(R.id.listFab);
+        mListView = view.findViewById(R.id.mainMoneyListView);
+        LinearLayout totalAmountLL = view.findViewById(R.id.moneyListTotalAmountLL);
+        totalAmountLL.setOnClickListener(this);
+        mDM = new MainArrayDataMethods();
+        mDB = new DatabaseHandler(getContext());
         Bundle bundle = getArguments();
         if (savedInstanceState != null) {
-            if (savedInstanceState.getParcelable("lease") != null) {
-                this.lease = savedInstanceState.getParcelable("lease");
+            if (savedInstanceState.getParcelable("mLease") != null) {
+                mLease = savedInstanceState.getParcelable("mLease");
             }
             if (savedInstanceState.getParcelableArrayList("filteredMoney") != null) {
-                this.currentFilteredMoney = savedInstanceState.getParcelableArrayList("filteredMoney");
+                mCurrentFilteredMoney = savedInstanceState.getParcelableArrayList("filteredMoney");
             }
             if (savedInstanceState.getString("totalString") != null) {
                 String totalString = savedInstanceState.getString("totalString");
-                this.total = new BigDecimal(totalString);
+                mTotal = new BigDecimal(totalString);
             }
-            completedOnly = savedInstanceState.getBoolean("completedOnly");
+            mCompletedOnly = savedInstanceState.getBoolean("mCompletedOnly");
         } else {
-            completedOnly = true;
-            this.lease = bundle.getParcelable("lease");
-            currentFilteredMoney = new ArrayList<>();
+            mCompletedOnly = true;
+            mLease = bundle.getParcelable("mLease");
+            mCurrentFilteredMoney = new ArrayList<>();
             getFilteredMoney();
-            total = getTotal();
+            mTotal = getTotal();
         }
-        this.preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        this.fab.setOnClickListener(new View.OnClickListener() {
+        mPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 showNewIncomeOrExpenseAlertDialog();
@@ -115,7 +111,7 @@ public class LeaseViewFrag2 extends android.support.v4.app.Fragment implements A
         //Get current theme accent color, which is passed into the list adapter for search highlighting
         TypedValue colorValue = new TypedValue();
         getActivity().getTheme().resolveAttribute(R.attr.colorAccent, colorValue, true);
-        this.accentColor = getActivity().getResources().getColorStateList(colorValue.resourceId);
+        mAccentColor = getActivity().getResources().getColorStateList(colorValue.resourceId);
         setUpListAdapter();
         setUpSearchBar();
         setTotalTV();
@@ -157,46 +153,46 @@ public class LeaseViewFrag2 extends android.support.v4.app.Fragment implements A
     }
 
     private void setUpListAdapter() {
-        if (currentFilteredMoney != null) {
-            moneyListAdapter = new MoneyListAdapter(getActivity(), currentFilteredMoney, accentColor, null, true);
-            listView.setAdapter(moneyListAdapter);
-            listView.setOnItemClickListener(this);
-            noPaymentsTV.setText(R.string.no_payments_to_display_lease);
-            listView.setEmptyView(noPaymentsTV);
+        if (mCurrentFilteredMoney != null) {
+            mMoneyListAdapter = new MoneyListAdapter(getActivity(), mCurrentFilteredMoney, mAccentColor, null, true);
+            mListView.setAdapter(mMoneyListAdapter);
+            mListView.setOnItemClickListener(this);
+            mNoPaymentsTV.setText(R.string.no_payments_to_display_lease);
+            mListView.setEmptyView(mNoPaymentsTV);
         }
     }
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        popupMenu = new PopupMenu(getActivity(), view);
-        MenuInflater inflater = popupMenu.getMenuInflater();
+        mPopupMenu = new PopupMenu(getActivity(), view);
+        MenuInflater inflater = mPopupMenu.getMenuInflater();
         final int position = i;
-        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+        mPopupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 switch (item.getItemId()) {
 
                     case R.id.changeStatus:
-                        //On listView row click, launch ApartmentViewActivity passing the rows data into it.
-                        selectedMoney = moneyListAdapter.getFilteredResults().get(position);
-                        if (selectedMoney instanceof PaymentLogEntry) {
-                            PaymentLogEntry selectedIncome = (PaymentLogEntry) selectedMoney;
+                        //On mListView row click, launch ApartmentViewActivity passing the rows data into it.
+                        mSelectedMoney = mMoneyListAdapter.getFilteredResults().get(position);
+                        if (mSelectedMoney instanceof PaymentLogEntry) {
+                            PaymentLogEntry selectedIncome = (PaymentLogEntry) mSelectedMoney;
                             if(selectedIncome.getIsCompleted()){
                                 selectedIncome.setIsCompleted(false);
                             } else {
                                 selectedIncome.setIsCompleted(true);
                             }
-                            db.editPaymentLogEntry(selectedIncome);
+                            mDB.editPaymentLogEntry(selectedIncome);
                             mCallback.onMoneyDataChanged();
                             mCallback.onIncomeDataChanged();
                         } else {
-                            ExpenseLogEntry selectedExpense = (ExpenseLogEntry) selectedMoney;
+                            ExpenseLogEntry selectedExpense = (ExpenseLogEntry) mSelectedMoney;
                             if(selectedExpense.getIsCompleted()){
                                 selectedExpense.setIsCompleted(false);
                             } else {
                                 selectedExpense.setIsCompleted(true);
                             }
-                            db.editExpenseLogEntry(selectedExpense);
+                            mDB.editExpenseLogEntry(selectedExpense);
                             mCallback.onMoneyDataChanged();
                             mCallback.onExpenseDataChanged();
 
@@ -204,18 +200,18 @@ public class LeaseViewFrag2 extends android.support.v4.app.Fragment implements A
                         return true;
 
                     case R.id.edit:
-                        //On listView row click, launch ApartmentViewActivity passing the rows data into it.
-                        selectedMoney = moneyListAdapter.getFilteredResults().get(position);
-                        if (selectedMoney instanceof PaymentLogEntry) {
+                        //On mListView row click, launch ApartmentViewActivity passing the rows data into it.
+                        mSelectedMoney = mMoneyListAdapter.getFilteredResults().get(position);
+                        if (mSelectedMoney instanceof PaymentLogEntry) {
                             mCallback.onIncomeDataChanged();
                             Intent intent = new Intent(getActivity(), NewIncomeWizard.class);
-                            PaymentLogEntry selectedIncome = (PaymentLogEntry) selectedMoney;
+                            PaymentLogEntry selectedIncome = (PaymentLogEntry) mSelectedMoney;
                             intent.putExtra("incomeToEdit", selectedIncome);
                             startActivityForResult(intent, MainActivity.REQUEST_NEW_INCOME_FORM);
                         } else {
                             mCallback.onExpenseDataChanged();
                             Intent intent = new Intent(getActivity(), NewExpenseWizard.class);
-                            ExpenseLogEntry selectedExpense = (ExpenseLogEntry) selectedMoney;
+                            ExpenseLogEntry selectedExpense = (ExpenseLogEntry) mSelectedMoney;
                             intent.putExtra("expenseToEdit", selectedExpense);
                             startActivityForResult(intent, MainActivity.REQUEST_NEW_EXPENSE_FORM);
                         }
@@ -223,7 +219,7 @@ public class LeaseViewFrag2 extends android.support.v4.app.Fragment implements A
                         return true;
 
                     case R.id.remove:
-                        selectedMoney = moneyListAdapter.getFilteredResults().get(position);
+                        mSelectedMoney = mMoneyListAdapter.getFilteredResults().get(position);
                         showDeleteConfirmationAlertDialog();
                         return true;
 
@@ -232,24 +228,24 @@ public class LeaseViewFrag2 extends android.support.v4.app.Fragment implements A
                 }
             }
         });
-        inflater.inflate(R.menu.expense_income_click_menu, popupMenu.getMenu());
-        popupMenu.show();
+        inflater.inflate(R.menu.expense_income_click_menu, mPopupMenu.getMenu());
+        mPopupMenu.show();
     }
 
     public void showDeleteConfirmationAlertDialog() {
         // setup the alert builder
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        if (selectedMoney instanceof PaymentLogEntry) {
+        if (mSelectedMoney instanceof PaymentLogEntry) {
             builder.setMessage(R.string.income_deletion_confirmation);
             builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    db.setPaymentLogEntryInactive((PaymentLogEntry) selectedMoney);
+                    mDB.setPaymentLogEntryInactive((PaymentLogEntry) mSelectedMoney);
                     mCallback.onIncomeDataChanged();
                     getFilteredMoney();
-                    moneyListAdapter.updateResults(currentFilteredMoney);
-                    moneyListAdapter.notifyDataSetChanged();
-                    total = getTotal();
+                    mMoneyListAdapter.updateResults(mCurrentFilteredMoney);
+                    mMoneyListAdapter.notifyDataSetChanged();
+                    mTotal = getTotal();
                     setTotalTV();
                 }
             });
@@ -258,12 +254,12 @@ public class LeaseViewFrag2 extends android.support.v4.app.Fragment implements A
             builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    db.setExpenseInactive((ExpenseLogEntry) selectedMoney);
+                    mDB.setExpenseInactive((ExpenseLogEntry) mSelectedMoney);
                     mCallback.onExpenseDataChanged();
                     getFilteredMoney();
-                    moneyListAdapter.updateResults(currentFilteredMoney);
-                    moneyListAdapter.notifyDataSetChanged();
-                    total = getTotal();
+                    mMoneyListAdapter.updateResults(mCurrentFilteredMoney);
+                    mMoneyListAdapter.notifyDataSetChanged();
+                    mTotal = getTotal();
                     setTotalTV();
                 }
             });
@@ -275,16 +271,16 @@ public class LeaseViewFrag2 extends android.support.v4.app.Fragment implements A
 
             }
         });
-        // create and show the alert dialog
-        dialog = builder.create();
-        dialog.show();
+        // create and show the alert mDialog
+        mDialog = builder.create();
+        mDialog.show();
     }
 
     public void updateData(){
-        currentFilteredMoney = new ArrayList<>();
+        mCurrentFilteredMoney = new ArrayList<>();
         getFilteredMoney();
-        total = getTotal();
-        moneyListAdapter.updateResults(currentFilteredMoney);
+        mTotal = getTotal();
+        mMoneyListAdapter.updateResults(mCurrentFilteredMoney);
     }
 
     public void showNewIncomeOrExpenseAlertDialog() {
@@ -294,7 +290,7 @@ public class LeaseViewFrag2 extends android.support.v4.app.Fragment implements A
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 Intent intent = new Intent(getActivity(), NewIncomeWizard.class);
-                intent.putExtra("preloadedLease", lease);
+                intent.putExtra("preloadedLease", mLease);
                 startActivityForResult(intent, MainActivity.REQUEST_NEW_INCOME_FORM);
             }
         });
@@ -302,23 +298,23 @@ public class LeaseViewFrag2 extends android.support.v4.app.Fragment implements A
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 Intent intent = new Intent(getActivity(), NewExpenseWizard.class);
-                intent.putExtra("preloadedLease", lease);
+                intent.putExtra("preloadedLease", mLease);
                 startActivityForResult(intent, MainActivity.REQUEST_NEW_EXPENSE_FORM);
             }
         });
-        // create and show the alert dialog
-        dialog = builder.create();
-        dialog.show();
+        // create and show the alert mDialog
+        mDialog = builder.create();
+        mDialog.show();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        if(popupMenu != null){
-            popupMenu.dismiss();
+        if(mPopupMenu != null){
+            mPopupMenu.dismiss();
         }
-        if(dialog != null){
-            dialog.dismiss();
+        if(mDialog != null){
+            mDialog.dismiss();
         }
     }
 
@@ -329,10 +325,10 @@ public class LeaseViewFrag2 extends android.support.v4.app.Fragment implements A
             //If successful(not cancelled, passed validation)
             if (resultCode == RESULT_OK) {
                 getFilteredMoney();
-                moneyListAdapter.updateResults(currentFilteredMoney);
-                moneyListAdapter.notifyDataSetChanged();
+                mMoneyListAdapter.updateResults(mCurrentFilteredMoney);
+                mMoneyListAdapter.notifyDataSetChanged();
                 mCallback.onIncomeDataChanged();
-                total = getTotal();
+                mTotal = getTotal();
                 setTotalTV();
             }
         }
@@ -340,10 +336,10 @@ public class LeaseViewFrag2 extends android.support.v4.app.Fragment implements A
             //If successful(not cancelled, passed validation)
             if (resultCode == RESULT_OK) {
                 getFilteredMoney();
-                moneyListAdapter.updateResults(currentFilteredMoney);
-                moneyListAdapter.notifyDataSetChanged();
+                mMoneyListAdapter.updateResults(mCurrentFilteredMoney);
+                mMoneyListAdapter.notifyDataSetChanged();
                 mCallback.onExpenseDataChanged();
-                total = getTotal();
+                mTotal = getTotal();
                 setTotalTV();
             }
         }
@@ -354,13 +350,13 @@ public class LeaseViewFrag2 extends android.support.v4.app.Fragment implements A
         switch (view.getId()) {
 
             case R.id.moneyListTotalAmountLL:
-                if(completedOnly){
-                    completedOnly = false;
-                    total = getTotal();
+                if(mCompletedOnly){
+                    mCompletedOnly = false;
+                    mTotal = getTotal();
                     setTotalTV();
                 } else {
-                    completedOnly = true;
-                    total = getTotal();
+                    mCompletedOnly = true;
+                    mTotal = getTotal();
                     setTotalTV();
                 }
                 break;
@@ -378,32 +374,32 @@ public class LeaseViewFrag2 extends android.support.v4.app.Fragment implements A
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         //SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
-        outState.putBoolean("completedOnly", completedOnly);
-        if (currentFilteredMoney != null) {
-            outState.putParcelableArrayList("filteredMoney", currentFilteredMoney);
+        outState.putBoolean("mCompletedOnly", mCompletedOnly);
+        if (mCurrentFilteredMoney != null) {
+            outState.putParcelableArrayList("filteredMoney", mCurrentFilteredMoney);
         }
-        if (lease != null) {
-            outState.putParcelable("lease", lease);
+        if (mLease != null) {
+            outState.putParcelable("mLease", mLease);
         }
-        if (total != null) {
-            String totalString = total.toPlainString();
+        if (mTotal != null) {
+            String totalString = mTotal.toPlainString();
             outState.putString("totalString", totalString);
         }
     }
 
     private BigDecimal getTotal() {
         BigDecimal total = new BigDecimal(0);
-        if (currentFilteredMoney != null) {
-            if (!currentFilteredMoney.isEmpty()) {
-                if (completedOnly) {
-                    for (int i = 0; i < currentFilteredMoney.size(); i++) {
-                        if(currentFilteredMoney.get(i).getIsCompleted()) {
-                            total = total.add(currentFilteredMoney.get(i).getAmount());
+        if (mCurrentFilteredMoney != null) {
+            if (!mCurrentFilteredMoney.isEmpty()) {
+                if (mCompletedOnly) {
+                    for (int i = 0; i < mCurrentFilteredMoney.size(); i++) {
+                        if(mCurrentFilteredMoney.get(i).getIsCompleted()) {
+                            total = total.add(mCurrentFilteredMoney.get(i).getAmount());
                         }
                     }
                 } else {
-                    for (int i = 0; i < currentFilteredMoney.size(); i++) {
-                        total = total.add(currentFilteredMoney.get(i).getAmount());
+                    for (int i = 0; i < mCurrentFilteredMoney.size(); i++) {
+                        total = total.add(mCurrentFilteredMoney.get(i).getAmount());
                     }
                 }
             }
@@ -412,32 +408,32 @@ public class LeaseViewFrag2 extends android.support.v4.app.Fragment implements A
     }
 
     private void setTotalTV() {
-        if (total != null) {
-            int moneyFormatCode = preferences.getInt("currency", DateAndCurrencyDisplayer.CURRENCY_US);
-            totalAmountTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, total));
-            if (total.compareTo(new BigDecimal(0)) < 0) {
-                totalAmountTV.setTextColor(getActivity().getResources().getColor(R.color.red));
-                if(completedOnly){
-                    totalAmountLabelTV.setText(R.string.total_paid);
+        if (mTotal != null) {
+            int moneyFormatCode = mPreferences.getInt("currency", DateAndCurrencyDisplayer.CURRENCY_US);
+            mTotalAmountTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, mTotal));
+            if (mTotal.compareTo(new BigDecimal(0)) < 0) {
+                mTotalAmountTV.setTextColor(getActivity().getResources().getColor(R.color.red));
+                if(mCompletedOnly){
+                    mTotalAmountLabelTV.setText(R.string.total_paid);
                 } else {
-                    totalAmountLabelTV.setText(R.string.projected_total);
+                    mTotalAmountLabelTV.setText(R.string.projected_total);
                 }
             } else {
-                totalAmountTV.setTextColor(getActivity().getResources().getColor(R.color.green_colorPrimaryDark));
-                if(completedOnly){
-                    totalAmountLabelTV.setText(R.string.received_total);
+                mTotalAmountTV.setTextColor(getActivity().getResources().getColor(R.color.green_colorPrimaryDark));
+                if(mCompletedOnly){
+                    mTotalAmountLabelTV.setText(R.string.received_total);
                 } else {
-                    totalAmountLabelTV.setText(R.string.projected_total);
+                    mTotalAmountLabelTV.setText(R.string.projected_total);
                 }
             }
         }
     }
 
     private void getFilteredMoney(){
-        currentFilteredMoney.clear();
-        currentFilteredMoney.addAll(db.getUsersIncomeByLeaseID(MainActivity.user, lease.getId()));
-        currentFilteredMoney.addAll(db.getUsersExpensesByLeaseID(MainActivity.user, lease.getId()));
-        dm.sortMoneyByDateDesc(currentFilteredMoney);
+        mCurrentFilteredMoney.clear();
+        mCurrentFilteredMoney.addAll(mDB.getUsersIncomeByLeaseID(MainActivity.sUser, mLease.getId()));
+        mCurrentFilteredMoney.addAll(mDB.getUsersExpensesByLeaseID(MainActivity.sUser, mLease.getId()));
+        mDM.sortMoneyByDateDesc(mCurrentFilteredMoney);
     }
 }
 

@@ -36,22 +36,20 @@ import java.util.ArrayList;
 
 public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
     private static final String ARG_KEY = "key";
-
     private PageFragmentCallbacks mCallbacks;
     private String mKey;
     private LeaseWizardPage2 mPage;
-    private TextView primaryTenantTV, secondaryTenantsTV, depositHeaderTV;
-    private EditText depositAmountET, depositWithheldET;
-    private Tenant primaryTenant;
-    private ArrayList<Tenant> secondaryTenants, availableTenants;
-    private BigDecimal deposit;
-    private Button addSecondaryTenantBtn, removeSecondaryTenantBtn;
-    private DatabaseHandler db;
-    private MainArrayDataMethods mainArrayDataMethods;
-    private boolean isEdit;
-    private TenantApartmentOrLeaseChooserDialog tenantApartmentOrLeaseChooserDialog;
-    private SharedPreferences preferences;
-    private int moneyFormatCode;
+    private TextView mPrimaryTenantTV, mSecondaryTenantsTV;
+    private EditText mDepositAmountET;
+    private Tenant mPrimaryTenant;
+    private ArrayList<Tenant> mSecondaryTenants, mAvailableTenants;
+    private BigDecimal mDeposit;
+    private Button mAddSecondaryTenantBtn, mRemoveSecondaryTenantBtn;
+    private DatabaseHandler mDB;
+    private MainArrayDataMethods mMainArrayDataMethods;
+    private boolean mIsEdit;
+    private TenantApartmentOrLeaseChooserDialog mTenantApartmentOrLeaseChooserDialog;
+    private int mMoneyFormatCode;
 
     public static LeaseWizardPage2Fragment create(String key) {
         Bundle args = new Bundle();
@@ -72,28 +70,28 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
         Bundle args = getArguments();
         mKey = args.getString(ARG_KEY);
         mPage = (LeaseWizardPage2) mCallbacks.onGetPage(mKey);
-        secondaryTenants = new ArrayList<>();
-        availableTenants = new ArrayList<>();
-        db = new DatabaseHandler(getActivity());
-        preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        this.moneyFormatCode = preferences.getInt("currency", DateAndCurrencyDisplayer.CURRENCY_US);
-        mainArrayDataMethods = new MainArrayDataMethods();
-        isEdit = false;
+        mSecondaryTenants = new ArrayList<>();
+        mAvailableTenants = new ArrayList<>();
+        mDB = new DatabaseHandler(getActivity());
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        mMoneyFormatCode = preferences.getInt("currency", DateAndCurrencyDisplayer.CURRENCY_US);
+        mMainArrayDataMethods = new MainArrayDataMethods();
+        mIsEdit = false;
         Bundle extras = mPage.getData();
         if (extras != null) {
             Lease leaseToEdit = extras.getParcelable("leaseToEdit");
             if (leaseToEdit != null) {
                 loadDataForEdit(leaseToEdit);
-                isEdit = true;
+                mIsEdit = true;
             } else {
                 preloadData(extras);
             }
         } else {
-            primaryTenant = null;
-            deposit = new BigDecimal(0);
-            String formatted = DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, deposit);
+            mPrimaryTenant = null;
+            mDeposit = new BigDecimal(0);
+            String formatted = DateAndCurrencyDisplayer.getCurrencyToDisplay(mMoneyFormatCode, mDeposit);
             mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_FORMATTED_STRING_DATA_KEY, formatted);
-            mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_STRING_DATA_KEY, deposit.toPlainString());
+            mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_STRING_DATA_KEY, mDeposit.toPlainString());
         }
 
     }
@@ -103,31 +101,31 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_lease_wizard_page_2, container, false);
         (rootView.findViewById(android.R.id.title)).setVisibility(View.GONE);
-        primaryTenantTV = rootView.findViewById(R.id.leaseWizardPrimaryTenantTV);
-        primaryTenantTV.setText(mPage.getData().getString(LeaseWizardPage2.LEASE_PRIMARY_TENANT_STRING_DATA_KEY));
-        primaryTenantTV.setScroller(new Scroller(getContext()));
-        primaryTenantTV.setMaxLines(5);
-        primaryTenantTV.setVerticalScrollBarEnabled(true);
-        primaryTenantTV.setMovementMethod(new ScrollingMovementMethod());
+        mPrimaryTenantTV = rootView.findViewById(R.id.leaseWizardPrimaryTenantTV);
+        mPrimaryTenantTV.setText(mPage.getData().getString(LeaseWizardPage2.LEASE_PRIMARY_TENANT_STRING_DATA_KEY));
+        mPrimaryTenantTV.setScroller(new Scroller(getContext()));
+        mPrimaryTenantTV.setMaxLines(5);
+        mPrimaryTenantTV.setVerticalScrollBarEnabled(true);
+        mPrimaryTenantTV.setMovementMethod(new ScrollingMovementMethod());
 
-        secondaryTenantsTV = rootView.findViewById(R.id.leaseWizardSecondaryTenantsTV);
-        secondaryTenantsTV.setText(mPage.getData().getString(LeaseWizardPage2.LEASE_SECONDARY_TENANTS_STRING_DATA_KEY));
-        depositAmountET = rootView.findViewById(R.id.leaseWizardDepositET);
+        mSecondaryTenantsTV = rootView.findViewById(R.id.leaseWizardSecondaryTenantsTV);
+        mSecondaryTenantsTV.setText(mPage.getData().getString(LeaseWizardPage2.LEASE_SECONDARY_TENANTS_STRING_DATA_KEY));
+        mDepositAmountET = rootView.findViewById(R.id.leaseWizardDepositET);
         if (mPage.getData().getString(LeaseWizardPage2.LEASE_DEPOSIT_FORMATTED_STRING_DATA_KEY) != null) {
-            depositAmountET.setText(mPage.getData().getString(LeaseWizardPage2.LEASE_DEPOSIT_FORMATTED_STRING_DATA_KEY));
+            mDepositAmountET.setText(mPage.getData().getString(LeaseWizardPage2.LEASE_DEPOSIT_FORMATTED_STRING_DATA_KEY));
         }
-        depositAmountET.setSelection(depositAmountET.getText().length());
-        depositHeaderTV = rootView.findViewById(R.id.leaseWizardDepositHeaderTV);
-        if (isEdit) {
-            depositAmountET.setVisibility(View.GONE);
+        mDepositAmountET.setSelection(mDepositAmountET.getText().length());
+        TextView depositHeaderTV = rootView.findViewById(R.id.leaseWizardDepositHeaderTV);
+        if (mIsEdit) {
+            mDepositAmountET.setVisibility(View.GONE);
             depositHeaderTV.setVisibility(View.GONE);
         }
 
-        depositWithheldET = rootView.findViewById(R.id.leaseWizardDepositWithheldET);
+        EditText depositWithheldET = rootView.findViewById(R.id.leaseWizardDepositWithheldET);
         depositWithheldET.setVisibility(View.GONE);
 
-        addSecondaryTenantBtn = rootView.findViewById(R.id.leaseWizardSecondaryTenantsAddBtn);
-        removeSecondaryTenantBtn = rootView.findViewById(R.id.leaseWizardSecondaryTenantsRemoveBtn);
+        mAddSecondaryTenantBtn = rootView.findViewById(R.id.leaseWizardSecondaryTenantsAddBtn);
+        mRemoveSecondaryTenantBtn = rootView.findViewById(R.id.leaseWizardSecondaryTenantsRemoveBtn);
 
         return rootView;
     }
@@ -154,101 +152,101 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
         super.onViewCreated(view, savedInstanceState);
         ArrayList<Integer> curTenantIDs = new ArrayList<>();
         if (mPage.getData().getParcelable(LeaseWizardPage2.LEASE_PRIMARY_TENANT_DATA_KEY) != null) {
-            primaryTenant = mPage.getData().getParcelable(LeaseWizardPage2.LEASE_PRIMARY_TENANT_DATA_KEY);
-            curTenantIDs.add(primaryTenant.getId());
+            mPrimaryTenant = mPage.getData().getParcelable(LeaseWizardPage2.LEASE_PRIMARY_TENANT_DATA_KEY);
+            curTenantIDs.add(mPrimaryTenant.getId());
         }
         if (mPage.getData().getParcelableArrayList(LeaseWizardPage2.LEASE_SECONDARY_TENANTS_DATA_KEY) != null) {
-            secondaryTenants = mPage.getData().getParcelableArrayList(LeaseWizardPage2.LEASE_SECONDARY_TENANTS_DATA_KEY);
-            for (int z = 0; z < secondaryTenants.size(); z++) {
-                curTenantIDs.add(secondaryTenants.get(z).getId());
+            mSecondaryTenants = mPage.getData().getParcelableArrayList(LeaseWizardPage2.LEASE_SECONDARY_TENANTS_DATA_KEY);
+            for (int z = 0; z < mSecondaryTenants.size(); z++) {
+                curTenantIDs.add(mSecondaryTenants.get(z).getId());
             }
         }
 
-        for (int i = 0; i < MainActivity.tenantList.size(); i++) {
-            if (MainActivity.tenantList.get(i).isActive()) {
+        for (int i = 0; i < MainActivity.sTenantList.size(); i++) {
+            if (MainActivity.sTenantList.get(i).isActive()) {
                 boolean isUsed = false;
                 for (int y = 0; y < curTenantIDs.size(); y++) {
-                    if (MainActivity.tenantList.get(i).getId() == curTenantIDs.get(y)) {
+                    if (MainActivity.sTenantList.get(i).getId() == curTenantIDs.get(y)) {
                         isUsed = true;
                         break;
                     }
                 }
                 if (!isUsed) {
-                    availableTenants.add(MainActivity.tenantList.get(i));
+                    mAvailableTenants.add(MainActivity.sTenantList.get(i));
                 }
             }
         }
 
-        primaryTenantTV.setOnClickListener(new View.OnClickListener() {
+        mPrimaryTenantTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                tenantApartmentOrLeaseChooserDialog = new TenantApartmentOrLeaseChooserDialog(getContext(), TenantApartmentOrLeaseChooserDialog.TENANT_TYPE, availableTenants);
-                tenantApartmentOrLeaseChooserDialog.show();
-                tenantApartmentOrLeaseChooserDialog.changeCancelBtnText(getContext().getResources().getString(R.string.clear));
-                tenantApartmentOrLeaseChooserDialog.setDialogResult(new TenantApartmentOrLeaseChooserDialog.OnTenantChooserDialogResult() {
+                mTenantApartmentOrLeaseChooserDialog = new TenantApartmentOrLeaseChooserDialog(getContext(), TenantApartmentOrLeaseChooserDialog.TENANT_TYPE, mAvailableTenants);
+                mTenantApartmentOrLeaseChooserDialog.show();
+                mTenantApartmentOrLeaseChooserDialog.changeCancelBtnText(getContext().getResources().getString(R.string.clear));
+                mTenantApartmentOrLeaseChooserDialog.setDialogResult(new TenantApartmentOrLeaseChooserDialog.OnTenantChooserDialogResult() {
                     @Override
                     public void finish(Tenant tenantResult, Apartment apartmentResult, Lease leaseResult) {
-                        if (primaryTenant != null) {
-                            availableTenants.add(primaryTenant);
+                        if (mPrimaryTenant != null) {
+                            mAvailableTenants.add(mPrimaryTenant);
                         }
                         if (tenantResult != null) {
-                            availableTenants.remove(tenantResult);
-                            primaryTenant = tenantResult;
-                            primaryTenantTV.setText(getTenantString());
-                            mPage.getData().putString(LeaseWizardPage2.LEASE_PRIMARY_TENANT_STRING_DATA_KEY, primaryTenantTV.getText().toString());
-                            mPage.getData().putParcelable(LeaseWizardPage2.LEASE_PRIMARY_TENANT_DATA_KEY, primaryTenant);
+                            mAvailableTenants.remove(tenantResult);
+                            mPrimaryTenant = tenantResult;
+                            mPrimaryTenantTV.setText(getTenantString());
+                            mPage.getData().putString(LeaseWizardPage2.LEASE_PRIMARY_TENANT_STRING_DATA_KEY, mPrimaryTenantTV.getText().toString());
+                            mPage.getData().putParcelable(LeaseWizardPage2.LEASE_PRIMARY_TENANT_DATA_KEY, mPrimaryTenant);
                         } else {
-                            primaryTenant = null;
-                            primaryTenantTV.setText("");
+                            mPrimaryTenant = null;
+                            mPrimaryTenantTV.setText("");
                             mPage.getData().putString(LeaseWizardPage2.LEASE_PRIMARY_TENANT_STRING_DATA_KEY, "");
                             mPage.getData().putParcelable(LeaseWizardPage2.LEASE_PRIMARY_TENANT_DATA_KEY, null);
                         }
-                        mainArrayDataMethods.sortTenantArrayAlphabetically(availableTenants);
+                        mMainArrayDataMethods.sortTenantArrayAlphabetically(mAvailableTenants);
                         mPage.notifyDataChanged();
                     }
                 });
             }
         });
 
-        addSecondaryTenantBtn.setOnClickListener(new View.OnClickListener() {
+        mAddSecondaryTenantBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                tenantApartmentOrLeaseChooserDialog = new TenantApartmentOrLeaseChooserDialog(getContext(), TenantApartmentOrLeaseChooserDialog.TENANT_TYPE, availableTenants);
-                tenantApartmentOrLeaseChooserDialog.show();
-                tenantApartmentOrLeaseChooserDialog.setDialogResult(new TenantApartmentOrLeaseChooserDialog.OnTenantChooserDialogResult() {
+                mTenantApartmentOrLeaseChooserDialog = new TenantApartmentOrLeaseChooserDialog(getContext(), TenantApartmentOrLeaseChooserDialog.TENANT_TYPE, mAvailableTenants);
+                mTenantApartmentOrLeaseChooserDialog.show();
+                mTenantApartmentOrLeaseChooserDialog.setDialogResult(new TenantApartmentOrLeaseChooserDialog.OnTenantChooserDialogResult() {
                     @Override
                     public void finish(Tenant tenantResult, Apartment apartmentResult, Lease leaseResult) {
                         if (tenantResult != null) {
-                            secondaryTenants.add(tenantResult);
-                            availableTenants.remove(tenantResult);
-                            secondaryTenantsTV.setText(getSecondaryTenantsString());
-                            mPage.getData().putString(LeaseWizardPage2.LEASE_SECONDARY_TENANTS_STRING_DATA_KEY, secondaryTenantsTV.getText().toString());
-                            mPage.getData().putParcelableArrayList(LeaseWizardPage2.LEASE_SECONDARY_TENANTS_DATA_KEY, secondaryTenants);
+                            mSecondaryTenants.add(tenantResult);
+                            mAvailableTenants.remove(tenantResult);
+                            mSecondaryTenantsTV.setText(getSecondaryTenantsString());
+                            mPage.getData().putString(LeaseWizardPage2.LEASE_SECONDARY_TENANTS_STRING_DATA_KEY, mSecondaryTenantsTV.getText().toString());
+                            mPage.getData().putParcelableArrayList(LeaseWizardPage2.LEASE_SECONDARY_TENANTS_DATA_KEY, mSecondaryTenants);
                             mPage.notifyDataChanged();
-                            //mainArrayDataMethods.sortTenantArrayAlphabetically(availableTenants);
+                            //mMainArrayDataMethods.sortTenantArrayAlphabetically(mAvailableTenants);
                         }
                     }
                 });
             }
         });
 
-        removeSecondaryTenantBtn.setOnClickListener(new View.OnClickListener() {
+        mRemoveSecondaryTenantBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!secondaryTenants.isEmpty()) {
-                    tenantApartmentOrLeaseChooserDialog = new TenantApartmentOrLeaseChooserDialog(getContext(), TenantApartmentOrLeaseChooserDialog.SECONDARY_TENANT_TYPE, secondaryTenants);
-                    tenantApartmentOrLeaseChooserDialog.show();
-                    tenantApartmentOrLeaseChooserDialog.setDialogResult(new TenantApartmentOrLeaseChooserDialog.OnTenantChooserDialogResult() {
+                if (!mSecondaryTenants.isEmpty()) {
+                    mTenantApartmentOrLeaseChooserDialog = new TenantApartmentOrLeaseChooserDialog(getContext(), TenantApartmentOrLeaseChooserDialog.SECONDARY_TENANT_TYPE, mSecondaryTenants);
+                    mTenantApartmentOrLeaseChooserDialog.show();
+                    mTenantApartmentOrLeaseChooserDialog.setDialogResult(new TenantApartmentOrLeaseChooserDialog.OnTenantChooserDialogResult() {
                         @Override
                         public void finish(Tenant tenantResult, Apartment apartmentResult, Lease leaseResult) {
                             if (tenantResult != null) {
-                                secondaryTenants.remove(tenantResult);
-                                availableTenants.add(tenantResult);
-                                secondaryTenantsTV.setText(getSecondaryTenantsString());
-                                mPage.getData().putString(LeaseWizardPage2.LEASE_SECONDARY_TENANTS_STRING_DATA_KEY, secondaryTenantsTV.getText().toString());
-                                mPage.getData().putParcelableArrayList(LeaseWizardPage2.LEASE_SECONDARY_TENANTS_DATA_KEY, secondaryTenants);
+                                mSecondaryTenants.remove(tenantResult);
+                                mAvailableTenants.add(tenantResult);
+                                mSecondaryTenantsTV.setText(getSecondaryTenantsString());
+                                mPage.getData().putString(LeaseWizardPage2.LEASE_SECONDARY_TENANTS_STRING_DATA_KEY, mSecondaryTenantsTV.getText().toString());
+                                mPage.getData().putParcelableArrayList(LeaseWizardPage2.LEASE_SECONDARY_TENANTS_DATA_KEY, mSecondaryTenants);
                                 mPage.notifyDataChanged();
-                                mainArrayDataMethods.sortTenantArrayAlphabetically(availableTenants);
+                                mMainArrayDataMethods.sortTenantArrayAlphabetically(mAvailableTenants);
                             }
                         }
                     });
@@ -256,7 +254,7 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
             }
         });
 
-        depositAmountET.addTextChangedListener(new TextWatcher() {
+        mDepositAmountET.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -269,32 +267,32 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                if (depositAmountET == null) return;
+                if (mDepositAmountET == null) return;
                 String s = editable.toString();
                 if (s.isEmpty()) return;
-                depositAmountET.removeTextChangedListener(this);
+                mDepositAmountET.removeTextChangedListener(this);
                 String cleanString = DateAndCurrencyDisplayer.cleanMoneyString(s);
-                deposit = new BigDecimal(cleanString).setScale(2, BigDecimal.ROUND_FLOOR).divide(new BigDecimal(100), BigDecimal.ROUND_FLOOR);
-                String formatted = DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, deposit);
-                depositAmountET.setText(formatted);
-                depositAmountET.setSelection(DateAndCurrencyDisplayer.getEndCursorPositionForMoneyInput(depositAmountET.getText().length(), moneyFormatCode));
+                mDeposit = new BigDecimal(cleanString).setScale(2, BigDecimal.ROUND_FLOOR).divide(new BigDecimal(100), BigDecimal.ROUND_FLOOR);
+                String formatted = DateAndCurrencyDisplayer.getCurrencyToDisplay(mMoneyFormatCode, mDeposit);
+                mDepositAmountET.setText(formatted);
+                mDepositAmountET.setSelection(DateAndCurrencyDisplayer.getEndCursorPositionForMoneyInput(mDepositAmountET.getText().length(), mMoneyFormatCode));
                 mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_FORMATTED_STRING_DATA_KEY, formatted);
-                mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_STRING_DATA_KEY, deposit.toPlainString());
+                mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_STRING_DATA_KEY, mDeposit.toPlainString());
                 mPage.notifyDataChanged();
-                depositAmountET.addTextChangedListener(this);
+                mDepositAmountET.addTextChangedListener(this);
             }
         });
-        depositAmountET.setOnClickListener(new View.OnClickListener() {
+        mDepositAmountET.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                depositAmountET.setSelection(DateAndCurrencyDisplayer.getEndCursorPositionForMoneyInput(depositAmountET.getText().length(), moneyFormatCode));
+                mDepositAmountET.setSelection(DateAndCurrencyDisplayer.getEndCursorPositionForMoneyInput(mDepositAmountET.getText().length(), mMoneyFormatCode));
             }
         });
 
         if (mPage.getData().getString(LeaseWizardPage2.LEASE_DEPOSIT_STRING_DATA_KEY) == null) {
-            String formatted = NumberFormat.getCurrencyInstance().format(deposit);
+            String formatted = NumberFormat.getCurrencyInstance().format(mDeposit);
             mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_FORMATTED_STRING_DATA_KEY, formatted);
-            mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_STRING_DATA_KEY, deposit.toPlainString());
+            mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_STRING_DATA_KEY, mDeposit.toPlainString());
         }
         Handler handler = new Handler();
         handler.post(new Runnable() {
@@ -303,7 +301,7 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
                 mPage.notifyDataChanged();
             }
         });
-        mainArrayDataMethods.sortTenantArrayAlphabetically(availableTenants);
+        mMainArrayDataMethods.sortTenantArrayAlphabetically(mAvailableTenants);
     }
 
     @Override
@@ -312,7 +310,7 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
 
         // In a future update to the support library, this should override setUserVisibleHint
         // instead of setMenuVisibility.
-        if (primaryTenantTV != null) {
+        if (mPrimaryTenantTV != null) {
             InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(
                     Context.INPUT_METHOD_SERVICE);
             if (!menuVisible) {
@@ -322,10 +320,10 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
     }
 
     private String getTenantString() {
-        if (primaryTenant != null) {
-            StringBuilder builder = new StringBuilder(primaryTenant.getFirstName());
+        if (mPrimaryTenant != null) {
+            StringBuilder builder = new StringBuilder(mPrimaryTenant.getFirstName());
             builder.append(" ");
-            builder.append(primaryTenant.getLastName());
+            builder.append(mPrimaryTenant.getLastName());
             return builder.toString();
         } else {
             return "";
@@ -333,13 +331,13 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
     }
 
     private String getSecondaryTenantsString() {
-        if (secondaryTenants != null) {
+        if (mSecondaryTenants != null) {
             StringBuilder builder = new StringBuilder("");
-            for (int i = 0; i < secondaryTenants.size(); i++) {
-                builder.append(secondaryTenants.get(i).getFirstName());
+            for (int i = 0; i < mSecondaryTenants.size(); i++) {
+                builder.append(mSecondaryTenants.get(i).getFirstName());
                 builder.append(" ");
-                builder.append(secondaryTenants.get(i).getLastName());
-                if(i < secondaryTenants.size() - 1) {
+                builder.append(mSecondaryTenants.get(i).getLastName());
+                if(i < mSecondaryTenants.size() - 1) {
                     builder.append("\n");
                 }
             }
@@ -351,33 +349,33 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
 
     private void preloadPrimaryTenant(Bundle bundle) {
         if (mPage.getData().getParcelable(LeaseWizardPage2.LEASE_PRIMARY_TENANT_DATA_KEY) != null) {
-            primaryTenant = mPage.getData().getParcelable(LeaseWizardPage2.LEASE_PRIMARY_TENANT_DATA_KEY);
+            mPrimaryTenant = mPage.getData().getParcelable(LeaseWizardPage2.LEASE_PRIMARY_TENANT_DATA_KEY);
         } else if (bundle.getParcelable("preloadedPrimaryTenant") != null) {
-            primaryTenant = bundle.getParcelable("preloadedPrimaryTenant");
+            mPrimaryTenant = bundle.getParcelable("preloadedPrimaryTenant");
             mPage.getData().putString(LeaseWizardPage2.LEASE_PRIMARY_TENANT_STRING_DATA_KEY, getTenantString());
-            mPage.getData().putParcelable(LeaseWizardPage2.LEASE_PRIMARY_TENANT_DATA_KEY, primaryTenant);
+            mPage.getData().putParcelable(LeaseWizardPage2.LEASE_PRIMARY_TENANT_DATA_KEY, mPrimaryTenant);
         } else if (bundle.getInt("preloadedPrimaryTenantID") != 0) {
-            primaryTenant = db.getTenantByID(bundle.getInt("preloadedPrimaryTenantID"), MainActivity.user);
+            mPrimaryTenant = mDB.getTenantByID(bundle.getInt("preloadedPrimaryTenantID"), MainActivity.sUser);
             //mPage.getData().putInt(IncomeWizardPage3.INCOME_RELATED_APT_ID_DATA_KEY, apartment.getId());
             mPage.getData().putString(LeaseWizardPage2.LEASE_PRIMARY_TENANT_STRING_DATA_KEY, getTenantString());
-            mPage.getData().putParcelable(LeaseWizardPage2.LEASE_PRIMARY_TENANT_DATA_KEY, primaryTenant);
+            mPage.getData().putParcelable(LeaseWizardPage2.LEASE_PRIMARY_TENANT_DATA_KEY, mPrimaryTenant);
         } else {
-            primaryTenant = null;
+            mPrimaryTenant = null;
         }
     }
 
     private void preloadSecondaryTenant(Bundle bundle) {
         if (mPage.getData().getParcelableArrayList(LeaseWizardPage2.LEASE_SECONDARY_TENANTS_DATA_KEY) != null) {
-            secondaryTenants = mPage.getData().getParcelableArrayList(LeaseWizardPage2.LEASE_SECONDARY_TENANTS_DATA_KEY);
+            mSecondaryTenants = mPage.getData().getParcelableArrayList(LeaseWizardPage2.LEASE_SECONDARY_TENANTS_DATA_KEY);
         } else if (bundle.getParcelable("preloadedSecondaryTenant") != null) {
             Tenant tenant = bundle.getParcelable("preloadedSecondaryTenant");
-            secondaryTenants.add(tenant);
-            mPage.getData().putParcelableArrayList(LeaseWizardPage2.LEASE_SECONDARY_TENANTS_DATA_KEY, secondaryTenants);
+            mSecondaryTenants.add(tenant);
+            mPage.getData().putParcelableArrayList(LeaseWizardPage2.LEASE_SECONDARY_TENANTS_DATA_KEY, mSecondaryTenants);
             mPage.getData().putString(LeaseWizardPage2.LEASE_SECONDARY_TENANTS_STRING_DATA_KEY, getSecondaryTenantsString());
         } else if (bundle.getInt("preloadedSecondaryTenantID") != 0) {
-            Tenant tenant = db.getTenantByID(bundle.getInt("preloadedSecondaryTenantID"), MainActivity.user);
-            secondaryTenants.add(tenant);
-            mPage.getData().putParcelableArrayList(LeaseWizardPage2.LEASE_SECONDARY_TENANTS_DATA_KEY, secondaryTenants);
+            Tenant tenant = mDB.getTenantByID(bundle.getInt("preloadedSecondaryTenantID"), MainActivity.sUser);
+            mSecondaryTenants.add(tenant);
+            mPage.getData().putParcelableArrayList(LeaseWizardPage2.LEASE_SECONDARY_TENANTS_DATA_KEY, mSecondaryTenants);
             mPage.getData().putString(LeaseWizardPage2.LEASE_SECONDARY_TENANTS_STRING_DATA_KEY, getSecondaryTenantsString());
         }
     }
@@ -386,12 +384,12 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
         preloadPrimaryTenant(bundle);
         preloadSecondaryTenant(bundle);
         if (mPage.getData().getString(LeaseWizardPage2.LEASE_DEPOSIT_STRING_DATA_KEY) != null) {
-            deposit = new BigDecimal(mPage.getData().getString(LeaseWizardPage2.LEASE_DEPOSIT_STRING_DATA_KEY)).setScale(2, BigDecimal.ROUND_FLOOR).divide(new BigDecimal(100), BigDecimal.ROUND_FLOOR);
+            mDeposit = new BigDecimal(mPage.getData().getString(LeaseWizardPage2.LEASE_DEPOSIT_STRING_DATA_KEY)).setScale(2, BigDecimal.ROUND_FLOOR).divide(new BigDecimal(100), BigDecimal.ROUND_FLOOR);
         } else {
-            deposit = new BigDecimal(0);
-            String formatted = DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, deposit);
+            mDeposit = new BigDecimal(0);
+            String formatted = DateAndCurrencyDisplayer.getCurrencyToDisplay(mMoneyFormatCode, mDeposit);
             mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_FORMATTED_STRING_DATA_KEY, formatted);
-            mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_STRING_DATA_KEY, deposit.toPlainString());
+            mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_STRING_DATA_KEY, mDeposit.toPlainString());
         }
     }
 
@@ -399,28 +397,28 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
         if (!mPage.getData().getBoolean(LeaseWizardPage2.WAS_PRELOADED)) {
             //Primary tenant
             if (leaseToEdit.getPrimaryTenantID() != 0) {
-                primaryTenant = db.getTenantByID(leaseToEdit.getPrimaryTenantID(), MainActivity.user);
-                if (primaryTenant != null) {
+                mPrimaryTenant = mDB.getTenantByID(leaseToEdit.getPrimaryTenantID(), MainActivity.sUser);
+                if (mPrimaryTenant != null) {
                     //mPage.getData().putInt(IncomeWizardPage3.INCOME_RELATED_APT_ID_DATA_KEY, apartment.getId());
                     mPage.getData().putString(LeaseWizardPage2.LEASE_PRIMARY_TENANT_STRING_DATA_KEY, getTenantString());
-                    mPage.getData().putParcelable(LeaseWizardPage2.LEASE_PRIMARY_TENANT_DATA_KEY, primaryTenant);
+                    mPage.getData().putParcelable(LeaseWizardPage2.LEASE_PRIMARY_TENANT_DATA_KEY, mPrimaryTenant);
                 }
             }
             //Secondary tenants
             if (leaseToEdit.getSecondaryTenantIDs() != null) {
                 ArrayList<Integer> secondaryTenantIDs = leaseToEdit.getSecondaryTenantIDs();
                 for (int i = 0; i < secondaryTenantIDs.size(); i++) {
-                    Tenant secondaryTenant = db.getTenantByID(secondaryTenantIDs.get(i), MainActivity.user);
-                    secondaryTenants.add(secondaryTenant);
+                    Tenant secondaryTenant = mDB.getTenantByID(secondaryTenantIDs.get(i), MainActivity.sUser);
+                    mSecondaryTenants.add(secondaryTenant);
                 }
-                mPage.getData().putParcelableArrayList(LeaseWizardPage2.LEASE_SECONDARY_TENANTS_DATA_KEY, secondaryTenants);
+                mPage.getData().putParcelableArrayList(LeaseWizardPage2.LEASE_SECONDARY_TENANTS_DATA_KEY, mSecondaryTenants);
                 mPage.getData().putString(LeaseWizardPage2.LEASE_SECONDARY_TENANTS_STRING_DATA_KEY, getSecondaryTenantsString());
             }
             //Deposit
-            deposit = new BigDecimal(0);
-            String formatted = DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, deposit);
+            mDeposit = new BigDecimal(0);
+            String formatted = DateAndCurrencyDisplayer.getCurrencyToDisplay(mMoneyFormatCode, mDeposit);
             mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_FORMATTED_STRING_DATA_KEY, formatted);
-            mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_STRING_DATA_KEY, deposit.toPlainString());
+            mPage.getData().putString(LeaseWizardPage2.LEASE_DEPOSIT_STRING_DATA_KEY, mDeposit.toPlainString());
             mPage.getData().putBoolean(LeaseWizardPage2.WAS_PRELOADED, true);
         } else {
             preloadData(mPage.getData());
@@ -430,8 +428,8 @@ public class LeaseWizardPage2Fragment extends android.support.v4.app.Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        if(tenantApartmentOrLeaseChooserDialog != null){
-            tenantApartmentOrLeaseChooserDialog.dismiss();
+        if(mTenantApartmentOrLeaseChooserDialog != null){
+            mTenantApartmentOrLeaseChooserDialog.dismiss();
         }
     }
 }

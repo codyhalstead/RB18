@@ -19,7 +19,6 @@ import android.widget.TextView;
 
 import com.rba18.R;
 import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.data.LineData;
 import com.google.android.gms.ads.MobileAds;
 import com.rba18.activities.ExpenseViewActivity;
 import com.rba18.activities.IncomeViewActivity;
@@ -44,22 +43,18 @@ import java.util.Date;
  */
 
 public class HomeFragment extends android.support.v4.app.Fragment {
-    private LineChart lineChart;
-    Button graphLeftArrowBtn, graphRightArrowBtn;
-    TextView graphYearTV, emptyLeasesTV, emptyMoneyTV, isCompletedToggleFilterTV;
-    DatabaseHandler databaseHandler;
-    float[] expenseValues;
-    float[] incomeValues;
-    Date startOfYear, endOfYear;
-    CustomDatePickerDialogLauncher datePickerDialogLauncher;
-    MonthlyLineGraphCreator monthlyLineGraphCreator;
-    MoneyListAdapter moneyListAdapter;
-    LeaseListAdapter leaseListAdapter;
-    LinearLayout linegraphLL, upcomingListsLL, isCompetedToggleFilterLL;
-    ListView upcomingPaymentsLV, upcomingLeasesLV;
-    ColorStateList accentColor;
-    Date today, startRange, endRange;
-    Boolean fragDataNeedsRefreshed, isCompletedOnly;
+    private TextView mEmptyLeasesTV, mEmptyMoneyTV, mIsCompletedToggleFilterTV;
+    private DatabaseHandler mDatabaseHandler;
+    private float[] mExpenseValues, mIncomeValues;
+    private Date mStartOfYear, mEndOfYear, mToday, mStartRange, mEndRange;
+    private CustomDatePickerDialogLauncher mDatePickerDialogLauncher;
+    private MonthlyLineGraphCreator mMonthlyLineGraphCreator;
+    private MoneyListAdapter mMoneyListAdapter;
+    private LeaseListAdapter mLeaseListAdapter;
+    private LinearLayout mLineGraphLL, mUpcomingListsLL, mIsCompetedToggleFilterLL;
+    private ListView mUpcomingPaymentsLV, mUpcomingLeasesLV;
+    private ColorStateList mAccentColor;
+    private Boolean mFragDataNeedsRefreshed, mIsCompletedOnly;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -77,35 +72,35 @@ public class HomeFragment extends android.support.v4.app.Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        graphLeftArrowBtn = view.findViewById(R.id.line_graph_left_arrow);
-        graphRightArrowBtn = view.findViewById(R.id.line_graph_right_arrow);
-        graphYearTV = view.findViewById(R.id.line_graph_year_textview);
-        emptyLeasesTV = view.findViewById(R.id.homeFragmentEmptyLeasesTV);
-        emptyMoneyTV = view.findViewById(R.id.homeFragmentEmptyMoneyTV);
-        upcomingPaymentsLV = view.findViewById(R.id.homeFragmentUpcomingPaymentsLV);
-        upcomingLeasesLV = view.findViewById(R.id.homeFragmentUpcomingLeasesLV);
-        lineChart = view.findViewById(R.id.homeLineChart);
-        linegraphLL = view.findViewById(R.id.homeFragmentLineGraphLL);
-        upcomingListsLL = view.findViewById(R.id.homeFragmentUpcomingListsLL);
-        isCompletedToggleFilterTV = view.findViewById(R.id.homeIsCompletedFilterTV);
-        isCompetedToggleFilterLL = view.findViewById(R.id.homeIsCompletedFilterLL);
-        databaseHandler = new DatabaseHandler(getContext());
-        fragDataNeedsRefreshed = false;
-        isCompletedToggleFilterTV.setOnClickListener(new View.OnClickListener() {
+        Button graphLeftArrowBtn = view.findViewById(R.id.line_graph_left_arrow);
+        Button graphRightArrowBtn = view.findViewById(R.id.line_graph_right_arrow);
+        TextView graphYearTV = view.findViewById(R.id.line_graph_year_textview);
+        mEmptyLeasesTV = view.findViewById(R.id.homeFragmentEmptyLeasesTV);
+        mEmptyMoneyTV = view.findViewById(R.id.homeFragmentEmptyMoneyTV);
+        mUpcomingPaymentsLV = view.findViewById(R.id.homeFragmentUpcomingPaymentsLV);
+        mUpcomingLeasesLV = view.findViewById(R.id.homeFragmentUpcomingLeasesLV);
+        LineChart lineChart = view.findViewById(R.id.homeLineChart);
+        mLineGraphLL = view.findViewById(R.id.homeFragmentLineGraphLL);
+        mUpcomingListsLL = view.findViewById(R.id.homeFragmentUpcomingListsLL);
+        mIsCompletedToggleFilterTV = view.findViewById(R.id.homeIsCompletedFilterTV);
+        mIsCompetedToggleFilterLL = view.findViewById(R.id.homeIsCompletedFilterLL);
+        mDatabaseHandler = new DatabaseHandler(getContext());
+        mFragDataNeedsRefreshed = false;
+        mIsCompletedToggleFilterTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(isCompletedOnly) {
-                    incomeValues = databaseHandler.getIncomeTotalsForLineGraph(MainActivity.user, startOfYear, endOfYear);
-                    expenseValues = databaseHandler.getExpenseTotalsForLineGraph(MainActivity.user, startOfYear, endOfYear);
-                    isCompletedOnly = false;
-                    isCompletedToggleFilterTV.setText(R.string.projected);
+                if(mIsCompletedOnly) {
+                    mIncomeValues = mDatabaseHandler.getIncomeTotalsForLineGraph(MainActivity.sUser, mStartOfYear, mEndOfYear);
+                    mExpenseValues = mDatabaseHandler.getExpenseTotalsForLineGraph(MainActivity.sUser, mStartOfYear, mEndOfYear);
+                    mIsCompletedOnly = false;
+                    mIsCompletedToggleFilterTV.setText(R.string.projected);
                 } else {
-                    incomeValues = databaseHandler.getIncomeTotalsForLineGraphOnlyReceived(MainActivity.user, startOfYear, endOfYear);
-                    expenseValues = databaseHandler.getExpenseTotalsForLineGraphOnlyPaid(MainActivity.user, startOfYear, endOfYear);
-                    isCompletedOnly = true;
-                    isCompletedToggleFilterTV.setText(R.string.paid_received_only);
+                    mIncomeValues = mDatabaseHandler.getIncomeTotalsForLineGraphOnlyReceived(MainActivity.sUser, mStartOfYear, mEndOfYear);
+                    mExpenseValues = mDatabaseHandler.getExpenseTotalsForLineGraphOnlyPaid(MainActivity.sUser, mStartOfYear, mEndOfYear);
+                    mIsCompletedOnly = true;
+                    mIsCompletedToggleFilterTV.setText(R.string.paid_received_only);
                 }
-                monthlyLineGraphCreator.setIncomeExpenseData(incomeValues, expenseValues, startOfYear);
+                mMonthlyLineGraphCreator.setIncomeExpenseData(mIncomeValues, mExpenseValues, mStartOfYear);
             }
         });
         TabLayout tabLayout = view.findViewById(R.id.tabs);
@@ -116,14 +111,14 @@ public class HomeFragment extends android.support.v4.app.Fragment {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 if(tab.getPosition() == 0) {
-                    linegraphLL.setVisibility(View.GONE);
-                    upcomingListsLL.setVisibility(View.VISIBLE);
-                    isCompetedToggleFilterLL.setVisibility(View.GONE);
+                    mLineGraphLL.setVisibility(View.GONE);
+                    mUpcomingListsLL.setVisibility(View.VISIBLE);
+                    mIsCompetedToggleFilterLL.setVisibility(View.GONE);
                     ViewModelProviders.of(getActivity()).get(MainViewModel.class).setHomeTabSelection(0);
                 } else if(tab.getPosition() == 1){
-                    linegraphLL.setVisibility(View.VISIBLE);
-                    upcomingListsLL.setVisibility(View.GONE);
-                    isCompetedToggleFilterLL.setVisibility(View.VISIBLE);
+                    mLineGraphLL.setVisibility(View.VISIBLE);
+                    mUpcomingListsLL.setVisibility(View.GONE);
+                    mIsCompetedToggleFilterLL.setVisibility(View.VISIBLE);
                     ViewModelProviders.of(getActivity()).get(MainViewModel.class).setHomeTabSelection(1);
                 }
             }
@@ -145,67 +140,67 @@ public class HomeFragment extends android.support.v4.app.Fragment {
             tabLayout.getTabAt(1).select();
         }
         if(savedInstanceState != null){
-            isCompletedOnly = savedInstanceState.getBoolean("completedOnly");
+            mIsCompletedOnly = savedInstanceState.getBoolean("completedOnly");
         } else {
-            isCompletedOnly = true;
+            mIsCompletedOnly = true;
         }
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.HOUR_OF_DAY, 0);
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
-        today = cal.getTime();
-        datePickerDialogLauncher = new CustomDatePickerDialogLauncher(ViewModelProviders.of(getActivity()).get(MainViewModel.class).getHomeTabYearSelected(), true, getContext());
-        monthlyLineGraphCreator = new MonthlyLineGraphCreator(getContext(), lineChart, graphLeftArrowBtn, graphRightArrowBtn, graphYearTV, ViewModelProviders.of(getActivity()).get(MainViewModel.class).getHomeTabYearSelected());
-        monthlyLineGraphCreator.setDateSelectedListener(new MonthlyLineGraphCreator.OnButtonsClickedListener() {
+        mToday = cal.getTime();
+        mDatePickerDialogLauncher = new CustomDatePickerDialogLauncher(ViewModelProviders.of(getActivity()).get(MainViewModel.class).getHomeTabYearSelected(), true, getContext());
+        mMonthlyLineGraphCreator = new MonthlyLineGraphCreator(getContext(), lineChart, graphLeftArrowBtn, graphRightArrowBtn, graphYearTV, ViewModelProviders.of(getActivity()).get(MainViewModel.class).getHomeTabYearSelected());
+        mMonthlyLineGraphCreator.setDateSelectedListener(new MonthlyLineGraphCreator.OnButtonsClickedListener() {
             @Override
             public void onLeftBtnClicked() {
                 Calendar cal = Calendar.getInstance();
-                cal.setTime(startOfYear);
+                cal.setTime(mStartOfYear);
                 cal.add(Calendar.YEAR, -1);
-                startOfYear = cal.getTime();
+                mStartOfYear = cal.getTime();
                 cal.set(Calendar.MONTH, 11);
                 cal.set(Calendar.DAY_OF_MONTH, 31);
-                endOfYear = cal.getTime();
-                datePickerDialogLauncher.setSingleDatePreset(startOfYear);
-                if(isCompletedOnly) {
-                    incomeValues = databaseHandler.getIncomeTotalsForLineGraphOnlyReceived(MainActivity.user, startOfYear, endOfYear);
-                    expenseValues = databaseHandler.getExpenseTotalsForLineGraphOnlyPaid(MainActivity.user, startOfYear, endOfYear);
+                mEndOfYear = cal.getTime();
+                mDatePickerDialogLauncher.setSingleDatePreset(mStartOfYear);
+                if(mIsCompletedOnly) {
+                    mIncomeValues = mDatabaseHandler.getIncomeTotalsForLineGraphOnlyReceived(MainActivity.sUser, mStartOfYear, mEndOfYear);
+                    mExpenseValues = mDatabaseHandler.getExpenseTotalsForLineGraphOnlyPaid(MainActivity.sUser, mStartOfYear, mEndOfYear);
                 } else {
-                    incomeValues = databaseHandler.getIncomeTotalsForLineGraph(MainActivity.user, startOfYear, endOfYear);
-                    expenseValues = databaseHandler.getExpenseTotalsForLineGraph(MainActivity.user, startOfYear, endOfYear);
+                    mIncomeValues = mDatabaseHandler.getIncomeTotalsForLineGraph(MainActivity.sUser, mStartOfYear, mEndOfYear);
+                    mExpenseValues = mDatabaseHandler.getExpenseTotalsForLineGraph(MainActivity.sUser, mStartOfYear, mEndOfYear);
                 }
-                monthlyLineGraphCreator.setIncomeExpenseData(incomeValues, expenseValues, startOfYear);
-                ViewModelProviders.of(getActivity()).get(MainViewModel.class).setHomeTabYearSelected(startOfYear);
+                mMonthlyLineGraphCreator.setIncomeExpenseData(mIncomeValues, mExpenseValues, mStartOfYear);
+                ViewModelProviders.of(getActivity()).get(MainViewModel.class).setHomeTabYearSelected(mStartOfYear);
             }
 
             @Override
             public void onRightBtnClicked() {
                 Calendar cal = Calendar.getInstance();
-                cal.setTime(startOfYear);
+                cal.setTime(mStartOfYear);
                 cal.add(Calendar.YEAR, 1);
-                startOfYear = cal.getTime();
+                mStartOfYear = cal.getTime();
                 cal.set(Calendar.MONTH, 11);
                 cal.set(Calendar.DAY_OF_MONTH, 31);
-                endOfYear = cal.getTime();
-                datePickerDialogLauncher.setSingleDatePreset(startOfYear);
-                if(isCompletedOnly) {
-                    incomeValues = databaseHandler.getIncomeTotalsForLineGraphOnlyReceived(MainActivity.user, startOfYear, endOfYear);
-                    expenseValues = databaseHandler.getExpenseTotalsForLineGraphOnlyPaid(MainActivity.user, startOfYear, endOfYear);
+                mEndOfYear = cal.getTime();
+                mDatePickerDialogLauncher.setSingleDatePreset(mStartOfYear);
+                if(mIsCompletedOnly) {
+                    mIncomeValues = mDatabaseHandler.getIncomeTotalsForLineGraphOnlyReceived(MainActivity.sUser, mStartOfYear, mEndOfYear);
+                    mExpenseValues = mDatabaseHandler.getExpenseTotalsForLineGraphOnlyPaid(MainActivity.sUser, mStartOfYear, mEndOfYear);
                 } else {
-                    incomeValues = databaseHandler.getIncomeTotalsForLineGraph(MainActivity.user, startOfYear, endOfYear);
-                    expenseValues = databaseHandler.getExpenseTotalsForLineGraph(MainActivity.user, startOfYear, endOfYear);
+                    mIncomeValues = mDatabaseHandler.getIncomeTotalsForLineGraph(MainActivity.sUser, mStartOfYear, mEndOfYear);
+                    mExpenseValues = mDatabaseHandler.getExpenseTotalsForLineGraph(MainActivity.sUser, mStartOfYear, mEndOfYear);
                 }
-                monthlyLineGraphCreator.setIncomeExpenseData(incomeValues, expenseValues, startOfYear);
-                ViewModelProviders.of(getActivity()).get(MainViewModel.class).setHomeTabYearSelected(startOfYear);
+                mMonthlyLineGraphCreator.setIncomeExpenseData(mIncomeValues, mExpenseValues, mStartOfYear);
+                ViewModelProviders.of(getActivity()).get(MainViewModel.class).setHomeTabYearSelected(mStartOfYear);
             }
 
             @Override
             public void onDateTVClicked() {
-                datePickerDialogLauncher.launchSingleDatePickerDialog();
+                mDatePickerDialogLauncher.launchSingleDatePickerDialog();
             }
         });
-        datePickerDialogLauncher.setDateSelectedListener(new CustomDatePickerDialogLauncher.DateSelectedListener() {
+        mDatePickerDialogLauncher.setDateSelectedListener(new CustomDatePickerDialogLauncher.DateSelectedListener() {
             @Override
             public void onStartDateSelected(Date startDate, Date endDate) {
 
@@ -221,42 +216,42 @@ public class HomeFragment extends android.support.v4.app.Fragment {
                 Calendar cal = Calendar.getInstance();
                 cal.setTime(date);
                 cal.set(Calendar.DAY_OF_YEAR, 1);
-                startOfYear = cal.getTime();
+                mStartOfYear = cal.getTime();
                 cal.set(Calendar.MONTH, 11);
                 cal.set(Calendar.DAY_OF_MONTH, 31);
-                endOfYear = cal.getTime();
-                if(isCompletedOnly) {
-                    incomeValues = databaseHandler.getIncomeTotalsForLineGraphOnlyReceived(MainActivity.user, startOfYear, endOfYear);
-                    expenseValues = databaseHandler.getExpenseTotalsForLineGraphOnlyPaid(MainActivity.user, startOfYear, endOfYear);
+                mEndOfYear = cal.getTime();
+                if(mIsCompletedOnly) {
+                    mIncomeValues = mDatabaseHandler.getIncomeTotalsForLineGraphOnlyReceived(MainActivity.sUser, mStartOfYear, mEndOfYear);
+                    mExpenseValues = mDatabaseHandler.getExpenseTotalsForLineGraphOnlyPaid(MainActivity.sUser, mStartOfYear, mEndOfYear);
                 } else {
-                    incomeValues = databaseHandler.getIncomeTotalsForLineGraph(MainActivity.user, startOfYear, endOfYear);
-                    expenseValues = databaseHandler.getExpenseTotalsForLineGraph(MainActivity.user, startOfYear, endOfYear);
+                    mIncomeValues = mDatabaseHandler.getIncomeTotalsForLineGraph(MainActivity.sUser, mStartOfYear, mEndOfYear);
+                    mExpenseValues = mDatabaseHandler.getExpenseTotalsForLineGraph(MainActivity.sUser, mStartOfYear, mEndOfYear);
                 }
-                monthlyLineGraphCreator.setIncomeExpenseData(incomeValues, expenseValues, startOfYear);
-                ViewModelProviders.of(getActivity()).get(MainViewModel.class).setHomeTabYearSelected(startOfYear);
+                mMonthlyLineGraphCreator.setIncomeExpenseData(mIncomeValues, mExpenseValues, mStartOfYear);
+                ViewModelProviders.of(getActivity()).get(MainViewModel.class).setHomeTabYearSelected(mStartOfYear);
             }
         });
-        this.startRange = cal.getTime();
+        mStartRange = cal.getTime();
         cal.add(Calendar.DAY_OF_YEAR, 14);
-        this.endRange = cal.getTime();
+        mEndRange = cal.getTime();
         cal.setTime(ViewModelProviders.of(getActivity()).get(MainViewModel.class).getHomeTabYearSelected());
         cal.set(Calendar.DAY_OF_YEAR, 1);
-        startOfYear = cal.getTime();
+        mStartOfYear = cal.getTime();
         cal.set(Calendar.MONTH, 11);
         cal.set(Calendar.DAY_OF_MONTH, 31);
-        endOfYear = cal.getTime();
-        if(isCompletedOnly) {
-            incomeValues = databaseHandler.getIncomeTotalsForLineGraphOnlyReceived(MainActivity.user, startOfYear, endOfYear);
-            expenseValues = databaseHandler.getExpenseTotalsForLineGraphOnlyPaid(MainActivity.user, startOfYear, endOfYear);
+        mEndOfYear = cal.getTime();
+        if(mIsCompletedOnly) {
+            mIncomeValues = mDatabaseHandler.getIncomeTotalsForLineGraphOnlyReceived(MainActivity.sUser, mStartOfYear, mEndOfYear);
+            mExpenseValues = mDatabaseHandler.getExpenseTotalsForLineGraphOnlyPaid(MainActivity.sUser, mStartOfYear, mEndOfYear);
         } else {
-            incomeValues = databaseHandler.getIncomeTotalsForLineGraph(MainActivity.user, startOfYear, endOfYear);
-            expenseValues = databaseHandler.getExpenseTotalsForLineGraph(MainActivity.user, startOfYear, endOfYear);
+            mIncomeValues = mDatabaseHandler.getIncomeTotalsForLineGraph(MainActivity.sUser, mStartOfYear, mEndOfYear);
+            mExpenseValues = mDatabaseHandler.getExpenseTotalsForLineGraph(MainActivity.sUser, mStartOfYear, mEndOfYear);
         }
-        monthlyLineGraphCreator.setIncomeExpenseData(incomeValues, expenseValues, ViewModelProviders.of(getActivity()).get(MainViewModel.class).getHomeTabYearSelected());
+        mMonthlyLineGraphCreator.setIncomeExpenseData(mIncomeValues, mExpenseValues, ViewModelProviders.of(getActivity()).get(MainViewModel.class).getHomeTabYearSelected());
         getActivity().setTitle(R.string.home);
         TypedValue colorValue = new TypedValue();
         getActivity().getTheme().resolveAttribute(R.attr.colorAccent, colorValue, true);
-        this.accentColor = getActivity().getResources().getColorStateList(colorValue.resourceId);
+        mAccentColor = getActivity().getResources().getColorStateList(colorValue.resourceId);
         setUpMoneyListAdaptor();
         setUpLeaseListAdaptor();
     }
@@ -264,19 +259,19 @@ public class HomeFragment extends android.support.v4.app.Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        if(fragDataNeedsRefreshed){
-            moneyListAdapter.updateResults(databaseHandler.getIncomeAndExpensesBetweenDatesNotCompleted(MainActivity.user, this.startRange, this.endRange));
-            leaseListAdapter.updateResults(databaseHandler.getLeasesStartingOrEndingInDateRange(MainActivity.user, this.startRange, this.endRange));
-            incomeValues = databaseHandler.getIncomeTotalsForLineGraph(MainActivity.user, startOfYear, endOfYear);
-            expenseValues = databaseHandler.getExpenseTotalsForLineGraph(MainActivity.user, startOfYear, endOfYear);
-            monthlyLineGraphCreator.setIncomeExpenseData(incomeValues, expenseValues, startOfYear);
+        if(mFragDataNeedsRefreshed){
+            mMoneyListAdapter.updateResults(mDatabaseHandler.getIncomeAndExpensesBetweenDatesNotCompleted(MainActivity.sUser, mStartRange, mEndRange));
+            mLeaseListAdapter.updateResults(mDatabaseHandler.getLeasesStartingOrEndingInDateRange(MainActivity.sUser, mStartRange, mEndRange));
+            mIncomeValues = mDatabaseHandler.getIncomeTotalsForLineGraph(MainActivity.sUser, mStartOfYear, mEndOfYear);
+            mExpenseValues = mDatabaseHandler.getExpenseTotalsForLineGraph(MainActivity.sUser, mStartOfYear, mEndOfYear);
+            mMonthlyLineGraphCreator.setIncomeExpenseData(mIncomeValues, mExpenseValues, mStartOfYear);
         }
     }
 
     private void setUpMoneyListAdaptor() {
-        moneyListAdapter = new MoneyListAdapter(getContext(), databaseHandler.getIncomeAndExpensesBetweenDatesNotCompleted(MainActivity.user, this.startRange, this.endRange), accentColor, today, false);
-        upcomingPaymentsLV.setAdapter(moneyListAdapter);
-        upcomingPaymentsLV.setOnTouchListener(new View.OnTouchListener() {
+        mMoneyListAdapter = new MoneyListAdapter(getContext(), mDatabaseHandler.getIncomeAndExpensesBetweenDatesNotCompleted(MainActivity.sUser, mStartRange, mEndRange), mAccentColor, mToday, false);
+        mUpcomingPaymentsLV.setAdapter(mMoneyListAdapter);
+        mUpcomingPaymentsLV.setOnTouchListener(new View.OnTouchListener() {
             // Setting on Touch Listener for handling the touch inside ScrollView
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -287,13 +282,13 @@ public class HomeFragment extends android.support.v4.app.Fragment {
             }
 
         });
-        emptyMoneyTV.setText(R.string.no_payments_within_14_days);
-        this.upcomingPaymentsLV.setEmptyView(emptyMoneyTV);
-        upcomingPaymentsLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mEmptyMoneyTV.setText(R.string.no_payments_within_14_days);
+        mUpcomingPaymentsLV.setEmptyView(mEmptyMoneyTV);
+        mUpcomingPaymentsLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                MoneyLogEntry mle = moneyListAdapter.getFilteredResults().get(i);
-                fragDataNeedsRefreshed = true;
+                MoneyLogEntry mle = mMoneyListAdapter.getFilteredResults().get(i);
+                mFragDataNeedsRefreshed = true;
                 if(mle instanceof PaymentLogEntry){
                     PaymentLogEntry income = (PaymentLogEntry) mle;
                     Intent intent = new Intent(getContext(), IncomeViewActivity.class);
@@ -310,9 +305,9 @@ public class HomeFragment extends android.support.v4.app.Fragment {
     }
 
     private void setUpLeaseListAdaptor() {
-        leaseListAdapter = new LeaseListAdapter(getContext(), databaseHandler.getLeasesStartingOrEndingInDateRange(MainActivity.user, this.startRange, this.endRange), accentColor, today);
-        upcomingLeasesLV.setAdapter(leaseListAdapter);
-        upcomingLeasesLV.setOnTouchListener(new View.OnTouchListener() {
+        mLeaseListAdapter = new LeaseListAdapter(getContext(), mDatabaseHandler.getLeasesStartingOrEndingInDateRange(MainActivity.sUser, mStartRange, mEndRange), mAccentColor, mToday);
+        mUpcomingLeasesLV.setAdapter(mLeaseListAdapter);
+        mUpcomingLeasesLV.setOnTouchListener(new View.OnTouchListener() {
             // Setting on Touch Listener for handling the touch inside ScrollView
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -322,16 +317,16 @@ public class HomeFragment extends android.support.v4.app.Fragment {
             }
 
         });
-        emptyLeasesTV.setText(R.string.no_leases_within_14_days);
-        this.upcomingLeasesLV.setEmptyView(emptyLeasesTV);
-        upcomingLeasesLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mEmptyLeasesTV.setText(R.string.no_leases_within_14_days);
+        mUpcomingLeasesLV.setEmptyView(mEmptyLeasesTV);
+        mUpcomingLeasesLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                fragDataNeedsRefreshed = true;
+                mFragDataNeedsRefreshed = true;
                 //On listView row click, launch ApartmentViewActivity passing the rows data into it.
                 Intent intent = new Intent(getContext(), LeaseViewActivity.class);
                 //Uses filtered results to match what is on screen
-                Lease lease = leaseListAdapter.getFilteredResults().get(i);
+                Lease lease = mLeaseListAdapter.getFilteredResults().get(i);
                 intent.putExtra("leaseID", lease.getId());
                 getActivity().startActivityForResult(intent, MainActivity.REQUEST_LEASE_VIEW);
             }
@@ -341,6 +336,6 @@ public class HomeFragment extends android.support.v4.app.Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBoolean("completedOnly", isCompletedOnly);
+        outState.putBoolean("completedOnly", mIsCompletedOnly);
     }
 }

@@ -13,12 +13,17 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ic_launcher_ver4"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_ver4"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:replace="android:icon">
+
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-8567822621483804~5543395241"/>
+
         <!--MainActivity -->
         <activity
             android:name="com.rba18.activities.MainActivity"
@@ -47,11 +52,10 @@
                 android:resource="@xml/provider_paths"
                 tools:replace="android:resource" />
         </provider>
-        <!--SignupActivity -->
+        <!--SignUpActivity -->
         <activity
-            android:name="com.rba18.activities.SignupActivity"
+            android:name="com.rba18.activities.SignUpActivity"
             android:windowSoftInputMode="stateHidden" />
-        <!--EmailVerificationActivity -->
         <!--SingleDateViewActivity -->
         <activity
             android:name="com.rba18.activities.SingleDateViewActivity"
@@ -115,5 +119,6 @@
             android:name="com.rba18.activities.TenantViewActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="adjustPan" />
+
     </application>
 </manifest>

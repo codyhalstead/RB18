@@ -10,22 +10,22 @@ import java.util.Date;
  */
 
 public class ExpenseLogEntry extends MoneyLogEntry {
-    private int apartmentID;
-    private int leaseID;
-    private int tenantID;
-    private int typeID;
-    private String typeLabel;
-    private String receiptPic;
+    private int mApartmentID;
+    private int mLeaseID;
+    private int mTenantID;
+    private int mTypeID;
+    private String mTypeLabel;
+    private String mReceiptPic;
 
     public ExpenseLogEntry(int id, Date expenseDate, BigDecimal amount, int apartmentID, int leaseID, int tenantID, String description, int typeID, String typeLabel,
             String receiptPic, boolean isPaid) {
         super(id, expenseDate, amount, description, isPaid);
-        this.apartmentID = apartmentID;
-        this.leaseID = leaseID;
-        this.tenantID = tenantID;
-        this.typeID = typeID;
-        this.typeLabel = typeLabel;
-        this.receiptPic = receiptPic;
+        mApartmentID = apartmentID;
+        mLeaseID = leaseID;
+        mTenantID = tenantID;
+        mTypeID = typeID;
+        mTypeLabel = typeLabel;
+        mReceiptPic = receiptPic;
     }
 
     @Override
@@ -36,14 +36,14 @@ public class ExpenseLogEntry extends MoneyLogEntry {
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         super.writeToParcel(parcel, i);
-        parcel.writeInt(this.apartmentID);
-        parcel.writeInt(this.leaseID);
-        parcel.writeInt(this.tenantID);
-        parcel.writeInt(this.typeID);
-        parcel.writeString(this.typeLabel);
-        if (this.receiptPic != null) {
+        parcel.writeInt(mApartmentID);
+        parcel.writeInt(mLeaseID);
+        parcel.writeInt(mTenantID);
+        parcel.writeInt(mTypeID);
+        parcel.writeString(mTypeLabel);
+        if (mReceiptPic != null) {
             parcel.writeInt(1);
-            parcel.writeString(this.receiptPic);
+            parcel.writeString(mReceiptPic);
         } else {
             parcel.writeInt(-1);
         }
@@ -51,16 +51,16 @@ public class ExpenseLogEntry extends MoneyLogEntry {
 
     protected ExpenseLogEntry(Parcel in) {
         super(in);
-        this.apartmentID = in.readInt();
-        this.leaseID = in.readInt();
-        this.tenantID = in.readInt();
-        this.typeID = in.readInt();
-        this.typeLabel = in.readString();
+        mApartmentID = in.readInt();
+        mLeaseID = in.readInt();
+        mTenantID = in.readInt();
+        mTypeID = in.readInt();
+        mTypeLabel = in.readString();
         int size = in.readInt();
         if(size > -1){
-            this.receiptPic = in.readString();
+            mReceiptPic = in.readString();
         } else {
-            this.receiptPic = null;
+            mReceiptPic = null;
         }
     }
 
@@ -77,50 +77,50 @@ public class ExpenseLogEntry extends MoneyLogEntry {
     };
 
     public int getApartmentID() {
-        return apartmentID;
+        return mApartmentID;
     }
 
     public void setApartmentID(int apartmentID) {
-        this.apartmentID = apartmentID;
+        mApartmentID = apartmentID;
     }
 
     public int getTypeID() {
-        return typeID;
+        return mTypeID;
     }
 
     public void setTypeID(int typeID) {
-        this.typeID = typeID;
+        mTypeID = typeID;
     }
 
     public String getReceiptPic() {
-        return receiptPic;
+        return mReceiptPic;
     }
 
     public void setReceiptPic(String receiptPic) {
-        this.receiptPic = receiptPic;
+        mReceiptPic = receiptPic;
     }
 
     public String getTypeLabel() {
-        return typeLabel;
+        return mTypeLabel;
     }
 
     public void setTypeLabel(String typeLabel) {
-        this.typeLabel = typeLabel;
+        mTypeLabel = typeLabel;
     }
 
     public int getLeaseID() {
-        return leaseID;
+        return mLeaseID;
     }
 
     public void setLeaseID(int leaseID) {
-        this.leaseID = leaseID;
+        mLeaseID = leaseID;
     }
 
     public int getTenantID() {
-        return tenantID;
+        return mTenantID;
     }
 
     public void setTenantID(int tenantID) {
-        this.tenantID = tenantID;
+        mTenantID = tenantID;
     }
 }

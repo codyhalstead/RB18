@@ -38,17 +38,16 @@ public class LeaseWizardPage3 extends Page {
     public static final String LEASE_ARE_PAYMENTS_WEEKLY_DATA_KEY = "lease_are_payments_weekly";
 
     public static final String LEASE_NEED_BRANCH = "lease_need_branch";
-    private Context context;
-    private boolean isEdit;
+    private Context mContext;
+    private boolean mIsEdit;
+    private List<Branch> mBranches = new ArrayList<>();
 
     public LeaseWizardPage3(ModelCallbacks callbacks, String title, boolean isEdit, Context context) {
         super(callbacks, title);
-        this.context = context;
-        this.isEdit = isEdit;
+        mContext = context;
+        mIsEdit = isEdit;
         mData.putBoolean(WAS_PRELOADED, false);
     }
-    protected ArrayList<String> mChoices = new ArrayList<String>();
-    private List<Branch> mBranches = new ArrayList<>();
 
     @Override
     public Fragment createFragment() {
@@ -57,17 +56,17 @@ public class LeaseWizardPage3 extends Page {
 
     @Override
     public void getReviewItems(ArrayList<ReviewItem> dest) {
-        dest.add(new ReviewItem(context.getResources().getString(R.string.rent_cost), mData.getString(LEASE_RENT_COST_FORMATTED_STRING_DATA_KEY), getKey(), -1));
-        dest.add(new ReviewItem(context.getResources().getString(R.string.payment_frequency), mData.getString(LEASE_PAYMENT_FREQUENCY_STRING_DATA_KEY), getKey(), -1));
-        dest.add(new ReviewItem(context.getResources().getString(R.string.due_date), mData.getString(LEASE_DUE_DATE_STRING_DATA_KEY), getKey(), -1));
-        if(!isEdit) {
-            dest.add(new ReviewItem(context.getResources().getString(R.string.start_of_cycle), mData.getString(LEASE_PAYMENT_CYCLE_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(mContext.getResources().getString(R.string.rent_cost), mData.getString(LEASE_RENT_COST_FORMATTED_STRING_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(mContext.getResources().getString(R.string.payment_frequency), mData.getString(LEASE_PAYMENT_FREQUENCY_STRING_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(mContext.getResources().getString(R.string.due_date), mData.getString(LEASE_DUE_DATE_STRING_DATA_KEY), getKey(), -1));
+        if(!mIsEdit) {
+            dest.add(new ReviewItem(mContext.getResources().getString(R.string.start_of_cycle), mData.getString(LEASE_PAYMENT_CYCLE_DATA_KEY), getKey(), -1));
         }
     }
 
     @Override
     public boolean isCompleted() {
-        if(isEdit){
+        if(mIsEdit){
             return (!TextUtils.isEmpty(mData.getString(LEASE_RENT_COST_DATA_KEY)) && !TextUtils.isEmpty(mData.getString(LEASE_NEED_BRANCH)));
         } else {
             return (!TextUtils.isEmpty(mData.getString(LEASE_RENT_COST_DATA_KEY)) && !TextUtils.isEmpty(mData.getString(LEASE_NEED_BRANCH)) );//&& !TextUtils.isEmpty(mData.getString(LEASE_PAYMENT_CYCLE_DATA_KEY)));

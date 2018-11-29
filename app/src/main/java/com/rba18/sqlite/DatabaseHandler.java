@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.os.Build;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.widget.Toast;
@@ -50,9 +49,9 @@ import static android.content.ContentValues.TAG;
  */
 
 public class DatabaseHandler extends SQLiteOpenHelper {
-    public static int DATABASE_VERSION = 1;
+    private static int DATABASE_VERSION = 2;
     public static String DB_FILE_NAME = "allData.db";
-    private Context context;
+    private Context mContext;
 
     public static final String USER_INFO_TABLE = "user_info_table";
     public static final String USER_INFO_ID_COLUMN_PK = "_id";
@@ -60,6 +59,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public static final String USER_INFO_EMAIL_COLUMN = "user_info_email";
     public static final String USER_INFO_PASSWORD_COLUMN = "user_info_password";
     public static final String USER_INFO_IS_VERIFIED_COLUMN = "user_info_is_verified";
+    public static final String USER_INFO_IS_GOOGLE_ACCOUNT_COLUMN = "user_info_is_google_account";
     public static final String USER_INFO_DATE_CREATED_COLUMN = "user_info_date_created";
     public static final String USER_INFO_LAST_UPDATE_COLUMN = "user_info_last_update";
     public static final String USER_INFO_IS_ACTIVE_COLUMN = "user_info_is_active";
@@ -284,12 +284,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public DatabaseHandler(Context context) {
         super(context, DB_FILE_NAME, null, DATABASE_VERSION);
         verificationGenerator = new RandomNumberGenerator();
-        this.context = context;
+        this.mContext = context;
     }
 
     public void importBackupDB(File backup) {
         try {
-            String currentDBPath = context.getDatabasePath(DatabaseHandler.DB_FILE_NAME).getAbsolutePath();
+            String currentDBPath = mContext.getDatabasePath(DatabaseHandler.DB_FILE_NAME).getAbsolutePath();
             File currentDB = new File(currentDBPath);
             Boolean deleted = currentDB.delete();
             if (deleted) {
@@ -298,7 +298,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 dst.transferFrom(src, 0, src.size());
                 src.close();
                 dst.close();
-                Toast.makeText(context, R.string.backup_restored, Toast.LENGTH_LONG).show();
+                Toast.makeText(mContext, R.string.backup_restored, Toast.LENGTH_LONG).show();
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -307,13 +307,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
     }
 
-    //Add new user
-    public void addUser(String name, String email, String password) {
+    //Add new sUser
+    public void addUser(String name, String email, String password, Boolean isGoogleAccount) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(USER_INFO_NAME_COLUMN, name);
         contentValues.put(USER_INFO_EMAIL_COLUMN, email);
         contentValues.put(USER_INFO_PASSWORD_COLUMN, password);
+        contentValues.put(USER_INFO_IS_GOOGLE_ACCOUNT_COLUMN, isGoogleAccount);
         db.insert(USER_INFO_TABLE, null, contentValues);
         db.close();
     }
@@ -342,7 +343,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
     }
 
-    //Get user (Can be used to complete partial user object)
+    //Get sUser (Can be used to complete partial sUser object)
     public User getUser(String email, String password) {
         SQLiteDatabase db = this.getWritableDatabase();
         String Query = "Select * from " + USER_INFO_TABLE + " where " + USER_INFO_EMAIL_COLUMN + " like '%" + email + "%' AND "
@@ -351,7 +352,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             int id = cursor.getInt(cursor.getColumnIndex(USER_INFO_ID_COLUMN_PK));
             String name = cursor.getString(cursor.getColumnIndex(USER_INFO_NAME_COLUMN));
-            User user = new User(id, name, email, password);
+            boolean isGoogleAccount = cursor.getInt(cursor.getColumnIndex(USER_INFO_IS_GOOGLE_ACCOUNT_COLUMN)) > 0;
+            User user = new User(id, name, email, password, isGoogleAccount);
             cursor.close();
             db.close();
             return user;
@@ -362,7 +364,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
     }
 
-    //Used to change user name, email, and/or password
+    //Used to change sUser name, email, and/or password
     public void updateUser(User user) {
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -376,16 +378,16 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close();
     }
 
-    //Delete user
+    //Delete sUser
     public void deleteUser(User user) {
         SQLiteDatabase db = this.getWritableDatabase();
-        // delete user record by id
+        // delete sUser record by id
         db.delete(USER_INFO_TABLE, USER_INFO_ID_COLUMN_PK + " = ? ",
                 new String[]{String.valueOf(user.getId())});
         db.close();
     }
 
-    //check if user exists (By Email)
+    //check if sUser exists (By Email)
     public boolean checkUser(String email) {
         //Array of columns to fetch
         String[] columns = {USER_INFO_ID_COLUMN_PK};
@@ -394,7 +396,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         String selection = USER_INFO_EMAIL_COLUMN + " = ?" + " AND " + USER_INFO_IS_ACTIVE_COLUMN + " = 1";
         //Selection argument
         String[] selectionArgs = {email};
-        //Query user table with condition
+        //Query sUser table with condition
         Cursor cursor = db.query(USER_INFO_TABLE, columns, selection, selectionArgs, null, null, null);
         int cursorCount = cursor.getCount();
         cursor.close();
@@ -402,7 +404,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return (cursorCount > 0);
     }
 
-    //check if user exists (By Email and password)
+    //check if sUser exists (By Email and password)
     public boolean checkUser(String email, String password) {
         //Array of columns to fetch
         String[] columns = {USER_INFO_ID_COLUMN_PK};
@@ -418,7 +420,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return (cursorCount > 0);
     }
 
-    //Get user name
+    //Get sUser name
     public String getUserName(String email) {
         SQLiteDatabase db = this.getReadableDatabase();
         String Query = "Select * from " + USER_INFO_TABLE + " where " + USER_INFO_EMAIL_COLUMN + " like '%" + email + "%' LIMIT 1";
@@ -436,7 +438,25 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
     }
 
-    //Get user ID, returns -1 if user doesn't exist
+    //Get sUser name
+    public Boolean getUserIsGoogleAccount(String email) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String Query = "Select * from " + USER_INFO_TABLE + " where " + USER_INFO_EMAIL_COLUMN + " like '%" + email + "%' LIMIT 1";
+        Cursor cursor = db.rawQuery(Query, null);
+        Boolean answer = false;
+        if (cursor.moveToFirst()) {
+            answer = cursor.getInt(cursor.getColumnIndex(USER_INFO_IS_GOOGLE_ACCOUNT_COLUMN)) > 0;
+            cursor.close();
+            db.close();
+            return answer;
+        } else {
+            cursor.close();
+            db.close();
+            return answer;
+        }
+    }
+
+    //Get sUser ID, returns -1 if sUser doesn't exist
     public int getUserID(String email) {
         SQLiteDatabase db = this.getReadableDatabase();
         String Query = "Select * from " + USER_INFO_TABLE + " where " + USER_INFO_EMAIL_COLUMN + " like '%" + email + "%' LIMIT 1";
@@ -563,7 +583,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     public void removeApartmentOtherPic(String otherPic, User user) {
         SQLiteDatabase db = this.getWritableDatabase();
-        // delete user record by id
+        // delete sUser record by id
         db.delete(APARTMENT_PICS_TABLE, APARTMENT_PICS_PIC_COLUMN + " = ? AND " + APARTMENT_PICS_USER_ID_COLUMN_FK + " = ? ",
                 new String[]{String.valueOf(otherPic), String.valueOf(user.getId())});
         db.close();
@@ -3741,16 +3761,20 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     //Allows foreign key use
     private void setForeignKeyConstraintsEnabled(SQLiteDatabase db) {
-       // if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-       //     db.execSQL("PRAGMA foreign_keys=1;");
-       // } else {
-       //     db.setForeignKeyConstraintsEnabled(true);
-       // }
+        // if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+        //     db.execSQL("PRAGMA foreign_keys=1;");
+        // } else {
+        //     db.setForeignKeyConstraintsEnabled(true);
+        // }
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
+        if (oldVersion < 2) {
+            String sql = "ALTER TABLE " + USER_INFO_TABLE + " ADD COLUMN " +
+                    USER_INFO_IS_GOOGLE_ACCOUNT_COLUMN + " BOOLEAN NOT NULL DEFAULT 0";
+            db.execSQL(sql);
+        }
     }
 
     private void createUserInfoTable(SQLiteDatabase db) {
@@ -3760,6 +3784,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 USER_INFO_EMAIL_COLUMN + " VARCHAR(25), " +
                 USER_INFO_PASSWORD_COLUMN + " VARCHAR(15), " +
                 USER_INFO_IS_VERIFIED_COLUMN + " BOOLEAN NOT NULL DEFAULT 0, " +
+                USER_INFO_IS_GOOGLE_ACCOUNT_COLUMN + " BOOLEAN NOT NULL DEFAULT 0, " +
                 USER_INFO_DATE_CREATED_COLUMN + " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
                 USER_INFO_LAST_UPDATE_COLUMN + " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
                 USER_INFO_IS_ACTIVE_COLUMN + " BOOLEAN NOT NULL DEFAULT 1 " +
@@ -3814,7 +3839,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 LEASE_PAYMENT_DAY_COLUMN_FK + " INTEGER REFERENCES " + PAYMENT_DATE_TABLE + "(" + PAYMENT_DATE_ID_COLUMN_PK + ")," +
                 LEASE_MONTHLY_RENT_COST_COLUMN + " INTEGER, " +
                 LEASE_DEPOSIT_AMOUNT_COLUMN + " INTEGER, " +
-                LEASE_PAYMENT_FREQUENCY_ID_FK + " INTEGER REFERENCES " + LEASE_FREQUENCY_TABLE + "(" +LEASE_FREQUENCY_ID_COLUMN_PK + "), " +
+                LEASE_PAYMENT_FREQUENCY_ID_FK + " INTEGER REFERENCES " + LEASE_FREQUENCY_TABLE + "(" + LEASE_FREQUENCY_ID_COLUMN_PK + "), " +
                 LEASE_APARTMENT_ID_COLUMN + " INTEGER REFERENCES " + APARTMENT_INFO_TABLE + "(" + APARTMENT_INFO_ID_COLUMN_PK + "), " +
                 LEASE_PRIMARY_TENANT_ID_COLUMN + " INTEGER REFERENCES " + TENANT_INFO_TABLE + "(" + TENANT_INFO_ID_COLUMN_PK + "), " +
                 LEASE_NOTES_COLUMN + " VARCHAR(150), " +
@@ -3950,7 +3975,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     private void populateTypeLookupTable(SQLiteDatabase db) {
         ContentValues cv;
-        String[] typesArray = context.getResources().getStringArray(R.array.DBTypes_array);
+        String[] typesArray = mContext.getResources().getStringArray(R.array.DBTypes_array);
         for (String i : typesArray) {
             cv = new ContentValues();
             cv.put(TYPE_LOOKUP_LABEL_COLUMN, i);
@@ -3960,8 +3985,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     private void populateTypesTable(SQLiteDatabase db) {
         ContentValues cv;
-        String[] incomeTypeLabels = context.getResources().getStringArray(R.array.DBIncomeLookupTypes_array);
-        String[] expenseTypeLabels = context.getResources().getStringArray(R.array.DBExpenseLookupTypes_array);
+        String[] incomeTypeLabels = mContext.getResources().getStringArray(R.array.DBIncomeLookupTypes_array);
+        String[] expenseTypeLabels = mContext.getResources().getStringArray(R.array.DBExpenseLookupTypes_array);
         for (String i : incomeTypeLabels) {
             cv = new ContentValues();
             cv.put(TYPES_LABEL_COLUMN, i);
@@ -3978,7 +4003,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     private void populateFrequencyLookupTable(SQLiteDatabase db) {
         ContentValues cv;
-        String[] typesArray = context.getResources().getStringArray(R.array.DBFrequencyLookupTypes_array);
+        String[] typesArray = mContext.getResources().getStringArray(R.array.DBFrequencyLookupTypes_array);
         for (String i : typesArray) {
             cv = new ContentValues();
             cv.put(FREQUENCY_LOOKUP_TYPE_COLUMN, i);
@@ -3988,8 +4013,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     private void populatePaymentDatesTable(SQLiteDatabase db) {
         ContentValues cv;
-        String[] monthlyChoices = context.getResources().getStringArray(R.array.date_array);
-        String[] weeklyChoices = context.getResources().getStringArray(R.array.day_array);
+        String[] monthlyChoices = mContext.getResources().getStringArray(R.array.date_array);
+        String[] weeklyChoices = mContext.getResources().getStringArray(R.array.day_array);
         for (String i : monthlyChoices) {
             cv = new ContentValues();
             cv.put(PAYMENT_DATE_LABEL_COLUMN, i);
@@ -4006,8 +4031,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     private void populateLeaseFrequencyTable(SQLiteDatabase db) {
         ContentValues cv;
-        String[] monthlyChoices = context.getResources().getStringArray(R.array.frequency_array_monthly);
-        String[] weeklyChoices = context.getResources().getStringArray(R.array.frequency_array_weekly);
+        String[] monthlyChoices = mContext.getResources().getStringArray(R.array.frequency_array_monthly);
+        String[] weeklyChoices = mContext.getResources().getStringArray(R.array.frequency_array_weekly);
         for (String i : monthlyChoices) {
             cv = new ContentValues();
             cv.put(LEASE_FREQUENCY_TYPE_ID_COLUMN_FK, 1);
@@ -4115,7 +4140,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 EXPENSE_LOG_TABLE + "." + EXPENSE_LOG_IS_ACTIVE_COLUMN + " AS " + EXPENSES_VIEW_IS_ACTIVE + " " +
                 "FROM " +
                 EXPENSE_LOG_TABLE +
-                " LEFT JOIN " + TYPES_TABLE + " ON " + TYPES_TABLE + "." + TYPES_ID_COLUMN_PK+ " = " + EXPENSE_LOG_TABLE + "." + EXPENSE_LOG_TYPE_ID_COLUMN_FK +
+                " LEFT JOIN " + TYPES_TABLE + " ON " + TYPES_TABLE + "." + TYPES_ID_COLUMN_PK + " = " + EXPENSE_LOG_TABLE + "." + EXPENSE_LOG_TYPE_ID_COLUMN_FK +
                 ";";
         db.execSQL(insert);
     }

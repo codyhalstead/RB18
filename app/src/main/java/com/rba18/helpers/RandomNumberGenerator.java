@@ -7,17 +7,17 @@ import java.util.Random;
  */
 
 public class RandomNumberGenerator {
-    private Random random;
+    private Random mRandom;
 
     public RandomNumberGenerator(){
-        random = new Random();
+        mRandom = new Random();
     }
 
-    //Generate random number with digits you specify
+    //Generate mRandom number with digits you specify
     public String gererateVerificationNumber(int numberOfDigits){
         String theNumber = "";
         for (int i = 0; i < numberOfDigits; i++){
-            theNumber += random.nextInt(10);
+            theNumber += mRandom.nextInt(10);
         }
         return theNumber;
     }

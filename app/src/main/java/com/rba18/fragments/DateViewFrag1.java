@@ -43,27 +43,23 @@ import static android.app.Activity.RESULT_OK;
 
 public class DateViewFrag1 extends android.support.v4.app.Fragment implements AdapterView.OnItemClickListener, View.OnClickListener {
 
-
     public DateViewFrag1() {
         // Required empty public constructor
     }
 
-    TextView noMoneyTV, totalAmountTV, totalAmountLabelTV;
-    LinearLayout totalAmountLL;
-    FloatingActionButton fab;
-    MoneyListAdapter moneyListAdapter;
-    ColorStateList accentColor;
-    ListView listView;
-
-    private DatabaseHandler db;
-    BigDecimal total;
-    private MoneyLogEntry selectedMoneyEntry;
+    private TextView mNoMoneyTV, mTotalAmountTV, mTotalAmountLabelTV;
+    private MoneyListAdapter mMoneyListAdapter;
+    private ColorStateList mAccentColor;
+    private ListView mListView;
+    private DatabaseHandler mDB;
+    private BigDecimal mTotal;
+    private MoneyLogEntry mSelectedMoneyEntry;
     private OnMoneyDataChangedListener mCallback;
-    private AlertDialog dialog;
-    private PopupMenu popupMenu;
-    private SharedPreferences preferences;
-    private MoneyLogEntry selectedMoney;
-    private boolean completedOnly;
+    private AlertDialog mDialog;
+    private PopupMenu mPopupMenu;
+    private SharedPreferences mPreferences;
+    private MoneyLogEntry mSelectedMoney;
+    private boolean mCompletedOnly;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -74,32 +70,32 @@ public class DateViewFrag1 extends android.support.v4.app.Fragment implements Ad
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        this.noMoneyTV = view.findViewById(R.id.emptyListTV);
-        this.fab = view.findViewById(R.id.listFab);
-        this.fab.setOnClickListener(new View.OnClickListener() {
+        mNoMoneyTV = view.findViewById(R.id.emptyListTV);
+        FloatingActionButton fab = view.findViewById(R.id.listFab);
+        fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 showNewIncomeOrExpenseAlertDialog();
             }
         });
-        this.totalAmountLabelTV = view.findViewById(R.id.moneyListTotalAmountLabelTV);
-        this.totalAmountTV = view.findViewById(R.id.moneyListTotalAmountTV);
-        this.listView = view.findViewById(R.id.mainMoneyListView);
-        this.totalAmountLL = view.findViewById(R.id.moneyListTotalAmountLL);
-        this.totalAmountLL.setOnClickListener(this);
-        this.db = new DatabaseHandler(getContext());
+        mTotalAmountLabelTV = view.findViewById(R.id.moneyListTotalAmountLabelTV);
+        mTotalAmountTV = view.findViewById(R.id.moneyListTotalAmountTV);
+        mListView = view.findViewById(R.id.mainMoneyListView);
+        LinearLayout totalAmountLL = view.findViewById(R.id.moneyListTotalAmountLL);
+        totalAmountLL.setOnClickListener(this);
+        mDB = new DatabaseHandler(getContext());
         if(savedInstanceState != null){
-            completedOnly = savedInstanceState.getBoolean("completedOnly");
+            mCompletedOnly = savedInstanceState.getBoolean("mCompletedOnly");
         } else {
-            completedOnly = true;
+            mCompletedOnly = true;
         }
-        this.preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        total = getTotal();
+        mPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        mTotal = getTotal();
 
         setUpdateSelectedDateListeners();
         TypedValue colorValue = new TypedValue();
         getActivity().getTheme().resolveAttribute(R.attr.colorAccent, colorValue, true);
-        this.accentColor = getActivity().getResources().getColorStateList(colorValue.resourceId);
+        mAccentColor = getActivity().getResources().getColorStateList(colorValue.resourceId);
         setUpListAdapter();
         setUpSearchBar();
         setTotalTV();
@@ -142,61 +138,61 @@ public class DateViewFrag1 extends android.support.v4.app.Fragment implements Ad
 
     private void setUpListAdapter() {
         if (ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue() != null) {
-            moneyListAdapter = new MoneyListAdapter(getActivity(), ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue(), accentColor, null, true);
-            listView.setAdapter(moneyListAdapter);
-            listView.setOnItemClickListener(this);
-            noMoneyTV.setText(R.string.no_payments_to_display_date);
-            listView.setEmptyView(noMoneyTV);
+            mMoneyListAdapter = new MoneyListAdapter(getActivity(), ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue(), mAccentColor, null, true);
+            mListView.setAdapter(mMoneyListAdapter);
+            mListView.setOnItemClickListener(this);
+            mNoMoneyTV.setText(R.string.no_payments_to_display_date);
+            mListView.setEmptyView(mNoMoneyTV);
         }
     }
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        popupMenu = new PopupMenu(getActivity(), view);
-        MenuInflater inflater = popupMenu.getMenuInflater();
+        mPopupMenu = new PopupMenu(getActivity(), view);
+        MenuInflater inflater = mPopupMenu.getMenuInflater();
         final int position = i;
-        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+        mPopupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 switch (item.getItemId()) {
 
                     case R.id.changeStatus:
-                        //On listView row click, launch ApartmentViewActivity passing the rows data into it.
-                        selectedMoney = moneyListAdapter.getFilteredResults().get(position);
-                        if (selectedMoney instanceof PaymentLogEntry) {
-                            PaymentLogEntry selectedIncome = (PaymentLogEntry) selectedMoney;
+                        //On mListView row click, launch ApartmentViewActivity passing the rows data into it.
+                        mSelectedMoney = mMoneyListAdapter.getFilteredResults().get(position);
+                        if (mSelectedMoney instanceof PaymentLogEntry) {
+                            PaymentLogEntry selectedIncome = (PaymentLogEntry) mSelectedMoney;
                             if(selectedIncome.getIsCompleted()){
                                 selectedIncome.setIsCompleted(false);
                             } else {
                                 selectedIncome.setIsCompleted(true);
                             }
-                            db.editPaymentLogEntry(selectedIncome);
+                            mDB.editPaymentLogEntry(selectedIncome);
                             mCallback.onMoneyDataChanged();
                             mCallback.onIncomeDataChanged();
                         } else {
-                            ExpenseLogEntry selectedExpense = (ExpenseLogEntry) selectedMoney;
+                            ExpenseLogEntry selectedExpense = (ExpenseLogEntry) mSelectedMoney;
                             if(selectedExpense.getIsCompleted()){
                                 selectedExpense.setIsCompleted(false);
                             } else {
                                 selectedExpense.setIsCompleted(true);
                             }
-                            db.editExpenseLogEntry(selectedExpense);
+                            mDB.editExpenseLogEntry(selectedExpense);
                             mCallback.onMoneyDataChanged();
                             mCallback.onExpenseDataChanged();
                         }
                         return true;
 
                     case R.id.edit:
-                        //On listView row click, launch ApartmentViewActivity passing the rows data into it.
-                        selectedMoneyEntry = moneyListAdapter.getFilteredResults().get(position);
-                        if (selectedMoneyEntry instanceof PaymentLogEntry) {
+                        //On mListView row click, launch ApartmentViewActivity passing the rows data into it.
+                        mSelectedMoneyEntry = mMoneyListAdapter.getFilteredResults().get(position);
+                        if (mSelectedMoneyEntry instanceof PaymentLogEntry) {
                             Intent intent = new Intent(getActivity(), NewIncomeWizard.class);
-                            PaymentLogEntry selectedIncome = (PaymentLogEntry) selectedMoneyEntry;
+                            PaymentLogEntry selectedIncome = (PaymentLogEntry) mSelectedMoneyEntry;
                             intent.putExtra("incomeToEdit", selectedIncome);
                             startActivityForResult(intent, MainActivity.REQUEST_NEW_INCOME_FORM);
                         } else {
                             Intent intent = new Intent(getActivity(), NewExpenseWizard.class);
-                            ExpenseLogEntry selectedExpense = (ExpenseLogEntry) selectedMoneyEntry;
+                            ExpenseLogEntry selectedExpense = (ExpenseLogEntry) mSelectedMoneyEntry;
                             intent.putExtra("expenseToEdit", selectedExpense);
                             startActivityForResult(intent, MainActivity.REQUEST_NEW_EXPENSE_FORM);
                         }
@@ -204,7 +200,7 @@ public class DateViewFrag1 extends android.support.v4.app.Fragment implements Ad
                         return true;
 
                     case R.id.remove:
-                        selectedMoneyEntry = moneyListAdapter.getFilteredResults().get(position);
+                        mSelectedMoneyEntry = mMoneyListAdapter.getFilteredResults().get(position);
                         showDeleteConfirmationAlertDialog();
                         return true;
 
@@ -213,22 +209,22 @@ public class DateViewFrag1 extends android.support.v4.app.Fragment implements Ad
                 }
             }
         });
-        inflater.inflate(R.menu.expense_income_click_menu, popupMenu.getMenu());
-        popupMenu.show();
+        inflater.inflate(R.menu.expense_income_click_menu, mPopupMenu.getMenu());
+        mPopupMenu.show();
     }
 
     public void showDeleteConfirmationAlertDialog() {
         // setup the alert builder
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        if (selectedMoneyEntry instanceof PaymentLogEntry) {
+        if (mSelectedMoneyEntry instanceof PaymentLogEntry) {
             builder.setMessage(R.string.income_deletion_confirmation);
             builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    db.setPaymentLogEntryInactive((PaymentLogEntry) selectedMoneyEntry);
+                    mDB.setPaymentLogEntryInactive((PaymentLogEntry) mSelectedMoneyEntry);
                     mCallback.onMoneyDataChanged();
                     mCallback.onIncomeDataChanged();
-                    total = getTotal();
+                    mTotal = getTotal();
                     setTotalTV();
                 }
             });
@@ -237,10 +233,10 @@ public class DateViewFrag1 extends android.support.v4.app.Fragment implements Ad
             builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    db.setExpenseInactive((ExpenseLogEntry) selectedMoneyEntry);
+                    mDB.setExpenseInactive((ExpenseLogEntry) mSelectedMoneyEntry);
                     mCallback.onMoneyDataChanged();
                     mCallback.onExpenseDataChanged();
-                    total = getTotal();
+                    mTotal = getTotal();
                     setTotalTV();
                 }
             });
@@ -252,9 +248,9 @@ public class DateViewFrag1 extends android.support.v4.app.Fragment implements Ad
 
             }
         });
-        // create and show the alert dialog
-        dialog = builder.create();
-        dialog.show();
+        // create and show the alert mDialog
+        mDialog = builder.create();
+        mDialog.show();
     }
 
     public void showNewIncomeOrExpenseAlertDialog() {
@@ -278,19 +274,19 @@ public class DateViewFrag1 extends android.support.v4.app.Fragment implements Ad
                 startActivityForResult(intent, MainActivity.REQUEST_NEW_EXPENSE_FORM);
             }
         });
-        // create and show the alert dialog
-        dialog = builder.create();
-        dialog.show();
+        // create and show the alert mDialog
+        mDialog = builder.create();
+        mDialog.show();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        if(dialog != null){
-            dialog.dismiss();
+        if(mDialog != null){
+            mDialog.dismiss();
         }
-        if(popupMenu != null){
-            popupMenu.dismiss();
+        if(mPopupMenu != null){
+            mPopupMenu.dismiss();
         }
     }
 
@@ -302,7 +298,7 @@ public class DateViewFrag1 extends android.support.v4.app.Fragment implements Ad
             if (resultCode == RESULT_OK) {
                 mCallback.onMoneyDataChanged();
                 mCallback.onExpenseDataChanged();
-                total = getTotal();
+                mTotal = getTotal();
                 setTotalTV();
             }
         }
@@ -311,7 +307,7 @@ public class DateViewFrag1 extends android.support.v4.app.Fragment implements Ad
             if (resultCode == RESULT_OK) {
                 mCallback.onMoneyDataChanged();
                 mCallback.onIncomeDataChanged();
-                total = getTotal();
+                mTotal = getTotal();
                 setTotalTV();
             }
         }
@@ -322,13 +318,13 @@ public class DateViewFrag1 extends android.support.v4.app.Fragment implements Ad
         switch (view.getId()) {
 
             case R.id.moneyListTotalAmountLL:
-                if(completedOnly){
-                    completedOnly = false;
-                    total = getTotal();
+                if(mCompletedOnly){
+                    mCompletedOnly = false;
+                    mTotal = getTotal();
                     setTotalTV();
                 } else {
-                    completedOnly = true;
-                    total = getTotal();
+                    mCompletedOnly = true;
+                    mTotal = getTotal();
                     setTotalTV();
                 }
                 break;
@@ -345,14 +341,14 @@ public class DateViewFrag1 extends android.support.v4.app.Fragment implements Ad
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBoolean("completedOnly", completedOnly);
+        outState.putBoolean("mCompletedOnly", mCompletedOnly);
     }
 
     private BigDecimal getTotal() {
         BigDecimal total = new BigDecimal(0);
         if (ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue() != null) {
             if (!ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue().isEmpty()) {
-                if (completedOnly) {
+                if (mCompletedOnly) {
                     for (int i = 0; i < ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue().size(); i++) {
                         if(ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue().get(i).getIsCompleted()) {
                             total = total.add(ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue().get(i).getAmount());
@@ -369,31 +365,31 @@ public class DateViewFrag1 extends android.support.v4.app.Fragment implements Ad
     }
 
     private void setTotalTV() {
-        if (total != null) {
-            int moneyFormatCode = preferences.getInt("currency", DateAndCurrencyDisplayer.CURRENCY_US);
-            totalAmountTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, total));
-            if (total.compareTo(new BigDecimal(0)) < 0) {
-                totalAmountTV.setTextColor(getActivity().getResources().getColor(R.color.red));
-                if(completedOnly){
-                    totalAmountLabelTV.setText(R.string.total_paid);
+        if (mTotal != null) {
+            int moneyFormatCode = mPreferences.getInt("currency", DateAndCurrencyDisplayer.CURRENCY_US);
+            mTotalAmountTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, mTotal));
+            if (mTotal.compareTo(new BigDecimal(0)) < 0) {
+                mTotalAmountTV.setTextColor(getActivity().getResources().getColor(R.color.red));
+                if(mCompletedOnly){
+                    mTotalAmountLabelTV.setText(R.string.total_paid);
                 } else {
-                    totalAmountLabelTV.setText(R.string.projected_total);
+                    mTotalAmountLabelTV.setText(R.string.projected_total);
                 }
             } else {
-                totalAmountTV.setTextColor(getActivity().getResources().getColor(R.color.green_colorPrimaryDark));
-                if(completedOnly){
-                    totalAmountLabelTV.setText(R.string.received_total);
+                mTotalAmountTV.setTextColor(getActivity().getResources().getColor(R.color.green_colorPrimaryDark));
+                if(mCompletedOnly){
+                    mTotalAmountLabelTV.setText(R.string.received_total);
                 } else {
-                    totalAmountLabelTV.setText(R.string.projected_total);
+                    mTotalAmountLabelTV.setText(R.string.projected_total);
                 }
             }
         }
     }
 
     public void updateData(){
-        moneyListAdapter.updateResults(ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue());
-        moneyListAdapter.notifyDataSetChanged();
-        this.total = getTotal();
+        mMoneyListAdapter.updateResults(ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue());
+        mMoneyListAdapter.notifyDataSetChanged();
+        mTotal = getTotal();
         setTotalTV();
     }
 }

@@ -45,14 +45,14 @@ public class ApartmentWizardPage3Fragment extends android.support.v4.app.Fragmen
     private PageFragmentCallbacks mCallbacks;
     private String mKey;
     private ApartmentWizardPage3 mPage;
-    private ImageView mainPicIV;
-    private Button changeMainPicBtn, removeMainPicBtn, addOtherPicBtn, removeOtherPicBtn;
-    private RecyclerView recyclerView;
-    private OtherPicsAdapter adapter;
-    private ArrayList<String> otherPics;
-    private String otherImageToRemove;
-    private String cameraImageFilePath;
-    private AlertDialog dialog;
+    private ImageView mMainPicIV;
+    private Button mChangeMainPicBtn, mRemoveMainPicBtn, mAddOtherPicBtn, mRemoveOtherPicBtn;
+    private RecyclerView mRecyclerView;
+    private OtherPicsAdapter mAdapter;
+    private ArrayList<String> mOtherPics;
+    private String mOtherImageToRemove;
+    private String mCameraImageFilePath;
+    private AlertDialog mDialog;
 
     public static ApartmentWizardPage3Fragment create(String key) {
         Bundle args = new Bundle();
@@ -74,20 +74,16 @@ public class ApartmentWizardPage3Fragment extends android.support.v4.app.Fragmen
         mKey = args.getString(ARG_KEY);
         mPage = (ApartmentWizardPage3) mCallbacks.onGetPage(mKey);
         if(savedInstanceState != null){
-            cameraImageFilePath = savedInstanceState.getString("camera_image_file_path");
+            mCameraImageFilePath = savedInstanceState.getString("camera_image_file_path");
         }
-        otherImageToRemove = "";
-        otherPics = new ArrayList<>();
+        mOtherImageToRemove = "";
+        mOtherPics = new ArrayList<>();
         Bundle extras = mPage.getData();
         if (extras != null) {
             Apartment apartmentToEdit = extras.getParcelable("apartmentToEdit");
             if (apartmentToEdit != null) {
                 loadDataForEdit(apartmentToEdit);
-            } else {
-
             }
-        } else {
-
         }
     }
 
@@ -96,12 +92,12 @@ public class ApartmentWizardPage3Fragment extends android.support.v4.app.Fragmen
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_apartment_wizard_page_3, container, false);
         (rootView.findViewById(android.R.id.title)).setVisibility(View.GONE);
-        mainPicIV = rootView.findViewById(R.id.apartmentWizardMainPicIV);
-        changeMainPicBtn = rootView.findViewById(R.id.apartmentWizardChangeMainPicBtn);
-        removeMainPicBtn = rootView.findViewById(R.id.apartmentWizardRemoveMainPicBtn);
-        addOtherPicBtn = rootView.findViewById(R.id.apartmentWizardAddOtherPicBtn);
-        removeOtherPicBtn = rootView.findViewById(R.id.apartmentWizardRemoveOtherPicBtn);
-        recyclerView = rootView.findViewById(R.id.apartmentWizardOtherPicsRecyclerView);
+        mMainPicIV = rootView.findViewById(R.id.apartmentWizardMainPicIV);
+        mChangeMainPicBtn = rootView.findViewById(R.id.apartmentWizardChangeMainPicBtn);
+        mRemoveMainPicBtn = rootView.findViewById(R.id.apartmentWizardRemoveMainPicBtn);
+        mAddOtherPicBtn = rootView.findViewById(R.id.apartmentWizardAddOtherPicBtn);
+        mRemoveOtherPicBtn = rootView.findViewById(R.id.apartmentWizardRemoveOtherPicBtn);
+        mRecyclerView = rootView.findViewById(R.id.apartmentWizardOtherPicsRecyclerView);
         return rootView;
     }
 
@@ -126,15 +122,15 @@ public class ApartmentWizardPage3Fragment extends android.support.v4.app.Fragmen
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         if(mPage.getData().getStringArrayList(ApartmentWizardPage3.APARTMENT_OTHER_PICS_DATA_KEY) != null){
-            otherPics = mPage.getData().getStringArrayList(ApartmentWizardPage3.APARTMENT_OTHER_PICS_DATA_KEY);
+            mOtherPics = mPage.getData().getStringArrayList(ApartmentWizardPage3.APARTMENT_OTHER_PICS_DATA_KEY);
         }
-        changeMainPicBtn.setOnClickListener(new View.OnClickListener() {
+        mChangeMainPicBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 launchCameraOrGalleryDialog(true);
             }
         });
-        removeMainPicBtn.setOnClickListener(new View.OnClickListener() {
+        mRemoveMainPicBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 ActivityCompat.requestPermissions(
@@ -144,17 +140,17 @@ public class ApartmentWizardPage3Fragment extends android.support.v4.app.Fragmen
                 );
             }
         });
-        addOtherPicBtn.setOnClickListener(new View.OnClickListener() {
+        mAddOtherPicBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (adapter.getItemCount() > 9) {
+                if (mAdapter.getItemCount() > 9) {
                     Toast.makeText(getContext(), R.string.pic_limit, Toast.LENGTH_LONG).show();
                 } else {
                     launchCameraOrGalleryDialog(false);
                 }
             }
         });
-        removeOtherPicBtn.setOnClickListener(new View.OnClickListener() {
+        mRemoveOtherPicBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 ActivityCompat.requestPermissions(
@@ -166,22 +162,22 @@ public class ApartmentWizardPage3Fragment extends android.support.v4.app.Fragmen
         });
         if (mPage.getData().getString(ApartmentWizardPage3.APARTMENT_MAIN_PIC_DATA_KEY) != null) {
             if (mPage.getData().getString(ApartmentWizardPage3.APARTMENT_MAIN_PIC_DATA_KEY).equals("")) {
-                Glide.with(getContext()).load(R.drawable.blank_home_pic).override(100, 100).centerCrop().into(mainPicIV);
+                Glide.with(getContext()).load(R.drawable.blank_home_pic).override(100, 100).centerCrop().into(mMainPicIV);
             } else {
                 Glide.with(getContext()).load(mPage.getData().getString(ApartmentWizardPage3.APARTMENT_MAIN_PIC_DATA_KEY)).placeholder(R.drawable.blank_home_pic)
-                        .override(100, 100).centerCrop().into(mainPicIV);
+                        .override(100, 100).centerCrop().into(mMainPicIV);
             }
         } else {
-            Glide.with(getContext()).load(R.drawable.blank_home_pic).override(100, 100).centerCrop().into(mainPicIV);
+            Glide.with(getContext()).load(R.drawable.blank_home_pic).override(100, 100).centerCrop().into(mMainPicIV);
             mPage.getData().putString(ApartmentWizardPage3.APARTMENT_MAIN_PIC_DATA_KEY, "");
             mPage.getData().putString(ApartmentWizardPage3.APARTMENT_WAS_MAIN_PIC_ADDED_DATA_KEY, getContext().getResources().getString(R.string.no));
         }
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
-        adapter = new OtherPicsAdapter(otherPics, getContext());
-        adapter.setPhotoClick(false);
-        adapter.setOnDataChangedListener(this);
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(adapter);
+        mAdapter = new OtherPicsAdapter(mOtherPics, getContext());
+        mAdapter.setPhotoClick(false);
+        mAdapter.setOnDataChangedListener(this);
+        mRecyclerView.setLayoutManager(layoutManager);
+        mRecyclerView.setAdapter(mAdapter);
     }
 
     private void launchCameraOrGalleryDialog(final boolean isMain) {
@@ -190,7 +186,7 @@ public class ApartmentWizardPage3Fragment extends android.support.v4.app.Fragmen
         builder.setPositiveButton(R.string.gallery,
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface arg0, int arg1) {
-                        int requestCode = 0;
+                        int requestCode;
                         if (isMain) {
                             requestCode = MainActivity.REQUEST_GALLERY_FOR_MAIN_PIC;
                         } else {
@@ -207,7 +203,7 @@ public class ApartmentWizardPage3Fragment extends android.support.v4.app.Fragmen
         builder.setNegativeButton(R.string.camera,
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface arg0, int arg1) {
-                        int requestCode = 0;
+                        int requestCode;
                         if (isMain) {
                             requestCode = MainActivity.REQUEST_CAMERA_FOR_MAIN_PIC;
                         } else {
@@ -220,15 +216,15 @@ public class ApartmentWizardPage3Fragment extends android.support.v4.app.Fragmen
                         );
                     }
                 });
-        dialog = builder.create();
-        dialog.show();
+        mDialog = builder.create();
+        mDialog.show();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        if (dialog != null) {
-            dialog.dismiss();
+        if (mDialog != null) {
+            mDialog.dismiss();
         }
     }
 
@@ -254,7 +250,7 @@ public class ApartmentWizardPage3Fragment extends android.support.v4.app.Fragmen
             return;
         } else if (requestCode == MainActivity.REQUEST_IMAGE_DELETE_PERMISSION) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Glide.with(getContext()).load(R.drawable.blank_home_pic).override(100, 100).centerCrop().into(mainPicIV);
+                Glide.with(getContext()).load(R.drawable.blank_home_pic).override(100, 100).centerCrop().into(mMainPicIV);
                 if (mPage.getData().getString(ApartmentWizardPage3.APARTMENT_MAIN_PIC_DATA_KEY) != null) {
                     new File(mPage.getData().getString(ApartmentWizardPage3.APARTMENT_MAIN_PIC_DATA_KEY)).delete();
                 }
@@ -267,34 +263,33 @@ public class ApartmentWizardPage3Fragment extends android.support.v4.app.Fragmen
             return;
         } else if (requestCode == MainActivity.REQUEST_ADAPTER_IMAGE_DELETE_PERMISSION) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                if (otherImageToRemove.equals("")) {
-                    if (!otherPics.isEmpty()) {
-                        new File(otherPics.get(otherPics.size() - 1)).delete();
-                        otherPics.remove(otherPics.size() - 1);
-                        mPage.getData().putInt(ApartmentWizardPage3.APARTMENT_AMOUNT_OF_OTHER_PICS_DATA_KEY, adapter.getItemCount());
-                        mPage.getData().putStringArrayList(ApartmentWizardPage3.APARTMENT_OTHER_PICS_DATA_KEY, otherPics);
-                        adapter.notifyDataSetChanged();
+                if (mOtherImageToRemove.equals("")) {
+                    if (!mOtherPics.isEmpty()) {
+                        new File(mOtherPics.get(mOtherPics.size() - 1)).delete();
+                        mOtherPics.remove(mOtherPics.size() - 1);
+                        mPage.getData().putInt(ApartmentWizardPage3.APARTMENT_AMOUNT_OF_OTHER_PICS_DATA_KEY, mAdapter.getItemCount());
+                        mPage.getData().putStringArrayList(ApartmentWizardPage3.APARTMENT_OTHER_PICS_DATA_KEY, mOtherPics);
+                        mAdapter.notifyDataSetChanged();
                         mPage.notifyDataChanged();
                     }
                 } else {
-                    otherPics.remove(otherImageToRemove);
-                    adapter.notifyDataSetChanged();
-                    mPage.getData().putInt(ApartmentWizardPage3.APARTMENT_AMOUNT_OF_OTHER_PICS_DATA_KEY, adapter.getItemCount());
-                    mPage.getData().putStringArrayList(ApartmentWizardPage3.APARTMENT_OTHER_PICS_DATA_KEY, adapter.getImagePaths());
+                    mOtherPics.remove(mOtherImageToRemove);
+                    mAdapter.notifyDataSetChanged();
+                    mPage.getData().putInt(ApartmentWizardPage3.APARTMENT_AMOUNT_OF_OTHER_PICS_DATA_KEY, mAdapter.getItemCount());
+                    mPage.getData().putStringArrayList(ApartmentWizardPage3.APARTMENT_OTHER_PICS_DATA_KEY, mAdapter.getImagePaths());
                     mPage.notifyDataChanged();
-                    otherImageToRemove = "";
+                    mOtherImageToRemove = "";
                 }
             } else {
                 Toast.makeText(getContext(), R.string.permission_picture_denied, Toast.LENGTH_SHORT).show();
-                otherImageToRemove = "";
+                mOtherImageToRemove = "";
             }
             return;
         } else if (requestCode == MainActivity.REQUEST_CAMERA_FOR_MAIN_PIC) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                ;
                 Intent pictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 File photoFile = AppFileManagementHelper.createImageFileFromCamera();
-                cameraImageFilePath = photoFile.getAbsolutePath();
+                mCameraImageFilePath = photoFile.getAbsolutePath();
                 Uri photoUri = FileProvider.getUriForFile(getContext(), BuildConfig.APPLICATION_ID + ".helpers.fileprovider", photoFile);
                 pictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
                 startActivityForResult(pictureIntent, MainActivity.REQUEST_CAMERA_FOR_MAIN_PIC);
@@ -305,7 +300,7 @@ public class ApartmentWizardPage3Fragment extends android.support.v4.app.Fragmen
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Intent pictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 File photoFile = AppFileManagementHelper.createImageFileFromCamera();
-                cameraImageFilePath = photoFile.getAbsolutePath();
+                mCameraImageFilePath = photoFile.getAbsolutePath();
                 Uri photoUri = FileProvider.getUriForFile(getContext(), BuildConfig.APPLICATION_ID + ".helpers.fileprovider", photoFile);
                 pictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
                 startActivityForResult(pictureIntent, MainActivity.REQUEST_CAMERA_FOR_OTHER_PICS);
@@ -337,7 +332,7 @@ public class ApartmentWizardPage3Fragment extends android.support.v4.app.Fragmen
                 if (copiedFile != null) {
                     mPage.getData().putString(ApartmentWizardPage3.APARTMENT_MAIN_PIC_DATA_KEY, copiedFile.getAbsolutePath());
                     Glide.with(this).load(copiedFile).placeholder(R.drawable.blank_home_pic)
-                            .override(100, 100).centerCrop().into(mainPicIV);
+                            .override(100, 100).centerCrop().into(mMainPicIV);
                     mPage.getData().putString(ApartmentWizardPage3.APARTMENT_WAS_MAIN_PIC_ADDED_DATA_KEY, getContext().getResources().getString(R.string.yes));
                 }
                 //file path of captured image
@@ -356,10 +351,10 @@ public class ApartmentWizardPage3Fragment extends android.support.v4.app.Fragmen
                 cursor.close();
                 File copiedFile = AppFileManagementHelper.copyPictureFileToApp(filePath, null);
                 if (copiedFile != null) {
-                    otherPics.add(filePath);
-                    adapter.notifyDataSetChanged();
-                    mPage.getData().putInt(ApartmentWizardPage3.APARTMENT_AMOUNT_OF_OTHER_PICS_DATA_KEY, adapter.getItemCount());
-                    mPage.getData().putStringArrayList(ApartmentWizardPage3.APARTMENT_OTHER_PICS_DATA_KEY, otherPics);
+                    mOtherPics.add(filePath);
+                    mAdapter.notifyDataSetChanged();
+                    mPage.getData().putInt(ApartmentWizardPage3.APARTMENT_AMOUNT_OF_OTHER_PICS_DATA_KEY, mAdapter.getItemCount());
+                    mPage.getData().putStringArrayList(ApartmentWizardPage3.APARTMENT_OTHER_PICS_DATA_KEY, mOtherPics);
                 }
                 cursor.close();
                 mPage.notifyDataChanged();
@@ -372,17 +367,17 @@ public class ApartmentWizardPage3Fragment extends android.support.v4.app.Fragmen
                         oldPic.delete();
                     }
                 }
-                mPage.getData().putString(ApartmentWizardPage3.APARTMENT_MAIN_PIC_DATA_KEY, cameraImageFilePath);
-                Glide.with(this).load(cameraImageFilePath).placeholder(R.drawable.no_picture)
-                        .override(100, 100).centerCrop().into(mainPicIV);
+                mPage.getData().putString(ApartmentWizardPage3.APARTMENT_MAIN_PIC_DATA_KEY, mCameraImageFilePath);
+                Glide.with(this).load(mCameraImageFilePath).placeholder(R.drawable.no_picture)
+                        .override(100, 100).centerCrop().into(mMainPicIV);
                 mPage.getData().putString(ApartmentWizardPage3.APARTMENT_WAS_MAIN_PIC_ADDED_DATA_KEY, getContext().getResources().getString(R.string.yes));
             }
         } else if (requestCode == MainActivity.REQUEST_CAMERA_FOR_OTHER_PICS) {
             if (resultCode == RESULT_OK) {
-                otherPics.add(cameraImageFilePath);
-                adapter.notifyDataSetChanged();
-                mPage.getData().putInt(ApartmentWizardPage3.APARTMENT_AMOUNT_OF_OTHER_PICS_DATA_KEY, adapter.getItemCount());
-                mPage.getData().putStringArrayList(ApartmentWizardPage3.APARTMENT_OTHER_PICS_DATA_KEY, otherPics);
+                mOtherPics.add(mCameraImageFilePath);
+                mAdapter.notifyDataSetChanged();
+                mPage.getData().putInt(ApartmentWizardPage3.APARTMENT_AMOUNT_OF_OTHER_PICS_DATA_KEY, mAdapter.getItemCount());
+                mPage.getData().putStringArrayList(ApartmentWizardPage3.APARTMENT_OTHER_PICS_DATA_KEY, mOtherPics);
                 mPage.notifyDataChanged();
             }
         }
@@ -394,7 +389,7 @@ public class ApartmentWizardPage3Fragment extends android.support.v4.app.Fragmen
 
         // In a future update to the support library, this should override setUserVisibleHint
         // instead of setMenuVisibility.
-        if (mainPicIV != null) {
+        if (mMainPicIV != null) {
             InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(
                     Context.INPUT_METHOD_SERVICE);
             if (!menuVisible) {
@@ -405,7 +400,7 @@ public class ApartmentWizardPage3Fragment extends android.support.v4.app.Fragmen
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putString("camera_image_file_path", cameraImageFilePath);
+        outState.putString("camera_image_file_path", mCameraImageFilePath);
         super.onSaveInstanceState(outState);
     }
 
@@ -424,12 +419,12 @@ public class ApartmentWizardPage3Fragment extends android.support.v4.app.Fragmen
             }
             //Other pics
             if (apartmentToEdit.getOtherPics() != null) {
-                this.otherPics = apartmentToEdit.getOtherPics();
-                mPage.getData().putStringArrayList(ApartmentWizardPage3.APARTMENT_OTHER_PICS_DATA_KEY, otherPics);
-                mPage.getData().putInt(ApartmentWizardPage3.APARTMENT_AMOUNT_OF_OTHER_PICS_DATA_KEY, otherPics.size());
+                mOtherPics = apartmentToEdit.getOtherPics();
+                mPage.getData().putStringArrayList(ApartmentWizardPage3.APARTMENT_OTHER_PICS_DATA_KEY, mOtherPics);
+                mPage.getData().putInt(ApartmentWizardPage3.APARTMENT_AMOUNT_OF_OTHER_PICS_DATA_KEY, mOtherPics.size());
             } else {
-                mPage.getData().putStringArrayList(ApartmentWizardPage3.APARTMENT_OTHER_PICS_DATA_KEY, otherPics);
-                mPage.getData().putInt(ApartmentWizardPage3.APARTMENT_AMOUNT_OF_OTHER_PICS_DATA_KEY, otherPics.size());
+                mPage.getData().putStringArrayList(ApartmentWizardPage3.APARTMENT_OTHER_PICS_DATA_KEY, mOtherPics);
+                mPage.getData().putInt(ApartmentWizardPage3.APARTMENT_AMOUNT_OF_OTHER_PICS_DATA_KEY, mOtherPics.size());
             }
             mPage.getData().putBoolean(ApartmentWizardPage3.WAS_PRELOADED, true);
         }
@@ -437,7 +432,7 @@ public class ApartmentWizardPage3Fragment extends android.support.v4.app.Fragmen
 
     @Override
     public void onPicSelectedToBeRemoved(String removedPicPath) {
-        otherImageToRemove = removedPicPath;
+        mOtherImageToRemove = removedPicPath;
         ActivityCompat.requestPermissions(
                 getActivity(),
                 new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},

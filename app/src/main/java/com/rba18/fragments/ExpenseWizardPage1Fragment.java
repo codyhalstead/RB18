@@ -48,19 +48,18 @@ public class ExpenseWizardPage1Fragment extends android.support.v4.app.Fragment 
     private PageFragmentCallbacks mCallbacks;
     private String mKey;
     private ExpenseWizardPage1 mPage;
-    private TextView dateTV, newExpenseHeaderTV;
-    private EditText amountET;
-    private Spinner typeSpinner;
-    private Button addNewTypeBtn;
-    private ArrayAdapter<String> adapter;
-    private BigDecimal amount;
-    private Date expenseDate;
-    private DatabaseHandler dbHandler;
-    private boolean isEdit;
-    private CustomDatePickerDialogLauncher datePickerDialogLauncher;
-    private SharedPreferences preferences;
-    private int dateFormatCode, moneyFormatCode;
-    private AlertDialog alertDialog;
+    private TextView mDateTV;
+    private EditText mAmountET;
+    private Spinner mTypeSpinner;
+    private Button mAddNewTypeBtn;
+    private ArrayAdapter<String> mAdapter;
+    private BigDecimal mAmount;
+    private Date mExpenseDate;
+    private DatabaseHandler mDBHandler;
+    private boolean mIsEdit;
+    private CustomDatePickerDialogLauncher mDatePickerDialogLauncher;
+    private int mDateFormatCode, mMoneyFormatCode;
+    private AlertDialog mAlertDialog;
 
     public static ExpenseWizardPage1Fragment create(String key) {
         Bundle args = new Bundle();
@@ -81,26 +80,26 @@ public class ExpenseWizardPage1Fragment extends android.support.v4.app.Fragment 
         Bundle args = getArguments();
         mKey = args.getString(ARG_KEY);
         mPage = (ExpenseWizardPage1) mCallbacks.onGetPage(mKey);
-        dbHandler = new DatabaseHandler(getContext());
-        preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        this.dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
-        this.moneyFormatCode = preferences.getInt("currency", DateAndCurrencyDisplayer.CURRENCY_US);
-        isEdit = false;
+        mDBHandler = new DatabaseHandler(getContext());
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        mDateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
+        mMoneyFormatCode = preferences.getInt("currency", DateAndCurrencyDisplayer.CURRENCY_US);
+        mIsEdit = false;
         Bundle extras = mPage.getData();
         if (extras != null) {
             ExpenseLogEntry expenseToEdit = extras.getParcelable("expenseToEdit");
             if (expenseToEdit != null) {
                 loadDataForEdit(expenseToEdit);
-                isEdit = true;
+                mIsEdit = true;
             } else {
                 preloadData(extras);
             }
         } else {
-            expenseDate = null;
-            amount = new BigDecimal(0);
-            String formatted = DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, amount);
+            mExpenseDate = null;
+            mAmount = new BigDecimal(0);
+            String formatted = DateAndCurrencyDisplayer.getCurrencyToDisplay(mMoneyFormatCode, mAmount);
             mPage.getData().putString(ExpenseWizardPage1.EXPENSE_AMOUNT_FORMATTED_STRING_DATA_KEY, formatted);
-            mPage.getData().putString(ExpenseWizardPage1.EXPENSE_AMOUNT_STRING_DATA_KEY, amount.toPlainString());
+            mPage.getData().putString(ExpenseWizardPage1.EXPENSE_AMOUNT_STRING_DATA_KEY, mAmount.toPlainString());
         }
     }
 
@@ -110,31 +109,31 @@ public class ExpenseWizardPage1Fragment extends android.support.v4.app.Fragment 
         View rootView = inflater.inflate(R.layout.fragment_expense_wizard_page_1, container, false);
         (rootView.findViewById(android.R.id.title)).setVisibility(View.GONE);
 
-        dateTV = rootView.findViewById(R.id.expenseWizardDateTV);
+        mDateTV = rootView.findViewById(R.id.expenseWizardDateTV);
         if (mPage.getData().getString(ExpenseWizardPage1.EXPENSE_DATE_STRING_DATA_KEY) != null) {
             String dateString = mPage.getData().getString(ExpenseWizardPage1.EXPENSE_DATE_STRING_DATA_KEY);
             DateFormat formatFrom = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
             try {
-                expenseDate = formatFrom.parse(dateString);
-                dateTV.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, expenseDate));
+                mExpenseDate = formatFrom.parse(dateString);
+                mDateTV.setText(DateAndCurrencyDisplayer.getDateToDisplay(mDateFormatCode, mExpenseDate));
             } catch (ParseException e) {
                 e.printStackTrace();
             }
         }
 
-        amountET = rootView.findViewById(R.id.expenseWizardAmountET);
+        mAmountET = rootView.findViewById(R.id.expenseWizardAmountET);
         if (mPage.getData().getString(ExpenseWizardPage1.EXPENSE_AMOUNT_FORMATTED_STRING_DATA_KEY) != null) {
-            amountET.setText(mPage.getData().getString(ExpenseWizardPage1.EXPENSE_AMOUNT_FORMATTED_STRING_DATA_KEY));
+            mAmountET.setText(mPage.getData().getString(ExpenseWizardPage1.EXPENSE_AMOUNT_FORMATTED_STRING_DATA_KEY));
         }
-        amountET.setSelection(amountET.getText().length());
+        mAmountET.setSelection(mAmountET.getText().length());
 
-        typeSpinner = rootView.findViewById(R.id.expenseWizardTypeSpinner);
-        typeSpinner.setSelection(mPage.getData().getInt(ExpenseWizardPage1.EXPENSE_TYPE_ID_DATA_KEY));
+        mTypeSpinner = rootView.findViewById(R.id.expenseWizardTypeSpinner);
+        mTypeSpinner.setSelection(mPage.getData().getInt(ExpenseWizardPage1.EXPENSE_TYPE_ID_DATA_KEY));
 
-        addNewTypeBtn = rootView.findViewById(R.id.expenseWizardAddNewTypeBtn);
+        mAddNewTypeBtn = rootView.findViewById(R.id.expenseWizardAddNewTypeBtn);
 
-        newExpenseHeaderTV = rootView.findViewById(R.id.expenseWizardPageOneHeader);
-        if (isEdit) {
+        TextView newExpenseHeaderTV = rootView.findViewById(R.id.expenseWizardPageOneHeader);
+        if (mIsEdit) {
             newExpenseHeaderTV.setText(R.string.edit_expense_info);
         }
 
@@ -161,8 +160,8 @@ public class ExpenseWizardPage1Fragment extends android.support.v4.app.Fragment 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        datePickerDialogLauncher = new CustomDatePickerDialogLauncher(expenseDate, false, getContext());
-        datePickerDialogLauncher.setDateSelectedListener(new CustomDatePickerDialogLauncher.DateSelectedListener() {
+        mDatePickerDialogLauncher = new CustomDatePickerDialogLauncher(mExpenseDate, false, getContext());
+        mDatePickerDialogLauncher.setDateSelectedListener(new CustomDatePickerDialogLauncher.DateSelectedListener() {
             @Override
             public void onStartDateSelected(Date startDate, Date endDate) {
 
@@ -175,22 +174,22 @@ public class ExpenseWizardPage1Fragment extends android.support.v4.app.Fragment 
 
             @Override
             public void onDateSelected(Date date) {
-                expenseDate = date;
+                mExpenseDate = date;
                 SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-                dateTV.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, expenseDate));
-                mPage.getData().putString(ExpenseWizardPage1.EXPENSE_DATE_STRING_FORMATTED_DATA_KEY, DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, expenseDate));
-                mPage.getData().putString(ExpenseWizardPage1.EXPENSE_DATE_STRING_DATA_KEY, formatter.format(expenseDate));
+                mDateTV.setText(DateAndCurrencyDisplayer.getDateToDisplay(mDateFormatCode, mExpenseDate));
+                mPage.getData().putString(ExpenseWizardPage1.EXPENSE_DATE_STRING_FORMATTED_DATA_KEY, DateAndCurrencyDisplayer.getDateToDisplay(mDateFormatCode, mExpenseDate));
+                mPage.getData().putString(ExpenseWizardPage1.EXPENSE_DATE_STRING_DATA_KEY, formatter.format(mExpenseDate));
                 mPage.notifyDataChanged();
             }
         });
         populateExpenseTypeSpinner();
-        dateTV.setOnClickListener(new View.OnClickListener() {
+        mDateTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                datePickerDialogLauncher.launchSingleDatePickerDialog();
+                mDatePickerDialogLauncher.launchSingleDatePickerDialog();
             }
         });
-        amountET.addTextChangedListener(new TextWatcher() {
+        mAmountET.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -203,35 +202,35 @@ public class ExpenseWizardPage1Fragment extends android.support.v4.app.Fragment 
 
             @Override
             public void afterTextChanged(Editable editable) {
-                if (amountET == null) return;
+                if (mAmountET == null) return;
                 String s = editable.toString();
                 if (s.isEmpty()) return;
-                amountET.removeTextChangedListener(this);
+                mAmountET.removeTextChangedListener(this);
                 String cleanString = DateAndCurrencyDisplayer.cleanMoneyString(s);
-                amount = new BigDecimal(cleanString).setScale(2, BigDecimal.ROUND_FLOOR).divide(new BigDecimal(100), BigDecimal.ROUND_FLOOR);
-                String formatted = DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, amount);
-                amountET.setText(formatted);
-                amountET.setSelection(DateAndCurrencyDisplayer.getEndCursorPositionForMoneyInput(amountET.getText().length(), moneyFormatCode));
+                mAmount = new BigDecimal(cleanString).setScale(2, BigDecimal.ROUND_FLOOR).divide(new BigDecimal(100), BigDecimal.ROUND_FLOOR);
+                String formatted = DateAndCurrencyDisplayer.getCurrencyToDisplay(mMoneyFormatCode, mAmount);
+                mAmountET.setText(formatted);
+                mAmountET.setSelection(DateAndCurrencyDisplayer.getEndCursorPositionForMoneyInput(mAmountET.getText().length(), mMoneyFormatCode));
                 mPage.getData().putString(ExpenseWizardPage1.EXPENSE_AMOUNT_FORMATTED_STRING_DATA_KEY, formatted);
-                mPage.getData().putString(ExpenseWizardPage1.EXPENSE_AMOUNT_STRING_DATA_KEY, amount.toPlainString());
+                mPage.getData().putString(ExpenseWizardPage1.EXPENSE_AMOUNT_STRING_DATA_KEY, mAmount.toPlainString());
                 mPage.notifyDataChanged();
-                amountET.addTextChangedListener(this);
+                mAmountET.addTextChangedListener(this);
             }
         });
-        amountET.setOnClickListener(new View.OnClickListener() {
+        mAmountET.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                amountET.setSelection(DateAndCurrencyDisplayer.getEndCursorPositionForMoneyInput(amountET.getText().length(), moneyFormatCode));
+                mAmountET.setSelection(DateAndCurrencyDisplayer.getEndCursorPositionForMoneyInput(mAmountET.getText().length(), mMoneyFormatCode));
             }
         });
 
-        typeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        mTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
-                String type = typeSpinner.getSelectedItem().toString();
+                String type = mTypeSpinner.getSelectedItem().toString();
                 int typeID = 0;
-                if(MainActivity.expenseTypeLabels.get(type) != null) {
-                    typeID = MainActivity.expenseTypeLabels.get(type);
+                if(MainActivity.sExpenseTypeLabels.get(type) != null) {
+                    typeID = MainActivity.sExpenseTypeLabels.get(type);
                 }
                 mPage.getData().putInt(ExpenseWizardPage1.EXPENSE_TYPE_ID_DATA_KEY, typeID);
                 mPage.getData().putString(ExpenseWizardPage1.EXPENSE_TYPE_DATA_KEY, type);
@@ -246,7 +245,7 @@ public class ExpenseWizardPage1Fragment extends android.support.v4.app.Fragment 
 
             }
         });
-        addNewTypeBtn.setOnClickListener(new View.OnClickListener() {
+        mAddNewTypeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 final EditText editText = new EditText(getContext());
@@ -255,7 +254,7 @@ public class ExpenseWizardPage1Fragment extends android.support.v4.app.Fragment 
                 editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
 
                 // create the AlertDialog as final
-                 alertDialog = new AlertDialog.Builder(getContext())
+                 mAlertDialog = new AlertDialog.Builder(getContext())
                         .setTitle(R.string.create_new_type)
                         .setView(editText)
 
@@ -263,11 +262,11 @@ public class ExpenseWizardPage1Fragment extends android.support.v4.app.Fragment 
                         .setPositiveButton(R.string.create, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int id) {
-                                dbHandler.addNewExpenseType(editText.getText().toString());
-                                MainActivity.expenseTypeLabels = dbHandler.getExpenseTypeLabelsTreeMap();
+                                mDBHandler.addNewExpenseType(editText.getText().toString());
+                                MainActivity.sExpenseTypeLabels = mDBHandler.getExpenseTypeLabelsTreeMap();
                                 updateExpenseTypeSpinner();
-                                int spinnerPosition = adapter.getPosition(editText.getText().toString());
-                                typeSpinner.setSelection(spinnerPosition);
+                                int spinnerPosition = mAdapter.getPosition(editText.getText().toString());
+                                mTypeSpinner.setSelection(spinnerPosition);
                             }
                         })
 
@@ -285,20 +284,20 @@ public class ExpenseWizardPage1Fragment extends android.support.v4.app.Fragment 
                     @Override
                     public void onFocusChange(View v, boolean hasFocus) {
                         if (hasFocus) {
-                            alertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                            mAlertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
                         }
                     }
                 });
-                alertDialog.show();
+                mAlertDialog.show();
             }
         });
         if (mPage.getData().getString(ExpenseWizardPage1.EXPENSE_TYPE_DATA_KEY) != null) {
-            int spinnerPosition = adapter.getPosition(mPage.getData().getString(ExpenseWizardPage1.EXPENSE_TYPE_DATA_KEY));
-            if (isEdit && spinnerPosition == -1) {
-                adapter.add(mPage.getData().getString(ExpenseWizardPage1.EXPENSE_TYPE_DATA_KEY));
-                spinnerPosition = adapter.getPosition(mPage.getData().getString(ExpenseWizardPage1.EXPENSE_TYPE_DATA_KEY));
+            int spinnerPosition = mAdapter.getPosition(mPage.getData().getString(ExpenseWizardPage1.EXPENSE_TYPE_DATA_KEY));
+            if (mIsEdit && spinnerPosition == -1) {
+                mAdapter.add(mPage.getData().getString(ExpenseWizardPage1.EXPENSE_TYPE_DATA_KEY));
+                spinnerPosition = mAdapter.getPosition(mPage.getData().getString(ExpenseWizardPage1.EXPENSE_TYPE_DATA_KEY));
             }
-            typeSpinner.setSelection(spinnerPosition);
+            mTypeSpinner.setSelection(spinnerPosition);
         }
     }
 
@@ -308,7 +307,7 @@ public class ExpenseWizardPage1Fragment extends android.support.v4.app.Fragment 
 
         // In a future update to the support library, this should override setUserVisibleHint
         // instead of setMenuVisibility.
-        if (dateTV != null) {
+        if (mDateTV != null) {
             InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(
                     Context.INPUT_METHOD_SERVICE);
             if (!menuVisible) {
@@ -320,33 +319,33 @@ public class ExpenseWizardPage1Fragment extends android.support.v4.app.Fragment 
     @Override
     public void onPause() {
         super.onPause();
-        datePickerDialogLauncher.dismissDatePickerDialog();
-        if(alertDialog != null){
-            alertDialog.dismiss();
+        mDatePickerDialogLauncher.dismissDatePickerDialog();
+        if(mAlertDialog != null){
+            mAlertDialog.dismiss();
         }
     }
 
     private void populateExpenseTypeSpinner() {
         //Create state array from MainActivity5.stateMap
         List<String> spinnerArray = new ArrayList<>();
-        for (Map.Entry<String, Integer> entry : MainActivity.expenseTypeLabels.entrySet()) {
+        for (Map.Entry<String, Integer> entry : MainActivity.sExpenseTypeLabels.entrySet()) {
             spinnerArray.add(entry.getKey());
         }
         //Create ArrayAdapter with state array
-        adapter = new ArrayAdapter<>(
+        mAdapter = new ArrayAdapter<>(
                 getContext(), android.R.layout.simple_spinner_item, spinnerArray);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         //Set ArrayAdapter to stateSpinner
-        this.typeSpinner.setAdapter(adapter);
+        mTypeSpinner.setAdapter(mAdapter);
     }
 
     public void updateExpenseTypeSpinner() {
         List<String> spinnerArray = new ArrayList<>();
-        for (Map.Entry<String, Integer> entry : MainActivity.expenseTypeLabels.entrySet()) {
+        for (Map.Entry<String, Integer> entry : MainActivity.sExpenseTypeLabels.entrySet()) {
             spinnerArray.add(entry.getKey());
         }
-        adapter.clear();
-        adapter.addAll(spinnerArray);
+        mAdapter.clear();
+        mAdapter.addAll(spinnerArray);
     }
 
     private void preloadDate(Bundle bundle) {
@@ -355,7 +354,7 @@ public class ExpenseWizardPage1Fragment extends android.support.v4.app.Fragment 
             String dateString = mPage.getData().getString(ExpenseWizardPage1.EXPENSE_DATE_STRING_DATA_KEY);
             DateFormat formatFrom = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
             try {
-                expenseDate = formatFrom.parse(dateString);
+                mExpenseDate = formatFrom.parse(dateString);
             } catch (ParseException e) {
                 e.printStackTrace();
             }
@@ -365,24 +364,24 @@ public class ExpenseWizardPage1Fragment extends android.support.v4.app.Fragment 
             mPage.getData().putString(ExpenseWizardPage1.EXPENSE_DATE_STRING_DATA_KEY, dateString);
             DateFormat formatFrom = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
             try {
-                expenseDate = formatFrom.parse(dateString);
-                mPage.getData().putString(ExpenseWizardPage1.EXPENSE_DATE_STRING_FORMATTED_DATA_KEY, DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, expenseDate));
+                mExpenseDate = formatFrom.parse(dateString);
+                mPage.getData().putString(ExpenseWizardPage1.EXPENSE_DATE_STRING_FORMATTED_DATA_KEY, DateAndCurrencyDisplayer.getDateToDisplay(mDateFormatCode, mExpenseDate));
             } catch (ParseException e) {
                 e.printStackTrace();
             }
         } else {
-            expenseDate = null;
+            mExpenseDate = null;
         }
     }
 
     private void preloadAmount(Bundle bundle) {
         if (mPage.getData().getString(ExpenseWizardPage1.EXPENSE_AMOUNT_STRING_DATA_KEY) != null) {
-            amount = new BigDecimal(mPage.getData().getString(ExpenseWizardPage1.EXPENSE_AMOUNT_STRING_DATA_KEY)).setScale(2, BigDecimal.ROUND_FLOOR).divide(new BigDecimal(100), BigDecimal.ROUND_FLOOR);
+            mAmount = new BigDecimal(mPage.getData().getString(ExpenseWizardPage1.EXPENSE_AMOUNT_STRING_DATA_KEY)).setScale(2, BigDecimal.ROUND_FLOOR).divide(new BigDecimal(100), BigDecimal.ROUND_FLOOR);
         } else {
-            amount = new BigDecimal(0);
-            String formatted = DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, amount);
+            mAmount = new BigDecimal(0);
+            String formatted = DateAndCurrencyDisplayer.getCurrencyToDisplay(mMoneyFormatCode, mAmount);
             mPage.getData().putString(ExpenseWizardPage1.EXPENSE_AMOUNT_FORMATTED_STRING_DATA_KEY, formatted);
-            mPage.getData().putString(ExpenseWizardPage1.EXPENSE_AMOUNT_STRING_DATA_KEY, amount.toPlainString());
+            mPage.getData().putString(ExpenseWizardPage1.EXPENSE_AMOUNT_STRING_DATA_KEY, mAmount.toPlainString());
         }
     }
 
@@ -402,14 +401,14 @@ public class ExpenseWizardPage1Fragment extends android.support.v4.app.Fragment 
             SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
             String dateString = formatter.format(expenseToEdit.getDate());
             mPage.getData().putString(ExpenseWizardPage1.EXPENSE_DATE_STRING_DATA_KEY, dateString);
-            expenseDate = expenseToEdit.getDate();
-            mPage.getData().putString(ExpenseWizardPage1.EXPENSE_DATE_STRING_FORMATTED_DATA_KEY, DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, expenseDate));
+            mExpenseDate = expenseToEdit.getDate();
+            mPage.getData().putString(ExpenseWizardPage1.EXPENSE_DATE_STRING_FORMATTED_DATA_KEY, DateAndCurrencyDisplayer.getDateToDisplay(mDateFormatCode, mExpenseDate));
             //Amount
             BigDecimal amountBD = expenseToEdit.getAmount().multiply(new BigDecimal(-1));
-            String formatted = DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, amountBD);
+            String formatted = DateAndCurrencyDisplayer.getCurrencyToDisplay(mMoneyFormatCode, amountBD);
             mPage.getData().putString(ExpenseWizardPage1.EXPENSE_AMOUNT_FORMATTED_STRING_DATA_KEY, formatted);
             mPage.getData().putString(ExpenseWizardPage1.EXPENSE_AMOUNT_STRING_DATA_KEY, amountBD.toPlainString());
-            amount = expenseToEdit.getAmount();
+            mAmount = expenseToEdit.getAmount();
             //Type
             mPage.getData().putInt(ExpenseWizardPage1.EXPENSE_TYPE_ID_DATA_KEY, expenseToEdit.getTypeID());
             mPage.getData().putString(ExpenseWizardPage1.EXPENSE_TYPE_DATA_KEY, expenseToEdit.getTypeLabel());

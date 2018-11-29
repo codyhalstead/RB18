@@ -39,19 +39,18 @@ import java.util.Date;
  */
 
 public class ExpenseListFragment extends android.support.v4.app.Fragment implements AdapterView.OnItemClickListener, View.OnClickListener {
-    TextView noExpensesTV, totalAmountTV, totalAmountLabelTV;
-    LinearLayout totalAmountLL;
-    EditText searchBarET;
-    ExpenseListAdapter expenseListAdapter;
-    ColorStateList accentColor;
-    ListView listView;
-    Button dateRangeStartBtn, dateRangeEndBtn;
-    Date filterDateStart, filterDateEnd;
-    private BigDecimal total;
+    private TextView mNoExpensesTV, mTotalAmountTV, mTotalAmountLabelTV;
+    private EditText mSearchBarET;
+    private ExpenseListAdapter mExpenseListAdapter;
+    private ColorStateList mAccentColor;
+    private ListView mListView;
+    private Button mDateRangeStartBtn, mDateRangeEndBtn;
+    private Date mFilterDateStart, mFilterDateEnd;
+    private BigDecimal mTotal;
     private OnDatesChangedListener mCallback;
-    private boolean needsRefreshedOnResume, completedOnly;
-    private SharedPreferences preferences;
-    private CustomDatePickerDialogLauncher datePickerDialogLauncher;
+    private boolean mNeedsRefreshedOnResume, mCompletedOnly;
+    private SharedPreferences mPreferences;
+    private CustomDatePickerDialogLauncher mDatePickerDialogLauncher;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -62,49 +61,49 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        this.noExpensesTV = view.findViewById(R.id.emptyListTV);
-        this.searchBarET = view.findViewById(R.id.moneyListSearchET);
-        this.dateRangeStartBtn = view.findViewById(R.id.moneyListDateRangeStartBtn);
-        this.dateRangeStartBtn.setOnClickListener(this);
-        this.dateRangeEndBtn = view.findViewById(R.id.moneyListDateRangeEndBtn);
-        this.dateRangeEndBtn.setOnClickListener(this);
-        this.totalAmountLabelTV = view.findViewById(R.id.moneyListTotalAmountLabelTV);
-        this.totalAmountTV = view.findViewById(R.id.moneyListTotalAmountTV);
-        this.listView = view.findViewById(R.id.mainMoneyListView);
-        this.totalAmountLL = view.findViewById(R.id.moneyListTotalAmountLL);
-        this.totalAmountLL.setOnClickListener(this);
-        this.filterDateEnd = ViewModelProviders.of(getActivity()).get(MainViewModel.class).getEndDateRangeDate().getValue();
-        this.filterDateStart = ViewModelProviders.of(getActivity()).get(MainViewModel.class).getStartDateRangeDate().getValue();
-        this.preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        int dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
-        dateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateStart));
+        mNoExpensesTV = view.findViewById(R.id.emptyListTV);
+        mSearchBarET = view.findViewById(R.id.moneyListSearchET);
+        mDateRangeStartBtn = view.findViewById(R.id.moneyListDateRangeStartBtn);
+        mDateRangeStartBtn.setOnClickListener(this);
+        mDateRangeEndBtn = view.findViewById(R.id.moneyListDateRangeEndBtn);
+        mDateRangeEndBtn.setOnClickListener(this);
+        mTotalAmountLabelTV = view.findViewById(R.id.moneyListTotalAmountLabelTV);
+        mTotalAmountTV = view.findViewById(R.id.moneyListTotalAmountTV);
+        mListView = view.findViewById(R.id.mainMoneyListView);
+        LinearLayout totalAmountLL = view.findViewById(R.id.moneyListTotalAmountLL);
+        totalAmountLL.setOnClickListener(this);
+        mFilterDateEnd = ViewModelProviders.of(getActivity()).get(MainViewModel.class).getEndDateRangeDate().getValue();
+        mFilterDateStart = ViewModelProviders.of(getActivity()).get(MainViewModel.class).getStartDateRangeDate().getValue();
+        mPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        int dateFormatCode = mPreferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
+        mDateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, mFilterDateStart));
         if(savedInstanceState != null){
-            completedOnly = savedInstanceState.getBoolean("completedOnly");
+            mCompletedOnly = savedInstanceState.getBoolean("mCompletedOnly");
         } else {
-            completedOnly = true;
+            mCompletedOnly = true;
         }
-        dateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateEnd));
-        total = getTotal(ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedExpenses().getValue());
-        datePickerDialogLauncher = new CustomDatePickerDialogLauncher(filterDateStart, filterDateEnd, true, getContext());
-        datePickerDialogLauncher.setDateSelectedListener(new CustomDatePickerDialogLauncher.DateSelectedListener() {
+        mDateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, mFilterDateEnd));
+        mTotal = getTotal(ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedExpenses().getValue());
+        mDatePickerDialogLauncher = new CustomDatePickerDialogLauncher(mFilterDateStart, mFilterDateEnd, true, getContext());
+        mDatePickerDialogLauncher.setDateSelectedListener(new CustomDatePickerDialogLauncher.DateSelectedListener() {
             @Override
             public void onStartDateSelected(Date startDate, Date endDate) {
-                filterDateStart = startDate;
-                filterDateEnd = endDate;
-                int dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
-                dateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateStart));
-                dateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateEnd));
-                mCallback.onExpenseListDatesChanged(filterDateStart, filterDateEnd, ExpenseListFragment.this);
+                mFilterDateStart = startDate;
+                mFilterDateEnd = endDate;
+                int dateFormatCode = mPreferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
+                mDateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, mFilterDateStart));
+                mDateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, mFilterDateEnd));
+                mCallback.onExpenseListDatesChanged(mFilterDateStart, mFilterDateEnd, ExpenseListFragment.this);
             }
 
             @Override
             public void onEndDateSelected(Date startDate, Date endDate) {
-                filterDateStart = startDate;
-                filterDateEnd = endDate;
-                int dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
-                dateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateStart));
-                dateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateEnd));
-                mCallback.onExpenseListDatesChanged(filterDateStart, filterDateEnd, ExpenseListFragment.this);
+                mFilterDateStart = startDate;
+                mFilterDateEnd = endDate;
+                int dateFormatCode = mPreferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
+                mDateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, mFilterDateStart));
+                mDateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, mFilterDateEnd));
+                mCallback.onExpenseListDatesChanged(mFilterDateStart, mFilterDateEnd, ExpenseListFragment.this);
             }
 
             @Override
@@ -116,38 +115,38 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
         //Get current theme accent color, which is passed into the list adapter for search highlighting
         TypedValue colorValue = new TypedValue();
         getActivity().getTheme().resolveAttribute(R.attr.colorAccent, colorValue, true);
-        this.accentColor = getActivity().getResources().getColorStateList(colorValue.resourceId);
+        mAccentColor = getActivity().getResources().getColorStateList(colorValue.resourceId);
         setUpListAdapter();
         setUpSearchBar();
         setTotalTV();
-        expenseListAdapter.setOnDataChangeListener(new ExpenseListAdapter.OnDataChangeListener() {
+        mExpenseListAdapter.setOnDataChangeListener(new ExpenseListAdapter.OnDataChangeListener() {
             public void onDataChanged(ArrayList<ExpenseLogEntry> filteredResults) {
-                total = getTotal(filteredResults);
+                mTotal = getTotal(filteredResults);
                 setTotalTV();
             }
         });
-        needsRefreshedOnResume = false;
+        mNeedsRefreshedOnResume = false;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        if (needsRefreshedOnResume) {
-            expenseListAdapter.updateResults(ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedExpenses().getValue());
-            searchBarET.setText(searchBarET.getText());
-            searchBarET.setSelection(searchBarET.getText().length());
+        if (mNeedsRefreshedOnResume) {
+            mExpenseListAdapter.updateResults(ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedExpenses().getValue());
+            mSearchBarET.setText(mSearchBarET.getText());
+            mSearchBarET.setSelection(mSearchBarET.getText().length());
         }
-        needsRefreshedOnResume = true;
+        mNeedsRefreshedOnResume = true;
     }
 
     private void setUpSearchBar() {
-        searchBarET.addTextChangedListener(new TextWatcher() {
-            //For updating search results as user types
+        mSearchBarET.addTextChangedListener(new TextWatcher() {
+            //For updating search results as sUser types
             @Override
             public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
-                //When user changed the Text
-                if (expenseListAdapter != null) {
-                    expenseListAdapter.getFilter().filter(cs);
+                //When sUser changed the Text
+                if (mExpenseListAdapter != null) {
+                    mExpenseListAdapter.getFilter().filter(cs);
 
                 }
             }
@@ -166,18 +165,18 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
     }
 
     private void setUpListAdapter() {
-        expenseListAdapter = new ExpenseListAdapter(getActivity(), ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedExpenses().getValue(), accentColor);
-        listView.setAdapter(expenseListAdapter);
-        listView.setOnItemClickListener(this);
-        noExpensesTV.setText(R.string.no_expenses_to_display);
-        this.listView.setEmptyView(noExpensesTV);
+        mExpenseListAdapter = new ExpenseListAdapter(getActivity(), ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedExpenses().getValue(), mAccentColor);
+        mListView.setAdapter(mExpenseListAdapter);
+        mListView.setOnItemClickListener(this);
+        mNoExpensesTV.setText(R.string.no_expenses_to_display);
+        mListView.setEmptyView(mNoExpensesTV);
     }
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        //On listView row click, launch ApartmentViewActivity passing the rows data into it.
+        //On mListView row click, launch ApartmentViewActivity passing the rows data into it.
         Intent intent = new Intent(getContext(), ExpenseViewActivity.class);
-        ExpenseLogEntry expense = expenseListAdapter.getFilteredResults().get(i);
+        ExpenseLogEntry expense = mExpenseListAdapter.getFilteredResults().get(i);
         intent.putExtra("expenseID", expense.getId());
         getActivity().startActivityForResult(intent, MainActivity.REQUEST_EXPENSE_VIEW);
     }
@@ -187,21 +186,21 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
         switch (view.getId()) {
 
             case R.id.moneyListDateRangeStartBtn:
-                datePickerDialogLauncher.launchStartDatePickerDialog();
+                mDatePickerDialogLauncher.launchStartDatePickerDialog();
                 break;
 
             case R.id.moneyListDateRangeEndBtn:
-                datePickerDialogLauncher.launchEndDatePickerDialog();
+                mDatePickerDialogLauncher.launchEndDatePickerDialog();
                 break;
 
             case R.id.moneyListTotalAmountLL:
-                if(completedOnly){
-                    completedOnly = false;
-                    total = getTotal(ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedExpenses().getValue());
+                if(mCompletedOnly){
+                    mCompletedOnly = false;
+                    mTotal = getTotal(ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedExpenses().getValue());
                     setTotalTV();
                 } else {
-                    completedOnly = true;
-                    total = getTotal(ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedExpenses().getValue());
+                    mCompletedOnly = true;
+                    mTotal = getTotal(ViewModelProviders.of(getActivity()).get(MainViewModel.class).getCachedExpenses().getValue());
                     setTotalTV();
                 }
                 break;
@@ -238,20 +237,20 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
     @Override
     public void onPause() {
         super.onPause();
-        datePickerDialogLauncher.dismissDatePickerDialog();
+        mDatePickerDialogLauncher.dismissDatePickerDialog();
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBoolean("completedOnly", completedOnly);
+        outState.putBoolean("mCompletedOnly", mCompletedOnly);
     }
 
     private BigDecimal getTotal(ArrayList<ExpenseLogEntry> filteredExpenseArray) {
         BigDecimal total = new BigDecimal(0);
         if (filteredExpenseArray != null) {
             if (!filteredExpenseArray.isEmpty()) {
-                if (completedOnly) {
+                if (mCompletedOnly) {
                     for (int i = 0; i < filteredExpenseArray.size(); i++) {
                         if(filteredExpenseArray.get(i).getIsCompleted()) {
                             total = total.add(filteredExpenseArray.get(i).getAmount());
@@ -269,23 +268,23 @@ public class ExpenseListFragment extends android.support.v4.app.Fragment impleme
 
     private void setTotalTV() {
         if(getActivity() != null) {
-            totalAmountTV.setTextColor(getActivity().getResources().getColor(R.color.red));
+            mTotalAmountTV.setTextColor(getActivity().getResources().getColor(R.color.red));
         }
-        if(completedOnly){
-            totalAmountLabelTV.setText(R.string.total_paid);
+        if(mCompletedOnly){
+            mTotalAmountLabelTV.setText(R.string.total_paid);
         } else {
-            totalAmountLabelTV.setText(R.string.projected_total);
+            mTotalAmountLabelTV.setText(R.string.projected_total);
         }
-        if (total != null) {
-            int moneyFormatCode = preferences.getInt("currency", DateAndCurrencyDisplayer.CURRENCY_US);
-            totalAmountTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, total));
+        if (mTotal != null) {
+            int moneyFormatCode = mPreferences.getInt("currency", DateAndCurrencyDisplayer.CURRENCY_US);
+            mTotalAmountTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, mTotal));
         }
     }
 
     public void updateData(ArrayList<ExpenseLogEntry> expenseList) {
-        expenseListAdapter.updateResults(expenseList);
-        expenseListAdapter.getFilter().filter(searchBarET.getText());
-        expenseListAdapter.notifyDataSetChanged();
+        mExpenseListAdapter.updateResults(expenseList);
+        mExpenseListAdapter.getFilter().filter(mSearchBarET.getText());
+        mExpenseListAdapter.notifyDataSetChanged();
     }
 
 }

@@ -29,141 +29,140 @@ import java.util.ArrayList;
  */
 
 public class TenantApartmentOrLeaseChooserDialog extends Dialog implements AdapterView.OnItemClickListener {
-    public TenantApartmentOrLeaseChooserDialog(@NonNull Context context, int type, ArrayList<?> theList) {
-        super(context);
-        this.context = context;
-        this.type = type;
-        if (type == TENANT_TYPE) {
-            availableTenants = (ArrayList<Tenant>) theList;
-        } else if (type == APARTMENT_TYPE) {
-            availableApartments = (ArrayList<Apartment>) theList;
-        } else if (type == SECONDARY_TENANT_TYPE) {
-            availableTenants = (ArrayList<Tenant>) theList;
-        } else if (type == LEASE_TYPE) {
-            availableLeases = (ArrayList<Lease>) theList;
-        }
-    }
-
-    private Context context;
-    private int type;
-    private ArrayList<Tenant> availableTenants;
-    private ArrayList<Apartment> availableApartments;
-    private ArrayList<Lease> availableLeases;
-
-    private TextView cancelTV, selectionTypeTV, emptyListTV;
-    private EditText searchBarET;
-    private ListView listView;
-    private ColorStateList accentColor;
-    private TenantDialogListAdapter tenantListAdapter;
-    private ApartmentDialogListAdapter apartmentListAdapter;
-    private LeaseDialogListAdapter leaseListAdapter;
-    private OnTenantChooserDialogResult dialogResult;
+    private Context mContext;
+    private int mType;
+    private ArrayList<Tenant> mAvailableTenants;
+    private ArrayList<Apartment> mAvailableApartments;
+    private ArrayList<Lease> mAvailableLeases;
+    private TextView mCancelTV, mSelectionTypeTV, mEmptyListTV;
+    private EditText mSearchBarET;
+    private ListView mListView;
+    private ColorStateList mAccentColor;
+    private TenantDialogListAdapter mTenantListAdapter;
+    private ApartmentDialogListAdapter mApartmentListAdapter;
+    private LeaseDialogListAdapter mLeaseListAdapter;
+    private OnTenantChooserDialogResult mDialogResult;
 
     public static final int TENANT_TYPE = 45;
     public static final int APARTMENT_TYPE = 54;
     public static final int SECONDARY_TENANT_TYPE = 63;
     public static final int LEASE_TYPE = 36;
 
+    public TenantApartmentOrLeaseChooserDialog(@NonNull Context context, int type, ArrayList<?> theList) {
+        super(context);
+        mContext = context;
+        mType = type;
+        if (type == TENANT_TYPE) {
+            mAvailableTenants = (ArrayList<Tenant>) theList;
+        } else if (type == APARTMENT_TYPE) {
+            mAvailableApartments = (ArrayList<Apartment>) theList;
+        } else if (type == SECONDARY_TENANT_TYPE) {
+            mAvailableTenants = (ArrayList<Tenant>) theList;
+        } else if (type == LEASE_TYPE) {
+            mAvailableLeases = (ArrayList<Lease>) theList;
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.popup_list_chooser);
-        this.searchBarET = findViewById(R.id.popupListSearchET);
-        this.listView = findViewById(R.id.popupListListView);
-        this.cancelTV = findViewById(R.id.popupListCancelTV);
-        this.selectionTypeTV = findViewById(R.id.popupListSelectTypeTV);
-        this.emptyListTV = findViewById(R.id.popupListEmptyListTV);
-        if (type == TENANT_TYPE) {
-            selectionTypeTV.setText(R.string.select_a_tenant);
-            emptyListTV.setText(R.string.no_available_tenants);
+        mSearchBarET = findViewById(R.id.popupListSearchET);
+        mListView = findViewById(R.id.popupListListView);
+        mCancelTV = findViewById(R.id.popupListCancelTV);
+        mSelectionTypeTV = findViewById(R.id.popupListSelectTypeTV);
+        mEmptyListTV = findViewById(R.id.popupListEmptyListTV);
+        if (mType == TENANT_TYPE) {
+            mSelectionTypeTV.setText(R.string.select_a_tenant);
+            mEmptyListTV.setText(R.string.no_available_tenants);
         }
-        if (type == APARTMENT_TYPE) {
-            selectionTypeTV.setText(R.string.select_an_apartment);
-            emptyListTV.setText(R.string.no_available_apartments);
+        if (mType == APARTMENT_TYPE) {
+            mSelectionTypeTV.setText(R.string.select_an_apartment);
+            mEmptyListTV.setText(R.string.no_available_apartments);
         }
-        if (type == SECONDARY_TENANT_TYPE) {
-            selectionTypeTV.setText(R.string.select_secondary_tenant);
-            emptyListTV.setText(R.string.no_available_tenants);
+        if (mType == SECONDARY_TENANT_TYPE) {
+            mSelectionTypeTV.setText(R.string.select_secondary_tenant);
+            mEmptyListTV.setText(R.string.no_available_tenants);
         }
-        if (type == LEASE_TYPE) {
-            selectionTypeTV.setText(R.string.select_a_lease);
-            emptyListTV.setText(R.string.no_available_leases);
+        if (mType == LEASE_TYPE) {
+            mSelectionTypeTV.setText(R.string.select_a_lease);
+            mEmptyListTV.setText(R.string.no_available_leases);
         }
         TypedValue colorValue = new TypedValue();
-        context.getTheme().resolveAttribute(R.attr.colorAccent, colorValue, true);
-        this.accentColor = context.getResources().getColorStateList(colorValue.resourceId);
+        mContext.getTheme().resolveAttribute(R.attr.colorAccent, colorValue, true);
+        mAccentColor = mContext.getResources().getColorStateList(colorValue.resourceId);
         setUpListAdapter();
         setUpSearchBar();
-        cancelTV.setOnClickListener(new View.OnClickListener() {
+        mCancelTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                dialogResult.finish(null, null, null);
+                mDialogResult.finish(null, null, null);
                 TenantApartmentOrLeaseChooserDialog.this.dismiss();
             }
         });
     }
 
     private void setUpListAdapter() {
-        if (type == TENANT_TYPE) {
+        if (mType == TENANT_TYPE) {
             setUpTenantListAdapter();
-        } else if (type == APARTMENT_TYPE) {
+        } else if (mType == APARTMENT_TYPE) {
             setUpApartmentListAdapter();
-        } else if (type == SECONDARY_TENANT_TYPE) {
+        } else if (mType == SECONDARY_TENANT_TYPE) {
             setUpTenantListAdapter();
-        } else if (type == LEASE_TYPE) {
+        } else if (mType == LEASE_TYPE) {
             setUpLeaseListAdapter();
         }
     }
 
     private void setUpTenantListAdapter() {
-        tenantListAdapter = new TenantDialogListAdapter(context, availableTenants, accentColor);
-        listView.setAdapter(tenantListAdapter);
-        listView.setOnItemClickListener(this);
-        this.listView.setEmptyView(emptyListTV);
+        mTenantListAdapter = new TenantDialogListAdapter(mContext, mAvailableTenants, mAccentColor);
+        mListView.setAdapter(mTenantListAdapter);
+        mListView.setOnItemClickListener(this);
+        mListView.setEmptyView(mEmptyListTV);
     }
 
     public void changeCancelBtnText(String string){
-        this.cancelTV.setText(string);
+        mCancelTV.setText(string);
     }
 
     private void setUpApartmentListAdapter() {
-        apartmentListAdapter = new ApartmentDialogListAdapter(context, availableApartments, accentColor);
-        listView.setAdapter(apartmentListAdapter);
-        listView.setOnItemClickListener(this);
-        this.listView.setEmptyView(emptyListTV);
+        mApartmentListAdapter = new ApartmentDialogListAdapter(mContext, mAvailableApartments, mAccentColor);
+        mListView.setAdapter(mApartmentListAdapter);
+        mListView.setOnItemClickListener(this);
+        mListView.setEmptyView(mEmptyListTV);
     }
 
     private void setUpLeaseListAdapter() {
-        leaseListAdapter = new LeaseDialogListAdapter(context, availableLeases, accentColor);
-        listView.setAdapter(leaseListAdapter);
-        listView.setOnItemClickListener(this);
-        this.listView.setEmptyView(emptyListTV);
+        mLeaseListAdapter = new LeaseDialogListAdapter(mContext, mAvailableLeases, mAccentColor);
+        mListView.setAdapter(mLeaseListAdapter);
+        mListView.setOnItemClickListener(this);
+        mListView.setEmptyView(mEmptyListTV);
     }
 
 
     private void setUpSearchBar() {
-        if (type == LEASE_TYPE) {
-            searchBarET.setVisibility(View.GONE);
+        if (mType == LEASE_TYPE) {
+            mSearchBarET.setVisibility(View.GONE);
         } else {
-            searchBarET.addTextChangedListener(new TextWatcher() {
+            mSearchBarET.addTextChangedListener(new TextWatcher() {
                 //For updating search results as user fileNames
                 @Override
                 public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
                     //When user changed the Text
-                    if (type == TENANT_TYPE) {
-                        if (tenantListAdapter != null) {
-                            tenantListAdapter.getFilter().filter(cs);
-                            tenantListAdapter.notifyDataSetChanged();
+                    if (mType == TENANT_TYPE) {
+                        if (mTenantListAdapter != null) {
+                            mTenantListAdapter.getFilter().filter(cs);
+                            mTenantListAdapter.notifyDataSetChanged();
                         }
-                    } else if (type == APARTMENT_TYPE) {
-                        if (apartmentListAdapter != null) {
-                            apartmentListAdapter.getFilter().filter(cs);
-                            apartmentListAdapter.notifyDataSetChanged();
+                    } else if (mType == APARTMENT_TYPE) {
+                        if (mApartmentListAdapter != null) {
+                            mApartmentListAdapter.getFilter().filter(cs);
+                            mApartmentListAdapter.notifyDataSetChanged();
                         }
-                    } else if (type == SECONDARY_TENANT_TYPE) {
-                        if (tenantListAdapter != null) {
-                            tenantListAdapter.getFilter().filter(cs);
-                            tenantListAdapter.notifyDataSetChanged();
+                    } else if (mType == SECONDARY_TENANT_TYPE) {
+                        if (mTenantListAdapter != null) {
+                            mTenantListAdapter.getFilter().filter(cs);
+                            mTenantListAdapter.notifyDataSetChanged();
                         }
                     }
                 }
@@ -187,26 +186,26 @@ public class TenantApartmentOrLeaseChooserDialog extends Dialog implements Adapt
     }
 
     public void setDialogResult(OnTenantChooserDialogResult dialogResult) {
-        this.dialogResult = dialogResult;
+        mDialogResult = dialogResult;
     }
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        if (type == TENANT_TYPE) {
-            Tenant tenant = tenantListAdapter.getFilteredResults().get(i);
-            dialogResult.finish(tenant, null, null);
+        if (mType == TENANT_TYPE) {
+            Tenant tenant = mTenantListAdapter.getFilteredResults().get(i);
+            mDialogResult.finish(tenant, null, null);
             TenantApartmentOrLeaseChooserDialog.this.dismiss();
-        } else if (type == APARTMENT_TYPE) {
-            Apartment apartment = apartmentListAdapter.getFilteredResults().get(i);
-            dialogResult.finish(null, apartment, null);
+        } else if (mType == APARTMENT_TYPE) {
+            Apartment apartment = mApartmentListAdapter.getFilteredResults().get(i);
+            mDialogResult.finish(null, apartment, null);
             TenantApartmentOrLeaseChooserDialog.this.dismiss();
-        } else if (type == SECONDARY_TENANT_TYPE) {
-            Tenant tenant = tenantListAdapter.getFilteredResults().get(i);
-            dialogResult.finish(tenant, null, null);
+        } else if (mType == SECONDARY_TENANT_TYPE) {
+            Tenant tenant = mTenantListAdapter.getFilteredResults().get(i);
+            mDialogResult.finish(tenant, null, null);
             TenantApartmentOrLeaseChooserDialog.this.dismiss();
-        } else if (type == LEASE_TYPE){
-            Lease lease = leaseListAdapter.getFilteredResults().get(i);
-            dialogResult.finish(null, null, lease);
+        } else if (mType == LEASE_TYPE){
+            Lease lease = mLeaseListAdapter.getFilteredResults().get(i);
+            mDialogResult.finish(null, null, lease);
             TenantApartmentOrLeaseChooserDialog.this.dismiss();
         }
     }

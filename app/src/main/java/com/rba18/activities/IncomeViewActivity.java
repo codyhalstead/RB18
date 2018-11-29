@@ -15,7 +15,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.widget.PopupMenu;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -28,11 +27,8 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.rba18.BuildConfig;
 import com.rba18.R;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
 import com.rba18.helpers.AppFileManagementHelper;
 import com.rba18.helpers.DateAndCurrencyDisplayer;
-import com.rba18.helpers.MainArrayDataMethods;
 import com.rba18.model.Apartment;
 import com.rba18.model.Lease;
 import com.rba18.model.PaymentLogEntry;
@@ -46,86 +42,83 @@ import java.io.File;
  */
 
 public class IncomeViewActivity extends BaseActivity {
-    PaymentLogEntry income;
-    TextView dateTV, amountTV, typeTV, descriptionTV, relatedLeaseTV, relatedTenantTV, relatedApartmentAddressTV,
-    statusTV;
-    LinearLayout adViewLL;
-    DatabaseHandler databaseHandler;
-    MainArrayDataMethods dataMethods;
-    ImageView receiptPicIV;
-    String receiptPic;
-    Boolean wasEdited;
-    private String cameraImageFilePath;
-    private AlertDialog dialog;
-    AdView adView;
+    private PaymentLogEntry mIncome;
+    private TextView mDateTV, mAmountTV, mTypeTV, mDescriptionTV, mRelatedLeaseTV, mRelatedTenantTV, mRelatedApartmentAddressTV,
+    mStatusTV;
+    private DatabaseHandler mDatabaseHandler;
+    private ImageView mReceiptPicIV;
+    private String mReceiptPic;
+    private Boolean mWasEdited;
+    private String mCameraImageFilePath;
+    private AlertDialog mDialog;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setupUserAppTheme(MainActivity.curThemeChoice);
+        setupUserAppTheme(MainActivity.sCurThemeChoice);
         setContentView(R.layout.activity_income_view);
-        this.databaseHandler = new DatabaseHandler(this);
-        dataMethods = new MainArrayDataMethods();
+        mDatabaseHandler = new DatabaseHandler(this);
         //if recreated
         if (savedInstanceState != null) {
-            if (savedInstanceState.getParcelable("income") != null) {
-                this.income = savedInstanceState.getParcelable("income");
-                this.receiptPic = income.getReceiptPic();
+            if (savedInstanceState.getParcelable("mIncome") != null) {
+                mIncome = savedInstanceState.getParcelable("mIncome");
+                mReceiptPic = mIncome.getReceiptPic();
             }
-            wasEdited = savedInstanceState.getBoolean("was_edited");
-            cameraImageFilePath = savedInstanceState.getString("camera_image_file_path");
+            mWasEdited = savedInstanceState.getBoolean("was_edited");
+            mCameraImageFilePath = savedInstanceState.getString("camera_image_file_path");
         } else {
             //If new
             Bundle bundle = getIntent().getExtras();
-            wasEdited = false;
-            //Get apartment item
+            mWasEdited = false;
             int incomeID = bundle.getInt("incomeID");
-            this.income = databaseHandler.getPaymentLogEntryByID(incomeID, MainActivity.user);
-            if (income.getReceiptPic() != null) {
-                this.receiptPic = income.getReceiptPic();
+            mIncome = mDatabaseHandler.getPaymentLogEntryByID(incomeID, MainActivity.sUser);
+            if (mIncome.getReceiptPic() != null) {
+                mReceiptPic = mIncome.getReceiptPic();
             }
         }
-        this.dateTV = findViewById(R.id.incomeViewDateTV);
-        this.amountTV = findViewById(R.id.incomeViewAmountTV);
-        this.typeTV = findViewById(R.id.incomeViewTypeTV);
-        this.descriptionTV = findViewById(R.id.incomeViewDescriptionTV);
-        this.receiptPicIV = findViewById(R.id.incomeViewReceiptPicIV);
-        this.relatedLeaseTV = findViewById(R.id.incomeViewRelatedLeaseTV);
-        this.relatedTenantTV = findViewById(R.id.incomeViewRelatedTenantTV);
-        this.relatedApartmentAddressTV = findViewById(R.id.incomeViewRelatedApartmentAddressTV);
-        this.statusTV = findViewById(R.id.incomeViewStatusTV);
-        this.adViewLL = findViewById(R.id.adViewLL);
+        mDateTV = findViewById(R.id.incomeViewDateTV);
+        mAmountTV = findViewById(R.id.incomeViewAmountTV);
+        mTypeTV = findViewById(R.id.incomeViewTypeTV);
+        mDescriptionTV = findViewById(R.id.incomeViewDescriptionTV);
+        mReceiptPicIV = findViewById(R.id.incomeViewReceiptPicIV);
+        mRelatedLeaseTV = findViewById(R.id.incomeViewRelatedLeaseTV);
+        mRelatedTenantTV = findViewById(R.id.incomeViewRelatedTenantTV);
+        mRelatedApartmentAddressTV = findViewById(R.id.incomeViewRelatedApartmentAddressTV);
+        mStatusTV = findViewById(R.id.incomeViewStatusTV);
+        LinearLayout adViewLL = findViewById(R.id.adViewLL);
         if (BuildConfig.FLAVOR.equals("free")) {
-            adView = findViewById(R.id.adView);
-            AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
-            adView.loadAd(adRequest);
+            //TODO enable for release
+            //AdView adView = findViewById(R.id.adView);
+            //AdRequest adRequest = new AdRequest.Builder().build();
+            //adView.loadAd(adRequest);
         } else {
             adViewLL.setVisibility(View.GONE);
         }
         fillTextViews();
         setupBasicToolbar();
-        this.setTitle(R.string.income_view);
-        if (wasEdited) {
+        addToolbarBackButton();
+        setTitle(R.string.income_view);
+        if (mWasEdited) {
             setResult(MainActivity.RESULT_DATA_WAS_MODIFIED);
         } else {
             setResult(RESULT_OK);
         }
-        receiptPicIV.setOnClickListener(new View.OnClickListener() {
+        mReceiptPicIV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (receiptPic != null) {
-                    if (new File(receiptPic).exists()) {
+                if (mReceiptPic != null) {
+                    if (new File(mReceiptPic).exists()) {
                         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
                             Intent intent = new Intent();
                             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                             intent.setAction(Intent.ACTION_VIEW);
-                            intent.setDataAndType(Uri.fromFile(new File(receiptPic)), "image/*");
+                            intent.setDataAndType(Uri.fromFile(new File(mReceiptPic)), "image/*");
                             startActivity(intent);
                         } else {
                             Intent intent = new Intent();
                             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                             intent.setAction(Intent.ACTION_VIEW);
-                            Uri photoUri = FileProvider.getUriForFile(IncomeViewActivity.this, BuildConfig.APPLICATION_ID + ".helpers.fileprovider", new File(receiptPic));
+                            Uri photoUri = FileProvider.getUriForFile(IncomeViewActivity.this, BuildConfig.APPLICATION_ID + ".helpers.fileprovider", new File(mReceiptPic));
                             intent.setData(photoUri);
                             startActivity(intent);
                         }
@@ -135,10 +128,10 @@ public class IncomeViewActivity extends BaseActivity {
                 }
             }
         });
-        receiptPicIV.setOnLongClickListener(new View.OnLongClickListener() {
+        mReceiptPicIV.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                if (receiptPic != null) {
+                if (mReceiptPic != null) {
                     PopupMenu popup = new PopupMenu(IncomeViewActivity.this, view);
                     MenuInflater inflater = popup.getMenuInflater();
                     popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
@@ -193,22 +186,22 @@ public class IncomeViewActivity extends BaseActivity {
     private void fillTextViews() {
         int dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
         int moneyFormatCode = preferences.getInt("currency", DateAndCurrencyDisplayer.CURRENCY_US);
-        dateTV.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, income.getDate()));
-        amountTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, income.getAmount()));
+        mDateTV.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, mIncome.getDate()));
+        mAmountTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, mIncome.getAmount()));
 
-        typeTV.setText(income.getTypeLabel());
-        if(income.getIsCompleted()){
-            statusTV.setText(R.string.received);
+        mTypeTV.setText(mIncome.getTypeLabel());
+        if(mIncome.getIsCompleted()){
+            mStatusTV.setText(R.string.received);
         } else {
-            statusTV.setText(R.string.not_received);
+            mStatusTV.setText(R.string.not_received);
         }
-        descriptionTV.setText(income.getDescription());
+        mDescriptionTV.setText(mIncome.getDescription());
 
-        if (receiptPic != null) {
-            Glide.with(this).load(receiptPic).placeholder(R.drawable.no_picture)
-                    .override(200, 200).centerCrop().into(receiptPicIV);
+        if (mReceiptPic != null) {
+            Glide.with(this).load(mReceiptPic).placeholder(R.drawable.no_picture)
+                    .override(200, 200).centerCrop().into(mReceiptPicIV);
         } else {
-            Glide.with(this).load(R.drawable.no_picture).override(200, 200).centerCrop().into(receiptPicIV);
+            Glide.with(this).load(R.drawable.no_picture).override(200, 200).centerCrop().into(mReceiptPicIV);
         }
         setUpRelatedInfoSection();
     }
@@ -226,8 +219,8 @@ public class IncomeViewActivity extends BaseActivity {
         switch (item.getItemId()) {
             case R.id.editIncome:
                 Intent intent = new Intent(this, NewIncomeWizard.class);
-                intent.putExtra("incomeToEdit", income);
-                wasEdited = true;
+                intent.putExtra("incomeToEdit", mIncome);
+                mWasEdited = true;
                 setResult(MainActivity.RESULT_DATA_WAS_MODIFIED);
                 startActivityForResult(intent, MainActivity.REQUEST_NEW_INCOME_FORM);
                 return true;
@@ -240,14 +233,14 @@ public class IncomeViewActivity extends BaseActivity {
                 launchCameraOrGalleryDialog();
 
             case R.id.changeStatus:
-                if(income.getIsCompleted()){
-                    income.setIsCompleted(false);
+                if(mIncome.getIsCompleted()){
+                    mIncome.setIsCompleted(false);
                 } else {
-                    income.setIsCompleted(true);
+                    mIncome.setIsCompleted(true);
                 }
-                databaseHandler.editPaymentLogEntry(income);
+                mDatabaseHandler.editPaymentLogEntry(mIncome);
                 fillTextViews();
-                wasEdited = true;
+                mWasEdited = true;
                 setResult(MainActivity.RESULT_DATA_WAS_MODIFIED);
 
             default:
@@ -279,15 +272,15 @@ public class IncomeViewActivity extends BaseActivity {
                         );
                     }
                 });
-        dialog = builder.create();
-        dialog.show();
+        mDialog = builder.create();
+        mDialog.show();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        if(dialog != null){
-            dialog.dismiss();
+        if(mDialog != null){
+            mDialog.dismiss();
         }
     }
 
@@ -304,11 +297,11 @@ public class IncomeViewActivity extends BaseActivity {
             return;
         } else if (requestCode == MainActivity.REQUEST_IMAGE_DELETE_PERMISSION) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                databaseHandler.removePaymentLogReceiptPic(income);
-                Glide.with(IncomeViewActivity.this).load(R.drawable.no_picture).override(200, 200).centerCrop().into(receiptPicIV);
-                new File(receiptPic).delete();
-                receiptPic = null;
-                income.setReceiptPic(null);
+                mDatabaseHandler.removePaymentLogReceiptPic(mIncome);
+                Glide.with(IncomeViewActivity.this).load(R.drawable.no_picture).override(200, 200).centerCrop().into(mReceiptPicIV);
+                new File(mReceiptPic).delete();
+                mReceiptPic = null;
+                mIncome.setReceiptPic(null);
             } else {
                 Toast.makeText(this, R.string.permission_picture_denied, Toast.LENGTH_SHORT).show();
             }
@@ -317,7 +310,7 @@ public class IncomeViewActivity extends BaseActivity {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) { ;
                 Intent pictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 File photoFile = AppFileManagementHelper.createImageFileFromCamera();
-                cameraImageFilePath = photoFile.getAbsolutePath();
+                mCameraImageFilePath = photoFile.getAbsolutePath();
                 Uri photoUri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".helpers.fileprovider", photoFile);
                 pictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
                 startActivityForResult(pictureIntent, MainActivity.REQUEST_CAMERA_FOR_MAIN_PIC);
@@ -338,12 +331,12 @@ public class IncomeViewActivity extends BaseActivity {
         builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                if (income.getReceiptPic() != null) {
-                    if (!income.getReceiptPic().equals("")) {
-                        new File(income.getReceiptPic()).delete();
+                if (mIncome.getReceiptPic() != null) {
+                    if (!mIncome.getReceiptPic().equals("")) {
+                        new File(mIncome.getReceiptPic()).delete();
                     }
                 }
-                databaseHandler.setPaymentLogEntryInactive(income);
+                mDatabaseHandler.setPaymentLogEntryInactive(mIncome);
                 //IncomeListFragment.incomeListAdapterNeedsRefreshed = true;
                 setResult(MainActivity.RESULT_DATA_WAS_MODIFIED);
                 IncomeViewActivity.this.finish();
@@ -356,9 +349,9 @@ public class IncomeViewActivity extends BaseActivity {
             }
         });
 
-        // create and show the alert dialog
-        dialog = builder.create();
-        dialog.show();
+        // create and show the alert mDialog
+        mDialog = builder.create();
+        mDialog.show();
     }
 
     @Override
@@ -369,7 +362,7 @@ public class IncomeViewActivity extends BaseActivity {
             if (resultCode == RESULT_OK) {
                 //Re-query cached apartment array to update cache and refresh current fragment to display new data
                 int incomeID = data.getIntExtra("editedIncomeID", 0);
-                this.income = databaseHandler.getPaymentLogEntryByID(incomeID, MainActivity.user);
+                mIncome = mDatabaseHandler.getPaymentLogEntryByID(incomeID, MainActivity.sUser);
                 fillTextViews();
             }
         } else if (requestCode == MainActivity.REQUEST_GALLERY_FOR_MAIN_PIC) {
@@ -383,53 +376,53 @@ public class IncomeViewActivity extends BaseActivity {
                 String filePath = cursor.getString(columnIndex);
                 cursor.close();
                 String oldPic = null;
-                if (this.income.getReceiptPic() != null) {
-                    oldPic = this.income.getReceiptPic();
+                if (mIncome.getReceiptPic() != null) {
+                    oldPic = mIncome.getReceiptPic();
                 }
                 File copiedFile = AppFileManagementHelper.copyPictureFileToApp(filePath, oldPic);
                 if (copiedFile != null) {
-                    income.setReceiptPic(copiedFile.getAbsolutePath());
-                    databaseHandler.changePaymentLogReceiptPic(this.income);
-                    updateMainPicIV(income.getReceiptPic());
+                    mIncome.setReceiptPic(copiedFile.getAbsolutePath());
+                    mDatabaseHandler.changePaymentLogReceiptPic(mIncome);
+                    updateMainPicIV(mIncome.getReceiptPic());
                 } else {
                     Toast.makeText(IncomeViewActivity.this, R.string.failed_to_save_image, Toast.LENGTH_LONG).show();
                 }
             }
         } else if (requestCode == MainActivity.REQUEST_CAMERA_FOR_MAIN_PIC) {
             if (resultCode == RESULT_OK) {
-                if (income.getReceiptPic() != null) {
-                    String oldPicPath = income.getReceiptPic();
+                if (mIncome.getReceiptPic() != null) {
+                    String oldPicPath = mIncome.getReceiptPic();
                     File oldPic = new File(oldPicPath);
                     if (oldPic.exists()) {
                         oldPic.delete();
                     }
                 }
-                income.setReceiptPic(cameraImageFilePath);
-                databaseHandler.changePaymentLogReceiptPic(income);
-                updateMainPicIV(income.getReceiptPic());
+                mIncome.setReceiptPic(mCameraImageFilePath);
+                mDatabaseHandler.changePaymentLogReceiptPic(mIncome);
+                updateMainPicIV(mIncome.getReceiptPic());
             }
         }
     }
 
     private void setUpRelatedInfoSection() {
         int dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
-        Apartment relatedApartment = databaseHandler.getApartmentByID(income.getApartmentID(), MainActivity.user);
-        Tenant relatedTenant = databaseHandler.getTenantByID(income.getTenantID(), MainActivity.user);
-        Lease relatedLease = databaseHandler.getLeaseByID(MainActivity.user, income.getLeaseID());
+        Apartment relatedApartment = mDatabaseHandler.getApartmentByID(mIncome.getApartmentID(), MainActivity.sUser);
+        Tenant relatedTenant = mDatabaseHandler.getTenantByID(mIncome.getTenantID(), MainActivity.sUser);
+        Lease relatedLease = mDatabaseHandler.getLeaseByID(MainActivity.sUser, mIncome.getLeaseID());
         if (relatedApartment != null) {
-            relatedApartmentAddressTV.setText(relatedApartment.getFullAddressString());
+            mRelatedApartmentAddressTV.setText(relatedApartment.getFullAddressString());
         } else {
-            relatedApartmentAddressTV.setText(R.string.na);
+            mRelatedApartmentAddressTV.setText(R.string.na);
         }
         if (relatedTenant != null) {
-            relatedTenantTV.setText(relatedTenant.getFirstAndLastNameString());
+            mRelatedTenantTV.setText(relatedTenant.getFirstAndLastNameString());
         } else {
-            relatedTenantTV.setText(R.string.na);
+            mRelatedTenantTV.setText(R.string.na);
         }
         if (relatedLease != null) {
-            relatedLeaseTV.setText(relatedLease.getStartAndEndDatesString(dateFormatCode));
+            mRelatedLeaseTV.setText(relatedLease.getStartAndEndDatesString(dateFormatCode));
         } else {
-            relatedLeaseTV.setText(R.string.na);
+            mRelatedLeaseTV.setText(R.string.na);
         }
     }
 
@@ -437,14 +430,14 @@ public class IncomeViewActivity extends BaseActivity {
     protected void onSaveInstanceState(Bundle outState) {
         //Save the fragment's instance
         super.onSaveInstanceState(outState);
-        outState.putParcelable("income", income);
-        outState.putBoolean("was_edited", wasEdited);
-        outState.putString("camera_image_file_path", cameraImageFilePath);
+        outState.putParcelable("mIncome", mIncome);
+        outState.putBoolean("was_edited", mWasEdited);
+        outState.putString("camera_image_file_path", mCameraImageFilePath);
     }
 
     public void updateMainPicIV(String picFileName) {
         Glide.with(this).load(picFileName).placeholder(R.drawable.no_picture)
-                .override(200, 200).centerCrop().into(receiptPicIV);
-        this.receiptPic = picFileName;
+                .override(200, 200).centerCrop().into(mReceiptPicIV);
+        mReceiptPic = picFileName;
     }
 }

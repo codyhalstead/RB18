@@ -29,12 +29,12 @@ import java.util.ArrayList;
  */
 
 public class ApartmentListFragment extends Fragment implements AdapterView.OnItemClickListener {
-    TextView noApartmentsTV;
-    EditText searchBarET;
-    ApartmentListAdapter apartmentListAdapter;
-    ColorStateList accentColor;
-    ListView listView;
-    private boolean needsRefreshedOnResume;
+    private TextView mNoApartmentsTV;
+    private EditText mSearchBarET;
+    private ApartmentListAdapter mApartmentListAdapter;
+    private ColorStateList mAccentColor;
+    private ListView mListView;
+    private boolean mNeedsRefreshedOnResume;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -45,42 +45,42 @@ public class ApartmentListFragment extends Fragment implements AdapterView.OnIte
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        this.noApartmentsTV = view.findViewById(R.id.noapartmentEmptyListTV);
-        this.searchBarET = view.findViewById(R.id.apartmentListSearchET);
-        this.listView = view.findViewById(R.id.mainApartmentListView);
+        mNoApartmentsTV = view.findViewById(R.id.noapartmentEmptyListTV);
+        mSearchBarET = view.findViewById(R.id.apartmentListSearchET);
+        mListView = view.findViewById(R.id.mainApartmentListView);
         getActivity().setTitle(R.string.apartment_list);
         //Get current theme accent color, which is passed into the list adapter for search highlighting
         TypedValue colorValue = new TypedValue();
         getActivity().getTheme().resolveAttribute(R.attr.colorAccent, colorValue, true);
-        this.accentColor = getActivity().getResources().getColorStateList(colorValue.resourceId);
+        mAccentColor = getActivity().getResources().getColorStateList(colorValue.resourceId);
         setUpListAdapter();
         setUpSearchBar();
-        needsRefreshedOnResume = false;
+        mNeedsRefreshedOnResume = false;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        if (needsRefreshedOnResume) {
+        if (mNeedsRefreshedOnResume) {
             ArrayList<Apartment> activeApartmentArray = new ArrayList<>();
-            for (int i = 0; i < MainActivity.apartmentList.size(); i++) {
-                if (MainActivity.apartmentList.get(i).isActive()) {
-                    activeApartmentArray.add(MainActivity.apartmentList.get(i));
+            for (int i = 0; i < MainActivity.sApartmentList.size(); i++) {
+                if (MainActivity.sApartmentList.get(i).isActive()) {
+                    activeApartmentArray.add(MainActivity.sApartmentList.get(i));
                 }
             }
-            apartmentListAdapter.updateResults(activeApartmentArray);
-            searchBarET.setText(searchBarET.getText());
-            searchBarET.setSelection(searchBarET.getText().length());
+            mApartmentListAdapter.updateResults(activeApartmentArray);
+            mSearchBarET.setText(mSearchBarET.getText());
+            mSearchBarET.setSelection(mSearchBarET.getText().length());
         }
-        needsRefreshedOnResume = true;
+        mNeedsRefreshedOnResume = true;
     }
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        //On listView row click, launch ApartmentViewActivity passing the rows data into it.
+        //On mListView row click, launch ApartmentViewActivity passing the rows data into it.
         Intent intent = new Intent(getContext(), ApartmentViewActivity.class);
         //Uses filtered results to match what is on screen
-        Apartment apartment = apartmentListAdapter.getFilteredResults().get(i);
+        Apartment apartment = mApartmentListAdapter.getFilteredResults().get(i);
         intent.putExtra("apartmentID", apartment.getId());
         getActivity().startActivityForResult(intent, MainActivity.REQUEST_APARTMENT_VIEW);
     }
@@ -91,13 +91,13 @@ public class ApartmentListFragment extends Fragment implements AdapterView.OnIte
     }
 
     private void setUpSearchBar() {
-        searchBarET.addTextChangedListener(new TextWatcher() {
-            //For updating search results as user types
+        mSearchBarET.addTextChangedListener(new TextWatcher() {
+            //For updating search results as sUser types
             @Override
             public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
-                //When user changed the Text
-                if (apartmentListAdapter != null) {
-                    apartmentListAdapter.getFilter().filter(cs);
+                //When sUser changed the Text
+                if (mApartmentListAdapter != null) {
+                    mApartmentListAdapter.getFilter().filter(cs);
                 }
             }
             @Override
@@ -115,16 +115,16 @@ public class ApartmentListFragment extends Fragment implements AdapterView.OnIte
 
     private void setUpListAdapter() {
         ArrayList<Apartment> activeApartmentArray = new ArrayList<>();
-        for (int i = 0; i < MainActivity.apartmentList.size(); i++) {
-            if (MainActivity.apartmentList.get(i).isActive()) {
-                activeApartmentArray.add(MainActivity.apartmentList.get(i));
+        for (int i = 0; i < MainActivity.sApartmentList.size(); i++) {
+            if (MainActivity.sApartmentList.get(i).isActive()) {
+                activeApartmentArray.add(MainActivity.sApartmentList.get(i));
             }
         }
-        apartmentListAdapter = new ApartmentListAdapter(getActivity(), activeApartmentArray, accentColor);
-        listView.setAdapter(apartmentListAdapter);
-        listView.setOnItemClickListener(this);
-        noApartmentsTV.setText(R.string.no_apartments_to_display);
-        this.listView.setEmptyView(noApartmentsTV);
+        mApartmentListAdapter = new ApartmentListAdapter(getActivity(), activeApartmentArray, mAccentColor);
+        mListView.setAdapter(mApartmentListAdapter);
+        mListView.setOnItemClickListener(this);
+        mNoApartmentsTV.setText(R.string.no_apartments_to_display);
+        mListView.setEmptyView(mNoApartmentsTV);
     }
 
 }

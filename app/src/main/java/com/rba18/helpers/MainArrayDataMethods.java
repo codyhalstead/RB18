@@ -14,8 +14,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-import static android.support.constraint.Constraints.TAG;
-
 /**
  * Created by Cody on 3/20/2018.
  */
@@ -23,13 +21,14 @@ import static android.support.constraint.Constraints.TAG;
 public class MainArrayDataMethods {
 
     public MainArrayDataMethods() {
+
     }
 
     public Tenant getCachedTenantByTenantID(int tenantID) {
         Tenant primaryTenant = null;
-        for (int i = 0; i < MainActivity.tenantList.size(); i++) {
-            if (MainActivity.tenantList.get(i).getId() == tenantID) {
-                primaryTenant = MainActivity.tenantList.get(i);
+        for (int i = 0; i < MainActivity.sTenantList.size(); i++) {
+            if (MainActivity.sTenantList.get(i).getId() == tenantID) {
+                primaryTenant = MainActivity.sTenantList.get(i);
                 break;
             }
         }
@@ -38,9 +37,9 @@ public class MainArrayDataMethods {
 
     public Apartment getCachedApartmentByApartmentID(int apartmentID) {
         Apartment apartment = null;
-        for (int i = 0; i < MainActivity.apartmentList.size(); i++) {
-            if (MainActivity.apartmentList.get(i).getId() == apartmentID) {
-                apartment = MainActivity.apartmentList.get(i);
+        for (int i = 0; i < MainActivity.sApartmentList.size(); i++) {
+            if (MainActivity.sApartmentList.get(i).getId() == apartmentID) {
+                apartment = MainActivity.sApartmentList.get(i);
                 break;
             }
         }
@@ -56,9 +55,9 @@ public class MainArrayDataMethods {
     }
 
     public Lease getCachedActiveLeaseByApartmentID(int apartmentID) {
-        for (int i = 0; i < MainActivity.currentLeasesList.size(); i++) {
-            if (MainActivity.currentLeasesList.get(i).getApartmentID() == apartmentID) {
-                return MainActivity.currentLeasesList.get(i);
+        for (int i = 0; i < MainActivity.sCurrentLeasesList.size(); i++) {
+            if (MainActivity.sCurrentLeasesList.get(i).getApartmentID() == apartmentID) {
+                return MainActivity.sCurrentLeasesList.get(i);
 
             }
         }
@@ -66,14 +65,14 @@ public class MainArrayDataMethods {
     }
 
     public Lease getCachedActiveLeaseByTenantID(int tenantID) {
-        for (int i = 0; i < MainActivity.currentLeasesList.size(); i++) {
-            if (MainActivity.currentLeasesList.get(i).getPrimaryTenantID() == tenantID) {
-                return MainActivity.currentLeasesList.get(i);
+        for (int i = 0; i < MainActivity.sCurrentLeasesList.size(); i++) {
+            if (MainActivity.sCurrentLeasesList.get(i).getPrimaryTenantID() == tenantID) {
+                return MainActivity.sCurrentLeasesList.get(i);
             } else {
-                ArrayList<Integer> secondaryTenantIDs = MainActivity.currentLeasesList.get(i).getSecondaryTenantIDs();
+                ArrayList<Integer> secondaryTenantIDs = MainActivity.sCurrentLeasesList.get(i).getSecondaryTenantIDs();
                 for (int y = 0; y < secondaryTenantIDs.size(); y++) {
                     if (secondaryTenantIDs.get(y) == tenantID) {
-                        return MainActivity.currentLeasesList.get(i);
+                        return MainActivity.sCurrentLeasesList.get(i);
                     }
                 }
             }
@@ -86,13 +85,13 @@ public class MainArrayDataMethods {
         ArrayList<Tenant> secondaryTenants = new ArrayList<>();
         if (lease != null) {
             ArrayList<Integer> secondaryTenantIDs = lease.getSecondaryTenantIDs();
-            for (int i = 0; i < MainActivity.tenantList.size(); i++) {
-                if (MainActivity.tenantList.get(i).getId() == lease.getPrimaryTenantID()) {
-                    primaryTenant = MainActivity.tenantList.get(i);
+            for (int i = 0; i < MainActivity.sTenantList.size(); i++) {
+                if (MainActivity.sTenantList.get(i).getId() == lease.getPrimaryTenantID()) {
+                    primaryTenant = MainActivity.sTenantList.get(i);
                 } else {
                     for (int y = 0; y < secondaryTenantIDs.size(); y++) {
-                        if (secondaryTenantIDs.get(y) == MainActivity.tenantList.get(i).getId()) {
-                            secondaryTenants.add(MainActivity.tenantList.get(i));
+                        if (secondaryTenantIDs.get(y) == MainActivity.sTenantList.get(i).getId()) {
+                            secondaryTenants.add(MainActivity.sTenantList.get(i));
                         }
                     }
                 }
@@ -106,20 +105,20 @@ public class MainArrayDataMethods {
         ArrayList<Tenant> otherTenants = new ArrayList<>();
         if (lease != null) {
             ArrayList<Integer> secondaryTenantIDs = lease.getSecondaryTenantIDs();
-            for (int i = 0; i < MainActivity.tenantList.size(); i++) {
-                if (MainActivity.tenantList.get(i).getId() == lease.getPrimaryTenantID()) {
-                    if (MainActivity.tenantList.get(i).getId() == tenantID) {
-                        selectedTenant = MainActivity.tenantList.get(i);
+            for (int i = 0; i < MainActivity.sTenantList.size(); i++) {
+                if (MainActivity.sTenantList.get(i).getId() == lease.getPrimaryTenantID()) {
+                    if (MainActivity.sTenantList.get(i).getId() == tenantID) {
+                        selectedTenant = MainActivity.sTenantList.get(i);
                     } else {
-                        otherTenants.add(MainActivity.tenantList.get(i));
+                        otherTenants.add(MainActivity.sTenantList.get(i));
                     }
                 } else {
                     for (int y = 0; y < secondaryTenantIDs.size(); y++) {
-                        if (secondaryTenantIDs.get(y) == MainActivity.tenantList.get(i).getId()) {
-                            if (MainActivity.tenantList.get(i).getId() == tenantID) {
-                                selectedTenant = MainActivity.tenantList.get(i);
+                        if (secondaryTenantIDs.get(y) == MainActivity.sTenantList.get(i).getId()) {
+                            if (MainActivity.sTenantList.get(i).getId() == tenantID) {
+                                selectedTenant = MainActivity.sTenantList.get(i);
                             } else {
-                                otherTenants.add(MainActivity.tenantList.get(i));
+                                otherTenants.add(MainActivity.sTenantList.get(i));
                             }
                         }
                     }
@@ -134,16 +133,16 @@ public class MainArrayDataMethods {
         ArrayList<Tenant> otherTenants = new ArrayList<>();
         if (lease != null) {
             ArrayList<Integer> secondaryTenantIDs = lease.getSecondaryTenantIDs();
-            for (int i = 0; i < MainActivity.tenantList.size(); i++) {
-                if (MainActivity.tenantList.get(i).getId() == lease.getPrimaryTenantID()) {
+            for (int i = 0; i < MainActivity.sTenantList.size(); i++) {
+                if (MainActivity.sTenantList.get(i).getId() == lease.getPrimaryTenantID()) {
 
                 } else {
                     for (int y = 0; y < secondaryTenantIDs.size(); y++) {
-                        if (secondaryTenantIDs.get(y) == MainActivity.tenantList.get(i).getId()) {
-                            if (MainActivity.tenantList.get(i).getId() == tenantID) {
-                                //selectedTenant = MainActivity.tenantList.get(i);
+                        if (secondaryTenantIDs.get(y) == MainActivity.sTenantList.get(i).getId()) {
+                            if (MainActivity.sTenantList.get(i).getId() == tenantID) {
+                                //selectedTenant = MainActivity.sTenantList.get(i);
                             } else {
-                                otherTenants.add(MainActivity.tenantList.get(i));
+                                otherTenants.add(MainActivity.sTenantList.get(i));
                             }
                         }
                     }
@@ -154,7 +153,7 @@ public class MainArrayDataMethods {
     }
 
     public void sortMainApartmentArray() {
-        Collections.sort(MainActivity.apartmentList, new Comparator<Apartment>() {
+        Collections.sort(MainActivity.sApartmentList, new Comparator<Apartment>() {
             @Override
             public int compare(Apartment apartment, Apartment t1) {
                 int b1 = apartment.isRented() ? 1 : 0;
@@ -175,7 +174,7 @@ public class MainArrayDataMethods {
     }
 
     public void sortMainTenantArray() {
-        Collections.sort(MainActivity.tenantList, new Comparator<Tenant>() {
+        Collections.sort(MainActivity.sTenantList, new Comparator<Tenant>() {
             @Override
             public int compare(Tenant tenant, Tenant t1) {
                 int b1 = (tenant.getHasLease()) ? 1 : 0;

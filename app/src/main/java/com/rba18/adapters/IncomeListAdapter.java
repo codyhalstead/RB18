@@ -18,7 +18,6 @@ import android.widget.TextView;
 
 import com.rba18.R;
 import com.rba18.helpers.DateAndCurrencyDisplayer;
-import com.rba18.helpers.MainArrayDataMethods;
 import com.rba18.model.PaymentLogEntry;
 
 import java.util.ArrayList;
@@ -30,36 +29,33 @@ import java.util.Locale;
  */
 
 public class IncomeListAdapter extends BaseAdapter implements Filterable {
-    private ArrayList<PaymentLogEntry> paymentArray;
-    private ArrayList<PaymentLogEntry> filteredResults;
-    private SharedPreferences preferences;
-    private Context context;
-    private String searchText;
-    private ColorStateList highlightColor;
-    MainArrayDataMethods dataMethods;
-    private Date todaysDate;
-    OnDataChangeListener mOnDataChangeListener;
-    private int dateFormatCode, moneyFormatCode;
+    private ArrayList<PaymentLogEntry> mPaymentArray;
+    private ArrayList<PaymentLogEntry> mFilteredResults;
+    private Context mContext;
+    private String mSearchText;
+    private ColorStateList mHighlightColor;
+    private Date mTodaysDate;
+    private OnDataChangeListener mOnDataChangeListener;
+    private int mDateFormatCode, mMoneyFormatCode;
 
     public IncomeListAdapter(Context context, ArrayList<PaymentLogEntry> paymentArray, ColorStateList highlightColor) {
         super();
-        this.preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        this.paymentArray = paymentArray;
-        this.filteredResults = paymentArray;
-        this.context = context;
-        this.searchText = "";
-        this.highlightColor = highlightColor;
-        this.dataMethods = new MainArrayDataMethods();
-        this.todaysDate = new Date(System.currentTimeMillis());
-        this.dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
-        this.moneyFormatCode = preferences.getInt("currency", DateAndCurrencyDisplayer.CURRENCY_US);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        mPaymentArray = paymentArray;
+        mFilteredResults = paymentArray;
+        mContext = context;
+        mSearchText = "";
+        mHighlightColor = highlightColor;
+        mTodaysDate = new Date(System.currentTimeMillis());
+        mDateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
+        mMoneyFormatCode = preferences.getInt("currency", DateAndCurrencyDisplayer.CURRENCY_US);
     }
 
     public void setOnDataChangeListener(OnDataChangeListener onDataChangeListener){
         mOnDataChangeListener = onDataChangeListener;
     }
 
-    static class ViewHolder{
+    private static class ViewHolder{
         TextView amountTV;
         TextView dateTV;
         TextView typeTV;
@@ -69,15 +65,15 @@ public class IncomeListAdapter extends BaseAdapter implements Filterable {
 
     @Override
     public int getCount() {
-        if(filteredResults != null) {
-            return filteredResults.size();
+        if(mFilteredResults != null) {
+            return mFilteredResults.size();
         }
         return 0;
     }
 
     @Override
     public PaymentLogEntry getItem(int i) {
-        return filteredResults.get(i);
+        return mFilteredResults.get(i);
     }
 
     @Override
@@ -91,7 +87,7 @@ public class IncomeListAdapter extends BaseAdapter implements Filterable {
         IncomeListAdapter.ViewHolder viewHolder;
         // Check if an existing view is being reused, otherwise inflate the view
         if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.row_income, viewGroup, false);
+            convertView = LayoutInflater.from(mContext).inflate(R.layout.row_income, viewGroup, false);
             viewHolder = new IncomeListAdapter.ViewHolder();
 
             viewHolder.amountTV = convertView.findViewById(R.id.incomeRowAmountTV);
@@ -105,11 +101,11 @@ public class IncomeListAdapter extends BaseAdapter implements Filterable {
         } else {
             viewHolder = (IncomeListAdapter.ViewHolder) convertView.getTag();
         }
-        viewHolder.amountTV.setTextColor(context.getResources().getColor(R.color.green_colorPrimaryDark));
+        viewHolder.amountTV.setTextColor(mContext.getResources().getColor(R.color.green_colorPrimaryDark));
         if(income != null){
-            viewHolder.amountTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, income.getAmount()));
-            viewHolder.dateTV.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, income.getDate()));
-            if( todaysDate.compareTo(income.getDate()) < 0){
+            viewHolder.amountTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(mMoneyFormatCode, income.getAmount()));
+            viewHolder.dateTV.setText(DateAndCurrencyDisplayer.getDateToDisplay(mDateFormatCode, income.getDate()));
+            if( mTodaysDate.compareTo(income.getDate()) < 0){
                 convertView.setBackgroundColor(convertView.getResources().getColor(R.color.rowDarkenedBackground));
             } else {
                 convertView.setBackgroundColor(convertView.getResources().getColor(R.color.white));
@@ -130,13 +126,13 @@ public class IncomeListAdapter extends BaseAdapter implements Filterable {
     //Used to change color of any text matching search
     private void setTextHighlightSearch(TextView textView, String theTextToSet) {
         //If user has any text in the search bar
-        if (searchText != null && !searchText.isEmpty()) {
-            int startPos = theTextToSet.toLowerCase(Locale.US).indexOf(searchText.toLowerCase(Locale.US));
-            int endPos = startPos + searchText.length();
+        if (mSearchText != null && !mSearchText.isEmpty()) {
+            int startPos = theTextToSet.toLowerCase(Locale.US).indexOf(mSearchText.toLowerCase(Locale.US));
+            int endPos = startPos + mSearchText.length();
             if (startPos != -1) {
                 //If theTextToSet contains match, highlight match
                 Spannable spannable = new SpannableString(theTextToSet);
-                TextAppearanceSpan highlightSpan = new TextAppearanceSpan(null, Typeface.BOLD, -1, highlightColor, null);
+                TextAppearanceSpan highlightSpan = new TextAppearanceSpan(null, Typeface.BOLD, -1, mHighlightColor, null);
                 spannable.setSpan(highlightSpan, startPos, endPos, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 textView.setText(spannable);
             } else {
@@ -156,11 +152,11 @@ public class IncomeListAdapter extends BaseAdapter implements Filterable {
             protected FilterResults performFiltering(CharSequence constraint) {
                 FilterResults results = new FilterResults();
                 ArrayList<PaymentLogEntry> FilteredArrayNames = new ArrayList<>();
-                searchText = constraint.toString().toLowerCase();
+                mSearchText = constraint.toString().toLowerCase();
                 //Perform users search
                 constraint = constraint.toString().toLowerCase();
-                for (int i = 0; i < paymentArray.size(); i++) {
-                    PaymentLogEntry dataNames = paymentArray.get(i);
+                for (int i = 0; i < mPaymentArray.size(); i++) {
+                    PaymentLogEntry dataNames = mPaymentArray.get(i);
                     //If users search matches any part of any apartment value, add to new filtered list
                     if (dataNames.getDescription().toLowerCase().contains(constraint.toString()) ||
                             dataNames.getTypeLabel().toLowerCase().contains(constraint.toString())) {
@@ -171,11 +167,13 @@ public class IncomeListAdapter extends BaseAdapter implements Filterable {
                 results.values = FilteredArrayNames;
                 return results;
             }
+
+            @SuppressWarnings("unchecked")
             @Override
             protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
-                filteredResults = (ArrayList<PaymentLogEntry>) filterResults.values;
+                mFilteredResults = (ArrayList<PaymentLogEntry>) filterResults.values;
                 if(mOnDataChangeListener != null){
-                    mOnDataChangeListener.onDataChanged(filteredResults);
+                    mOnDataChangeListener.onDataChanged(mFilteredResults);
                 }
                 notifyDataSetChanged();
 
@@ -189,12 +187,12 @@ public class IncomeListAdapter extends BaseAdapter implements Filterable {
 
     //Retrieve filtered results
     public ArrayList<PaymentLogEntry> getFilteredResults() {
-        return this.filteredResults;
+        return this.mFilteredResults;
     }
 
     public void updateResults(ArrayList<PaymentLogEntry> results) {
-        paymentArray = results;
-        filteredResults = results;
+        mPaymentArray = results;
+        mFilteredResults = results;
 
         //Triggers the list update
         notifyDataSetChanged();

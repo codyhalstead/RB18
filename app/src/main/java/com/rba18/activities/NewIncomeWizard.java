@@ -54,20 +54,20 @@ public class NewIncomeWizard extends BaseActivity implements
     private Button mPrevButton;
     private List<Page> mCurrentPageSequence;
     private StepPagerStrip mStepPagerStrip;
-    private DatabaseHandler dbHandler;
-    public PaymentLogEntry incomeToEdit;
-    private AlertDialog alertDialog;
+    private DatabaseHandler mDBHandler;
+    private PaymentLogEntry mIncomeToEdit;
+    private AlertDialog mAlertDialog;
 
     public void onCreate(Bundle savedInstanceState) {
-        setupUserAppTheme(MainActivity.curThemeChoice);
+        setupUserAppTheme(MainActivity.sCurThemeChoice);
         setContentView(R.layout.activity_fragment_wizard);
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            incomeToEdit = extras.getParcelable("incomeToEdit");
+            mIncomeToEdit = extras.getParcelable("mIncomeToEdit");
         } else {
-            incomeToEdit = null;
+            mIncomeToEdit = null;
         }
-        if(incomeToEdit != null){
+        if(mIncomeToEdit != null){
             mWizardModel = new IncomeEditingWizardModel(this);
             this.setTitle(R.string.edit_income);
         } else {
@@ -82,7 +82,7 @@ public class NewIncomeWizard extends BaseActivity implements
             mWizardModel.load(savedInstanceState.getBundle("model"));
         }
         mWizardModel.registerListener(this);
-        dbHandler = new DatabaseHandler(this);
+        mDBHandler = new DatabaseHandler(this);
         mPagerAdapter = new NewIncomeWizard.MyPagerAdapter(getSupportFragmentManager());
         mPager = findViewById(R.id.pager);
         mPager.setAdapter(mPagerAdapter);
@@ -146,24 +146,24 @@ public class NewIncomeWizard extends BaseActivity implements
                     int typeID = mWizardModel.findByKey("Page1").getData().getInt(IncomeWizardPage1.INCOME_TYPE_ID_DATA_KEY);
                     String type = mWizardModel.findByKey("Page1").getData().getString(IncomeWizardPage1.INCOME_TYPE_DATA_KEY);
                     String receiptPic = mWizardModel.findByKey("Page2").getData().getString(IncomeWizardPage2.INCOME_RECEIPT_PIC_DATA_KEY);
-                    if (incomeToEdit != null) {
-                        incomeToEdit.setDate(date);
-                        incomeToEdit.setAmount(amount);
+                    if (mIncomeToEdit != null) {
+                        mIncomeToEdit.setDate(date);
+                        mIncomeToEdit.setAmount(amount);
                         if(typeID != 0) {
-                            incomeToEdit.setTypeID(typeID);
+                            mIncomeToEdit.setTypeID(typeID);
                         }
-                        incomeToEdit.setTypeLabel(type);
-                        incomeToEdit.setDescription(description);
-                        incomeToEdit.setApartmentID(apartmentID);
-                        incomeToEdit.setTenantID(tenantID);
-                        incomeToEdit.setLeaseID(leaseID);
-                        dbHandler.editPaymentLogEntry(incomeToEdit);
+                        mIncomeToEdit.setTypeLabel(type);
+                        mIncomeToEdit.setDescription(description);
+                        mIncomeToEdit.setApartmentID(apartmentID);
+                        mIncomeToEdit.setTenantID(tenantID);
+                        mIncomeToEdit.setLeaseID(leaseID);
+                        mDBHandler.editPaymentLogEntry(mIncomeToEdit);
                         Intent data = new Intent();
-                        data.putExtra("editedIncomeID", incomeToEdit.getId());
+                        data.putExtra("editedIncomeID", mIncomeToEdit.getId());
                         setResult(RESULT_OK, data);
                     } else {
                         PaymentLogEntry income = new PaymentLogEntry(-1, date, typeID, type, tenantID, leaseID, apartmentID, amount, description, receiptPic, false);
-                        dbHandler.addPaymentLogEntry(income, MainActivity.user.getId());
+                        mDBHandler.addPaymentLogEntry(income, MainActivity.sUser.getId());
                         setResult(RESULT_OK);
                     }
                     finish();
@@ -186,6 +186,7 @@ public class NewIncomeWizard extends BaseActivity implements
         });
         mStepPagerStrip.setProgressColors(fetchPrimaryColor(), fetchPrimaryColor(), fetchAccentColor());
         setupBasicToolbar();
+        addToolbarBackButton();
         onPageTreeChanged();
         updateBottomBar();
     }
@@ -202,7 +203,7 @@ public class NewIncomeWizard extends BaseActivity implements
     private void updateBottomBar() {
         int position = mPager.getCurrentItem();
         if (position == mCurrentPageSequence.size()) {
-            if (incomeToEdit == null) {
+            if (mIncomeToEdit == null) {
                 mNextButton.setText(R.string.create_income);
             } else {
                 mNextButton.setText(R.string.save_changes);
@@ -234,7 +235,7 @@ public class NewIncomeWizard extends BaseActivity implements
         builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                if(incomeToEdit == null) {
+                if(mIncomeToEdit == null) {
                     if (mWizardModel.findByKey("Page2") != null) {
                         if (mWizardModel.findByKey("Page2").getData().getString(IncomeWizardPage2.INCOME_RECEIPT_PIC_DATA_KEY) != null) {
                             String receiptPic = mWizardModel.findByKey("Page2").getData().getString(IncomeWizardPage2.INCOME_RECEIPT_PIC_DATA_KEY);
@@ -255,15 +256,15 @@ public class NewIncomeWizard extends BaseActivity implements
             }
         });
         // create and show the alert dialog
-        alertDialog = builder.create();
-        alertDialog.show();
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if(alertDialog != null){
-            alertDialog.dismiss();
+        if(mAlertDialog != null){
+            mAlertDialog.dismiss();
         }
     }
 
@@ -356,7 +357,7 @@ public class NewIncomeWizard extends BaseActivity implements
         private int mCutOffPage;
         private Fragment mPrimaryItem;
 
-        public MyPagerAdapter(FragmentManager fm) {
+        private MyPagerAdapter(FragmentManager fm) {
             super(fm);
         }
 
@@ -391,14 +392,14 @@ public class NewIncomeWizard extends BaseActivity implements
             return Math.min(mCutOffPage + 1, mCurrentPageSequence.size() + 1);
         }
 
-        public void setCutOffPage(int cutOffPage) {
+        private void setCutOffPage(int cutOffPage) {
             if (cutOffPage < 0) {
                 cutOffPage = Integer.MAX_VALUE;
             }
             mCutOffPage = cutOffPage;
         }
 
-        public int getCutOffPage() {
+        private int getCutOffPage() {
             return mCutOffPage;
         }
     }

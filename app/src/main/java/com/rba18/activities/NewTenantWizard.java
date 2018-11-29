@@ -43,22 +43,22 @@ public class NewTenantWizard extends BaseActivity implements
     private Button mPrevButton;
     private List<Page> mCurrentPageSequence;
     private StepPagerStrip mStepPagerStrip;
-    private DatabaseHandler dbhandler;
-    private MainArrayDataMethods mainArrayDataMethods;
-    public Tenant tenantToEdit;
-    private AlertDialog alertDialog;
+    private DatabaseHandler mDBHandler;
+    private MainArrayDataMethods mMainArrayDataMethods;
+    private Tenant mTenantToEdit;
+    private AlertDialog mAlertDialog;
 
     public void onCreate(Bundle savedInstanceState) {
-        setupUserAppTheme(MainActivity.curThemeChoice);
+        setupUserAppTheme(MainActivity.sCurThemeChoice);
         setContentView(R.layout.activity_fragment_wizard);
         mWizardModel = new TenantWizardModel(this);
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            tenantToEdit = extras.getParcelable("tenantToEdit");
+            mTenantToEdit = extras.getParcelable("mTenantToEdit");
             mWizardModel.preloadData(extras);
             this.setTitle(R.string.edit_tenant);
         } else {
-            tenantToEdit = null;
+            mTenantToEdit = null;
             this.setTitle(R.string.new_tenant_creation);
         }
         super.onCreate(savedInstanceState);
@@ -66,8 +66,8 @@ public class NewTenantWizard extends BaseActivity implements
             mWizardModel.load(savedInstanceState.getBundle("model"));
         }
         mWizardModel.registerListener(this);
-        dbhandler = new DatabaseHandler(this);
-        mainArrayDataMethods = new MainArrayDataMethods();
+        mDBHandler = new DatabaseHandler(this);
+        mMainArrayDataMethods = new MainArrayDataMethods();
         mPagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
         mPager = findViewById(R.id.pager);
         mPager.setAdapter(mPagerAdapter);
@@ -107,9 +107,9 @@ public class NewTenantWizard extends BaseActivity implements
                     String emergencyLastName = mWizardModel.findByKey("Page2").getData().getString(TenantWizardPage2.TENANT_EMERGENCY_LAST_NAME_DATA_KEY);
                     String emergencyPhone = mWizardModel.findByKey("Page2").getData().getString(TenantWizardPage2.TENANT_EMERGENCY_PHONE_DATA_KEY);
                     String notes = mWizardModel.findByKey("Page3").getData().getString(TenantWizardPage3.TENANT_NOTES_DATA_KEY);
-                    if (tenantToEdit != null) {
+                    if (mTenantToEdit != null) {
                         //Is editing
-                        Tenant tenant = mainArrayDataMethods.getCachedTenantByTenantID(tenantToEdit.getId());
+                        Tenant tenant = mMainArrayDataMethods.getCachedTenantByTenantID(mTenantToEdit.getId());
                         tenant.setFirstName(firstName);
                         tenant.setLastName(lastName);
                         tenant.setPhone(phone);
@@ -118,19 +118,19 @@ public class NewTenantWizard extends BaseActivity implements
                         tenant.setEmergencyLastName(emergencyLastName);
                         tenant.setEmergencyPhone(emergencyPhone);
                         tenant.setNotes(notes);
-                        dbhandler.editTenant(tenant);
+                        mDBHandler.editTenant(tenant);
                         Intent data = new Intent();
-                        data.putExtra("editedTenantID", tenantToEdit.getId());
+                        data.putExtra("editedTenantID", mTenantToEdit.getId());
                         setResult(RESULT_OK, data);
                     } else {
                         //Is new
                         Tenant tenant = new Tenant(-1, firstName, lastName, phone, email, emergencyFirstName, emergencyLastName, emergencyPhone,
                                 false, notes, true);
-                        dbhandler.addNewTenant(tenant, MainActivity.user.getId());
-                        MainActivity.tenantList.add(tenant);
+                        mDBHandler.addNewTenant(tenant, MainActivity.sUser.getId());
+                        MainActivity.sTenantList.add(tenant);
                         setResult(RESULT_OK);
                     }
-                    mainArrayDataMethods.sortMainTenantArray();
+                    mMainArrayDataMethods.sortMainTenantArray();
                     finish();
                 } else {
                     if (mEditingAfterReview) {
@@ -149,6 +149,7 @@ public class NewTenantWizard extends BaseActivity implements
         });
         mStepPagerStrip.setProgressColors(fetchPrimaryColor(), fetchPrimaryColor(), fetchAccentColor());
         setupBasicToolbar();
+        addToolbarBackButton();
         onPageTreeChanged();
         updateBottomBar();
     }
@@ -165,7 +166,7 @@ public class NewTenantWizard extends BaseActivity implements
     private void updateBottomBar() {
         int position = mPager.getCurrentItem();
         if (position == mCurrentPageSequence.size()) {
-            if(tenantToEdit == null) {
+            if(mTenantToEdit == null) {
                 mNextButton.setText(R.string.create_tenant);
             } else {
                 mNextButton.setText(R.string.save_changes);
@@ -207,15 +208,15 @@ public class NewTenantWizard extends BaseActivity implements
             }
         });
         // create and show the alert dialog
-        alertDialog = builder.create();
-        alertDialog.show();
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if(alertDialog != null){
-            alertDialog.dismiss();
+        if(mAlertDialog != null){
+            mAlertDialog.dismiss();
         }
     }
 
@@ -287,7 +288,7 @@ public class NewTenantWizard extends BaseActivity implements
         private int mCutOffPage;
         private Fragment mPrimaryItem;
 
-        public MyPagerAdapter(FragmentManager fm) {
+        private MyPagerAdapter(FragmentManager fm) {
             super(fm);
         }
 
@@ -323,14 +324,14 @@ public class NewTenantWizard extends BaseActivity implements
             return Math.min(mCutOffPage + 1, mCurrentPageSequence.size() + 1);
         }
 
-        public void setCutOffPage(int cutOffPage) {
+        private void setCutOffPage(int cutOffPage) {
             if (cutOffPage < 0) {
                 cutOffPage = Integer.MAX_VALUE;
             }
             mCutOffPage = cutOffPage;
         }
 
-        public int getCutOffPage() {
+        private int getCutOffPage() {
             return mCutOffPage;
         }
     }

@@ -28,9 +28,6 @@ import com.rba18.fragments.TenantViewFrag3;
 import com.rba18.helpers.ApartmentTenantViewModel;
 import com.rba18.helpers.CustomDatePickerDialogLauncher;
 import com.rba18.helpers.DateAndCurrencyDisplayer;
-import com.rba18.helpers.MainArrayDataMethods;
-import com.rba18.model.Apartment;
-import com.rba18.model.Lease;
 import com.rba18.model.Tenant;
 import com.rba18.sqlite.DatabaseHandler;
 
@@ -45,107 +42,81 @@ import java.util.Locale;
 
 public class TenantViewActivity extends BaseActivity implements View.OnClickListener, TenantViewFrag2.OnMoneyDataChangedListener,
         TenantViewFrag3.OnLeaseDataChangedListener {
-    private DatabaseHandler databaseHandler;
-    private MainArrayDataMethods dataMethods;
-    private ArrayList<Tenant> otherTenants;
-    private Lease currentLease;
-    private Tenant tenant;
-    private Apartment apartment;
-    ViewPager.OnPageChangeListener mPageChangeListener;
-    ViewPager viewPager;
-    TenantViewActivity.ViewPagerAdapter adapter;
-    LinearLayout dateSelectorLL;
-    Date filterDateStart, filterDateEnd;
-    Button dateRangeStartBtn, dateRangeEndBtn;
-    private AlertDialog alertDialog;
-    private TenantViewFrag1 frag1;
-    private TenantViewFrag2 frag2;
-    private TenantViewFrag3 frag3;
-    private ApartmentTenantViewModel viewModel;
-    private Boolean wasLeaseEdited, wasIncomeEdited, wasExpenseEdited, wasTenantEdited;
-    private CustomDatePickerDialogLauncher datePickerDialogLauncher;
+    private DatabaseHandler mDatabaseHandler;
+    private Tenant mTenant;
+    private LinearLayout mDateSelectorLL;
+    private Date mFilterDateStart, mFilterDateEnd;
+    private Button mDateRangeStartBtn, mDateRangeEndBtn;
+    private AlertDialog mAlertDialog;
+    private TenantViewFrag1 mFrag1;
+    private TenantViewFrag2 mFrag2;
+    private TenantViewFrag3 mFrag3;
+    private ApartmentTenantViewModel mViewModel;
+    private Boolean mWasLeaseEdited, mWasIncomeEdited, mWasExpenseEdited, mWasTenantEdited;
+    private CustomDatePickerDialogLauncher mDatePickerDialogLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setupUserAppTheme(MainActivity.curThemeChoice);
+        setupUserAppTheme(MainActivity.sCurThemeChoice);
         setContentView(R.layout.activity_lease_view_actual);
-        dateSelectorLL = findViewById(R.id.moneyDateSelecterLL);
-        dateSelectorLL.setVisibility(View.GONE);
-        this.dateRangeStartBtn = findViewById(R.id.moneyListDateRangeStartBtn);
-        this.dateRangeStartBtn.setOnClickListener(this);
-        this.dateRangeEndBtn = findViewById(R.id.moneyListDateRangeEndBtn);
-        this.dateRangeEndBtn.setOnClickListener(this);
-        viewPager = findViewById(R.id.pager);
-        adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        databaseHandler = new DatabaseHandler(this);
-        dataMethods = new MainArrayDataMethods();
-        viewModel = ViewModelProviders.of(this).get(ApartmentTenantViewModel.class);
-        viewModel.init();
+        mDateSelectorLL = findViewById(R.id.moneyDateSelecterLL);
+        mDateSelectorLL.setVisibility(View.GONE);
+        mDateRangeStartBtn = findViewById(R.id.moneyListDateRangeStartBtn);
+        mDateRangeStartBtn.setOnClickListener(this);
+        mDateRangeEndBtn = findViewById(R.id.moneyListDateRangeEndBtn);
+        mDateRangeEndBtn.setOnClickListener(this);
+        ViewPager viewPager = findViewById(R.id.pager);
+        TenantViewActivity.ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
+        mDatabaseHandler = new DatabaseHandler(this);
+        mViewModel = ViewModelProviders.of(this).get(ApartmentTenantViewModel.class);
+        mViewModel.init();
         Bundle bundle = getIntent().getExtras();
         int tenantID = bundle.getInt("tenantID");
-        tenant = databaseHandler.getTenantByID(tenantID, MainActivity.user);
+        mTenant = mDatabaseHandler.getTenantByID(tenantID, MainActivity.sUser);
         int dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
-        viewModel.setViewedTenant(tenant);
+        mViewModel.setViewedTenant(mTenant);
         if (savedInstanceState != null) {
-            if (savedInstanceState.getString("filterDateStart") != null) {
+            if (savedInstanceState.getString("mFilterDateStart") != null) {
                 DateFormat formatFrom = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
                 try {
-                    Date startDate = formatFrom.parse(savedInstanceState.getString("filterDateStart"));
-                    this.filterDateStart = startDate;
-                    this.dateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, startDate));
+                    mFilterDateStart = formatFrom.parse(savedInstanceState.getString("mFilterDateStart"));
+                    mDateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, mFilterDateStart));
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
             }
-            if (savedInstanceState.getString("filterDateEnd") != null) {
+            if (savedInstanceState.getString("mFilterDateEnd") != null) {
                 DateFormat formatFrom = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
                 try {
-                    Date endDate = formatFrom.parse(savedInstanceState.getString("filterDateEnd"));
-                    this.filterDateEnd = endDate;
-                    this.dateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, endDate));
+                    mFilterDateEnd = formatFrom.parse(savedInstanceState.getString("mFilterDateEnd"));
+                    mDateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, mFilterDateEnd));
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
             }
-            wasLeaseEdited = savedInstanceState.getBoolean("was_lease_edited");
-            wasIncomeEdited = savedInstanceState.getBoolean("was_income_edited");
-            wasExpenseEdited = savedInstanceState.getBoolean("was_expense_edited");
-            wasTenantEdited = savedInstanceState.getBoolean("was_tenant_edited");
+            mWasLeaseEdited = savedInstanceState.getBoolean("was_lease_edited");
+            mWasIncomeEdited = savedInstanceState.getBoolean("was_income_edited");
+            mWasExpenseEdited = savedInstanceState.getBoolean("was_expense_edited");
+            mWasTenantEdited = savedInstanceState.getBoolean("was_tenant_edited");
         } else {
-            Date endDate = Calendar.getInstance().getTime();
             Calendar calendar = Calendar.getInstance();
-            calendar.setTime(endDate);
+            mFilterDateEnd = calendar.getTime();
             calendar.add(Calendar.YEAR, -1);
-            Date startDate = calendar.getTime();
-            this.filterDateEnd = endDate;
-            this.filterDateStart = startDate;
-            dateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateStart));
-            dateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateEnd));
-            wasLeaseEdited = false;
-            wasIncomeEdited = false;
-            wasExpenseEdited = false;
-            wasTenantEdited = false;
+            mFilterDateStart = calendar.getTime();
+            mDateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, mFilterDateStart));
+            mDateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, mFilterDateEnd));
+            mWasLeaseEdited = false;
+            mWasIncomeEdited = false;
+            mWasExpenseEdited = false;
+            mWasTenantEdited = false;
         }
-        viewModel.setMoneyArray(databaseHandler.getIncomeAndExpensesByTenantIDWithinDates(MainActivity.user, tenant.getId(), filterDateStart, filterDateEnd));
-        viewModel.setLeaseArray(databaseHandler.getPrimaryAndSecondaryLeasesForTenant(MainActivity.user, tenant.getId()));
+        mViewModel.setMoneyArray(mDatabaseHandler.getIncomeAndExpensesByTenantIDWithinDates(MainActivity.sUser, mTenant.getId(), mFilterDateStart, mFilterDateEnd));
+        mViewModel.setLeaseArray(mDatabaseHandler.getPrimaryAndSecondaryLeasesForTenant(MainActivity.sUser, mTenant.getId()));
         ArrayList<Tenant> secondaryTenants = new ArrayList<>();
-        if (currentLease != null) {
-            Tenant primaryTenant = databaseHandler.getTenantByID(currentLease.getPrimaryTenantID(), MainActivity.user);
-            viewModel.setPrimaryTenant(primaryTenant);
-            apartment = databaseHandler.getApartmentByID(currentLease.getApartmentID(), MainActivity.user);
-            viewModel.setApartment(apartment);
-            ArrayList<Integer> secondaryTenantIDs = currentLease.getSecondaryTenantIDs();
-            for (int i = 0; i < secondaryTenantIDs.size(); i++) {
-                Tenant secondaryTenant = databaseHandler.getTenantByID(secondaryTenantIDs.get(i), MainActivity.user);
-                secondaryTenants.add(secondaryTenant);
-            }
-        }
-        viewModel.setLease(currentLease);
-        //viewModel.setPrimaryTenant(primaryTenant);
-        viewModel.setSecondaryTenants(secondaryTenants);
+        mViewModel.setSecondaryTenants(secondaryTenants);
         viewPager.setAdapter(adapter);
-        mPageChangeListener = new ViewPager.OnPageChangeListener() {
+        ViewPager.OnPageChangeListener pageChangeListener = new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrollStateChanged(int arg0) {
 
@@ -159,36 +130,37 @@ public class TenantViewActivity extends BaseActivity implements View.OnClickList
             @Override
             public void onPageSelected(int pos) {
                 if (pos == 0 || pos == 2) {
-                    dateSelectorLL.setVisibility(View.GONE);
+                    mDateSelectorLL.setVisibility(View.GONE);
                 } else {
-                    dateSelectorLL.setVisibility(View.VISIBLE);
+                    mDateSelectorLL.setVisibility(View.VISIBLE);
                 }
             }
         };
-        viewPager.addOnPageChangeListener(mPageChangeListener);
+        viewPager.addOnPageChangeListener(pageChangeListener);
         TabLayout tabLayout = findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
         setupBasicToolbar();
-        datePickerDialogLauncher = new CustomDatePickerDialogLauncher(filterDateStart, filterDateEnd, true, this);
-        datePickerDialogLauncher.setDateSelectedListener(new CustomDatePickerDialogLauncher.DateSelectedListener() {
+        addToolbarBackButton();
+        mDatePickerDialogLauncher = new CustomDatePickerDialogLauncher(mFilterDateStart, mFilterDateEnd, true, this);
+        mDatePickerDialogLauncher.setDateSelectedListener(new CustomDatePickerDialogLauncher.DateSelectedListener() {
             @Override
             public void onStartDateSelected(Date startDate, Date endDate) {
-                filterDateStart = startDate;
-                filterDateEnd = endDate;
-                viewModel.setMoneyArray(databaseHandler.getIncomeAndExpensesByTenantIDWithinDates(MainActivity.user, tenant.getId(), filterDateStart, filterDateEnd));
+                mFilterDateStart = startDate;
+                mFilterDateEnd = endDate;
+                mViewModel.setMoneyArray(mDatabaseHandler.getIncomeAndExpensesByTenantIDWithinDates(MainActivity.sUser, mTenant.getId(), mFilterDateStart, mFilterDateEnd));
                 int dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
-                dateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateEnd));
-                dateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateStart));
+                mDateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, mFilterDateEnd));
+                mDateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, mFilterDateStart));
                 updateFragmentDates();
             }
             @Override
             public void onEndDateSelected(Date startDate, Date endDate) {
-                filterDateStart = startDate;
-                filterDateEnd = endDate;
-                viewModel.setMoneyArray(databaseHandler.getIncomeAndExpensesByTenantIDWithinDates(MainActivity.user, tenant.getId(), filterDateStart, filterDateEnd));
+                mFilterDateStart = startDate;
+                mFilterDateEnd = endDate;
+                mViewModel.setMoneyArray(mDatabaseHandler.getIncomeAndExpensesByTenantIDWithinDates(MainActivity.sUser, mTenant.getId(), mFilterDateStart, mFilterDateEnd));
                 int dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
-                dateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateEnd));
-                dateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateStart));
+                mDateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, mFilterDateEnd));
+                mDateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, mFilterDateStart));
                 updateFragmentDates();
             }
             @Override
@@ -197,7 +169,7 @@ public class TenantViewActivity extends BaseActivity implements View.OnClickList
             }
         });
         this.setTitle(R.string.tenant_view);
-        if (wasLeaseEdited || wasIncomeEdited || wasExpenseEdited || wasTenantEdited) {
+        if (mWasLeaseEdited || mWasIncomeEdited || mWasExpenseEdited || mWasTenantEdited) {
             setResultToEdited();
         } else {
             setResult(RESULT_OK);
@@ -214,7 +186,7 @@ public class TenantViewActivity extends BaseActivity implements View.OnClickList
     @Override
     protected void onResume() {
         super.onResume();
-        if (wasLeaseEdited || wasIncomeEdited || wasExpenseEdited || wasTenantEdited) {
+        if (mWasLeaseEdited || mWasIncomeEdited || mWasExpenseEdited || mWasTenantEdited) {
             setResultToEdited();
         } else {
             setResult(RESULT_OK);
@@ -223,10 +195,10 @@ public class TenantViewActivity extends BaseActivity implements View.OnClickList
 
     private void setResultToEdited() {
         Intent intent = new Intent();
-        intent.putExtra("was_lease_edited", wasLeaseEdited);
-        intent.putExtra("was_income_edited", wasIncomeEdited);
-        intent.putExtra("was_expense_edited", wasExpenseEdited);
-        intent.putExtra("was_tenant_edited", wasTenantEdited);
+        intent.putExtra("was_lease_edited", mWasLeaseEdited);
+        intent.putExtra("was_income_edited", mWasIncomeEdited);
+        intent.putExtra("was_expense_edited", mWasExpenseEdited);
+        intent.putExtra("was_tenant_edited", mWasTenantEdited);
         setResult(MainActivity.RESULT_DATA_WAS_MODIFIED, intent);
     }
 
@@ -236,8 +208,8 @@ public class TenantViewActivity extends BaseActivity implements View.OnClickList
         switch (item.getItemId()) {
             case R.id.editTenant:
                 Intent intent = new Intent(this, NewTenantWizard.class);
-                intent.putExtra("tenantToEdit", tenant);
-                wasTenantEdited = true;
+                intent.putExtra("tenantToEdit", mTenant);
+                mWasTenantEdited = true;
                 setResultToEdited();
                 startActivityForResult(intent, MainActivity.REQUEST_NEW_TENANT_FORM);
                 return true;
@@ -262,8 +234,8 @@ public class TenantViewActivity extends BaseActivity implements View.OnClickList
             //If successful(not cancelled, passed validation)
             if (resultCode == RESULT_OK) {
                 //Re-query cached apartment array to update cache and refresh current fragment to display new data
-                this.tenant = databaseHandler.getTenantByID(tenant.getId(), MainActivity.user);
-                viewModel.setViewedTenant(tenant);
+                mTenant = mDatabaseHandler.getTenantByID(mTenant.getId(), MainActivity.sUser);
+                mViewModel.setViewedTenant(mTenant);
                 List<Fragment> fragments = getSupportFragmentManager().getFragments();
                 if (fragments != null) {
                     for (Fragment fragment : fragments) {
@@ -289,16 +261,16 @@ public class TenantViewActivity extends BaseActivity implements View.OnClickList
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
-        if (filterDateStart != null) {
-            outState.putString("filterDateStart", formatter.format(filterDateStart));
+        if (mFilterDateStart != null) {
+            outState.putString("mFilterDateStart", formatter.format(mFilterDateStart));
         }
-        if (filterDateEnd != null) {
-            outState.putString("filterDateEnd", formatter.format(filterDateEnd));
+        if (mFilterDateEnd != null) {
+            outState.putString("mFilterDateEnd", formatter.format(mFilterDateEnd));
         }
-        outState.putBoolean("was_lease_edited", wasLeaseEdited);
-        outState.putBoolean("was_income_edited", wasIncomeEdited);
-        outState.putBoolean("was_expense_edited", wasExpenseEdited);
-        outState.putBoolean("was_tenant_edited", wasTenantEdited);
+        outState.putBoolean("was_lease_edited", mWasLeaseEdited);
+        outState.putBoolean("was_income_edited", mWasIncomeEdited);
+        outState.putBoolean("was_expense_edited", mWasExpenseEdited);
+        outState.putBoolean("was_tenant_edited", mWasTenantEdited);
     }
 
     @Override
@@ -306,11 +278,11 @@ public class TenantViewActivity extends BaseActivity implements View.OnClickList
         switch (view.getId()) {
 
             case R.id.moneyListDateRangeStartBtn:
-                datePickerDialogLauncher.launchStartDatePickerDialog();
+                mDatePickerDialogLauncher.launchStartDatePickerDialog();
                 break;
 
             case R.id.moneyListDateRangeEndBtn:
-                datePickerDialogLauncher.launchEndDatePickerDialog();
+                mDatePickerDialogLauncher.launchEndDatePickerDialog();
 
             default:
                 break;
@@ -320,55 +292,55 @@ public class TenantViewActivity extends BaseActivity implements View.OnClickList
     @Override
     public void onPause() {
         super.onPause();
-        datePickerDialogLauncher.dismissDatePickerDialog();
-        if(alertDialog != null){
-            alertDialog.dismiss();
+        mDatePickerDialogLauncher.dismissDatePickerDialog();
+        if(mAlertDialog != null){
+            mAlertDialog.dismiss();
         }
     }
 
     private void updateFragmentDates() {
-        if (frag2 != null) {
-            frag2.updateData();
+        if (mFrag2 != null) {
+            mFrag2.updateData();
         }
-        if (frag3 != null) {
-            frag3.updateData();
+        if (mFrag3 != null) {
+            mFrag3.updateData();
         }
     }
 
     @Override
     public void onMoneyDataChanged() {
-        viewModel.setMoneyArray(databaseHandler.getIncomeAndExpensesByTenantIDWithinDates(MainActivity.user, tenant.getId(), filterDateStart, filterDateEnd));
-        frag2.updateData();
+        mViewModel.setMoneyArray(mDatabaseHandler.getIncomeAndExpensesByTenantIDWithinDates(MainActivity.sUser, mTenant.getId(), mFilterDateStart, mFilterDateEnd));
+        mFrag2.updateData();
     }
 
     @Override
     public void onLeaseDataChanged() {
-        this.tenant = databaseHandler.getTenantByID(tenant.getId(), MainActivity.user);
-        viewModel.setViewedTenant(tenant);
-        viewModel.setLeaseArray(databaseHandler.getUsersLeasesForTenant(MainActivity.user, tenant.getId()));
-        viewModel.setMoneyArray(databaseHandler.getIncomeAndExpensesByTenantIDWithinDates(MainActivity.user, tenant.getId(), filterDateStart, filterDateEnd));
-        frag2.updateData();
-        frag3.updateData();
-        wasLeaseEdited = true;
+        mTenant = mDatabaseHandler.getTenantByID(mTenant.getId(), MainActivity.sUser);
+        mViewModel.setViewedTenant(mTenant);
+        mViewModel.setLeaseArray(mDatabaseHandler.getUsersLeasesForTenant(MainActivity.sUser, mTenant.getId()));
+        mViewModel.setMoneyArray(mDatabaseHandler.getIncomeAndExpensesByTenantIDWithinDates(MainActivity.sUser, mTenant.getId(), mFilterDateStart, mFilterDateEnd));
+        mFrag2.updateData();
+        mFrag3.updateData();
+        mWasLeaseEdited = true;
         setResultToEdited();
     }
 
     @Override
     public void onIncomeDataChanged() {
-        wasIncomeEdited = true;
+        mWasIncomeEdited = true;
         setResultToEdited();
     }
 
     @Override
     public void onExpenseDataChanged() {
-        wasExpenseEdited = true;
+        mWasExpenseEdited = true;
         setResultToEdited();
     }
 
     @Override
     public void onLeasePaymentsChanged(){
-        wasExpenseEdited = true;
-        wasIncomeEdited = true;
+        mWasExpenseEdited = true;
+        mWasIncomeEdited = true;
         setResultToEdited();
     }
 
@@ -378,11 +350,11 @@ public class TenantViewActivity extends BaseActivity implements View.OnClickList
         editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxLength)});
         editText.setSingleLine(false);
         editText.setImeOptions(EditorInfo.IME_FLAG_NO_ENTER_ACTION);
-        editText.setText(tenant.getNotes());
+        editText.setText(mTenant.getNotes());
         editText.setInputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
         editText.setSelection(editText.getText().length());
         // create the AlertDialog as final
-        alertDialog = new AlertDialog.Builder(TenantViewActivity.this)
+        mAlertDialog = new AlertDialog.Builder(TenantViewActivity.this)
                 .setTitle(R.string.edit_notes)
                 .setView(editText)
                 // Set the action buttons
@@ -390,13 +362,13 @@ public class TenantViewActivity extends BaseActivity implements View.OnClickList
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         String input = editText.getText().toString();
-                        tenant.setNotes(input);
-                        databaseHandler.editTenant(tenant);
-                        wasTenantEdited = true;
+                        mTenant.setNotes(input);
+                        mDatabaseHandler.editTenant(mTenant);
+                        mWasTenantEdited = true;
                         setResultToEdited();
-                        viewModel.setViewedTenant(tenant);
-                        if (frag1 != null) {
-                            frag1.updateTenantData(tenant);
+                        mViewModel.setViewedTenant(mTenant);
+                        if (mFrag1 != null) {
+                            mFrag1.updateTenantData(mTenant);
                         }
                     }
                 })
@@ -407,20 +379,20 @@ public class TenantViewActivity extends BaseActivity implements View.OnClickList
                     }
                 })
                 .create();
-        alertDialog.show();
+        mAlertDialog.show();
     }
 
     // Adapter for the viewpager using FragmentPagerAdapter
     class ViewPagerAdapter extends FragmentStatePagerAdapter {
 
-        public ViewPagerAdapter(FragmentManager manager) {
+        private ViewPagerAdapter(FragmentManager manager) {
             super(manager);
         }
 
         @Override
         public Fragment getItem(int position) {
             Bundle bundle = new Bundle();
-            bundle.putParcelable("tenant", tenant);
+            bundle.putParcelable("mTenant", mTenant);
             switch (position) {
                 case 0:
                     TenantViewFrag1 frg1 = new TenantViewFrag1();
@@ -450,13 +422,13 @@ public class TenantViewActivity extends BaseActivity implements View.OnClickList
             // save the appropriate reference depending on position
             switch (position) {
                 case 0:
-                    frag1 = (TenantViewFrag1) createdFragment;
+                    mFrag1 = (TenantViewFrag1) createdFragment;
                     break;
                 case 1:
-                    frag2 = (TenantViewFrag2) createdFragment;
+                    mFrag2 = (TenantViewFrag2) createdFragment;
                     break;
                 case 2:
-                    frag3 = (TenantViewFrag3) createdFragment;
+                    mFrag3 = (TenantViewFrag3) createdFragment;
                     break;
             }
             return createdFragment;
@@ -485,8 +457,8 @@ public class TenantViewActivity extends BaseActivity implements View.OnClickList
         builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                databaseHandler.setTenantInactive(tenant);
-                wasTenantEdited = true;
+                mDatabaseHandler.setTenantInactive(mTenant);
+                mWasTenantEdited = true;
                 setResultToEdited();
                 TenantViewActivity.this.finish();
             }
@@ -498,8 +470,8 @@ public class TenantViewActivity extends BaseActivity implements View.OnClickList
             }
         });
         // create and show the alert dialog
-        alertDialog = builder.create();
-        alertDialog.show();
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
     }
 }
 

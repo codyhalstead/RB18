@@ -20,7 +20,6 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 
 import com.rba18.R;
-import com.rba18.activities.BaseActivity;
 import com.rba18.fragments.LeaseViewFrag1;
 import com.rba18.fragments.LeaseViewFrag2;
 import com.rba18.model.Lease;
@@ -29,45 +28,43 @@ import com.rba18.sqlite.DatabaseHandler;
 import java.util.List;
 
 public class LeaseViewActivity extends BaseActivity implements LeaseViewFrag2.OnMoneyDataChangedListener {
-    private Lease lease;
-    private DatabaseHandler databaseHandler;
-    ViewPager viewPager;
-    LeaseViewActivity.ViewPagerAdapter adapter;
-    LinearLayout dateSelectorLL;
-    private LeaseViewFrag1 frag1;
-    private LeaseViewFrag2 frag2;
-    private boolean wasLeaseEdited, wasIncomeEdited, wasExpenseEdited;
-    private AlertDialog alertDialog;
+    private Lease mLease;
+    private DatabaseHandler mDatabaseHandler;
+    private LeaseViewFrag1 mFrag1;
+    private LeaseViewFrag2 mFrag2;
+    private boolean mWasLeaseEdited, mWasIncomeEdited, mWasExpenseEdited;
+    private AlertDialog mAlertDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setupUserAppTheme(MainActivity.curThemeChoice);
+        setupUserAppTheme(MainActivity.sCurThemeChoice);
         setContentView(R.layout.activity_lease_view_actual);
-        dateSelectorLL = findViewById(R.id.moneyDateSelecterLL);
+        LinearLayout dateSelectorLL = findViewById(R.id.moneyDateSelecterLL);
         dateSelectorLL.setVisibility(View.GONE);
-        viewPager = findViewById(R.id.pager);
-        adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        this.databaseHandler = new DatabaseHandler(this);
+        ViewPager viewPager = findViewById(R.id.pager);
+        LeaseViewActivity.ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
+        mDatabaseHandler = new DatabaseHandler(this);
         Bundle bundle = getIntent().getExtras();
         int leaseID = bundle.getInt("leaseID");
-        this.lease = databaseHandler.getLeaseByID(MainActivity.user, leaseID);
-        bundle.putParcelable("lease", lease);
+        mLease = mDatabaseHandler.getLeaseByID(MainActivity.sUser, leaseID);
+        bundle.putParcelable("mLease", mLease);
         viewPager.setAdapter(adapter);
         if (savedInstanceState != null) {
-            wasLeaseEdited = savedInstanceState.getBoolean("was_lease_edited");
-            wasIncomeEdited = savedInstanceState.getBoolean("was_income_edited");
-            wasExpenseEdited = savedInstanceState.getBoolean("was_expense_edited");
+            mWasLeaseEdited = savedInstanceState.getBoolean("was_lease_edited");
+            mWasIncomeEdited = savedInstanceState.getBoolean("was_income_edited");
+            mWasExpenseEdited = savedInstanceState.getBoolean("was_expense_edited");
         } else {
-            wasLeaseEdited = false;
-            wasIncomeEdited = false;
-            wasExpenseEdited = false;
+            mWasLeaseEdited = false;
+            mWasIncomeEdited = false;
+            mWasExpenseEdited = false;
         }
         TabLayout tabLayout = findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
         setupBasicToolbar();
-        this.setTitle(R.string.lease_view);
-        if (wasLeaseEdited || wasIncomeEdited || wasExpenseEdited) {
+        addToolbarBackButton();
+        setTitle(R.string.lease_view);
+        if (mWasLeaseEdited || mWasIncomeEdited || mWasExpenseEdited) {
             setResultToEdited();
         } else {
             setResult(RESULT_OK);
@@ -87,8 +84,8 @@ public class LeaseViewActivity extends BaseActivity implements LeaseViewFrag2.On
         switch (item.getItemId()) {
             case R.id.editLease:
                 Intent intent = new Intent(this, NewLeaseWizard.class);
-                intent.putExtra("leaseToEdit", lease);
-                wasLeaseEdited = true;
+                intent.putExtra("leaseToEdit", mLease);
+                mWasLeaseEdited = true;
                 setResultToEdited();
                 setResult(MainActivity.RESULT_DATA_WAS_MODIFIED);
                 startActivityForResult(intent, MainActivity.REQUEST_NEW_LEASE_FORM);
@@ -118,9 +115,9 @@ public class LeaseViewActivity extends BaseActivity implements LeaseViewFrag2.On
         builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                databaseHandler.setLeaseInactive(lease);
-                MainActivity.apartmentList = databaseHandler.getUsersApartmentsIncludingInactive(MainActivity.user);
-                MainActivity.tenantList = databaseHandler.getUsersTenantsIncludingInactive(MainActivity.user);
+                mDatabaseHandler.setLeaseInactive(mLease);
+                MainActivity.sApartmentList = mDatabaseHandler.getUsersApartmentsIncludingInactive(MainActivity.sUser);
+                MainActivity.sTenantList = mDatabaseHandler.getUsersTenantsIncludingInactive(MainActivity.sUser);
                 showDeleteAllRelatedMoneyAlertDialog();
             }
         });
@@ -132,19 +129,19 @@ public class LeaseViewActivity extends BaseActivity implements LeaseViewFrag2.On
         });
 
         // create and show the alert dialog
-        alertDialog = builder.create();
-        alertDialog.show();
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
     }
 
     @Override
     public void onMoneyDataChanged() {
-        frag2.updateData();
+        mFrag2.updateData();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (wasLeaseEdited || wasIncomeEdited || wasExpenseEdited) {
+        if (mWasLeaseEdited || mWasIncomeEdited || mWasExpenseEdited) {
             setResultToEdited();
         } else {
             setResult(RESULT_OK);
@@ -154,17 +151,17 @@ public class LeaseViewActivity extends BaseActivity implements LeaseViewFrag2.On
     @Override
     public void onPause() {
         super.onPause();
-        if(alertDialog != null){
-            alertDialog.dismiss();
+        if(mAlertDialog != null){
+            mAlertDialog.dismiss();
         }
     }
 
 
     private void setResultToEdited() {
         Intent intent = new Intent();
-        intent.putExtra("was_lease_edited", wasLeaseEdited);
-        intent.putExtra("was_income_edited", wasIncomeEdited);
-        intent.putExtra("was_expense_edited", wasExpenseEdited);
+        intent.putExtra("was_lease_edited", mWasLeaseEdited);
+        intent.putExtra("was_income_edited", mWasIncomeEdited);
+        intent.putExtra("was_expense_edited", mWasExpenseEdited);
         setResult(MainActivity.RESULT_DATA_WAS_MODIFIED, intent);
     }
 
@@ -178,11 +175,11 @@ public class LeaseViewActivity extends BaseActivity implements LeaseViewFrag2.On
         builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                databaseHandler.setAllExpensesRelatedToLeaseInactive(lease.getId());
-                databaseHandler.setAllIncomeRelatedToLeaseInactive(lease.getId());
-                wasLeaseEdited = true;
-                wasExpenseEdited = true;
-                wasIncomeEdited = true;
+                mDatabaseHandler.setAllExpensesRelatedToLeaseInactive(mLease.getId());
+                mDatabaseHandler.setAllIncomeRelatedToLeaseInactive(mLease.getId());
+                mWasLeaseEdited = true;
+                mWasExpenseEdited = true;
+                mWasIncomeEdited = true;
                 setResultToEdited();
                 LeaseViewActivity.this.finish();
             }
@@ -190,7 +187,7 @@ public class LeaseViewActivity extends BaseActivity implements LeaseViewFrag2.On
         builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                wasLeaseEdited = true;
+                mWasLeaseEdited = true;
                 setResultToEdited();
                 LeaseViewActivity.this.finish();
             }
@@ -208,15 +205,7 @@ public class LeaseViewActivity extends BaseActivity implements LeaseViewFrag2.On
         if (requestCode == MainActivity.REQUEST_NEW_LEASE_FORM) {
             //If successful(not cancelled, passed validation)
             if (resultCode == RESULT_OK) {
-                //Re-query cached apartment array to update cache and refresh current fragment to display new data
-                //int leaseID = data.getIntExtra("editedLeaseID", 0);
-                this.lease = databaseHandler.getLeaseByID(MainActivity.user, lease.getId());
-                //this.apartment = dataMethods.getCachedApartmentByApartmentID(lease.getApartmentID());
-                //Pair<Tenant, ArrayList<Tenant>> tenants = dataMethods.getCachedPrimaryAndSecondaryTenantsByLease(lease);
-                //this.primaryTenant = tenants.first;
-                //this.secondaryTenants = tenants.second;
-                //fillTextViews();
-                //LeaseListFragment.leaseListAdapterNeedsRefreshed = true;
+                mLease = mDatabaseHandler.getLeaseByID(MainActivity.sUser, mLease.getId());
                 List<Fragment> fragments = getSupportFragmentManager().getFragments();
                 if (fragments != null) {
                     for (Fragment fragment : fragments) {
@@ -242,20 +231,20 @@ public class LeaseViewActivity extends BaseActivity implements LeaseViewFrag2.On
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBoolean("was_lease_edited", wasLeaseEdited);
-        outState.putBoolean("was_income_edited", wasIncomeEdited);
-        outState.putBoolean("was_expense_edited", wasExpenseEdited);
+        outState.putBoolean("was_lease_edited", mWasLeaseEdited);
+        outState.putBoolean("was_income_edited", mWasIncomeEdited);
+        outState.putBoolean("was_expense_edited", mWasExpenseEdited);
     }
 
     @Override
     public void onIncomeDataChanged() {
-        wasIncomeEdited = true;
+        mWasIncomeEdited = true;
         setResultToEdited();
     }
 
     @Override
     public void onExpenseDataChanged() {
-        wasExpenseEdited = true;
+        mWasExpenseEdited = true;
         setResultToEdited();
     }
 
@@ -265,14 +254,12 @@ public class LeaseViewActivity extends BaseActivity implements LeaseViewFrag2.On
         editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxLength)});
         editText.setSingleLine(false);
         editText.setImeOptions(EditorInfo.IME_FLAG_NO_ENTER_ACTION);
-        editText.setText(lease.getNotes());
+        editText.setText(mLease.getNotes());
         editText.setInputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
         editText.setSelection(editText.getText().length());
-        //editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
 
         // create the AlertDialog as final
-        alertDialog = new AlertDialog.Builder(LeaseViewActivity.this)
-                //.setMessage(R.string.comfirm_pass_to_delete_account_message)
+        mAlertDialog = new AlertDialog.Builder(LeaseViewActivity.this)
                 .setTitle(R.string.edit_notes)
                 .setView(editText)
 
@@ -281,13 +268,13 @@ public class LeaseViewActivity extends BaseActivity implements LeaseViewFrag2.On
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         String input = editText.getText().toString();
-                        lease.setNotes(input);
-                        databaseHandler.editLease(lease);
-                        wasLeaseEdited = true;
+                        mLease.setNotes(input);
+                        mDatabaseHandler.editLease(mLease);
+                        mWasLeaseEdited = true;
                         setResultToEdited();
                         //viewModel.setApartment(apartment);
-                        if (frag1 != null) {
-                            frag1.updateLeaseData(lease);
+                        if (mFrag1 != null) {
+                            mFrag1.updateLeaseData(mLease);
                         }
                     }
                 })
@@ -300,20 +287,20 @@ public class LeaseViewActivity extends BaseActivity implements LeaseViewFrag2.On
                 })
                 .create();
 
-        alertDialog.show();
+        mAlertDialog.show();
     }
 
     // Adapter for the viewpager using FragmentPagerAdapter
     class ViewPagerAdapter extends FragmentStatePagerAdapter {
 
-        public ViewPagerAdapter(FragmentManager manager) {
+        private ViewPagerAdapter(FragmentManager manager) {
             super(manager);
         }
 
         @Override
         public Fragment getItem(int position) {
             Bundle bundle = new Bundle();
-            bundle.putParcelable("lease", lease);
+            bundle.putParcelable("mLease", mLease);
             switch (position) {
                 case 0:
                     LeaseViewFrag1 frg1 = new LeaseViewFrag1();
@@ -339,10 +326,10 @@ public class LeaseViewActivity extends BaseActivity implements LeaseViewFrag2.On
             // save the appropriate reference depending on position
             switch (position) {
                 case 0:
-                    frag1 = (LeaseViewFrag1) createdFragment;
+                    mFrag1 = (LeaseViewFrag1) createdFragment;
                     break;
                 case 1:
-                    frag2 = (LeaseViewFrag2) createdFragment;
+                    mFrag2 = (LeaseViewFrag2) createdFragment;
                     break;
                 //case 2:
                 //    frag3 = (LeaseViewFrag3) createdFragment;

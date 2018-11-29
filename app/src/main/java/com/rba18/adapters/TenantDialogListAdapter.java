@@ -27,36 +27,36 @@ import java.util.Locale;
  */
 
 public class TenantDialogListAdapter extends BaseAdapter implements Filterable {
-    private ArrayList<Tenant> tenantArray;
-    private ArrayList<Tenant> filteredResults;
-    private Context context;
-    private String searchText;
-    private ColorStateList highlightColor;
+    private ArrayList<Tenant> mTenantArray;
+    private ArrayList<Tenant> mFilteredResults;
+    private Context mContext;
+    private String mSearchText;
+    private ColorStateList mHighlightColor;
 
     public TenantDialogListAdapter(Context context, ArrayList<Tenant> tenantArray, ColorStateList highlightColor) {
-        this.tenantArray = tenantArray;
-        this.filteredResults = tenantArray;
-        this.context = context;
-        this.searchText = "";
-        this.highlightColor = highlightColor;
+        mTenantArray = tenantArray;
+        mFilteredResults = tenantArray;
+        mContext = context;
+        mSearchText = "";
+        mHighlightColor = highlightColor;
     }
 
-    static class ViewHolder {
+    private static class ViewHolder {
         TextView nameTV;
         TextView phoneNumberTV;
     }
 
     @Override
     public int getCount() {
-        if (filteredResults != null) {
-            return filteredResults.size();
+        if (mFilteredResults != null) {
+            return mFilteredResults.size();
         }
         return 0;
     }
 
     @Override
     public Tenant getItem(int i) {
-        return filteredResults.get(i);
+        return mFilteredResults.get(i);
     }
 
     @Override
@@ -71,7 +71,7 @@ public class TenantDialogListAdapter extends BaseAdapter implements Filterable {
         ViewHolder viewHolder;
         // Check if an existing view is being reused, otherwise inflate the view
         if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.row_dialog_tenant, parent, false);
+            convertView = LayoutInflater.from(mContext).inflate(R.layout.row_dialog_tenant, parent, false);
 
             viewHolder = new ViewHolder();
             viewHolder.nameTV = convertView.findViewById(R.id.nameTV);
@@ -99,19 +99,19 @@ public class TenantDialogListAdapter extends BaseAdapter implements Filterable {
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
                 //Update filtered results and notify change
-                filteredResults = (ArrayList<Tenant>) results.values;
+                mFilteredResults = (ArrayList<Tenant>) results.values;
                 notifyDataSetChanged();
             }
 
             @Override
             protected FilterResults performFiltering(CharSequence constraint) {
                 FilterResults results = new FilterResults();
-                ArrayList<Tenant> FilteredArrayNames = new ArrayList<Tenant>();
-                searchText = constraint.toString().toLowerCase();
+                ArrayList<Tenant> FilteredArrayNames = new ArrayList<>();
+                mSearchText = constraint.toString().toLowerCase();
                 //Perform users search
                 constraint = constraint.toString().toLowerCase();
-                for (int i = 0; i < tenantArray.size(); i++) {
-                    Tenant dataNames = tenantArray.get(i);
+                for (int i = 0; i < mTenantArray.size(); i++) {
+                    Tenant dataNames = mTenantArray.get(i);
                     String phone = "";
                     if (dataNames.getPhone() != null) {
                         phone = dataNames.getPhone();
@@ -133,13 +133,13 @@ public class TenantDialogListAdapter extends BaseAdapter implements Filterable {
     //Used to change color of any text matching search
     private void setTextHighlightSearch(TextView textView, String theTextToSet) {
         //If user has any text in the search bar
-        if (searchText != null && !searchText.isEmpty()) {
-            int startPos = theTextToSet.toLowerCase(Locale.US).indexOf(searchText.toLowerCase(Locale.US));
-            int endPos = startPos + searchText.length();
+        if (mSearchText != null && !mSearchText.isEmpty()) {
+            int startPos = theTextToSet.toLowerCase(Locale.US).indexOf(mSearchText.toLowerCase(Locale.US));
+            int endPos = startPos + mSearchText.length();
             if (startPos != -1) {
                 //If theTextToSet contains match, highlight match
                 Spannable spannable = new SpannableString(theTextToSet);
-                TextAppearanceSpan highlightSpan = new TextAppearanceSpan(null, Typeface.BOLD, -1, highlightColor, null);
+                TextAppearanceSpan highlightSpan = new TextAppearanceSpan(null, Typeface.BOLD, -1, mHighlightColor, null);
                 spannable.setSpan(highlightSpan, startPos, endPos, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 textView.setText(spannable);
             } else {
@@ -154,6 +154,6 @@ public class TenantDialogListAdapter extends BaseAdapter implements Filterable {
 
     //Retrieve filtered results
     public ArrayList<Tenant> getFilteredResults() {
-        return filteredResults;
+        return mFilteredResults;
     }
 }

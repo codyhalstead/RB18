@@ -44,23 +44,21 @@ import java.util.Map;
 
 public class IncomeWizardPage1Fragment extends android.support.v4.app.Fragment {
     private static final String ARG_KEY = "key";
-
     private PageFragmentCallbacks mCallbacks;
     private String mKey;
     private IncomeWizardPage1 mPage;
-    private TextView dateTV, newIncomeHeaderTV;
-    private EditText amountET;
-    private Spinner typeSpinner;
-    private Button addNewTypeBtn;
-    private ArrayAdapter<String> adapter;
-    private BigDecimal amount;
-    private Date incomeDate;
-    private DatabaseHandler dbHandler;
-    boolean isEdit;
-    private CustomDatePickerDialogLauncher datePickerDialogLauncher;
-    private SharedPreferences preferences;
-    private int dateFormatCode, moneyFormatCode;
-    private AlertDialog alertDialog;
+    private TextView mDateTV;
+    private EditText mAmountET;
+    private Spinner mTypeSpinner;
+    private Button mAddNewTypeBtn;
+    private ArrayAdapter<String> mAdapter;
+    private BigDecimal mAmount;
+    private Date mIncomeDate;
+    private DatabaseHandler mDBHandler;
+    private boolean mIsEdit;
+    private CustomDatePickerDialogLauncher mDatePickerDialogLauncher;
+    private int mDateFormatCode, mMoneyFormatCode;
+    private AlertDialog mAlertDialog;
 
     public static IncomeWizardPage1Fragment create(String key) {
         Bundle args = new Bundle();
@@ -81,27 +79,27 @@ public class IncomeWizardPage1Fragment extends android.support.v4.app.Fragment {
         Bundle args = getArguments();
         mKey = args.getString(ARG_KEY);
         mPage = (IncomeWizardPage1) mCallbacks.onGetPage(mKey);
-        amount = new BigDecimal(0);
-        dbHandler = new DatabaseHandler(getContext());
-        preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        this.dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
-        this.moneyFormatCode = preferences.getInt("currency", DateAndCurrencyDisplayer.CURRENCY_US);
-        isEdit = false;
+        mAmount = new BigDecimal(0);
+        mDBHandler = new DatabaseHandler(getContext());
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        mDateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
+        mMoneyFormatCode = preferences.getInt("currency", DateAndCurrencyDisplayer.CURRENCY_US);
+        mIsEdit = false;
         Bundle extras = mPage.getData();
         if (extras != null) {
             PaymentLogEntry incomeToEdit = extras.getParcelable("incomeToEdit");
             if (incomeToEdit != null) {
                 loadDataForEdit(incomeToEdit);
-                isEdit = true;
+                mIsEdit = true;
             } else {
                 preloadData(extras);
             }
         } else {
-            incomeDate = null;
-            amount = new BigDecimal(0);
-            String formatted = DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, amount);
+            mIncomeDate = null;
+            mAmount = new BigDecimal(0);
+            String formatted = DateAndCurrencyDisplayer.getCurrencyToDisplay(mMoneyFormatCode, mAmount);
             mPage.getData().putString(IncomeWizardPage1.INCOME_AMOUNT_FORMATTED_STRING_DATA_KEY, formatted);
-            mPage.getData().putString(IncomeWizardPage1.INCOME_AMOUNT_STRING_DATA_KEY, amount.toPlainString());
+            mPage.getData().putString(IncomeWizardPage1.INCOME_AMOUNT_STRING_DATA_KEY, mAmount.toPlainString());
         }
     }
 
@@ -111,31 +109,31 @@ public class IncomeWizardPage1Fragment extends android.support.v4.app.Fragment {
         View rootView = inflater.inflate(R.layout.fragment_income_wizard_page_1, container, false);
         (rootView.findViewById(android.R.id.title)).setVisibility(View.GONE);
 
-        dateTV = rootView.findViewById(R.id.incomeWizardDateTV);
+        mDateTV = rootView.findViewById(R.id.incomeWizardDateTV);
         if (mPage.getData().getString(IncomeWizardPage1.INCOME_DATE_STRING_DATA_KEY) != null) {
             String dateString = mPage.getData().getString(IncomeWizardPage1.INCOME_DATE_STRING_DATA_KEY);
             DateFormat formatFrom = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
             try {
-                incomeDate = formatFrom.parse(dateString);
-                dateTV.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, incomeDate));
+                mIncomeDate = formatFrom.parse(dateString);
+                mDateTV.setText(DateAndCurrencyDisplayer.getDateToDisplay(mDateFormatCode, mIncomeDate));
             } catch (ParseException e) {
                 e.printStackTrace();
             }
         }
 
-        amountET = rootView.findViewById(R.id.incomeWizardAmountET);
+        mAmountET = rootView.findViewById(R.id.incomeWizardAmountET);
         if (mPage.getData().getString(IncomeWizardPage1.INCOME_AMOUNT_FORMATTED_STRING_DATA_KEY) != null) {
-            amountET.setText(mPage.getData().getString(IncomeWizardPage1.INCOME_AMOUNT_FORMATTED_STRING_DATA_KEY));
+            mAmountET.setText(mPage.getData().getString(IncomeWizardPage1.INCOME_AMOUNT_FORMATTED_STRING_DATA_KEY));
         }
-        amountET.setSelection(amountET.getText().length());
+        mAmountET.setSelection(mAmountET.getText().length());
 
-        typeSpinner = rootView.findViewById(R.id.incomeWizardTypeSpinner);
-        typeSpinner.setSelection(mPage.getData().getInt(IncomeWizardPage1.INCOME_TYPE_ID_DATA_KEY));
+        mTypeSpinner = rootView.findViewById(R.id.incomeWizardTypeSpinner);
+        mTypeSpinner.setSelection(mPage.getData().getInt(IncomeWizardPage1.INCOME_TYPE_ID_DATA_KEY));
 
-        addNewTypeBtn = rootView.findViewById(R.id.incomeWizardAddNewTypeBtn);
+        mAddNewTypeBtn = rootView.findViewById(R.id.incomeWizardAddNewTypeBtn);
 
-        newIncomeHeaderTV = rootView.findViewById(R.id.incomeWizardPageOneHeader);
-        if (isEdit) {
+        TextView newIncomeHeaderTV = rootView.findViewById(R.id.incomeWizardPageOneHeader);
+        if (mIsEdit) {
             newIncomeHeaderTV.setText(R.string.edit_income_info);
         }
 
@@ -162,8 +160,8 @@ public class IncomeWizardPage1Fragment extends android.support.v4.app.Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        datePickerDialogLauncher = new CustomDatePickerDialogLauncher(incomeDate, false, getActivity());
-        datePickerDialogLauncher.setDateSelectedListener(new CustomDatePickerDialogLauncher.DateSelectedListener() {
+        mDatePickerDialogLauncher = new CustomDatePickerDialogLauncher(mIncomeDate, false, getActivity());
+        mDatePickerDialogLauncher.setDateSelectedListener(new CustomDatePickerDialogLauncher.DateSelectedListener() {
             @Override
             public void onStartDateSelected(Date startDate, Date endDate) {
 
@@ -176,22 +174,22 @@ public class IncomeWizardPage1Fragment extends android.support.v4.app.Fragment {
 
             @Override
             public void onDateSelected(Date date) {
-                incomeDate = date;
+                mIncomeDate = date;
                 SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-                dateTV.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, incomeDate));
-                mPage.getData().putString(IncomeWizardPage1.INCOME_DATE_STRING_FORMATTED_DATA_KEY, DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, incomeDate));
-                mPage.getData().putString(IncomeWizardPage1.INCOME_DATE_STRING_DATA_KEY, formatter.format(incomeDate));
+                mDateTV.setText(DateAndCurrencyDisplayer.getDateToDisplay(mDateFormatCode, mIncomeDate));
+                mPage.getData().putString(IncomeWizardPage1.INCOME_DATE_STRING_FORMATTED_DATA_KEY, DateAndCurrencyDisplayer.getDateToDisplay(mDateFormatCode, mIncomeDate));
+                mPage.getData().putString(IncomeWizardPage1.INCOME_DATE_STRING_DATA_KEY, formatter.format(mIncomeDate));
                 mPage.notifyDataChanged();
             }
         });
         populateIncomeTypeSpinner();
-        dateTV.setOnClickListener(new View.OnClickListener() {
+        mDateTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                datePickerDialogLauncher.launchSingleDatePickerDialog();
+                mDatePickerDialogLauncher.launchSingleDatePickerDialog();
             }
         });
-        amountET.addTextChangedListener(new TextWatcher() {
+        mAmountET.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -204,35 +202,35 @@ public class IncomeWizardPage1Fragment extends android.support.v4.app.Fragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                if (amountET == null) return;
+                if (mAmountET == null) return;
                 String s = editable.toString();
                 if (s.isEmpty()) return;
-                amountET.removeTextChangedListener(this);
+                mAmountET.removeTextChangedListener(this);
                 String cleanString = DateAndCurrencyDisplayer.cleanMoneyString(s);
-                amount = new BigDecimal(cleanString).setScale(2, BigDecimal.ROUND_FLOOR).divide(new BigDecimal(100), BigDecimal.ROUND_FLOOR);
-                String formatted = DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, amount);
-                amountET.setText(formatted);
-                amountET.setSelection(DateAndCurrencyDisplayer.getEndCursorPositionForMoneyInput(amountET.getText().length(), moneyFormatCode));
+                mAmount = new BigDecimal(cleanString).setScale(2, BigDecimal.ROUND_FLOOR).divide(new BigDecimal(100), BigDecimal.ROUND_FLOOR);
+                String formatted = DateAndCurrencyDisplayer.getCurrencyToDisplay(mMoneyFormatCode, mAmount);
+                mAmountET.setText(formatted);
+                mAmountET.setSelection(DateAndCurrencyDisplayer.getEndCursorPositionForMoneyInput(mAmountET.getText().length(), mMoneyFormatCode));
                 mPage.getData().putString(IncomeWizardPage1.INCOME_AMOUNT_FORMATTED_STRING_DATA_KEY, formatted);
-                mPage.getData().putString(IncomeWizardPage1.INCOME_AMOUNT_STRING_DATA_KEY, amount.toPlainString());
-                mPage.notifyDataChanged();;
-                amountET.addTextChangedListener(this);
+                mPage.getData().putString(IncomeWizardPage1.INCOME_AMOUNT_STRING_DATA_KEY, mAmount.toPlainString());
+                mPage.notifyDataChanged();
+                mAmountET.addTextChangedListener(this);
             }
         });
-        amountET.setOnClickListener(new View.OnClickListener() {
+        mAmountET.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                amountET.setSelection(DateAndCurrencyDisplayer.getEndCursorPositionForMoneyInput(amountET.getText().length(), moneyFormatCode));
+                mAmountET.setSelection(DateAndCurrencyDisplayer.getEndCursorPositionForMoneyInput(mAmountET.getText().length(), mMoneyFormatCode));
             }
         });
 
-        typeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        mTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
-                String type = typeSpinner.getSelectedItem().toString();
+                String type = mTypeSpinner.getSelectedItem().toString();
                 int typeID = 0;
-                if (MainActivity.incomeTypeLabels.get(type) != null) {
-                    typeID = MainActivity.incomeTypeLabels.get(type);
+                if (MainActivity.sIncomeTypeLabels.get(type) != null) {
+                    typeID = MainActivity.sIncomeTypeLabels.get(type);
                 }
                 mPage.getData().putInt(IncomeWizardPage1.INCOME_TYPE_ID_DATA_KEY, typeID);
                 mPage.getData().putString(IncomeWizardPage1.INCOME_TYPE_DATA_KEY, type);
@@ -247,25 +245,25 @@ public class IncomeWizardPage1Fragment extends android.support.v4.app.Fragment {
 
             }
         });
-        addNewTypeBtn.setOnClickListener(new View.OnClickListener() {
+        mAddNewTypeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 final EditText editText = new EditText(getContext());
                 editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
                 int maxLength = 25;
                 editText.setFilters(new InputFilter[] {new InputFilter.LengthFilter(maxLength)});
-                alertDialog = new AlertDialog.Builder(getContext())
+                mAlertDialog = new AlertDialog.Builder(getContext())
                         .setTitle(R.string.create_new_type)
                         .setView(editText)
                         // Set the action buttons
                         .setPositiveButton(R.string.create, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int id) {
-                                dbHandler.addNewIncomeType(editText.getText().toString());
-                                MainActivity.incomeTypeLabels = dbHandler.getIncomeTypeLabelsTreeMap();
+                                mDBHandler.addNewIncomeType(editText.getText().toString());
+                                MainActivity.sIncomeTypeLabels = mDBHandler.getIncomeTypeLabelsTreeMap();
                                 updateIncomeTypeSpinner();
-                                int spinnerPosition = adapter.getPosition(editText.getText().toString());
-                                typeSpinner.setSelection(spinnerPosition);
+                                int spinnerPosition = mAdapter.getPosition(editText.getText().toString());
+                                mTypeSpinner.setSelection(spinnerPosition);
                             }
                         })
                         .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -281,20 +279,20 @@ public class IncomeWizardPage1Fragment extends android.support.v4.app.Fragment {
                     @Override
                     public void onFocusChange(View v, boolean hasFocus) {
                         if (hasFocus) {
-                            alertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                            mAlertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
                         }
                     }
                 });
-                alertDialog.show();
+                mAlertDialog.show();
             }
         });
         if (mPage.getData().getString(IncomeWizardPage1.INCOME_TYPE_DATA_KEY) != null) {
-            int spinnerPosition = adapter.getPosition(mPage.getData().getString(IncomeWizardPage1.INCOME_TYPE_DATA_KEY));
-            if (isEdit && spinnerPosition == -1) {
-                adapter.add(mPage.getData().getString(IncomeWizardPage1.INCOME_TYPE_DATA_KEY));
-                spinnerPosition = adapter.getPosition(mPage.getData().getString(IncomeWizardPage1.INCOME_TYPE_DATA_KEY));
+            int spinnerPosition = mAdapter.getPosition(mPage.getData().getString(IncomeWizardPage1.INCOME_TYPE_DATA_KEY));
+            if (mIsEdit && spinnerPosition == -1) {
+                mAdapter.add(mPage.getData().getString(IncomeWizardPage1.INCOME_TYPE_DATA_KEY));
+                spinnerPosition = mAdapter.getPosition(mPage.getData().getString(IncomeWizardPage1.INCOME_TYPE_DATA_KEY));
             }
-            typeSpinner.setSelection(spinnerPosition);
+            mTypeSpinner.setSelection(spinnerPosition);
         }
     }
 
@@ -304,7 +302,7 @@ public class IncomeWizardPage1Fragment extends android.support.v4.app.Fragment {
 
         // In a future update to the support library, this should override setUserVisibleHint
         // instead of setMenuVisibility.
-        if (dateTV != null) {
+        if (mDateTV != null) {
             InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(
                     Context.INPUT_METHOD_SERVICE);
             if (!menuVisible) {
@@ -315,30 +313,30 @@ public class IncomeWizardPage1Fragment extends android.support.v4.app.Fragment {
 
     private void populateIncomeTypeSpinner() {
         List<String> spinnerArray = new ArrayList<>();
-        for (Map.Entry<String, Integer> entry : MainActivity.incomeTypeLabels.entrySet()) {
+        for (Map.Entry<String, Integer> entry : MainActivity.sIncomeTypeLabels.entrySet()) {
             spinnerArray.add(entry.getKey());
         }
-        adapter = new ArrayAdapter<>(
+        mAdapter = new ArrayAdapter<>(
                 getContext(), android.R.layout.simple_spinner_item, spinnerArray);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        this.typeSpinner.setAdapter(adapter);
+        mAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mTypeSpinner.setAdapter(mAdapter);
     }
 
     public void updateIncomeTypeSpinner() {
         List<String> spinnerArray = new ArrayList<>();
-        for (Map.Entry<String, Integer> entry : MainActivity.incomeTypeLabels.entrySet()) {
+        for (Map.Entry<String, Integer> entry : MainActivity.sIncomeTypeLabels.entrySet()) {
             spinnerArray.add(entry.getKey());
         }
-        adapter.clear();
-        adapter.addAll(spinnerArray);
+        mAdapter.clear();
+        mAdapter.addAll(spinnerArray);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        datePickerDialogLauncher.dismissDatePickerDialog();
-        if(alertDialog != null){
-            alertDialog.dismiss();
+        mDatePickerDialogLauncher.dismissDatePickerDialog();
+        if(mAlertDialog != null){
+            mAlertDialog.dismiss();
         }
     }
 
@@ -348,7 +346,7 @@ public class IncomeWizardPage1Fragment extends android.support.v4.app.Fragment {
             String dateString = mPage.getData().getString(IncomeWizardPage1.INCOME_DATE_STRING_DATA_KEY);
             DateFormat formatFrom = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
             try {
-                incomeDate = formatFrom.parse(dateString);
+                mIncomeDate = formatFrom.parse(dateString);
             } catch (ParseException e) {
                 e.printStackTrace();
             }
@@ -358,24 +356,24 @@ public class IncomeWizardPage1Fragment extends android.support.v4.app.Fragment {
             mPage.getData().putString(IncomeWizardPage1.INCOME_DATE_STRING_DATA_KEY, dateString);
             DateFormat formatFrom = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
             try {
-                incomeDate = formatFrom.parse(dateString);
-                mPage.getData().putString(IncomeWizardPage1.INCOME_DATE_STRING_FORMATTED_DATA_KEY, DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, incomeDate));
+                mIncomeDate = formatFrom.parse(dateString);
+                mPage.getData().putString(IncomeWizardPage1.INCOME_DATE_STRING_FORMATTED_DATA_KEY, DateAndCurrencyDisplayer.getDateToDisplay(mDateFormatCode, mIncomeDate));
             } catch (ParseException e) {
                 e.printStackTrace();
             }
         } else {
-            incomeDate = null;
+            mIncomeDate = null;
         }
     }
 
     private void preloadAmount(Bundle bundle) {
         if (mPage.getData().getString(IncomeWizardPage1.INCOME_AMOUNT_STRING_DATA_KEY) != null) {
-            amount = new BigDecimal(mPage.getData().getString(IncomeWizardPage1.INCOME_AMOUNT_STRING_DATA_KEY)).setScale(2, BigDecimal.ROUND_FLOOR).divide(new BigDecimal(100), BigDecimal.ROUND_FLOOR);
+            mAmount = new BigDecimal(mPage.getData().getString(IncomeWizardPage1.INCOME_AMOUNT_STRING_DATA_KEY)).setScale(2, BigDecimal.ROUND_FLOOR).divide(new BigDecimal(100), BigDecimal.ROUND_FLOOR);
         } else {
-            amount = new BigDecimal(0);
-            String formatted = DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, amount);
+            mAmount = new BigDecimal(0);
+            String formatted = DateAndCurrencyDisplayer.getCurrencyToDisplay(mMoneyFormatCode, mAmount);
             mPage.getData().putString(IncomeWizardPage1.INCOME_AMOUNT_FORMATTED_STRING_DATA_KEY, formatted);
-            mPage.getData().putString(IncomeWizardPage1.INCOME_AMOUNT_STRING_DATA_KEY, amount.toPlainString());
+            mPage.getData().putString(IncomeWizardPage1.INCOME_AMOUNT_STRING_DATA_KEY, mAmount.toPlainString());
         }
     }
 
@@ -395,14 +393,14 @@ public class IncomeWizardPage1Fragment extends android.support.v4.app.Fragment {
             SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
             String dateString = formatter.format(incomeToEdit.getDate());
             mPage.getData().putString(IncomeWizardPage1.INCOME_DATE_STRING_DATA_KEY, dateString);
-            incomeDate = incomeToEdit.getDate();
-            mPage.getData().putString(IncomeWizardPage1.INCOME_DATE_STRING_FORMATTED_DATA_KEY, DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, incomeDate));
+            mIncomeDate = incomeToEdit.getDate();
+            mPage.getData().putString(IncomeWizardPage1.INCOME_DATE_STRING_FORMATTED_DATA_KEY, DateAndCurrencyDisplayer.getDateToDisplay(mDateFormatCode, mIncomeDate));
             //Amount
             BigDecimal amountBD = incomeToEdit.getAmount();
-            String formatted = DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, amountBD);
+            String formatted = DateAndCurrencyDisplayer.getCurrencyToDisplay(mMoneyFormatCode, amountBD);
             mPage.getData().putString(IncomeWizardPage1.INCOME_AMOUNT_FORMATTED_STRING_DATA_KEY, formatted);
             mPage.getData().putString(IncomeWizardPage1.INCOME_AMOUNT_STRING_DATA_KEY, amountBD.toPlainString());
-            amount = incomeToEdit.getAmount();
+            mAmount = incomeToEdit.getAmount();
             //Type
             mPage.getData().putInt(IncomeWizardPage1.INCOME_TYPE_ID_DATA_KEY, incomeToEdit.getTypeID());
             mPage.getData().putString(IncomeWizardPage1.INCOME_TYPE_DATA_KEY, incomeToEdit.getTypeLabel());

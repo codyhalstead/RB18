@@ -16,10 +16,10 @@ import java.util.Date;
  */
 
 public class UserInputValidation {
-    private Context context;
+    private Context mContext;
 
     public UserInputValidation(Context context) {
-        this.context = context;
+        mContext = context;
     }
 
     //Used to check if edit text input is not empty with custom message error
@@ -116,7 +116,7 @@ public class UserInputValidation {
 
     private void hideKeyboardFrom(View view) {
         //Hide keyboard
-        InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        InputMethodManager imm = (InputMethodManager) mContext.getSystemService(Activity.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(view.getWindowToken(), WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 

@@ -3,9 +3,7 @@ package com.rba18.activities;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -58,25 +56,23 @@ public class NewLeaseWizard extends BaseActivity implements
     private boolean mConsumePageSelectedEvent;
     private Button mNextButton;
     private Button mPrevButton;
-    private DatabaseHandler dbhandler;
-    MainArrayDataMethods dataMethods;
-    public Lease leaseToEdit;
-    private SharedPreferences preferences;
+    private DatabaseHandler mDBHandler;
+    private MainArrayDataMethods mDataMethods;
+    private Lease mLeaseToEdit;
     private List<Page> mCurrentPageSequence;
     private StepPagerStrip mStepPagerStrip;
-    private AlertDialog alertDialog;
+    private AlertDialog mAlertDialog;
 
     public void onCreate(Bundle savedInstanceState) {
-        setupUserAppTheme(MainActivity.curThemeChoice);
+        setupUserAppTheme(MainActivity.sCurThemeChoice);
         setContentView(R.layout.activity_fragment_wizard);
         Bundle extras = getIntent().getExtras();
-        this.preferences = PreferenceManager.getDefaultSharedPreferences(this);
         if (extras != null) {
-            leaseToEdit = extras.getParcelable("leaseToEdit");
+            mLeaseToEdit = extras.getParcelable("mLeaseToEdit");
         } else {
-            leaseToEdit = null;
+            mLeaseToEdit = null;
         }
-        if(leaseToEdit == null){
+        if(mLeaseToEdit == null){
             mWizardModel = new LeaseWizardModel(this);
             this.setTitle(R.string.new_lease_creation);
         } else {
@@ -91,8 +87,8 @@ public class NewLeaseWizard extends BaseActivity implements
             mWizardModel.load(savedInstanceState.getBundle("model"));
         }
         mWizardModel.registerListener(this);
-        dbhandler = new DatabaseHandler(this);
-        dataMethods = new MainArrayDataMethods();
+        mDBHandler = new DatabaseHandler(this);
+        mDataMethods = new MainArrayDataMethods();
         mPagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
         mPager = findViewById(R.id.pager);
         mPager.setAdapter(mPagerAdapter);
@@ -162,24 +158,24 @@ public class NewLeaseWizard extends BaseActivity implements
                         }
                     }
                     String notes = mWizardModel.findByKey("Page4").getData().getString(LeaseWizardPage4.LEASE_NOTES_DATA_KEY);
-                    if (leaseToEdit != null) {
-                        leaseToEdit.setPrimaryTenantID(primaryTenant.getId());
-                        leaseToEdit.setSecondaryTenantIDs(secondaryTenantIDs);
-                        leaseToEdit.setApartmentID(apartment.getId());
-                        leaseToEdit.setLeaseStart(leaseStartDate);
-                        leaseToEdit.setLeaseEnd(leaseEndDate);
-                        leaseToEdit.setNotes(notes);
-                        leaseToEdit.setMonthlyRentCost(rentCost);
-                        leaseToEdit.setPaymentDayID(paymentDateID);
-                        leaseToEdit.setPaymentFreuencyID(paymentFrequencyID);
-                        dbhandler.editLease(leaseToEdit);
+                    if (mLeaseToEdit != null) {
+                        mLeaseToEdit.setPrimaryTenantID(primaryTenant.getId());
+                        mLeaseToEdit.setSecondaryTenantIDs(secondaryTenantIDs);
+                        mLeaseToEdit.setApartmentID(apartment.getId());
+                        mLeaseToEdit.setLeaseStart(leaseStartDate);
+                        mLeaseToEdit.setLeaseEnd(leaseEndDate);
+                        mLeaseToEdit.setNotes(notes);
+                        mLeaseToEdit.setMonthlyRentCost(rentCost);
+                        mLeaseToEdit.setPaymentDayID(paymentDateID);
+                        mLeaseToEdit.setPaymentFreuencyID(paymentFrequencyID);
+                        mDBHandler.editLease(mLeaseToEdit);
                         Intent data = new Intent();
-                        data.putExtra("editedLeaseID", leaseToEdit.getId());
+                        data.putExtra("editedLeaseID", mLeaseToEdit.getId());
                         setResult(RESULT_OK, data);
                     } else {
                         Lease lease = new Lease(0, primaryTenant.getId(), secondaryTenantIDs, apartment.getId(), leaseStartDate, leaseEndDate,
                                  paymentDateID, rentCost, deposit, paymentFrequencyID, notes);
-                        int leaseID = dbhandler.addLeaseAndReturnID(lease, MainActivity.user.getId());
+                        int leaseID = mDBHandler.addLeaseAndReturnID(lease, MainActivity.sUser.getId());
                         Boolean isFirstProrated = mWizardModel.findByKey("Page3").getData().getBoolean(LeaseWizardPage3.LEASE_IS_FIRST_PRORATED_REQUIRED_DATA_KEY);
                         Boolean isLastProrated = mWizardModel.findByKey("Page3").getData().getBoolean(LeaseWizardPage3.LEASE_IS_LAST_PRORATED_REQUIRED_DATA_KEY);
                         BigDecimal proratedFirst = new BigDecimal(-1);
@@ -197,13 +193,13 @@ public class NewLeaseWizard extends BaseActivity implements
                         ArrayList<PaymentLogEntry> paymentsArray;
                         ArrayList<String> paymentDates = mWizardModel.findByKey("Page3").getData().getStringArrayList(LeaseWizardPage3.LEASE_PAYMENT_DATES_ARRAY_DATA_KEY);
                         paymentsArray = createLeasePayments(paymentDates, leaseEndDate, isFirstProrated, proratedFirst, isLastProrated, proratedLast, rentCost, primaryTenant, apartment, leaseID);
-                        dbhandler.addPaymentLogEntryArray(paymentsArray, MainActivity.user.getId());
-                        createAndSaveDeposit(dbhandler, leaseStartDate, leaseEndDate, deposit, apartment, primaryTenant, leaseID);
+                        mDBHandler.addPaymentLogEntryArray(paymentsArray, MainActivity.sUser.getId());
+                        createAndSaveDeposit(mDBHandler, leaseStartDate, leaseEndDate, deposit, apartment, primaryTenant, leaseID);
                         setResult(RESULT_OK);
                     }
-                    dataMethods.sortMainApartmentArray();
-                    dataMethods.sortMainTenantArray();
-                    MainActivity.currentLeasesList = dbhandler.getUsersActiveLeases(MainActivity.user);
+                    mDataMethods.sortMainApartmentArray();
+                    mDataMethods.sortMainTenantArray();
+                    MainActivity.sCurrentLeasesList = mDBHandler.getUsersActiveLeases(MainActivity.sUser);
                     finish();
                 } else {
                     if (mEditingAfterReview) {
@@ -222,6 +218,7 @@ public class NewLeaseWizard extends BaseActivity implements
         });
         mStepPagerStrip.setProgressColors(fetchPrimaryColor(), fetchPrimaryColor(), fetchAccentColor());
         setupBasicToolbar();
+        addToolbarBackButton();
         onPageTreeChanged();
         updateBottomBar();
     }
@@ -278,8 +275,8 @@ public class NewLeaseWizard extends BaseActivity implements
         PaymentLogEntry deposit = new PaymentLogEntry(-1, startDate, 2, "", primaryTenant.getId(), leaseID, apartment.getId(), depositAmount, description, "", false);
         description = generateAutoDepositDescription(startDate, endDate, dateFormatCode, tenantName, apartmentAddress, true);
         ExpenseLogEntry depositWithheld = new ExpenseLogEntry(-1, endDate, depositAmount.multiply(new BigDecimal(-1)), apartment.getId(), leaseID, primaryTenant.getId(), description, 4, "", "", false);
-        databaseHandler.addPaymentLogEntry(deposit, MainActivity.user.getId());
-        databaseHandler.addExpenseLogEntry(depositWithheld, MainActivity.user.getId());
+        databaseHandler.addPaymentLogEntry(deposit, MainActivity.sUser.getId());
+        databaseHandler.addExpenseLogEntry(depositWithheld, MainActivity.sUser.getId());
     }
 
     @Override
@@ -294,7 +291,7 @@ public class NewLeaseWizard extends BaseActivity implements
     private void updateBottomBar() {
         int position = mPager.getCurrentItem();
         if (position == mCurrentPageSequence.size()) {
-            if (leaseToEdit == null) {
+            if (mLeaseToEdit == null) {
                 mNextButton.setText(R.string.create_lease);
             } else {
                 mNextButton.setText(R.string.save_changes);
@@ -336,15 +333,15 @@ public class NewLeaseWizard extends BaseActivity implements
             }
         });
         // create and show the alert dialog
-        alertDialog = builder.create();
-        alertDialog.show();
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if(alertDialog != null){
-            alertDialog.dismiss();
+        if(mAlertDialog != null){
+            mAlertDialog.dismiss();
         }
     }
 
@@ -464,7 +461,7 @@ public class NewLeaseWizard extends BaseActivity implements
         private int mCutOffPage;
         private Fragment mPrimaryItem;
 
-        public MyPagerAdapter(FragmentManager fm) {
+        private MyPagerAdapter(FragmentManager fm) {
             super(fm);
         }
 
@@ -499,14 +496,14 @@ public class NewLeaseWizard extends BaseActivity implements
             return Math.min(mCutOffPage + 1, mCurrentPageSequence.size() + 1);
         }
 
-        public void setCutOffPage(int cutOffPage) {
+        private void setCutOffPage(int cutOffPage) {
             if (cutOffPage < 0) {
                 cutOffPage = Integer.MAX_VALUE;
             }
             mCutOffPage = cutOffPage;
         }
 
-        public int getCutOffPage() {
+        private int getCutOffPage() {
             return mCutOffPage;
         }
     }

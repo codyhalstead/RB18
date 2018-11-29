@@ -19,7 +19,6 @@ import android.widget.TextView;
 
 import com.rba18.R;
 import com.rba18.helpers.DateAndCurrencyDisplayer;
-import com.rba18.helpers.MainArrayDataMethods;
 import com.rba18.model.ExpenseLogEntry;
 import com.rba18.model.MoneyLogEntry;
 import com.rba18.model.PaymentLogEntry;
@@ -29,35 +28,32 @@ import java.util.Date;
 import java.util.Locale;
 
 public class MoneyListAdapter extends BaseAdapter implements Filterable {
-    private ArrayList<MoneyLogEntry> moneyArray;
-    private ArrayList<MoneyLogEntry> filteredResults;
-    private SharedPreferences preferences;
-    private Context context;
-    private String searchText;
-    private ColorStateList highlightColor;
-    MainArrayDataMethods dataMethods;
-    private Date todaysDate;
-    private Date dateToHighlight;
-    private int dateFormatCode, moneyFormatCode;
-    private boolean greyOutEnabled;
+    private ArrayList<MoneyLogEntry> mMoneyArray;
+    private ArrayList<MoneyLogEntry> mFilteredResults;
+    private Context mContext;
+    private String mSearchText;
+    private ColorStateList mHighlightColor;
+    private Date mTodaysDate;
+    private Date mDateToHighlight;
+    private int mDateFormatCode, mMoneyFormatCode;
+    private boolean mGreyOutEnabled;
 
     public MoneyListAdapter(Context context, ArrayList<MoneyLogEntry> moneyArray, ColorStateList highlightColor, @Nullable Date dateToHighlight, boolean greyOutEnabled) {
         super();
-        this.preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        this.moneyArray = moneyArray;
-        this.filteredResults = moneyArray;
-        this.context = context;
-        this.searchText = "";
-        this.highlightColor = highlightColor;
-        this.dataMethods = new MainArrayDataMethods();
-        this.todaysDate = new Date(System.currentTimeMillis());
-        this.dateToHighlight = dateToHighlight;
-        this.dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
-        this.moneyFormatCode = preferences.getInt("currency", DateAndCurrencyDisplayer.CURRENCY_US);
-        this.greyOutEnabled = greyOutEnabled;
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        mMoneyArray = moneyArray;
+        mFilteredResults = moneyArray;
+        mContext = context;
+        mSearchText = "";
+        mHighlightColor = highlightColor;
+        mTodaysDate = new Date(System.currentTimeMillis());
+        mDateToHighlight = dateToHighlight;
+        mDateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
+        mMoneyFormatCode = preferences.getInt("currency", DateAndCurrencyDisplayer.CURRENCY_US);
+        mGreyOutEnabled = greyOutEnabled;
     }
 
-    static class ViewHolder {
+    private static class ViewHolder {
         TextView amountTV;
         TextView dateTV;
         TextView typeTV;
@@ -67,15 +63,15 @@ public class MoneyListAdapter extends BaseAdapter implements Filterable {
 
     @Override
     public int getCount() {
-        if(filteredResults != null) {
-            return filteredResults.size();
+        if(mFilteredResults != null) {
+            return mFilteredResults.size();
         }
         return 0;
     }
 
     @Override
     public MoneyLogEntry getItem(int i) {
-        return filteredResults.get(i);
+        return mFilteredResults.get(i);
     }
 
     @Override
@@ -89,7 +85,7 @@ public class MoneyListAdapter extends BaseAdapter implements Filterable {
         MoneyListAdapter.ViewHolder viewHolder;
         // Check if an existing view is being reused, otherwise inflate the view
         if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.row_expense, viewGroup, false);
+            convertView = LayoutInflater.from(mContext).inflate(R.layout.row_expense, viewGroup, false);
             viewHolder = new MoneyListAdapter.ViewHolder();
 
             viewHolder.amountTV = convertView.findViewById(R.id.expenseRowAmountTV);
@@ -104,16 +100,16 @@ public class MoneyListAdapter extends BaseAdapter implements Filterable {
             viewHolder = (MoneyListAdapter.ViewHolder) convertView.getTag();
         }
         if (moneyEntry != null) {
-            viewHolder.dateTV.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, moneyEntry.getDate()));
-            if(dateToHighlight != null){
-                if(moneyEntry.getDate().equals(dateToHighlight)){
-                    viewHolder.dateTV.setTextColor(context.getResources().getColor(R.color.green_colorPrimaryDark));
+            viewHolder.dateTV.setText(DateAndCurrencyDisplayer.getDateToDisplay(mDateFormatCode, moneyEntry.getDate()));
+            if(mDateToHighlight != null){
+                if(moneyEntry.getDate().equals(mDateToHighlight)){
+                    viewHolder.dateTV.setTextColor(mContext.getResources().getColor(R.color.green_colorPrimaryDark));
                 } else {
-                    viewHolder.dateTV.setTextColor(context.getResources().getColor(R.color.text_light));
+                    viewHolder.dateTV.setTextColor(mContext.getResources().getColor(R.color.text_light));
                 }
             }
-            if(greyOutEnabled) {
-                if (todaysDate.compareTo(moneyEntry.getDate()) < 0) {
+            if(mGreyOutEnabled) {
+                if (mTodaysDate.compareTo(moneyEntry.getDate()) < 0) {
                     convertView.setBackgroundColor(convertView.getResources().getColor(R.color.rowDarkenedBackground));
                 } else {
                     convertView.setBackgroundColor(convertView.getResources().getColor(R.color.white));
@@ -121,9 +117,9 @@ public class MoneyListAdapter extends BaseAdapter implements Filterable {
             }
             if(moneyEntry instanceof ExpenseLogEntry){
                 ExpenseLogEntry expense = (ExpenseLogEntry)moneyEntry;
-                viewHolder.amountTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, expense.getAmount()));
+                viewHolder.amountTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(mMoneyFormatCode, expense.getAmount()));
                 viewHolder.typeTV.setText(expense.getTypeLabel());
-                viewHolder.amountTV.setTextColor(context.getResources().getColor(R.color.red));
+                viewHolder.amountTV.setTextColor(mContext.getResources().getColor(R.color.red));
                 if(expense.getIsCompleted()) {
                     viewHolder.wasCompletedTV.setText(R.string.paid);
                     viewHolder.wasCompletedTV.setTextColor(convertView.getResources().getColor(R.color.caldroid_black));
@@ -133,9 +129,9 @@ public class MoneyListAdapter extends BaseAdapter implements Filterable {
                 }
             } else if(moneyEntry instanceof PaymentLogEntry){
                 PaymentLogEntry income = (PaymentLogEntry) moneyEntry;
-                viewHolder.amountTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, income.getAmount()));
+                viewHolder.amountTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(mMoneyFormatCode, income.getAmount()));
                 viewHolder.typeTV.setText(income.getTypeLabel());
-                viewHolder.amountTV.setTextColor(context.getResources().getColor(R.color.green_colorPrimaryDark));
+                viewHolder.amountTV.setTextColor(mContext.getResources().getColor(R.color.green_colorPrimaryDark));
                 if(income.getIsCompleted()) {
                     viewHolder.wasCompletedTV.setText(R.string.received);
                     viewHolder.wasCompletedTV.setTextColor(convertView.getResources().getColor(R.color.caldroid_black));
@@ -144,9 +140,9 @@ public class MoneyListAdapter extends BaseAdapter implements Filterable {
                     viewHolder.wasCompletedTV.setTextColor(convertView.getResources().getColor(R.color.red));
                 }
             } else {
-                viewHolder.amountTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, moneyEntry.getAmount()));
+                viewHolder.amountTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(mMoneyFormatCode, moneyEntry.getAmount()));
                 viewHolder.typeTV.setText("");
-                viewHolder.amountTV.setTextColor(context.getResources().getColor(R.color.caldroid_darker_gray));
+                viewHolder.amountTV.setTextColor(mContext.getResources().getColor(R.color.caldroid_darker_gray));
             }
 
             setTextHighlightSearch(viewHolder.descriptionTV, moneyEntry.getDescription());
@@ -157,13 +153,13 @@ public class MoneyListAdapter extends BaseAdapter implements Filterable {
     //Used to change color of any text matching search
     private void setTextHighlightSearch(TextView textView, String theTextToSet) {
         //If user has any text in the search bar
-        if (searchText != null && !searchText.isEmpty()) {
-            int startPos = theTextToSet.toLowerCase(Locale.US).indexOf(searchText.toLowerCase(Locale.US));
-            int endPos = startPos + searchText.length();
+        if (mSearchText != null && !mSearchText.isEmpty()) {
+            int startPos = theTextToSet.toLowerCase(Locale.US).indexOf(mSearchText.toLowerCase(Locale.US));
+            int endPos = startPos + mSearchText.length();
             if (startPos != -1) {
                 //If theTextToSet contains match, highlight match
                 Spannable spannable = new SpannableString(theTextToSet);
-                TextAppearanceSpan highlightSpan = new TextAppearanceSpan(null, Typeface.BOLD, -1, highlightColor, null);
+                TextAppearanceSpan highlightSpan = new TextAppearanceSpan(null, Typeface.BOLD, -1, mHighlightColor, null);
                 spannable.setSpan(highlightSpan, startPos, endPos, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 textView.setText(spannable);
             } else {
@@ -183,11 +179,11 @@ public class MoneyListAdapter extends BaseAdapter implements Filterable {
             protected FilterResults performFiltering(CharSequence constraint) {
                 FilterResults results = new FilterResults();
                 ArrayList<MoneyLogEntry> FilteredArrayNames = new ArrayList<>();
-                searchText = constraint.toString().toLowerCase();
+                mSearchText = constraint.toString().toLowerCase();
                 //Perform users search
                 constraint = constraint.toString().toLowerCase();
-                for (int i = 0; i < moneyArray.size(); i++) {
-                    MoneyLogEntry dataNames = moneyArray.get(i);
+                for (int i = 0; i < mMoneyArray.size(); i++) {
+                    MoneyLogEntry dataNames = mMoneyArray.get(i);
                     //If users search matches any part of any apartment value, add to new filtered list
                     if (dataNames.getDescription().toLowerCase().contains(constraint.toString())) {
                         FilteredArrayNames.add(dataNames);
@@ -198,9 +194,10 @@ public class MoneyListAdapter extends BaseAdapter implements Filterable {
                 return results;
             }
 
+            @SuppressWarnings("unchecked")
             @Override
             protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
-                filteredResults = (ArrayList<MoneyLogEntry>) filterResults.values;
+                mFilteredResults = (ArrayList<MoneyLogEntry>) filterResults.values;
                 notifyDataSetChanged();
             }
         };
@@ -208,12 +205,12 @@ public class MoneyListAdapter extends BaseAdapter implements Filterable {
 
     //Retrieve filtered results
     public ArrayList<MoneyLogEntry> getFilteredResults() {
-        return this.filteredResults;
+        return mFilteredResults;
     }
 
     public void updateResults(ArrayList<MoneyLogEntry> results) {
-        moneyArray = results;
-        filteredResults = results;
+        mMoneyArray = results;
+        mFilteredResults = results;
 
         //Triggers the list update
         notifyDataSetChanged();

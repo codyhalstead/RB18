@@ -1,6 +1,5 @@
 package com.rba18.activities;
 
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -22,21 +21,15 @@ import com.rba18.sqlite.DatabaseHandler;
  * Created by Cody on 12/8/2017.
  */
 
-public class SignupActivity extends AppCompatActivity {
-    private static final String TAG = "SignupActivity";
-    TextInputEditText nameText;
-    TextInputEditText emailText;
-    TextInputEditText passwordText;
-    TextInputEditText confirmPasswordText;
-    Button signupButton;
-    TextView loginLink;
-    UserInputValidation validation;
-    DatabaseHandler databaseHandler;
-    private String name;
-    private String email;
-    private String password;
-    private boolean successfulAccountCreation;
-    private AlertDialog alertDialog;
+public class SignUpActivity extends AppCompatActivity {
+    private TextInputEditText mNameText, mEmailText, mPasswordText, mConfirmPasswordText;
+    private Button mSignUpButton;
+    private TextView mLoginLink;
+    private UserInputValidation mValidation;
+    private DatabaseHandler mDatabaseHandler;
+    private String mName, mEmail, mPassword;
+    private boolean mSuccessfulAccountCreation;
+    //private AlertDialog alertDialog;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -46,32 +39,32 @@ public class SignupActivity extends AppCompatActivity {
         setOnClickListeners();
     }
 
-    public void signup() {
-        //If validation fails
+    public void signUp() {
+        //If mValidation fails
         if (!validate()) {
-            onSignupFailed();
+            onSignUpFailed();
             return;
         }
-        signupButton.setEnabled(false);
+        mSignUpButton.setEnabled(false);
         //Launch creating progressDialog
-        final ProgressDialog progressDialog = new ProgressDialog(SignupActivity.this);
+        final ProgressDialog progressDialog = new ProgressDialog(SignUpActivity.this);
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage(getResources().getString(R.string.creating_account));
         progressDialog.show();
         //Get input data
-        this.name = nameText.getText().toString().trim();
-        this.email = emailText.getText().toString().trim();
-        this.password = AppFileManagementHelper.SHA512Hash(passwordText.getText().toString().trim());
-        //If user is not already in the database (based on Email), sign-up success
-        if (!databaseHandler.checkUser(email)) {
-            databaseHandler.addUser(name, email, password);
-            onSignupSuccess();
+        mName = mNameText.getText().toString().trim();
+        mEmail = mEmailText.getText().toString().trim();
+        mPassword = AppFileManagementHelper.SHA512Hash(mPasswordText.getText().toString().trim());
+        //If sUser is not already in the database (based on Email), sign-up success
+        if (!mDatabaseHandler.checkUser(mEmail)) {
+            mDatabaseHandler.addUser(mName, mEmail, mPassword, false);
+            onSignUpSuccess();
         } else {
             //If they do already exist, set error in Email editText
-            emailText.setError(getString(R.string.email_used));
-            onSignupFailed();
+            mEmailText.setError(getString(R.string.email_used));
+            onSignUpFailed();
         }
-        if (successfulAccountCreation) {
+        if (mSuccessfulAccountCreation) {
             emptyInputEditText();
             finish();
         }
@@ -81,58 +74,58 @@ public class SignupActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if (alertDialog != null) {
-            alertDialog.dismiss();
-        }
+        //if (alertDialog != null) {
+        //    alertDialog.dismiss();
+        //}
     }
 
-    public void onSignupSuccess() {
-        signupButton.setEnabled(true);
-        //Get full user info from newly created user, pass it back to LoginActivity, and set result to success
-        User user = databaseHandler.getUser(email, password);
+    public void onSignUpSuccess() {
+        mSignUpButton.setEnabled(true);
+        //Get full sUser info from newly created sUser, pass it back to LoginActivity, and set result to success
+        User user = mDatabaseHandler.getUser(mEmail, mPassword);
         Intent data = new Intent();
         data.putExtra("newUserInfo", user);
-        data.putExtra("password", passwordText.getText().toString().trim());
+        data.putExtra("mPassword", mPasswordText.getText().toString().trim());
         setResult(RESULT_OK, data);
-        successfulAccountCreation = true;
+        mSuccessfulAccountCreation = true;
     }
 
-    public void onSignupFailed() {
+    public void onSignUpFailed() {
         //Show creation failed toast and enable button to re-try
         Toast.makeText(this, getString(R.string.account_creation_failed), Toast.LENGTH_LONG).show();
-        signupButton.setEnabled(true);
+        mSignUpButton.setEnabled(true);
     }
 
     public boolean validate() {
         //Validates all input from text boxes
         boolean valid = true;
-        //Is name ET not empty and fit name requirements
-        if (validation.isInputEditTextFilled(this.nameText, getString(R.string.name_empty))) {
-            if (!validation.isInputEditTextName(this.nameText, getString(R.string.name_empty))) {
+        //Is mName ET not empty and fit mName requirements
+        if (mValidation.isInputEditTextFilled(mNameText, getString(R.string.name_empty))) {
+            if (!mValidation.isInputEditTextName(mNameText, getString(R.string.name_empty))) {
                 valid = false;
             }
         } else {
             valid = false;
         }
-        //Is email ET not empty and fit email requirements
-        if (validation.isInputEditTextFilled(this.emailText, getString(R.string.email_empty))) {
-            if (!validation.isInputEditTextEmail(this.emailText, getString(R.string.enter_valid_email))) {
+        //Is mEmail ET not empty and fit mEmail requirements
+        if (mValidation.isInputEditTextFilled(mEmailText, getString(R.string.email_empty))) {
+            if (!mValidation.isInputEditTextEmail(mEmailText, getString(R.string.enter_valid_email))) {
                 valid = false;
             }
         } else {
             valid = false;
         }
-        //Is password ET not empty and fit password requirements
-        if (validation.isInputEditTextFilled(this.passwordText, getString(R.string.password_empty))) {
-            if (!validation.isInputEditTextPassword(this.passwordText, getString(R.string.password_requirements))) {
+        //Is mPassword ET not empty and fit mPassword requirements
+        if (mValidation.isInputEditTextFilled(mPasswordText, getString(R.string.password_empty))) {
+            if (!mValidation.isInputEditTextPassword(mPasswordText, getString(R.string.password_requirements))) {
                 valid = false;
             }
         } else {
             valid = false;
         }
         //Is confirmPassword ET not empty and fit confirmPassword requirements
-        if (validation.isInputEditTextFilled(this.confirmPasswordText, getString(R.string.password_confirmation_empty))) {
-            if (!validation.isInputEditTextMatches(this.passwordText, this.confirmPasswordText, getString(R.string.password_doesnt_match))) {
+        if (mValidation.isInputEditTextFilled(mConfirmPasswordText, getString(R.string.password_confirmation_empty))) {
+            if (!mValidation.isInputEditTextMatches(mPasswordText, mConfirmPasswordText, getString(R.string.password_doesnt_match))) {
                 valid = false;
             }
         } else {
@@ -143,10 +136,10 @@ public class SignupActivity extends AppCompatActivity {
 
     private void emptyInputEditText() {
         //Clear all edit text inputs
-        nameText.setText(null);
-        emailText.setText(null);
-        passwordText.setText(null);
-        confirmPasswordText.setText(null);
+        mNameText.setText(null);
+        mEmailText.setText(null);
+        mPasswordText.setText(null);
+        mConfirmPasswordText.setText(null);
     }
 
     @Override
@@ -156,30 +149,30 @@ public class SignupActivity extends AppCompatActivity {
     }
 
     private void initializeVariables() {
-        this.nameText = findViewById(R.id.input_name);
-        this.emailText = findViewById(R.id.input_email);
-        this.passwordText = findViewById(R.id.input_password);
-        this.confirmPasswordText = findViewById(R.id.input_confirm_password);
-        this.signupButton = findViewById(R.id.btn_signup);
-        this.loginLink = findViewById(R.id.link_login);
-        this.validation = new UserInputValidation(this);
-        this.databaseHandler = new DatabaseHandler(this);
-        this.successfulAccountCreation = false;
-        this.name = "";
-        this.email = "";
-        this.password = "";
+        mNameText = findViewById(R.id.input_name);
+        mEmailText = findViewById(R.id.input_email);
+        mPasswordText = findViewById(R.id.input_password);
+        mConfirmPasswordText = findViewById(R.id.input_confirm_password);
+        mSignUpButton = findViewById(R.id.btn_signup);
+        mLoginLink = findViewById(R.id.link_login);
+        mValidation = new UserInputValidation(this);
+        mDatabaseHandler = new DatabaseHandler(this);
+        mSuccessfulAccountCreation = false;
+        mName = "";
+        mEmail = "";
+        mPassword = "";
 
     }
 
     private void setOnClickListeners() {
-        signupButton.setOnClickListener(new View.OnClickListener() {
+        mSignUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //Attempt to create account
-                signup();
+                signUp();
             }
         });
-        loginLink.setOnClickListener(new View.OnClickListener() {
+        mLoginLink.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Finish the registration screen and return to the Login activity

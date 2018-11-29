@@ -41,7 +41,7 @@ public class DateAndCurrencyDisplayer {
                 NumberFormat costFormat = NumberFormat.getCurrencyInstance(Locale.JAPAN);
                 costFormat.setMinimumFractionDigits(2);
                 costFormat.setMaximumFractionDigits(2);
-                amount.multiply(new BigDecimal(100));
+                amount = amount.multiply(new BigDecimal(100));
                 convertedString = costFormat.format(amount.doubleValue());
             } else if (currencyCode == CURRENCY_KOREA) {
                 amount = amount.setScale(2, RoundingMode.HALF_EVEN);
@@ -93,7 +93,7 @@ public class DateAndCurrencyDisplayer {
                 convertedString = date.toString("yyyy/dd/MM");
             }
         }
-        convertedString.replaceAll("[-]", "/");
+        convertedString = convertedString.replaceAll("[-]", "/");
         return convertedString;
     }
 
@@ -132,7 +132,12 @@ public class DateAndCurrencyDisplayer {
     }
 
     public static String cleanMoneyString(String string) {
-        return string.replaceAll("[$£¥₩€￥,./\\s+/g]", "");
+        String cleanString = string.replaceAll("[$£¥₩€￥,./\\s+g]", "");
+        try {
+            return cleanString;
+        } catch (NumberFormatException ex){
+            return "000";
+        }
     }
 
     public static int getEndCursorPositionForMoneyInput(int length, int currencyCode) {

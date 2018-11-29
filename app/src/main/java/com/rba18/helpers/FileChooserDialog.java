@@ -19,68 +19,66 @@ import com.rba18.adapters.StringDialogListAdapter;
 import java.util.ArrayList;
 
 public class FileChooserDialog extends Dialog implements AdapterView.OnItemClickListener {
-    Context context;
-    ArrayList<String> fileNames;
+    private Context mContext;
+    private ArrayList<String> mFileNames;
+    private TextView mCancelTV, mSelectionTypeTV, mEmptyListTV;
+    private EditText mSearchBarET;
+    private ListView mListView;
+    private ColorStateList mAccentColor;
+    private StringDialogListAdapter mListAdapter;
+    private OnTypeChooserDialogResult mDialogResult;
 
     public FileChooserDialog(Context context, ArrayList<String> fileNames) {
         super(context);
-        this.context = context;
-        this.fileNames = fileNames;
+        mContext = context;
+        mFileNames = fileNames;
     }
-
-    private TextView cancelTV, selectionTypeTV, emptyListTV;
-    private EditText searchBarET;
-    private ListView listView;
-    private ColorStateList accentColor;
-    private StringDialogListAdapter listAdapter;
-    private OnTypeChooserDialogResult dialogResult;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.popup_list_chooser);
-        this.searchBarET = findViewById(R.id.popupListSearchET);
-        this.listView = findViewById(R.id.popupListListView);
-        this.cancelTV = findViewById(R.id.popupListCancelTV);
-        this.selectionTypeTV = findViewById(R.id.popupListSelectTypeTV);
-        this.emptyListTV = findViewById(R.id.popupListEmptyListTV);
-        selectionTypeTV.setText(R.string.select_a_backup);
-        emptyListTV.setText(R.string.no_backups_to_display);
+        mSearchBarET = findViewById(R.id.popupListSearchET);
+        mListView = findViewById(R.id.popupListListView);
+        mCancelTV = findViewById(R.id.popupListCancelTV);
+        mSelectionTypeTV = findViewById(R.id.popupListSelectTypeTV);
+        mEmptyListTV = findViewById(R.id.popupListEmptyListTV);
+        mSelectionTypeTV.setText(R.string.select_a_backup);
+        mEmptyListTV.setText(R.string.no_backups_to_display);
         TypedValue colorValue = new TypedValue();
-        context.getTheme().resolveAttribute(R.attr.colorAccent, colorValue, true);
-        this.accentColor = context.getResources().getColorStateList(colorValue.resourceId);
+        mContext.getTheme().resolveAttribute(R.attr.colorAccent, colorValue, true);
+        mAccentColor = mContext.getResources().getColorStateList(colorValue.resourceId);
         setUpTypeListAdapter();
         setUpSearchBar();
-        cancelTV.setOnClickListener(new View.OnClickListener() {
+        mCancelTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                dialogResult.finish(null);
+                mDialogResult.finish(null);
                 FileChooserDialog.this.dismiss();
             }
         });
     }
 
     private void setUpTypeListAdapter() {
-        listAdapter = new StringDialogListAdapter(context, fileNames, accentColor);
-        listView.setAdapter(listAdapter);
-        listView.setOnItemClickListener(this);
-        this.listView.setEmptyView(emptyListTV);
+        mListAdapter = new StringDialogListAdapter(mContext, mFileNames, mAccentColor);
+        mListView.setAdapter(mListAdapter);
+        mListView.setOnItemClickListener(this);
+        mListView.setEmptyView(mEmptyListTV);
     }
 
     public void changeCancelBtnText(String string) {
-        this.cancelTV.setText(string);
+        mCancelTV.setText(string);
     }
 
     private void setUpSearchBar() {
-        searchBarET.addTextChangedListener(new TextWatcher() {
-            //For updating search results as user fileNames
+        mSearchBarET.addTextChangedListener(new TextWatcher() {
+            //For updating search results as user mFileNames
             @Override
             public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
                 //When user changed the Text
-                if (listAdapter != null) {
-                    listAdapter.getFilter().filter(cs);
-                    listAdapter.notifyDataSetChanged();
+                if (mListAdapter != null) {
+                    mListAdapter.getFilter().filter(cs);
+                    mListAdapter.notifyDataSetChanged();
                 }
             }
 
@@ -102,12 +100,12 @@ public class FileChooserDialog extends Dialog implements AdapterView.OnItemClick
     }
 
     public void setDialogResult(OnTypeChooserDialogResult dialogResult) {
-        this.dialogResult = dialogResult;
+        mDialogResult = dialogResult;
     }
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        dialogResult.finish(listAdapter.getFilteredResults().get(i));
+        mDialogResult.finish(mListAdapter.getFilteredResults().get(i));
         FileChooserDialog.this.dismiss();
     }
 }

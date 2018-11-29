@@ -10,6 +10,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -24,6 +25,14 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.rba18.BuildConfig;
 import com.rba18.R;
 import com.rba18.helpers.AppFileManagementHelper;
@@ -45,21 +54,26 @@ import java.util.ArrayList;
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
     private static final int REQUEST_SIGNUP = 0;
-    TextInputEditText emailText;
-    TextInputEditText passwordText;
-    Button loginButton;
-    TextView signupLink, forgotPassTV, backupRestoreLink;
-    UserInputValidation validation;
-    User user;
-    DatabaseHandler databaseHandler;
-    RandomNumberGenerator randomNumberGenerator;
-    private AlertDialog alertDialog;
+    private TextInputEditText mEmailET, mPasswordET;
+    private Button mLoginBtn;
+    private TextView mSignUpLinkTV, mForgotPassTV, mBackupRestoreLink;
+    private UserInputValidation mValidation;
+    private User mUser;
+    private DatabaseHandler mDatabaseHandler;
+    private RandomNumberGenerator mRandomNumberGenerator;
+    private AlertDialog mAlertDialog;
+    private GoogleSignInClient mGoogleSignInClient;
+    private SignInButton mSignInBtn;
 
     //onCreate with app default theme
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
         initializeVariables();
         setUpOnClickListeners();
     }
@@ -81,17 +95,22 @@ public class LoginActivity extends AppCompatActivity {
             onLoginFailed();
             return;
         }
-        loginButton.setEnabled(false);
-        String email = emailText.getText().toString();
-        String password = AppFileManagementHelper.SHA512Hash(passwordText.getText().toString());
-        //Check if user exists within database
-        if (databaseHandler.checkUser(email, password)) {
-            //Get full user info if exists
-            this.user = databaseHandler.getUser(email, password);
+        mLoginBtn.setEnabled(false);
+        String email = mEmailET.getText().toString();
+        String password = AppFileManagementHelper.SHA512Hash(mPasswordET.getText().toString());
+        //Check if mUser exists within database
+        if (mDatabaseHandler.checkUser(email, password)) {
+            //Get full mUser info if exists
+            mUser = mDatabaseHandler.getUser(email, password);
             onLoginSuccess();
         } else {
             onLoginFailed();
         }
+    }
+
+    private void signInGoogle() {
+        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        startActivityForResult(signInIntent, MainActivity.REQUEST_GOOGLE_SIGN_IN);
     }
 
 
@@ -99,16 +118,52 @@ public class LoginActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         //Result from sign up activity
         if (requestCode == REQUEST_SIGNUP) {
-            //If sign up successful, fill log in text boxes with new user data for easy log in
+            //If sign up successful, fill log in text boxes with new mUser data for easy log in
             if (resultCode == RESULT_OK) {
-                this.user = (User) data.getExtras().get("newUserInfo");
+                mUser = (User) data.getExtras().get("newUserInfo");
                 String password = data.getExtras().getString("password");
-                passwordText.setText(password);
-                emailText.setText(user.getEmail());
+                mPasswordET.setText(password);
+                mEmailET.setText(mUser.getEmail());
 
                 //Creation success toast
                 Toast.makeText(this, getString(R.string.account_creation_success), Toast.LENGTH_LONG).show();
             }
+        }
+        if (requestCode == MainActivity.REQUEST_GOOGLE_SIGN_IN) {
+            // The Task returned from this call is always completed, no need to attach
+            // a listener.
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            handleSignInResult(task);
+        }
+    }
+
+    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
+        try {
+            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+            // Signed in successfully
+            String email = account.getEmail();
+            String pass = AppFileManagementHelper.SHA512Hash(account.getId());
+            String name = account.getDisplayName();
+            mGoogleSignInClient.signOut()
+                    .addOnCompleteListener(this, new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            // ...
+                        }
+                    });
+            if (mDatabaseHandler.checkUser(email, pass)) {
+                mUser = mDatabaseHandler.getUser(email, pass);
+                onLoginSuccess();
+            } else {
+                mDatabaseHandler.addUser(name, email, pass, true);
+                mUser = mDatabaseHandler.getUser(email, pass);
+                onLoginSuccess();
+            }
+        } catch (ApiException e) {
+            // The ApiException status code indicates the detailed failure reason.
+            // Please refer to the GoogleSignInStatusCodes class reference for more information.
+            Log.e(TAG, "signInResult:failed code=" + e.getStatusCode());
+            Toast.makeText(this, getString(R.string.login_failed), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -118,11 +173,11 @@ public class LoginActivity extends AppCompatActivity {
         moveTaskToBack(true);
     }
 
-    //End sign up activity on log in success, pass user info to MainActivity
+    //End sign up activity on log in success, pass mUser info to MainActivity
     public void onLoginSuccess() {
-        loginButton.setEnabled(true);
+        mLoginBtn.setEnabled(true);
         Intent data = new Intent();
-        data.putExtra("newUserInfo", this.user);
+        data.putExtra("newUserInfo", mUser);
         setResult(RESULT_OK, data);
         finish();
     }
@@ -130,58 +185,60 @@ public class LoginActivity extends AppCompatActivity {
     //Show toast and clear edit text boxes on log in failed (User does not exist)
     public void onLoginFailed() {
         Toast.makeText(getBaseContext(), getString(R.string.login_failed), Toast.LENGTH_LONG).show();
-        passwordText.setText(null);
-        loginButton.setEnabled(true);
+        mPasswordET.setText(null);
+        mLoginBtn.setEnabled(true);
     }
 
     //Method used to validate all of this activities edit text entries
     public boolean validate() {
         boolean valid = true;
-        if (!validation.isInputEditTextEmail(this.emailText, getString(R.string.enter_valid_email))) {
+        if (!mValidation.isInputEditTextEmail(mEmailET, getString(R.string.enter_valid_email))) {
             valid = false;
         }
-        if (!validation.isInputEditTextPassword(this.passwordText, getString(R.string.password_requirements))) {
+        if (!mValidation.isInputEditTextPassword(mPasswordET, getString(R.string.password_requirements))) {
             valid = false;
         }
         return valid;
     }
 
     private void initializeVariables() {
-        this.emailText = findViewById(R.id.input_email);
-        this.passwordText = findViewById(R.id.input_password);
-        this.loginButton = findViewById(R.id.btn_login);
-        this.signupLink =  findViewById(R.id.link_signup);
-        this.forgotPassTV = findViewById(R.id.link_forgot_password);
-        this.backupRestoreLink = findViewById(R.id.backup_link_login);
-        this.validation = new UserInputValidation(this);
-        this.databaseHandler = new DatabaseHandler(this);
-        randomNumberGenerator = new RandomNumberGenerator();
-        if (!databaseHandler.isUserTableEmpty()) {
-            backupRestoreLink.setVisibility(View.GONE);
+        mEmailET = findViewById(R.id.input_email);
+        mPasswordET = findViewById(R.id.input_password);
+        mLoginBtn = findViewById(R.id.btn_login);
+        mSignUpLinkTV = findViewById(R.id.link_signup);
+        mForgotPassTV = findViewById(R.id.link_forgot_password);
+        mBackupRestoreLink = findViewById(R.id.backup_link_login);
+        mValidation = new UserInputValidation(this);
+        mDatabaseHandler = new DatabaseHandler(this);
+        mRandomNumberGenerator = new RandomNumberGenerator();
+        mSignInBtn = findViewById(R.id.sign_in_button);
+        mSignInBtn.setSize(SignInButton.SIZE_STANDARD);
+        if (!mDatabaseHandler.isUserTableEmpty()) {
+            mBackupRestoreLink.setVisibility(View.GONE);
         }
         if (BuildConfig.FLAVOR.equals("free")) {
-        backupRestoreLink.setVisibility(View.GONE);
+            mBackupRestoreLink.setVisibility(View.GONE);
         }
     }
 
     private void setUpOnClickListeners() {
         //Log in button and listener
-        loginButton.setOnClickListener(new View.OnClickListener() {
+        mLoginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 login();
             }
         });
         //Sign up link and listener
-        signupLink.setOnClickListener(new View.OnClickListener() {
+        mSignUpLinkTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Start the Signup activity
-                Intent intent = new Intent(getApplicationContext(), SignupActivity.class);
+                Intent intent = new Intent(getApplicationContext(), SignUpActivity.class);
                 startActivityForResult(intent, REQUEST_SIGNUP);
             }
         });
-        forgotPassTV.setOnClickListener(new View.OnClickListener() {
+        mForgotPassTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (ContextCompat.checkSelfPermission(LoginActivity.this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED) {
@@ -196,7 +253,7 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         });
-        backupRestoreLink.setOnClickListener(new View.OnClickListener() {
+        mBackupRestoreLink.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (MainActivity.hasPermissions(LoginActivity.this, android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
@@ -205,7 +262,7 @@ public class LoginActivity extends AppCompatActivity {
                     builder.setPositiveButton(R.string.rentbud_folder, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            File f = new File(Environment.getExternalStorageDirectory(), "Rentbud");
+                            File f = new File(Environment.getExternalStorageDirectory(), "RentalBud");
                             if (!f.exists()) {
                                 f.mkdirs();
                             }
@@ -224,8 +281,8 @@ public class LoginActivity extends AppCompatActivity {
                         }
                     });
                     // create and show the alert dialog
-                    alertDialog = builder.create();
-                    alertDialog.show();
+                    mAlertDialog = builder.create();
+                    mAlertDialog.show();
                 } else {
                     ActivityCompat.requestPermissions(
                             LoginActivity.this,
@@ -235,6 +292,12 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
+        mSignInBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                signInGoogle();
+            }
+        });
     }
 
     private void showForgotPasswordGetEmailDialog() {
@@ -242,7 +305,7 @@ public class LoginActivity extends AppCompatActivity {
         int maxLength = 25;
         editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxLength)});
         editText.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
-        alertDialog = new AlertDialog.Builder(LoginActivity.this)
+        mAlertDialog = new AlertDialog.Builder(LoginActivity.this)
                 .setTitle(R.string.enter_account_email)
                 .setView(editText)
 
@@ -268,24 +331,30 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
-                    alertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                    mAlertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
                 }
             }
         });
 
-        alertDialog.show();
-        (alertDialog).getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+        mAlertDialog.show();
+        (mAlertDialog).getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (validation.isInputEditTextPassword(editText, getString(R.string.password_requirements))) {
-                if (databaseHandler.checkUser(editText.getText().toString().trim())) {
-                    alertDialog.dismiss();
-                    showPasswordResetConfirmationDialog(editText.getText().toString().trim());
-                } else {
-                    editText.setText("");
-                    Toast.makeText(LoginActivity.this, R.string.no_account_for_email, Toast.LENGTH_LONG).show();
-                }
-                }
+                //if (mValidation.isInputEditTextEmail(editText, getString(R.string.password_requirements))) {
+                    if (mDatabaseHandler.checkUser(editText.getText().toString().trim())) {
+                        boolean isGoogleAccount = mDatabaseHandler.getUserIsGoogleAccount(editText.getText().toString().trim());
+                        if (!isGoogleAccount) {
+                            mAlertDialog.dismiss();
+                            showPasswordResetConfirmationDialog(editText.getText().toString().trim());
+                        } else {
+                            mAlertDialog.dismiss();
+                            Toast.makeText(LoginActivity.this, R.string.cannot_recover_google_accounts, Toast.LENGTH_LONG).show();
+                        }
+                    } else {
+                        editText.setText("");
+                        Toast.makeText(LoginActivity.this, R.string.no_account_for_email, Toast.LENGTH_LONG).show();
+                    }
+               // }
             }
         });
     }
@@ -308,8 +377,8 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
         // create and show the alert dialog
-        alertDialog = builder.create();
-        alertDialog.show();
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
     }
 
     private void recoverPasswordThroughEmail(final String email) {
@@ -318,7 +387,7 @@ public class LoginActivity extends AppCompatActivity {
             public void run() {
                 if (isInternetAvailable()) {
                     try {
-                        String newPass = randomNumberGenerator.gererateVerificationNumber(6);
+                        String newPass = mRandomNumberGenerator.gererateVerificationNumber(6);
                         String subject = LoginActivity.this.getResources().getString(R.string.recovery_email_subject);
                         StringBuilder body = new StringBuilder(LoginActivity.this.getResources().getString(R.string.recovery_email_body));
                         body.append("\n");
@@ -342,18 +411,19 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void changeAccountPassword(String email, String newPassword) {
-        int userID = databaseHandler.getUserID(email);
-        String name = databaseHandler.getUserName(email);
+        int userID = mDatabaseHandler.getUserID(email);
+        String name = mDatabaseHandler.getUserName(email);
         String password = AppFileManagementHelper.SHA512Hash(newPassword);
-        User user = new User(userID, name, email, password);
-        databaseHandler.updateUser(user);
+        //isGoogleAccount should never need to be updated, so false is fine
+        User user = new User(userID, name, email, password, false);
+        mDatabaseHandler.updateUser(user);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if (alertDialog != null) {
-            alertDialog.dismiss();
+        if (mAlertDialog != null) {
+            mAlertDialog.dismiss();
         }
     }
 
@@ -369,7 +439,7 @@ public class LoginActivity extends AppCompatActivity {
         ArrayList<String> theNamesOfFiles = new ArrayList<>();
         for (int i = 0; i < fileList.length; i++) {
             if (fileList[i].getPath().endsWith(".db")) {
-                if(fileList[i].getPath().contains(LoginActivity.this.getResources().getString(R.string.backup_file_name))) {
+                if (fileList[i].getPath().contains(LoginActivity.this.getResources().getString(R.string.backup_file_name))) {
                     theNamesOfFiles.add(fileList[i].getName());
                 }
             }
@@ -382,7 +452,7 @@ public class LoginActivity extends AppCompatActivity {
                 if (fileName != null) {
                     File backup = new File(downloads.getAbsolutePath() + "/" + fileName);
                     if (backup.exists()) {
-                        databaseHandler.importBackupDB(backup);
+                        mDatabaseHandler.importBackupDB(backup);
                         //LoginActivity.this.finish();
                         Toast.makeText(LoginActivity.this, R.string.account_recovery_success, Toast.LENGTH_LONG).show();
                     }
@@ -392,8 +462,8 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     //public void autoLog(View view) {
-    //    databaseHandler.addUser("c", "c@c.c", "ccccc");
-    //    this.user = databaseHandler.getUser("c@c.c", "ccccc");
+    //    mDatabaseHandler.addUser("c", "c@c.c", "ccccc");
+    //    mUser = mDatabaseHandler.getUser("c@c.c", "ccccc");
     //    onLoginSuccess();
     //}
 }

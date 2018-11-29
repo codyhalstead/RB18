@@ -29,50 +29,49 @@ import java.util.Locale;
 
 public class SingleDateViewActivity extends BaseActivity implements DateViewFrag1.OnMoneyDataChangedListener,
         DateViewFrag2.OnLeaseDataChangedListener {
-    TextView dateTV;
-    Date date;
-    ViewPager viewPager;
-    SingleDateViewActivity.ViewPagerAdapter adapter;
-    private DatabaseHandler databaseHandler;
-    private ApartmentTenantViewModel viewModel;
-    private DateViewFrag1 frag1;
-    private DateViewFrag2 frag2;
-    private Boolean wasLeaseEdited, wasIncomeEdited, wasExpenseEdited;
+    private TextView mDateTV;
+    private Date mDate;
+    private DatabaseHandler mDatabaseHandler;
+    private ApartmentTenantViewModel mViewModel;
+    private DateViewFrag1 mFrag1;
+    private DateViewFrag2 mFrag2;
+    private Boolean mWasLeaseEdited, mWasIncomeEdited, mWasExpenseEdited;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setupUserAppTheme(MainActivity.curThemeChoice);
+        setupUserAppTheme(MainActivity.sCurThemeChoice);
         setContentView(R.layout.activity_single_date_view);
-        viewPager = findViewById(R.id.pager);
-        adapter = new SingleDateViewActivity.ViewPagerAdapter(getSupportFragmentManager());
-        databaseHandler = new DatabaseHandler(this);
+        ViewPager viewPager = findViewById(R.id.pager);
+        SingleDateViewActivity.ViewPagerAdapter adapter = new SingleDateViewActivity.ViewPagerAdapter(getSupportFragmentManager());
+        mDatabaseHandler = new DatabaseHandler(this);
         Bundle bundle = getIntent().getExtras();
-        date = (Date) bundle.get("date");
+        mDate = (Date) bundle.get("date");
         final SimpleDateFormat formatter = new SimpleDateFormat("EEE MMM dd yyyy", Locale.US);
-        dateTV = findViewById(R.id.selectedDateTV);
-        dateTV.setText(formatter.format(date));
+        mDateTV = findViewById(R.id.selectedDateTV);
+        mDateTV.setText(formatter.format(mDate));
         setupBasicToolbar();
         if (savedInstanceState != null) {
-            wasLeaseEdited = savedInstanceState.getBoolean("was_lease_edited");
-            wasIncomeEdited = savedInstanceState.getBoolean("was_income_edited");
-            wasExpenseEdited = savedInstanceState.getBoolean("was_expense_edited");
+            mWasLeaseEdited = savedInstanceState.getBoolean("was_lease_edited");
+            mWasIncomeEdited = savedInstanceState.getBoolean("was_income_edited");
+            mWasExpenseEdited = savedInstanceState.getBoolean("was_expense_edited");
         } else {
-            wasLeaseEdited = false;
-            wasIncomeEdited = false;
-            wasExpenseEdited = false;
+            mWasLeaseEdited = false;
+            mWasIncomeEdited = false;
+            mWasExpenseEdited = false;
         }
-        viewModel = ViewModelProviders.of(this).get(ApartmentTenantViewModel.class);
-        viewModel.init();
-        viewModel.setDate(date);
-        viewModel.setLeaseArray(databaseHandler.getLeasesStartingOrEndingOnDate(MainActivity.user, date));
-        viewModel.setMoneyArray(databaseHandler.getIncomeAndExpensesForDate(MainActivity.user, date));
+        mViewModel = ViewModelProviders.of(this).get(ApartmentTenantViewModel.class);
+        mViewModel.init();
+        mViewModel.setDate(mDate);
+        mViewModel.setLeaseArray(mDatabaseHandler.getLeasesStartingOrEndingOnDate(MainActivity.sUser, mDate));
+        mViewModel.setMoneyArray(mDatabaseHandler.getIncomeAndExpensesForDate(MainActivity.sUser, mDate));
         viewPager.setAdapter(adapter);
         TabLayout tabLayout = findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
         setupBasicToolbar();
-        toolbar.setTitle(R.string.calendar_date_view);
-        if (wasLeaseEdited || wasIncomeEdited || wasExpenseEdited) {
+        addToolbarBackButton();
+        this.setTitle(R.string.calendar_date_view);
+        if (mWasLeaseEdited || mWasIncomeEdited || mWasExpenseEdited) {
             setResultToEdited();
         } else {
             setResult(RESULT_OK);
@@ -82,7 +81,7 @@ public class SingleDateViewActivity extends BaseActivity implements DateViewFrag
     @Override
     protected void onResume() {
         super.onResume();
-        if (wasLeaseEdited || wasIncomeEdited || wasExpenseEdited) {
+        if (mWasLeaseEdited || mWasIncomeEdited || mWasExpenseEdited) {
             setResultToEdited();
         } else {
             setResult(RESULT_OK);
@@ -91,9 +90,9 @@ public class SingleDateViewActivity extends BaseActivity implements DateViewFrag
 
     private void setResultToEdited() {
         Intent intent = new Intent();
-        intent.putExtra("was_lease_edited", wasLeaseEdited);
-        intent.putExtra("was_income_edited", wasIncomeEdited);
-        intent.putExtra("was_expense_edited", wasExpenseEdited);
+        intent.putExtra("was_lease_edited", mWasLeaseEdited);
+        intent.putExtra("was_income_edited", mWasIncomeEdited);
+        intent.putExtra("was_expense_edited", mWasExpenseEdited);
         setResult(MainActivity.RESULT_DATA_WAS_MODIFIED, intent);
     }
 
@@ -114,50 +113,50 @@ public class SingleDateViewActivity extends BaseActivity implements DateViewFrag
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBoolean("was_lease_edited", wasLeaseEdited);
-        outState.putBoolean("was_income_edited", wasIncomeEdited);
-        outState.putBoolean("was_expense_edited", wasExpenseEdited);
+        outState.putBoolean("was_lease_edited", mWasLeaseEdited);
+        outState.putBoolean("was_income_edited", mWasIncomeEdited);
+        outState.putBoolean("was_expense_edited", mWasExpenseEdited);
     }
 
     @Override
     public void onMoneyDataChanged() {
-        viewModel.setMoneyArray(databaseHandler.getIncomeAndExpensesForDate(MainActivity.user, date));
-        frag1.updateData();
+        mViewModel.setMoneyArray(mDatabaseHandler.getIncomeAndExpensesForDate(MainActivity.sUser, mDate));
+        mFrag1.updateData();
     }
 
     @Override
     public void onIncomeDataChanged() {
-        wasIncomeEdited = true;
+        mWasIncomeEdited = true;
         setResultToEdited();
     }
 
     @Override
     public void onExpenseDataChanged() {
-        wasExpenseEdited = true;
+        mWasExpenseEdited = true;
         setResultToEdited();
     }
 
     @Override
     public void onLeaseDataChanged() {
-        viewModel.setLeaseArray(databaseHandler.getLeasesStartingOrEndingOnDate(MainActivity.user, date));
-        viewModel.setMoneyArray(databaseHandler.getIncomeAndExpensesForDate(MainActivity.user, date));
-        frag1.updateData();
-        frag2.updateData();
-        wasLeaseEdited = true;
+        mViewModel.setLeaseArray(mDatabaseHandler.getLeasesStartingOrEndingOnDate(MainActivity.sUser, mDate));
+        mViewModel.setMoneyArray(mDatabaseHandler.getIncomeAndExpensesForDate(MainActivity.sUser, mDate));
+        mFrag1.updateData();
+        mFrag2.updateData();
+        mWasLeaseEdited = true;
         setResultToEdited();
     }
 
     @Override
     public void onLeasePaymentsChanged(){
-        wasExpenseEdited = true;
-        wasIncomeEdited = true;
+        mWasExpenseEdited = true;
+        mWasIncomeEdited = true;
         setResultToEdited();
     }
 
     // Adapter for the viewpager using FragmentPagerAdapter
     class ViewPagerAdapter extends FragmentPagerAdapter {
 
-        public ViewPagerAdapter(FragmentManager manager) {
+        private ViewPagerAdapter(FragmentManager manager) {
             super(manager);
         }
 
@@ -189,10 +188,10 @@ public class SingleDateViewActivity extends BaseActivity implements DateViewFrag
             // save the appropriate reference depending on position
             switch (position) {
                 case 0:
-                    frag1 = (DateViewFrag1) createdFragment;
+                    mFrag1 = (DateViewFrag1) createdFragment;
                     break;
                 case 1:
-                    frag2 = (DateViewFrag2) createdFragment;
+                    mFrag2 = (DateViewFrag2) createdFragment;
                     break;
             }
             return createdFragment;

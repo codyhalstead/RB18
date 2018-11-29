@@ -42,26 +42,23 @@ import static android.app.Activity.RESULT_OK;
 
 public class TenantViewFrag2 extends android.support.v4.app.Fragment implements AdapterView.OnItemClickListener, View.OnClickListener {
 
-
     public TenantViewFrag2() {
         // Required empty public constructor
     }
 
-    TextView nopaymentsTV, totalAmountTV, totalAmountLabelTV;
-    LinearLayout totalAmountLL;
-    FloatingActionButton fab;
-    MoneyListAdapter moneyListAdapter;
-    ColorStateList accentColor;
-    ListView listView;
-    private DatabaseHandler db;
-    private MoneyLogEntry selectedMoney;
-    private Tenant tenant;
-    private BigDecimal total;
+    private TextView mNoPaymentsTV, mTotalAmountTV, mTotalAmountLabelTV;
+    private MoneyListAdapter mMoneyListAdapter;
+    private ColorStateList mAccentColor;
+    private ListView mListView;
+    private DatabaseHandler mDB;
+    private MoneyLogEntry mSelectedMoney;
+    private Tenant mTenant;
+    private BigDecimal mTotal;
     private OnMoneyDataChangedListener mCallback;
-    private SharedPreferences preferences;
-    private AlertDialog dialog;
-    private PopupMenu popupMenu;
-    private boolean completedOnly;
+    private SharedPreferences mPreferences;
+    private AlertDialog mDialog;
+    private PopupMenu mPopupMenu;
+    private boolean mCompletedOnly;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -72,24 +69,24 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        this.nopaymentsTV = view.findViewById(R.id.emptyListTV);
-        this.totalAmountLabelTV = view.findViewById(R.id.moneyListTotalAmountLabelTV);
-        this.totalAmountTV = view.findViewById(R.id.moneyListTotalAmountTV);
-        this.fab = view.findViewById(R.id.listFab);
-        this.listView = view.findViewById(R.id.mainMoneyListView);
-        this.totalAmountLL = view.findViewById(R.id.moneyListTotalAmountLL);
-        this.totalAmountLL.setOnClickListener(this);
-        this.db = new DatabaseHandler(getContext());
+        mNoPaymentsTV = view.findViewById(R.id.emptyListTV);
+        mTotalAmountLabelTV = view.findViewById(R.id.moneyListTotalAmountLabelTV);
+        mTotalAmountTV = view.findViewById(R.id.moneyListTotalAmountTV);
+        FloatingActionButton fab = view.findViewById(R.id.listFab);
+        mListView = view.findViewById(R.id.mainMoneyListView);
+        LinearLayout totalAmountLL = view.findViewById(R.id.moneyListTotalAmountLL);
+        totalAmountLL.setOnClickListener(this);
+        mDB = new DatabaseHandler(getContext());
         if(savedInstanceState != null){
-            completedOnly = savedInstanceState.getBoolean("completedOnly");
+            mCompletedOnly = savedInstanceState.getBoolean("mCompletedOnly");
         } else {
-            completedOnly = true;
+            mCompletedOnly = true;
         }
-        this.preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        mPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
 
-        this.tenant = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getViewedTenant().getValue();
-        total = getTotal();
-        this.fab.setOnClickListener(new View.OnClickListener() {
+        mTenant = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getViewedTenant().getValue();
+        mTotal = getTotal();
+        fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 showNewIncomeOrExpenseAlertDialog();
@@ -98,7 +95,7 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
         //Get current theme accent color, which is passed into the list adapter for search highlighting
         TypedValue colorValue = new TypedValue();
         getActivity().getTheme().resolveAttribute(R.attr.colorAccent, colorValue, true);
-        this.accentColor = getActivity().getResources().getColorStateList(colorValue.resourceId);
+        mAccentColor = getActivity().getResources().getColorStateList(colorValue.resourceId);
         setUpListAdapter();
         setUpSearchBar();
         setTotalTV();
@@ -142,59 +139,59 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
 
     private void setUpListAdapter() {
         if (ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue() != null) {
-            moneyListAdapter = new MoneyListAdapter(getActivity(), ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue(), accentColor, null, true);
-            listView.setAdapter(moneyListAdapter);
-            listView.setOnItemClickListener(this);
-            nopaymentsTV.setText(R.string.no_payments_to_display_tenant);
-            listView.setEmptyView(nopaymentsTV);
+            mMoneyListAdapter = new MoneyListAdapter(getActivity(), ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue(), mAccentColor, null, true);
+            mListView.setAdapter(mMoneyListAdapter);
+            mListView.setOnItemClickListener(this);
+            mNoPaymentsTV.setText(R.string.no_payments_to_display_tenant);
+            mListView.setEmptyView(mNoPaymentsTV);
         }
     }
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        popupMenu = new PopupMenu(getActivity(), view);
-        MenuInflater inflater = popupMenu.getMenuInflater();
+        mPopupMenu = new PopupMenu(getActivity(), view);
+        MenuInflater inflater = mPopupMenu.getMenuInflater();
         final int position = i;
-        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+        mPopupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 switch (item.getItemId()) {
 
                     case R.id.changeStatus:
-                        selectedMoney = moneyListAdapter.getFilteredResults().get(position);
-                        if (selectedMoney instanceof PaymentLogEntry) {
-                            PaymentLogEntry selectedIncome = (PaymentLogEntry) selectedMoney;
+                        mSelectedMoney = mMoneyListAdapter.getFilteredResults().get(position);
+                        if (mSelectedMoney instanceof PaymentLogEntry) {
+                            PaymentLogEntry selectedIncome = (PaymentLogEntry) mSelectedMoney;
                             if(selectedIncome.getIsCompleted()){
                                 selectedIncome.setIsCompleted(false);
                             } else {
                                 selectedIncome.setIsCompleted(true);
                             }
-                            db.editPaymentLogEntry(selectedIncome);
+                            mDB.editPaymentLogEntry(selectedIncome);
                             mCallback.onMoneyDataChanged();
                             mCallback.onIncomeDataChanged();
                         } else {
-                            ExpenseLogEntry selectedExpense = (ExpenseLogEntry) selectedMoney;
+                            ExpenseLogEntry selectedExpense = (ExpenseLogEntry) mSelectedMoney;
                             if(selectedExpense.getIsCompleted()){
                                 selectedExpense.setIsCompleted(false);
                             } else {
                                 selectedExpense.setIsCompleted(true);
                             }
-                            db.editExpenseLogEntry(selectedExpense);
+                            mDB.editExpenseLogEntry(selectedExpense);
                             mCallback.onMoneyDataChanged();
                             mCallback.onExpenseDataChanged();
                         }
                         return true;
 
                     case R.id.edit:
-                        selectedMoney = moneyListAdapter.getFilteredResults().get(position);
-                        if (selectedMoney instanceof PaymentLogEntry) {
+                        mSelectedMoney = mMoneyListAdapter.getFilteredResults().get(position);
+                        if (mSelectedMoney instanceof PaymentLogEntry) {
                             Intent intent = new Intent(getActivity(), NewIncomeWizard.class);
-                            PaymentLogEntry selectedIncome = (PaymentLogEntry) selectedMoney;
+                            PaymentLogEntry selectedIncome = (PaymentLogEntry) mSelectedMoney;
                             intent.putExtra("incomeToEdit", selectedIncome);
                             startActivityForResult(intent, MainActivity.REQUEST_NEW_INCOME_FORM);
                         } else {
                             Intent intent = new Intent(getActivity(), NewExpenseWizard.class);
-                            ExpenseLogEntry selectedExpense = (ExpenseLogEntry) selectedMoney;
+                            ExpenseLogEntry selectedExpense = (ExpenseLogEntry) mSelectedMoney;
                             intent.putExtra("expenseToEdit", selectedExpense);
                             startActivityForResult(intent, MainActivity.REQUEST_NEW_EXPENSE_FORM);
                         }
@@ -202,7 +199,7 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
                         return true;
 
                     case R.id.remove:
-                        selectedMoney = moneyListAdapter.getFilteredResults().get(position);
+                        mSelectedMoney = mMoneyListAdapter.getFilteredResults().get(position);
                         showDeleteConfirmationAlertDialog();
                         return true;
 
@@ -211,22 +208,22 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
                 }
             }
         });
-        inflater.inflate(R.menu.expense_income_click_menu, popupMenu.getMenu());
-        popupMenu.show();
+        inflater.inflate(R.menu.expense_income_click_menu, mPopupMenu.getMenu());
+        mPopupMenu.show();
     }
 
     public void showDeleteConfirmationAlertDialog() {
         // setup the alert builder
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        if (selectedMoney instanceof PaymentLogEntry) {
+        if (mSelectedMoney instanceof PaymentLogEntry) {
             builder.setMessage(R.string.income_deletion_confirmation);
             builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    db.setPaymentLogEntryInactive((PaymentLogEntry) selectedMoney);
+                    mDB.setPaymentLogEntryInactive((PaymentLogEntry) mSelectedMoney);
                     mCallback.onMoneyDataChanged();
                     mCallback.onIncomeDataChanged();
-                    total = getTotal();
+                    mTotal = getTotal();
                     setTotalTV();
                 }
             });
@@ -235,10 +232,10 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
             builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    db.setExpenseInactive((ExpenseLogEntry) selectedMoney);
+                    mDB.setExpenseInactive((ExpenseLogEntry) mSelectedMoney);
                     mCallback.onMoneyDataChanged();
                     mCallback.onExpenseDataChanged();
-                    total = getTotal();
+                    mTotal = getTotal();
                     setTotalTV();
                 }
             });
@@ -250,9 +247,9 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
 
             }
         });
-        // create and show the alert dialog
-        dialog = builder.create();
-        dialog.show();
+        // create and show the alert mDialog
+        mDialog = builder.create();
+        mDialog.show();
     }
 
     public void showNewIncomeOrExpenseAlertDialog() {
@@ -262,7 +259,7 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 Intent intent = new Intent(getActivity(), NewIncomeWizard.class);
-                intent.putExtra("preloadedTenant", tenant);
+                intent.putExtra("preloadedTenant", mTenant);
                 startActivityForResult(intent, MainActivity.REQUEST_NEW_INCOME_FORM);
             }
         });
@@ -270,12 +267,12 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 Intent intent = new Intent(getActivity(), NewExpenseWizard.class);
-                intent.putExtra("preloadedTenant", tenant);
+                intent.putExtra("preloadedTenant", mTenant);
                 startActivityForResult(intent, MainActivity.REQUEST_NEW_EXPENSE_FORM);
             }
         });
-        dialog = builder.create();
-        dialog.show();
+        mDialog = builder.create();
+        mDialog.show();
     }
 
     @Override
@@ -286,7 +283,7 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
             if (resultCode == RESULT_OK) {
                 mCallback.onMoneyDataChanged();
                 mCallback.onIncomeDataChanged();
-                total = getTotal();
+                mTotal = getTotal();
                 setTotalTV();
             }
         }
@@ -295,7 +292,7 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
             if (resultCode == RESULT_OK) {
                 mCallback.onMoneyDataChanged();
                 mCallback.onExpenseDataChanged();
-                total = getTotal();
+                mTotal = getTotal();
                 setTotalTV();
             }
         }
@@ -304,11 +301,11 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
     @Override
     public void onPause() {
         super.onPause();
-        if(popupMenu != null){
-            popupMenu.dismiss();
+        if(mPopupMenu != null){
+            mPopupMenu.dismiss();
         }
-        if(dialog != null){
-            dialog.dismiss();
+        if(mDialog != null){
+            mDialog.dismiss();
         }
     }
 
@@ -317,13 +314,13 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
         switch (view.getId()) {
 
             case R.id.moneyListTotalAmountLL:
-                if(completedOnly){
-                    completedOnly = false;
-                    total = getTotal();
+                if(mCompletedOnly){
+                    mCompletedOnly = false;
+                    mTotal = getTotal();
                     setTotalTV();
                 } else {
-                    completedOnly = true;
-                    total = getTotal();
+                    mCompletedOnly = true;
+                    mTotal = getTotal();
                     setTotalTV();
                 }
                 break;
@@ -336,14 +333,14 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBoolean("completedOnly", completedOnly);
+        outState.putBoolean("mCompletedOnly", mCompletedOnly);
     }
 
     private BigDecimal getTotal() {
         BigDecimal total = new BigDecimal(0);
         if (ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue() != null) {
             if (!ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue().isEmpty()) {
-                if (completedOnly) {
+                if (mCompletedOnly) {
                     for (int i = 0; i < ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue().size(); i++) {
                         if(ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue().get(i).getIsCompleted()) {
                             total = total.add(ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue().get(i).getAmount());
@@ -360,31 +357,31 @@ public class TenantViewFrag2 extends android.support.v4.app.Fragment implements 
     }
 
     private void setTotalTV() {
-        if (total != null) {
-            int moneyFormatCode = preferences.getInt("currency", DateAndCurrencyDisplayer.CURRENCY_US);
-            totalAmountTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, total));
-            if (total.compareTo(new BigDecimal(0)) < 0) {
-                totalAmountTV.setTextColor(getActivity().getResources().getColor(R.color.red));
-                if(completedOnly){
-                    totalAmountLabelTV.setText(R.string.total_paid);
+        if (mTotal != null) {
+            int moneyFormatCode = mPreferences.getInt("currency", DateAndCurrencyDisplayer.CURRENCY_US);
+            mTotalAmountTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, mTotal));
+            if (mTotal.compareTo(new BigDecimal(0)) < 0) {
+                mTotalAmountTV.setTextColor(getActivity().getResources().getColor(R.color.red));
+                if(mCompletedOnly){
+                    mTotalAmountLabelTV.setText(R.string.total_paid);
                 } else {
-                    totalAmountLabelTV.setText(R.string.projected_total);
+                    mTotalAmountLabelTV.setText(R.string.projected_total);
                 }
             } else {
-                totalAmountTV.setTextColor(getActivity().getResources().getColor(R.color.green_colorPrimaryDark));
-                if(completedOnly){
-                    totalAmountLabelTV.setText(R.string.received_total);
+                mTotalAmountTV.setTextColor(getActivity().getResources().getColor(R.color.green_colorPrimaryDark));
+                if(mCompletedOnly){
+                    mTotalAmountLabelTV.setText(R.string.received_total);
                 } else {
-                    totalAmountLabelTV.setText(R.string.projected_total);
+                    mTotalAmountLabelTV.setText(R.string.projected_total);
                 }
             }
         }
     }
 
     public void updateData(){
-        moneyListAdapter.updateResults(ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue());
-        moneyListAdapter.notifyDataSetChanged();
-        this.total = getTotal();
+        mMoneyListAdapter.updateResults(ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue());
+        mMoneyListAdapter.notifyDataSetChanged();
+        mTotal = getTotal();
         setTotalTV();
     }
 }

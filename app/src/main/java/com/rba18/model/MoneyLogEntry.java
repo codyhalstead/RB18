@@ -7,18 +7,18 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 public class MoneyLogEntry implements Parcelable {
-    private int id;
-    private Date date;
-    private BigDecimal amount;
-    private String description;
-    private Boolean completed;
+    private int mID;
+    private Date mDate;
+    private BigDecimal mAmount;
+    private String mDescription;
+    private Boolean mCompleted;
 
     public MoneyLogEntry(int id, Date date, BigDecimal amount, String description, boolean completed) {
-        this.id = id;
-        this.date = date;
-        this.amount = amount;
-        this.description = description;
-        this.completed = completed;
+        mID = id;
+        mDate = date;
+        mAmount = amount;
+        mDescription = description;
+        mCompleted = completed;
     }
 
     @Override
@@ -28,29 +28,29 @@ public class MoneyLogEntry implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeInt(id);
-        if(this.date != null){
+        parcel.writeInt(mID);
+        if(mDate != null){
             parcel.writeInt(1);
-            parcel.writeLong(this.date.getTime());
+            parcel.writeLong(mDate.getTime());
         }else{
             parcel.writeInt(0);
         }
-        String amountString = amount.toPlainString();
+        String amountString = mAmount.toPlainString();
         parcel.writeString(amountString);
-        parcel.writeString(this.description);
-        parcel.writeByte((byte) (completed? 1 : 0));
+        parcel.writeString(mDescription);
+        parcel.writeByte((byte) (mCompleted ? 1 : 0));
     }
 
     protected MoneyLogEntry(Parcel in) {
-        this.id = in.readInt();
+        mID = in.readInt();
         int dateIsNotNull = in.readInt();
         if(dateIsNotNull == 1) {
-            this.date = new Date(in.readLong());
+            mDate = new Date(in.readLong());
         }
         String amountString = in.readString();
-        this.amount = new BigDecimal(amountString);
-        this.description = in.readString();
-        this.completed = in.readByte() != 0;
+        mAmount = new BigDecimal(amountString);
+        mDescription = in.readString();
+        mCompleted = in.readByte() != 0;
     }
 
     public static final Creator<MoneyLogEntry> CREATOR = new Creator<MoneyLogEntry>() {
@@ -66,42 +66,42 @@ public class MoneyLogEntry implements Parcelable {
     };
 
     public Date getDate() {
-        return date;
+        return mDate;
     }
 
     public void setDate(Date date) {
-        this.date = date;
+        mDate = date;
     }
 
     public BigDecimal getAmount() {
-        return amount;
+        return mAmount;
     }
 
     public void setAmount(BigDecimal amount) {
-        this.amount = amount;
+        mAmount = amount;
     }
 
     public String getDescription() {
-        return description;
+        return mDescription;
     }
 
     public void setDescription(String description) {
-        this.description = description;
+        mDescription = description;
     }
 
     public int getId() {
-        return id;
+        return mID;
     }
 
     public void setId(int id) {
-        this.id = id;
+        mID = id;
     }
 
     public Boolean getIsCompleted() {
-        return completed;
+        return mCompleted;
     }
 
     public void setIsCompleted(Boolean completed) {
-        this.completed = completed;
+        mCompleted = completed;
     }
 }

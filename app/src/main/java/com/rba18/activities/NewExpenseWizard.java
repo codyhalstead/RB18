@@ -54,25 +54,25 @@ public class NewExpenseWizard extends BaseActivity implements
     private Button mPrevButton;
     private List<Page> mCurrentPageSequence;
     private StepPagerStrip mStepPagerStrip;
-    private DatabaseHandler dbHandler;
-    private ExpenseLogEntry expenseToEdit;
-    private AlertDialog alertDialog;
+    private DatabaseHandler mDBHandler;
+    private ExpenseLogEntry mExpenseToEdit;
+    private AlertDialog mAlertDialog;
 
     public void onCreate(Bundle savedInstanceState) {
-        setupUserAppTheme(MainActivity.curThemeChoice);
+        setupUserAppTheme(MainActivity.sCurThemeChoice);
         setContentView(R.layout.activity_fragment_wizard);
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            expenseToEdit = extras.getParcelable("expenseToEdit");
+            mExpenseToEdit = extras.getParcelable("mExpenseToEdit");
         } else {
-            expenseToEdit = null;
+            mExpenseToEdit = null;
         }
-        if(expenseToEdit != null){
+        if(mExpenseToEdit != null){
             mWizardModel = new ExpenseEditingWizardModel(this);
-            this.setTitle(R.string.edit_expense);
+            setTitle(R.string.edit_expense);
         } else {
             mWizardModel = new ExpenseWizardModel(this);
-            this.setTitle(R.string.new_expense_creation);
+            setTitle(R.string.new_expense_creation);
         }
         if(extras != null){
             mWizardModel.preloadData(extras);
@@ -82,7 +82,7 @@ public class NewExpenseWizard extends BaseActivity implements
             mWizardModel.load(savedInstanceState.getBundle("model"));
         }
         mWizardModel.registerListener(this);
-        dbHandler = new DatabaseHandler(this);
+        mDBHandler = new DatabaseHandler(this);
         mPagerAdapter = new NewExpenseWizard.MyPagerAdapter(getSupportFragmentManager());
         mPager = findViewById(R.id.pager);
         mPager.setAdapter(mPagerAdapter);
@@ -145,24 +145,24 @@ public class NewExpenseWizard extends BaseActivity implements
                     int typeID = mWizardModel.findByKey("Page1").getData().getInt(ExpenseWizardPage1.EXPENSE_TYPE_ID_DATA_KEY);
                     String type = mWizardModel.findByKey("Page1").getData().getString(ExpenseWizardPage1.EXPENSE_TYPE_DATA_KEY);
                     String receiptPic = mWizardModel.findByKey("Page2").getData().getString(ExpenseWizardPage2.EXPENSE_RECEIPT_PIC_DATA_KEY);
-                    if(expenseToEdit != null){
-                        expenseToEdit.setDate(date);
-                        expenseToEdit.setAmount(amount);
+                    if(mExpenseToEdit != null){
+                        mExpenseToEdit.setDate(date);
+                        mExpenseToEdit.setAmount(amount);
                         if(typeID != 0) {
-                            expenseToEdit.setTypeID(typeID);
+                            mExpenseToEdit.setTypeID(typeID);
                         }
-                        expenseToEdit.setTypeLabel(type);
-                        expenseToEdit.setDescription(description);
-                        expenseToEdit.setApartmentID(apartmentID);
-                        expenseToEdit.setTenantID(tenantID);
-                        expenseToEdit.setLeaseID(leaseID);
-                        dbHandler.editExpenseLogEntry(expenseToEdit);
+                        mExpenseToEdit.setTypeLabel(type);
+                        mExpenseToEdit.setDescription(description);
+                        mExpenseToEdit.setApartmentID(apartmentID);
+                        mExpenseToEdit.setTenantID(tenantID);
+                        mExpenseToEdit.setLeaseID(leaseID);
+                        mDBHandler.editExpenseLogEntry(mExpenseToEdit);
                         Intent data = new Intent();
-                        data.putExtra("editedExpenseID", expenseToEdit.getId());
+                        data.putExtra("editedExpenseID", mExpenseToEdit.getId());
                         setResult(RESULT_OK, data);
                     } else {
                         ExpenseLogEntry expense = new ExpenseLogEntry(-1, date, amount, apartmentID, leaseID, tenantID, description, typeID, type, receiptPic, false);
-                        dbHandler.addExpenseLogEntry(expense, MainActivity.user.getId());
+                        mDBHandler.addExpenseLogEntry(expense, MainActivity.sUser.getId());
                         setResult(RESULT_OK);
                     }
                     finish();
@@ -183,6 +183,7 @@ public class NewExpenseWizard extends BaseActivity implements
         });
         mStepPagerStrip.setProgressColors(fetchPrimaryColor(), fetchPrimaryColor(), fetchAccentColor());
         setupBasicToolbar();
+        addToolbarBackButton();
         onPageTreeChanged();
         updateBottomBar();
     }
@@ -199,7 +200,7 @@ public class NewExpenseWizard extends BaseActivity implements
     private void updateBottomBar() {
         int position = mPager.getCurrentItem();
         if (position == mCurrentPageSequence.size()) {
-            if(expenseToEdit == null) {
+            if(mExpenseToEdit == null) {
                 mNextButton.setText(R.string.create_expense);
             } else {
                 mNextButton.setText(R.string.save_changes);
@@ -231,7 +232,7 @@ public class NewExpenseWizard extends BaseActivity implements
         builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                if(expenseToEdit == null) {
+                if(mExpenseToEdit == null) {
                     if (mWizardModel.findByKey("Page2") != null) {
                         if (mWizardModel.findByKey("Page2").getData().getString(ExpenseWizardPage2.EXPENSE_RECEIPT_PIC_DATA_KEY) != null) {
                             String receiptPic = mWizardModel.findByKey("Page2").getData().getString(ExpenseWizardPage2.EXPENSE_RECEIPT_PIC_DATA_KEY);
@@ -252,15 +253,15 @@ public class NewExpenseWizard extends BaseActivity implements
             }
         });
         // create and show the alert dialog
-        alertDialog = builder.create();
-        alertDialog.show();
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if(alertDialog != null){
-            alertDialog.dismiss();
+        if(mAlertDialog != null){
+            mAlertDialog.dismiss();
         }
     }
 
@@ -356,7 +357,7 @@ public class NewExpenseWizard extends BaseActivity implements
         private int mCutOffPage;
         private Fragment mPrimaryItem;
 
-        public MyPagerAdapter(FragmentManager fm) {
+        private MyPagerAdapter(FragmentManager fm) {
             super(fm);
         }
 
@@ -392,14 +393,14 @@ public class NewExpenseWizard extends BaseActivity implements
             return Math.min(mCutOffPage + 1, mCurrentPageSequence.size() + 1);
         }
 
-        public void setCutOffPage(int cutOffPage) {
+        private void setCutOffPage(int cutOffPage) {
             if (cutOffPage < 0) {
                 cutOffPage = Integer.MAX_VALUE;
             }
             mCutOffPage = cutOffPage;
         }
 
-        public int getCutOffPage() {
+        private int getCutOffPage() {
             return mCutOffPage;
         }
 

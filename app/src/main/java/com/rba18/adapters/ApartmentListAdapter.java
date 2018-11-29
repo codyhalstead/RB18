@@ -35,28 +35,27 @@ import java.util.Locale;
  */
 
 public class ApartmentListAdapter extends BaseAdapter implements Filterable {
-    private ArrayList<Apartment> apartmentArray;
-    private ArrayList<Apartment> filteredResults;
-    private SharedPreferences preferences;
-    private Context context;
-    private String searchText;
-    private ColorStateList highlightColor;
-    private int dateFormatCode;
-    MainArrayDataMethods dataMethods;
+    private ArrayList<Apartment> mApartmentArray;
+    private ArrayList<Apartment> mFilteredResults;
+    private Context mContext;
+    private String mSearchText;
+    private ColorStateList mHighlightColor;
+    private int mDateFormatCode;
+    private MainArrayDataMethods mDataMethods;
 
     public ApartmentListAdapter(Context context, ArrayList<Apartment> apartmentArray, ColorStateList highlightColor) {
         super();
-        this.preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        this.apartmentArray = apartmentArray;
-        this.filteredResults = apartmentArray;
-        this.context = context;
-        this.searchText = "";
-        this.highlightColor = highlightColor;
-        this.dataMethods = new MainArrayDataMethods();
-        this.dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        mApartmentArray = apartmentArray;
+        mFilteredResults = apartmentArray;
+        mContext = context;
+        mSearchText = "";
+        mHighlightColor = highlightColor;
+        mDataMethods = new MainArrayDataMethods();
+        mDateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
     }
 
-    static class ViewHolder {
+    private static class ViewHolder {
         TextView street1TV;
         TextView street2TV;
         TextView cityStateZipTV;
@@ -69,15 +68,15 @@ public class ApartmentListAdapter extends BaseAdapter implements Filterable {
 
     @Override
     public int getCount() {
-        if(filteredResults != null) {
-            return filteredResults.size();
+        if(mFilteredResults != null) {
+            return mFilteredResults.size();
         }
         return 0;
     }
 
     @Override
     public Apartment getItem(int i) {
-        return filteredResults.get(i);
+        return mFilteredResults.get(i);
     }
 
     @Override
@@ -92,7 +91,7 @@ public class ApartmentListAdapter extends BaseAdapter implements Filterable {
         ViewHolder viewHolder;
         // Check if an existing view is being reused, otherwise inflate the view
         if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.row_apartment, parent, false);
+            convertView = LayoutInflater.from(mContext).inflate(R.layout.row_apartment, parent, false);
             viewHolder = new ViewHolder();
 
             viewHolder.street1TV = convertView.findViewById(R.id.apartmentRowStreet1TV);
@@ -127,15 +126,15 @@ public class ApartmentListAdapter extends BaseAdapter implements Filterable {
             Lease currentLease = null;
             Tenant primaryTenant = null;
             if (apartment.isRented()) {
-                currentLease = dataMethods.getCachedActiveLeaseByApartmentID(apartment.getId());
-                primaryTenant = dataMethods.getCachedPrimaryTenantByLease(currentLease);
+                currentLease = mDataMethods.getCachedActiveLeaseByApartmentID(apartment.getId());
+                primaryTenant = mDataMethods.getCachedPrimaryTenantByLease(currentLease);
             }
             if (primaryTenant != null && currentLease != null) {
                 convertView.setBackgroundColor(convertView.getResources().getColor(R.color.white));
                 viewHolder.rentedByTV.setText(R.string.rented_by);
                 viewHolder.tenantNameTV.setText(primaryTenant.getFirstAndLastNameString());
                 viewHolder.leaseLL.setVisibility(View.VISIBLE);
-                String s = context.getResources().getString(R.string.until) + DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, currentLease.getLeaseEnd());
+                String s = mContext.getResources().getString(R.string.until) + DateAndCurrencyDisplayer.getDateToDisplay(mDateFormatCode, currentLease.getLeaseEnd());
                 viewHolder.leaseEndTV.setText(s);
             } else {
                 convertView.setBackgroundColor(convertView.getResources().getColor(R.color.rowDarkenedBackground));
@@ -147,10 +146,10 @@ public class ApartmentListAdapter extends BaseAdapter implements Filterable {
             viewHolder.mainPicIV.setImageBitmap(null);
             if (apartment.getMainPic() != null && !apartment.getMainPic().equals("")) {
                 if (viewHolder.mainPicIV != null) {
-                    Glide.with(context).load(apartment.getMainPic()).override(120, 120).centerCrop().placeholder(R.drawable.no_picture).into(viewHolder.mainPicIV);
+                    Glide.with(mContext).load(apartment.getMainPic()).override(120, 120).centerCrop().placeholder(R.drawable.no_picture).into(viewHolder.mainPicIV);
                 }
             } else {
-                Glide.with(context).load(R.drawable.blank_home_pic).override(120, 120).centerCrop().into(viewHolder.mainPicIV);
+                Glide.with(mContext).load(R.drawable.blank_home_pic).override(120, 120).centerCrop().into(viewHolder.mainPicIV);
             }
         }
         return convertView;
@@ -160,10 +159,11 @@ public class ApartmentListAdapter extends BaseAdapter implements Filterable {
     public Filter getFilter() {
         return new Filter() {
 
+            @SuppressWarnings("unchecked")
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
                 //Update filtered results and notify change
-                filteredResults = (ArrayList<Apartment>) results.values;
+                mFilteredResults = (ArrayList<Apartment>) results.values;
                 notifyDataSetChanged();
             }
 
@@ -171,11 +171,11 @@ public class ApartmentListAdapter extends BaseAdapter implements Filterable {
             protected FilterResults performFiltering(CharSequence constraint) {
                 FilterResults results = new FilterResults();
                 ArrayList<Apartment> FilteredArrayNames = new ArrayList<>();
-                searchText = constraint.toString().toLowerCase();
+                mSearchText = constraint.toString().toLowerCase();
                 //Perform users search
                 constraint = constraint.toString().toLowerCase();
-                for (int i = 0; i < apartmentArray.size(); i++) {
-                    Apartment dataNames = apartmentArray.get(i);
+                for (int i = 0; i < mApartmentArray.size(); i++) {
+                    Apartment dataNames = mApartmentArray.get(i);
                     String street2 = "";
                     if(dataNames.getStreet2() != null){
                         street2 = dataNames.getStreet2();
@@ -199,13 +199,13 @@ public class ApartmentListAdapter extends BaseAdapter implements Filterable {
     //Used to change color of any text matching search
     private void setTextHighlightSearch(TextView textView, String theTextToSet) {
         //If user has any text in the search bar
-        if (searchText != null && !searchText.isEmpty()) {
-            int startPos = theTextToSet.toLowerCase(Locale.US).indexOf(searchText.toLowerCase(Locale.US));
-            int endPos = startPos + searchText.length();
+        if (mSearchText != null && !mSearchText.isEmpty()) {
+            int startPos = theTextToSet.toLowerCase(Locale.US).indexOf(mSearchText.toLowerCase(Locale.US));
+            int endPos = startPos + mSearchText.length();
             if (startPos != -1) {
                 //If theTextToSet contains match, highlight match
                 Spannable spannable = new SpannableString(theTextToSet);
-                TextAppearanceSpan highlightSpan = new TextAppearanceSpan(null, Typeface.BOLD, -1, highlightColor, null);
+                TextAppearanceSpan highlightSpan = new TextAppearanceSpan(null, Typeface.BOLD, -1, mHighlightColor, null);
                 spannable.setSpan(highlightSpan, startPos, endPos, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 textView.setText(spannable);
             } else {
@@ -220,12 +220,12 @@ public class ApartmentListAdapter extends BaseAdapter implements Filterable {
 
     //Retrieve filtered results
     public ArrayList<Apartment> getFilteredResults() {
-        return this.filteredResults;
+        return mFilteredResults;
     }
 
     public void updateResults(ArrayList<Apartment> results) {
-        apartmentArray = results;
-        filteredResults = results;
+        mApartmentArray = results;
+        mFilteredResults = results;
 
         //Triggers the list update
         notifyDataSetChanged();

@@ -22,7 +22,6 @@ import android.support.v4.content.FileProvider;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -39,7 +38,6 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.rba18.BuildConfig;
 import com.rba18.R;
-import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.rba18.activities.MainActivity;
 import com.rba18.adapters.OtherPicsAdapter;
@@ -57,83 +55,78 @@ import java.util.Calendar;
 import java.util.Date;
 
 import static android.app.Activity.RESULT_OK;
-import static android.support.constraint.Constraints.TAG;
 
 public class ApartmentViewFrag1 extends Fragment {
-    Apartment apartment;
-    TextView addressTV, descriptionTV, notesTV, primaryTenantTV, activeLeaseDurationTV, otherTenantsTV,
-            primaryTenantLabelTV, activeLeaseDurationLabelTV, otherTenantsLabelTV, activeLeaseHeaderTV;
-    LinearLayout adViewLL;
-    TableRow durationTR, primarytenantTR, otherTenantsTR;
-    ImageView mainPicIV;
-    Button callPrimaryTenantBtn, smsPrimaryTenantBtn, emailPrimaryTenantBtn, emailAllBtn;
-    DatabaseHandler databaseHandler;
-    Tenant primaryTenant;
-    ArrayList<Tenant> secondaryTenants;
-    String mainPic;
-    MainArrayDataMethods dataMethods;
-    ArrayList<Lease> activeLeases;
-    RecyclerView recyclerView;
-    OtherPicsAdapter adapter;
-    ArrayList<String> otherPics;
-    String otherPicToDelete;
-    private SharedPreferences preferences;
+    private Apartment mApartment;
+    private TextView mAddressTV, mDescriptionTV, mNotesTV, mPrimaryTenantTV, mActiveLeaseDurationTV, mOtherTenantsTV,
+            mPrimaryTenantLabelTV, mActiveLeaseDurationLabelTV, mOtherTenantsLabelTV, mActiveLeaseHeaderTV;
+    private TableRow mDurationTR, mPrimaryTenantTR, mOtherTenantsTR;
+    private ImageView mMainPicIV;
+    private Button mCallPrimaryTenantBtn, mSMSPrimaryTenantBtn, mEmailPrimaryTenantBtn, mEmailAllBtn;
+    private DatabaseHandler mDatabaseHandler;
+    private Tenant mPrimaryTenant;
+    private ArrayList<Tenant> mSecondaryTenants;
+    private String mMainPic, mOtherPicToDelete, mCameraImageFilePath;
+    private MainArrayDataMethods mDataMethods;
+    private ArrayList<Lease> mActiveLeases;
+    private RecyclerView mRecyclerView;
+    private OtherPicsAdapter mAdapter;
+    private ArrayList<String> mOtherPics;
+    private SharedPreferences mPreferences;
     private OnPicDataChangedListener mCallback;
-    private AlertDialog dialog;
-    private PopupMenu popup;
-    private String cameraImageFilePath;
-    AdView adview;
+    private AlertDialog mDialog;
+    private PopupMenu mPopup;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.databaseHandler = new DatabaseHandler(getContext());
-        this.preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        dataMethods = new MainArrayDataMethods();
-        secondaryTenants = new ArrayList<>();
+        mDatabaseHandler = new DatabaseHandler(getContext());
+        mPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        mDataMethods = new MainArrayDataMethods();
+        mSecondaryTenants = new ArrayList<>();
         //if recreated
         if (savedInstanceState != null) {
-            this.apartment = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getApartment().getValue();
-            otherPics = new ArrayList<>();
+            mApartment = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getApartment().getValue();
+            mOtherPics = new ArrayList<>();
             if (savedInstanceState.getInt("otherPicsSize") > 0) {
                 for (int i = 0; i < savedInstanceState.getInt("otherPicsSize"); i++) {
-                    otherPics.add(savedInstanceState.getString("otherPics" + i));
+                    mOtherPics.add(savedInstanceState.getString("mOtherPics" + i));
                 }
             }
-            if (savedInstanceState.getString("mainPic") != null) {
-                mainPic = savedInstanceState.getString("mainPic");
+            if (savedInstanceState.getString("mMainPic") != null) {
+                mMainPic = savedInstanceState.getString("mMainPic");
             }
-            if (savedInstanceState.getParcelable("primaryTenant") != null && savedInstanceState.getParcelableArrayList("secondaryTenants") != null) {
-                primaryTenant = savedInstanceState.getParcelable("primaryTenant");
-                secondaryTenants = savedInstanceState.getParcelableArrayList("secondaryTenants");
+            if (savedInstanceState.getParcelable("mPrimaryTenant") != null && savedInstanceState.getParcelableArrayList("mSecondaryTenants") != null) {
+                mPrimaryTenant = savedInstanceState.getParcelable("mPrimaryTenant");
+                mSecondaryTenants = savedInstanceState.getParcelableArrayList("mSecondaryTenants");
             }
-            cameraImageFilePath = savedInstanceState.getString("camera_image_file_path");
+            mCameraImageFilePath = savedInstanceState.getString("camera_image_file_path");
         } else {
             //If new
-            this.apartment = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getApartment().getValue();
-            this.primaryTenant = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getPrimaryTenant().getValue();
-            this.secondaryTenants = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getSecondaryTenants().getValue();
-            if (apartment.getOtherPics() != null) {
-                otherPics = apartment.getOtherPics();
+            mApartment = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getApartment().getValue();
+            mPrimaryTenant = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getPrimaryTenant().getValue();
+            mSecondaryTenants = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getSecondaryTenants().getValue();
+            if (mApartment.getOtherPics() != null) {
+                mOtherPics = mApartment.getOtherPics();
             } else {
-                otherPics = new ArrayList<>();
+                mOtherPics = new ArrayList<>();
             }
             //Get main pic
-            if (apartment.getMainPic() != null) {
-                mainPic = apartment.getMainPic();
+            if (mApartment.getMainPic() != null) {
+                mMainPic = mApartment.getMainPic();
             }
         }
-        otherPicToDelete = "";
+        mOtherPicToDelete = "";
         Date today = Calendar.getInstance().getTime();
-        activeLeases = new ArrayList<>();
+        mActiveLeases = new ArrayList<>();
         for (int i = 0; i < ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getLeaseArray().getValue().size(); i++) {
             if (ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getLeaseArray().getValue().get(i).getLeaseStart().before(today) &&
                     ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getLeaseArray().getValue().get(i).getLeaseEnd().after(today)) {
-                activeLeases.add(ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getLeaseArray().getValue().get(i));
+                mActiveLeases.add(ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getLeaseArray().getValue().get(i));
             }
         }
-        if (activeLeases.size() == 1) {
-            primaryTenant = databaseHandler.getTenantByID(activeLeases.get(0).getPrimaryTenantID(), MainActivity.user);
+        if (mActiveLeases.size() == 1) {
+            mPrimaryTenant = mDatabaseHandler.getTenantByID(mActiveLeases.get(0).getPrimaryTenantID(), MainActivity.sUser);
         }
         ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getLease().observe(this, new Observer<Lease>() {
             @Override
@@ -151,12 +144,12 @@ public class ApartmentViewFrag1 extends Fragment {
             mCallback = (OnPicDataChangedListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
-                    + " must implement OnPicDataChangedListener");
+                    + " must implement listeners");
         }
     }
 
     public void updateApartmentData(Apartment apartment) {
-        this.apartment = apartment;
+        mApartment = apartment;
         fillTextViews();
     }
 
@@ -169,11 +162,11 @@ public class ApartmentViewFrag1 extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        if (dialog != null) {
-            dialog.dismiss();
+        if (mDialog != null) {
+            mDialog.dismiss();
         }
-        if (popup != null) {
-            popup.dismiss();
+        if (mPopup != null) {
+            mPopup.dismiss();
         }
     }
 
@@ -181,55 +174,56 @@ public class ApartmentViewFrag1 extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.apartment_view_fragment_one, container, false);
-        recyclerView = rootView.findViewById(R.id.recyclerView);
+        mRecyclerView = rootView.findViewById(R.id.recyclerView);
 
-        addressTV = rootView.findViewById(R.id.apartmentViewAddressTextView);
-        descriptionTV = rootView.findViewById(R.id.apartmentViewDescriptionTextView);
-        notesTV = rootView.findViewById(R.id.apartmentViewNotesTextView);
-        primaryTenantTV = rootView.findViewById(R.id.apartmentViewActiveLeasePrimaryTenantTextView);
-        primaryTenantLabelTV = rootView.findViewById(R.id.apartmentViewActiveLeasePrimaryTenantLabelTextView);
-        activeLeaseDurationTV = rootView.findViewById(R.id.apartmentViewActiveLeaseDurationTextView);
-        activeLeaseDurationLabelTV = rootView.findViewById(R.id.apartmentViewActiveLeaseDurationLabelTextView);
-        otherTenantsTV = rootView.findViewById(R.id.apartmentViewActiveLeaseOtherTenantsTextView);
-        otherTenantsLabelTV = rootView.findViewById(R.id.apartmentViewActiveLeaseOtherTenantsLabelTextView);
-        activeLeaseHeaderTV = rootView.findViewById(R.id.apartmentViewActiveLeaseHeaderTV);
-        durationTR = rootView.findViewById(R.id.apartmentViewActiveLeaseDurationTR);
-        primarytenantTR = rootView.findViewById(R.id.apartmentViewActiveLeasePrimaryTenantTR);
-        otherTenantsTR = rootView.findViewById(R.id.apartmentViewActiveLeaseOtherTenantsTR);
-        mainPicIV = rootView.findViewById(R.id.apartmentViewMainPicIV);
-        adViewLL = rootView.findViewById(R.id.adViewLL);
-        callPrimaryTenantBtn = rootView.findViewById(R.id.apartmentViewCallTenantBtn);
-        callPrimaryTenantBtn.setOnClickListener(new View.OnClickListener() {
+        mAddressTV = rootView.findViewById(R.id.apartmentViewAddressTextView);
+        mDescriptionTV = rootView.findViewById(R.id.apartmentViewDescriptionTextView);
+        mNotesTV = rootView.findViewById(R.id.apartmentViewNotesTextView);
+        mPrimaryTenantTV = rootView.findViewById(R.id.apartmentViewActiveLeasePrimaryTenantTextView);
+        mPrimaryTenantLabelTV = rootView.findViewById(R.id.apartmentViewActiveLeasePrimaryTenantLabelTextView);
+        mActiveLeaseDurationTV = rootView.findViewById(R.id.apartmentViewActiveLeaseDurationTextView);
+        mActiveLeaseDurationLabelTV = rootView.findViewById(R.id.apartmentViewActiveLeaseDurationLabelTextView);
+        mOtherTenantsTV = rootView.findViewById(R.id.apartmentViewActiveLeaseOtherTenantsTextView);
+        mOtherTenantsLabelTV = rootView.findViewById(R.id.apartmentViewActiveLeaseOtherTenantsLabelTextView);
+        mActiveLeaseHeaderTV = rootView.findViewById(R.id.apartmentViewActiveLeaseHeaderTV);
+        mDurationTR = rootView.findViewById(R.id.apartmentViewActiveLeaseDurationTR);
+        mPrimaryTenantTR = rootView.findViewById(R.id.apartmentViewActiveLeasePrimaryTenantTR);
+        mOtherTenantsTR = rootView.findViewById(R.id.apartmentViewActiveLeaseOtherTenantsTR);
+        mMainPicIV = rootView.findViewById(R.id.apartmentViewMainPicIV);
+        LinearLayout adViewLL = rootView.findViewById(R.id.adViewLL);
+        mCallPrimaryTenantBtn = rootView.findViewById(R.id.apartmentViewCallTenantBtn);
+        mCallPrimaryTenantBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 callPrimaryTenant();
             }
         });
-        smsPrimaryTenantBtn = rootView.findViewById(R.id.apartmentViewSMSTenantBtn);
-        smsPrimaryTenantBtn.setOnClickListener(new View.OnClickListener() {
+        mSMSPrimaryTenantBtn = rootView.findViewById(R.id.apartmentViewSMSTenantBtn);
+        mSMSPrimaryTenantBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 smsPrimaryTenant();
             }
         });
-        emailPrimaryTenantBtn = rootView.findViewById(R.id.apartmentViewEmailTenantBtn);
-        emailPrimaryTenantBtn.setOnClickListener(new View.OnClickListener() {
+        mEmailPrimaryTenantBtn = rootView.findViewById(R.id.apartmentViewEmailTenantBtn);
+        mEmailPrimaryTenantBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 emailPrimaryTenant();
             }
         });
-        emailAllBtn = rootView.findViewById(R.id.apartmentViewEmailAllTenantsBtn);
-        emailAllBtn.setOnClickListener(new View.OnClickListener() {
+        mEmailAllBtn = rootView.findViewById(R.id.apartmentViewEmailAllTenantsBtn);
+        mEmailAllBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 emailAllTenants();
             }
         });
         if (BuildConfig.FLAVOR.equals("free")) {
-            adview = rootView.findViewById(R.id.adView);
-            AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
-            adview.loadAd(adRequest);
+            AdView adview = rootView.findViewById(R.id.adView);
+            //TODO enable for release
+            //AdRequest adRequest = new AdRequest.Builder().build();
+            //adview.loadAd(adRequest);
         } else {
             adViewLL.setVisibility(View.GONE);
         }
@@ -239,23 +233,23 @@ public class ApartmentViewFrag1 extends Fragment {
     }
 
     public void setUpTenantContactButtons() {
-        if (apartment.isRented()) {
-            if(activeLeases.size() == 1) {
-                callPrimaryTenantBtn.setVisibility(View.VISIBLE);
-                smsPrimaryTenantBtn.setVisibility(View.VISIBLE);
-                emailPrimaryTenantBtn.setVisibility(View.VISIBLE);
-                emailAllBtn.setVisibility(View.VISIBLE);
+        if (mApartment.isRented()) {
+            if(mActiveLeases.size() == 1) {
+                mCallPrimaryTenantBtn.setVisibility(View.VISIBLE);
+                mSMSPrimaryTenantBtn.setVisibility(View.VISIBLE);
+                mEmailPrimaryTenantBtn.setVisibility(View.VISIBLE);
+                mEmailAllBtn.setVisibility(View.VISIBLE);
             } else {
-                callPrimaryTenantBtn.setVisibility(View.GONE);
-                smsPrimaryTenantBtn.setVisibility(View.GONE);
-                emailPrimaryTenantBtn.setVisibility(View.GONE);
-                emailAllBtn.setVisibility(View.GONE);
+                mCallPrimaryTenantBtn.setVisibility(View.GONE);
+                mSMSPrimaryTenantBtn.setVisibility(View.GONE);
+                mEmailPrimaryTenantBtn.setVisibility(View.GONE);
+                mEmailAllBtn.setVisibility(View.GONE);
             }
         } else {
-            callPrimaryTenantBtn.setVisibility(View.GONE);
-            smsPrimaryTenantBtn.setVisibility(View.GONE);
-            emailPrimaryTenantBtn.setVisibility(View.GONE);
-            emailAllBtn.setVisibility(View.GONE);
+            mCallPrimaryTenantBtn.setVisibility(View.GONE);
+            mSMSPrimaryTenantBtn.setVisibility(View.GONE);
+            mEmailPrimaryTenantBtn.setVisibility(View.GONE);
+            mEmailAllBtn.setVisibility(View.GONE);
         }
     }
 
@@ -263,28 +257,28 @@ public class ApartmentViewFrag1 extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         fillTextViews();
-        if (mainPic != null) {
-            Glide.with(this).load(apartment.getMainPic()).placeholder(R.drawable.blank_home_pic)
-                    .override(200, 200).centerCrop().into(mainPicIV);
+        if (mMainPic != null) {
+            Glide.with(this).load(mApartment.getMainPic()).placeholder(R.drawable.blank_home_pic)
+                    .override(200, 200).centerCrop().into(mMainPicIV);
         } else {
-            Glide.with(this).load(R.drawable.blank_home_pic).override(200, 200).centerCrop().into(mainPicIV);
+            Glide.with(this).load(R.drawable.blank_home_pic).override(200, 200).centerCrop().into(mMainPicIV);
         }
-        mainPicIV.setOnClickListener(new View.OnClickListener() {
+        mMainPicIV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mainPic != null) {
-                    if (new File(mainPic).exists()) {
+                if (mMainPic != null) {
+                    if (new File(mMainPic).exists()) {
                         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
                             Intent intent = new Intent();
                             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                             intent.setAction(Intent.ACTION_VIEW);
-                            intent.setDataAndType(Uri.fromFile(new File(mainPic)), "image/*");
+                            intent.setDataAndType(Uri.fromFile(new File(mMainPic)), "image/*");
                             startActivity(intent);
                         } else {
                             Intent intent = new Intent();
                             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                             intent.setAction(Intent.ACTION_VIEW);
-                            Uri photoUri = FileProvider.getUriForFile(getActivity(), BuildConfig.APPLICATION_ID + ".helpers.fileprovider", new File(mainPic));
+                            Uri photoUri = FileProvider.getUriForFile(getActivity(), BuildConfig.APPLICATION_ID + ".helpers.fileprovider", new File(mMainPic));
                             intent.setData(photoUri);
                             startActivity(intent);
                         }
@@ -294,13 +288,13 @@ public class ApartmentViewFrag1 extends Fragment {
                 }
             }
         });
-        mainPicIV.setOnLongClickListener(new View.OnLongClickListener() {
+        mMainPicIV.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                if (mainPic != null) {
-                    popup = new PopupMenu(getActivity(), view);
-                    MenuInflater inflater = popup.getMenuInflater();
-                    popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                if (mMainPic != null) {
+                    mPopup = new PopupMenu(getActivity(), view);
+                    MenuInflater inflater = mPopup.getMenuInflater();
+                    mPopup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                         @Override
                         public boolean onMenuItemClick(MenuItem item) {
                             switch (item.getItemId()) {
@@ -322,12 +316,12 @@ public class ApartmentViewFrag1 extends Fragment {
                             }
                         }
                     });
-                    inflater.inflate(R.menu.picture_long_click_menu, popup.getMenu());
-                    popup.show();
+                    inflater.inflate(R.menu.picture_long_click_menu, mPopup.getMenu());
+                    mPopup.show();
                 } else {
-                    popup = new PopupMenu(getContext(), view);
-                    MenuInflater inflater = popup.getMenuInflater();
-                    popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    mPopup = new PopupMenu(getContext(), view);
+                    MenuInflater inflater = mPopup.getMenuInflater();
+                    mPopup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                         @Override
                         public boolean onMenuItemClick(MenuItem item) {
                             switch (item.getItemId()) {
@@ -341,17 +335,17 @@ public class ApartmentViewFrag1 extends Fragment {
                             }
                         }
                     });
-                    inflater.inflate(R.menu.picture_long_click_no_pic_menu, popup.getMenu());
-                    popup.show();
+                    inflater.inflate(R.menu.picture_long_click_no_pic_menu, mPopup.getMenu());
+                    mPopup.show();
                 }
                 return true;
             }
         });
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
-        adapter = new OtherPicsAdapter(apartment.getOtherPics(), getContext());
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(adapter);
-        recyclerView.setOnTouchListener(new View.OnTouchListener() {
+        mAdapter = new OtherPicsAdapter(mApartment.getOtherPics(), getContext());
+        mRecyclerView.setLayoutManager(layoutManager);
+        mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.setOnTouchListener(new View.OnTouchListener() {
             // Setting on Touch Listener for handling the touch inside ScrollView
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -362,10 +356,10 @@ public class ApartmentViewFrag1 extends Fragment {
             }
 
         });
-        adapter.setOnDataChangedListener(new OtherPicsAdapter.OnDataChangedListener() {
+        mAdapter.setOnDataChangedListener(new OtherPicsAdapter.OnDataChangedListener() {
             @Override
             public void onPicSelectedToBeRemoved(String removedPicPath) {
-                otherPicToDelete = removedPicPath;
+                mOtherPicToDelete = removedPicPath;
                 ActivityCompat.requestPermissions(
                         getActivity(),
                         new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
@@ -403,23 +397,23 @@ public class ApartmentViewFrag1 extends Fragment {
                         );
                     }
                 });
-        dialog = builder.create();
-        dialog.show();
+        mDialog = builder.create();
+        mDialog.show();
     }
 
     public void updateCameraUri(String uri) {
-        cameraImageFilePath = uri;
+        mCameraImageFilePath = uri;
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == MainActivity.REQUEST_IMAGE_DELETE_PERMISSION) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                databaseHandler.removeApartmentMainPic(apartment);
-                Glide.with(getContext()).load(R.drawable.blank_home_pic).override(200, 200).centerCrop().into(mainPicIV);
-                new File(mainPic).delete();
-                mainPic = null;
-                apartment.setMainPic(null);
+                mDatabaseHandler.removeApartmentMainPic(mApartment);
+                Glide.with(getContext()).load(R.drawable.blank_home_pic).override(200, 200).centerCrop().into(mMainPicIV);
+                new File(mMainPic).delete();
+                mMainPic = null;
+                mApartment.setMainPic(null);
                 mCallback.onPicDataChanged();
             } else {
                 Toast.makeText(getContext(), R.string.permission_picture_denied, Toast.LENGTH_SHORT).show();
@@ -427,19 +421,19 @@ public class ApartmentViewFrag1 extends Fragment {
             return;
         } else if (requestCode == MainActivity.REQUEST_ADAPTER_IMAGE_DELETE_PERMISSION) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                apartment.getOtherPics().remove(otherPicToDelete);
-                databaseHandler.removeApartmentOtherPic(otherPicToDelete, MainActivity.user);
-                File picToDelete = new File(otherPicToDelete);
+                mApartment.getOtherPics().remove(mOtherPicToDelete);
+                mDatabaseHandler.removeApartmentOtherPic(mOtherPicToDelete, MainActivity.sUser);
+                File picToDelete = new File(mOtherPicToDelete);
                 if (picToDelete.exists()) {
                     picToDelete.delete();
                 }
                 hideOtherPicsRecyclerViewIfEmpty();
-                adapter.notifyDataSetChanged();
+                mAdapter.notifyDataSetChanged();
                 mCallback.onPicDataChanged();
-                otherPicToDelete = "";
+                mOtherPicToDelete = "";
             } else {
                 Toast.makeText(getContext(), R.string.permission_picture_denied, Toast.LENGTH_SHORT).show();
-                otherPicToDelete = "";
+                mOtherPicToDelete = "";
             }
             return;
         } else if (requestCode == MainActivity.REQUEST_CAMERA_FOR_MAIN_PIC) {
@@ -455,132 +449,132 @@ public class ApartmentViewFrag1 extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        //Uses apartment form to edit data
+        //Uses mApartment form to edit data
         if (requestCode == MainActivity.REQUEST_NEW_APARTMENT_FORM) {
             //If successful(not cancelled, passed validation)
             if (resultCode == RESULT_OK) {
-                //Re-query cached apartment array to update cache and refresh current textViews to display new data. Re-query to sort list
+                //Re-query cached mApartment array to update cache and refresh current textViews to display new data. Re-query to sort list
                 int apartmentID = data.getIntExtra("editedApartmentID", 0);
-                this.apartment = dataMethods.getCachedApartmentByApartmentID(apartmentID);
+                mApartment = mDataMethods.getCachedApartmentByApartmentID(apartmentID);
                 fillTextViews();
             }
         } else if (requestCode == MainActivity.REQUEST_CAMERA_FOR_MAIN_PIC) {
             if (resultCode == RESULT_OK) {
-                apartment.setMainPic(cameraImageFilePath);
-                this.apartment = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getApartment().getValue();
-                updateMainPicIV(apartment.getMainPic());
+                mApartment.setMainPic(mCameraImageFilePath);
+                mApartment = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getApartment().getValue();
+                updateMainPicIV(mApartment.getMainPic());
                 //fillTextViews();
             }
         } else if (requestCode == MainActivity.REQUEST_CAMERA_FOR_OTHER_PICS) {
             if (resultCode == RESULT_OK) {
-                this.apartment = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getApartment().getValue();
-                otherPics = apartment.getOtherPics();
-                adapter.updateResults(otherPics);
+                mApartment = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getApartment().getValue();
+                mOtherPics = mApartment.getOtherPics();
+                mAdapter.updateResults(mOtherPics);
                 hideOtherPicsRecyclerViewIfEmpty();
             }
 
         } else if (requestCode == MainActivity.REQUEST_GALLERY_FOR_MAIN_PIC) {
             if (resultCode == RESULT_OK && data != null) {
-                this.apartment = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getApartment().getValue();
-                updateMainPicIV(apartment.getMainPic());
+                mApartment = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getApartment().getValue();
+                updateMainPicIV(mApartment.getMainPic());
             }
         } else if (requestCode == MainActivity.REQUEST_GALLERY_FOR_OTHER_PICS) {
             if (resultCode == RESULT_OK && data != null) {
-                this.apartment = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getApartment().getValue();
-                otherPics = apartment.getOtherPics();
-                adapter.updateResults(otherPics);
+                mApartment = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getApartment().getValue();
+                mOtherPics = mApartment.getOtherPics();
+                mAdapter.updateResults(mOtherPics);
                 hideOtherPicsRecyclerViewIfEmpty();
             }
         }
     }
 
     public void refreshPictureAdapter() {
-        this.adapter.notifyDataSetChanged();
+        mAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        this.apartment = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getApartment().getValue();
-        updateMainPicIV(apartment.getMainPic());
+        mApartment = ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getApartment().getValue();
+        updateMainPicIV(mApartment.getMainPic());
     }
 
     private void fillTextViews() {
-        addressTV.setText(apartment.getFullAddressString());
-        descriptionTV.setText(apartment.getDescription());
-        notesTV.setText(apartment.getNotes());
-        if (!apartment.isRented()) {
-            activeLeaseDurationTV.setVisibility(View.GONE);
-            activeLeaseDurationLabelTV.setVisibility(View.GONE);
-            primaryTenantTV.setVisibility(View.GONE);
-            primaryTenantLabelTV.setVisibility(View.GONE);
-            otherTenantsTV.setVisibility(View.GONE);
-            otherTenantsLabelTV.setVisibility(View.GONE);
-            activeLeaseHeaderTV.setVisibility(View.GONE);
-            durationTR.setVisibility(View.GONE);
-            primarytenantTR.setVisibility(View.GONE);
-            otherTenantsTR.setVisibility(View.GONE);
+        mAddressTV.setText(mApartment.getFullAddressString());
+        mDescriptionTV.setText(mApartment.getDescription());
+        mNotesTV.setText(mApartment.getNotes());
+        if (!mApartment.isRented()) {
+            mActiveLeaseDurationTV.setVisibility(View.GONE);
+            mActiveLeaseDurationLabelTV.setVisibility(View.GONE);
+            mPrimaryTenantTV.setVisibility(View.GONE);
+            mPrimaryTenantLabelTV.setVisibility(View.GONE);
+            mOtherTenantsTV.setVisibility(View.GONE);
+            mOtherTenantsLabelTV.setVisibility(View.GONE);
+            mActiveLeaseHeaderTV.setVisibility(View.GONE);
+            mDurationTR.setVisibility(View.GONE);
+            mPrimaryTenantTR.setVisibility(View.GONE);
+            mOtherTenantsTR.setVisibility(View.GONE);
         } else {
-            activeLeaseHeaderTV.setVisibility(View.VISIBLE);
-            if (activeLeases.size() > 1) {
-                activeLeaseDurationTV.setVisibility(View.VISIBLE);
-                activeLeaseDurationLabelTV.setVisibility(View.VISIBLE);
-                activeLeaseDurationTV.setText(R.string.multiple_active_leases);
-                primaryTenantTV.setVisibility(View.GONE);
-                primaryTenantLabelTV.setVisibility(View.GONE);
-                otherTenantsTV.setVisibility(View.GONE);
-                otherTenantsLabelTV.setVisibility(View.GONE);
-                durationTR.setVisibility(View.VISIBLE);
-                primarytenantTR.setVisibility(View.GONE);
-                otherTenantsTR.setVisibility(View.GONE);
-            } else if (activeLeases.size() == 1) {
-                Lease currentLease = activeLeases.get(0);
-                primaryTenantTV.setVisibility(View.VISIBLE);
-                primaryTenantLabelTV.setVisibility(View.VISIBLE);
-                activeLeaseDurationTV.setVisibility(View.VISIBLE);
-                activeLeaseDurationLabelTV.setVisibility(View.VISIBLE);
-                otherTenantsTV.setVisibility(View.VISIBLE);
-                otherTenantsLabelTV.setVisibility(View.VISIBLE);
-                durationTR.setVisibility(View.VISIBLE);
-                primarytenantTR.setVisibility(View.VISIBLE);
-                otherTenantsTR.setVisibility(View.VISIBLE);
-                if (primaryTenant != null) {
-                    primaryTenantTV.setText(primaryTenant.getFirstAndLastNameString());
+            mActiveLeaseHeaderTV.setVisibility(View.VISIBLE);
+            if (mActiveLeases.size() > 1) {
+                mActiveLeaseDurationTV.setVisibility(View.VISIBLE);
+                mActiveLeaseDurationLabelTV.setVisibility(View.VISIBLE);
+                mActiveLeaseDurationTV.setText(R.string.multiple_active_leases);
+                mPrimaryTenantTV.setVisibility(View.GONE);
+                mPrimaryTenantLabelTV.setVisibility(View.GONE);
+                mOtherTenantsTV.setVisibility(View.GONE);
+                mOtherTenantsLabelTV.setVisibility(View.GONE);
+                mDurationTR.setVisibility(View.VISIBLE);
+                mPrimaryTenantTR.setVisibility(View.GONE);
+                mOtherTenantsTR.setVisibility(View.GONE);
+            } else if (mActiveLeases.size() == 1) {
+                Lease currentLease = mActiveLeases.get(0);
+                mPrimaryTenantTV.setVisibility(View.VISIBLE);
+                mPrimaryTenantLabelTV.setVisibility(View.VISIBLE);
+                mActiveLeaseDurationTV.setVisibility(View.VISIBLE);
+                mActiveLeaseDurationLabelTV.setVisibility(View.VISIBLE);
+                mOtherTenantsTV.setVisibility(View.VISIBLE);
+                mOtherTenantsLabelTV.setVisibility(View.VISIBLE);
+                mDurationTR.setVisibility(View.VISIBLE);
+                mPrimaryTenantTR.setVisibility(View.VISIBLE);
+                mOtherTenantsTR.setVisibility(View.VISIBLE);
+                if (mPrimaryTenant != null) {
+                    mPrimaryTenantTV.setText(mPrimaryTenant.getFirstAndLastNameString());
                 } else {
-                    primaryTenantTV.setText(R.string.error_loading_primary_tenant);
+                    mPrimaryTenantTV.setText(R.string.error_loading_primary_tenant);
                 }
                 if (currentLease.getLeaseStart() != null && currentLease.getLeaseEnd() != null) {
-                    int dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
-                    activeLeaseDurationTV.setText(currentLease.getStartAndEndDatesString(dateFormatCode));
+                    int dateFormatCode = mPreferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
+                    mActiveLeaseDurationTV.setText(currentLease.getStartAndEndDatesString(dateFormatCode));
                 } else {
-                    activeLeaseDurationTV.setText(R.string.error_leading_lease);
+                    mActiveLeaseDurationTV.setText(R.string.error_leading_lease);
                 }
-                if (!secondaryTenants.isEmpty()) {
-                    otherTenantsTV.setText("");
-                    for (int i = 0; i < secondaryTenants.size(); i++) {
-                        otherTenantsTV.append(secondaryTenants.get(i).getFirstAndLastNameString());
-                        if (i != secondaryTenants.size() - 1) {
-                            otherTenantsTV.append("\n");
+                if (!mSecondaryTenants.isEmpty()) {
+                    mOtherTenantsTV.setText("");
+                    for (int i = 0; i < mSecondaryTenants.size(); i++) {
+                        mOtherTenantsTV.append(mSecondaryTenants.get(i).getFirstAndLastNameString());
+                        if (i != mSecondaryTenants.size() - 1) {
+                            mOtherTenantsTV.append("\n");
                         }
                     }
                 } else {
-                    otherTenantsTV.setText(R.string.na);
+                    mOtherTenantsTV.setText(R.string.na);
                 }
             }
         }
     }
 
     public void updateMainPicIV(String picFileName) {
-        this.mainPic = picFileName;
-        Glide.with(this).load(mainPic).placeholder(R.drawable.blank_home_pic)
-                .override(200, 200).centerCrop().into(mainPicIV);
+        mMainPic = picFileName;
+        Glide.with(this).load(mMainPic).placeholder(R.drawable.blank_home_pic)
+                .override(200, 200).centerCrop().into(mMainPicIV);
     }
 
     public void hideOtherPicsRecyclerViewIfEmpty() {
-        if (adapter.getItemCount() > 0) {
-            recyclerView.setVisibility(View.VISIBLE);
+        if (mAdapter.getItemCount() > 0) {
+            mRecyclerView.setVisibility(View.VISIBLE);
         } else {
-            recyclerView.setVisibility(View.GONE);
+            mRecyclerView.setVisibility(View.GONE);
         }
     }
 
@@ -588,32 +582,32 @@ public class ApartmentViewFrag1 extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         //Save the fragment's instance
         super.onSaveInstanceState(outState);
-        outState.putParcelable("apartment", apartment);
-        if (otherPics != null) {
-            outState.putInt("otherPicsSize", otherPics.size());
-            for (int i = 0; i < otherPics.size(); i++) {
-                outState.putString("otherPics" + i, otherPics.get(i));
+        outState.putParcelable("mApartment", mApartment);
+        if (mOtherPics != null) {
+            outState.putInt("otherPicsSize", mOtherPics.size());
+            for (int i = 0; i < mOtherPics.size(); i++) {
+                outState.putString("mOtherPics" + i, mOtherPics.get(i));
             }
         }
-        if (mainPic != null) {
-            outState.putString("mainPic", mainPic);
+        if (mMainPic != null) {
+            outState.putString("mMainPic", mMainPic);
         }
-        if (primaryTenant != null) {
-            outState.putParcelable("primaryTenant", primaryTenant);
+        if (mPrimaryTenant != null) {
+            outState.putParcelable("mPrimaryTenant", mPrimaryTenant);
         }
-        if (secondaryTenants != null) {
-            outState.putParcelableArrayList("secondaryTenants", secondaryTenants);
+        if (mSecondaryTenants != null) {
+            outState.putParcelableArrayList("mSecondaryTenants", mSecondaryTenants);
         }
-        outState.putString("camera_image_file_path", cameraImageFilePath);
+        outState.putString("camera_image_file_path", mCameraImageFilePath);
     }
 
     private void callPrimaryTenant() {
         if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.CALL_PHONE}, MainActivity.REQUEST_PHONE_CALL_PERMISSION);
         } else {
-            if(!primaryTenant.getPhone().equals("")) {
-                String phoneNumber = primaryTenant.getPhone();
-                phoneNumber.replaceAll("[\\s\\-()]", "");
+            if(!mPrimaryTenant.getPhone().equals("")) {
+                String phoneNumber = mPrimaryTenant.getPhone();
+                phoneNumber = phoneNumber.replaceAll("[\\s\\-()]", "");
                 Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phoneNumber, null));
                 startActivity(intent);
             }
@@ -621,18 +615,18 @@ public class ApartmentViewFrag1 extends Fragment {
     }
 
     private void smsPrimaryTenant() {
-        if (!primaryTenant.getPhone().equals("")) {
-            String phoneNumber = primaryTenant.getPhone();
-            phoneNumber.replaceAll("[\\s\\-()]", "");
+        if (!mPrimaryTenant.getPhone().equals("")) {
+            String phoneNumber = mPrimaryTenant.getPhone();
+            phoneNumber = phoneNumber.replaceAll("[\\s\\-()]", "");
             startActivity(new Intent(Intent.ACTION_VIEW, Uri.fromParts("sms", phoneNumber, null)));
         }
     }
 
     private void emailPrimaryTenant() {
-        if (primaryTenant.getEmail() != null) {
-            if (!primaryTenant.getEmail().equals("")) {
+        if (mPrimaryTenant.getEmail() != null) {
+            if (!mPrimaryTenant.getEmail().equals("")) {
                 Intent intent = new Intent(Intent.ACTION_SEND);
-                intent.putExtra(Intent.EXTRA_EMAIL, new String[]{primaryTenant.getEmail()});
+                intent.putExtra(Intent.EXTRA_EMAIL, new String[]{mPrimaryTenant.getEmail()});
                 intent.setType("application/octet-stream");
                 startActivityForResult(Intent.createChooser(intent, getContext().getResources().getString(R.string.send_email)), MainActivity.REQUEST_EMAIL);
             }
@@ -640,24 +634,24 @@ public class ApartmentViewFrag1 extends Fragment {
     }
 
     private void emailAllTenants() {
-        if (secondaryTenants.isEmpty()) {
+        if (mSecondaryTenants.isEmpty()) {
             emailPrimaryTenant();
         } else {
             ArrayList<String> emails = new ArrayList<>();
-            if (primaryTenant.getEmail() != null) {
-                if (!primaryTenant.getEmail().equals("")) {
-                    emails.add(primaryTenant.getEmail());
+            if (mPrimaryTenant.getEmail() != null) {
+                if (!mPrimaryTenant.getEmail().equals("")) {
+                    emails.add(mPrimaryTenant.getEmail());
                 }
             }
-            for (int x = 0; x < secondaryTenants.size(); x++) {
-                if (secondaryTenants.get(x).getEmail() != null) {
-                    if (!secondaryTenants.get(x).getEmail().equals("")) {
-                        emails.add(secondaryTenants.get(x).getEmail());
+            for (int x = 0; x < mSecondaryTenants.size(); x++) {
+                if (mSecondaryTenants.get(x).getEmail() != null) {
+                    if (!mSecondaryTenants.get(x).getEmail().equals("")) {
+                        emails.add(mSecondaryTenants.get(x).getEmail());
                     }
                 }
             }
             if (!emails.isEmpty()) {
-                String[] emailArray = new String[secondaryTenants.size() + 1];
+                String[] emailArray = new String[mSecondaryTenants.size() + 1];
                 for (int y = 0; y < emails.size(); y++) {
                     emailArray[y] = emails.get(y);
                 }

@@ -14,8 +14,6 @@ import com.rba18.R;
 
 import java.util.ArrayList;
 
-import static android.content.ContentValues.TAG;
-
 /**
  * Created by Cody on 1/18/2018.
  */
@@ -25,52 +23,52 @@ public class ColorChooserDialog extends Dialog {
         super(context);
     }
 
-    private ImageButton one;
-    private ImageButton two;
-    private ImageButton three;
-    private ImageButton four;
-    private ImageButton five;
-    private ImageButton six;
-    private ImageButton seven;
-    private ImageButton eight;
-    private ImageButton nine;
-    private ImageButton ten;
-    private ArrayList<Integer> themePrimaryColors;
-    private ArrayList<Integer> themeBackgroundColors;
-    private ArrayList<ImageButton> buttons;
-    private ColorListener colorListener;
-    private View.OnClickListener listener;
+    private ImageButton mOne;
+    private ImageButton mTwo;
+    private ImageButton mThree;
+    private ImageButton mFour;
+    private ImageButton mFive;
+    private ImageButton mSix;
+    private ImageButton mSeven;
+    private ImageButton mEight;
+    private ImageButton mNine;
+    private ImageButton mTen;
+    private ArrayList<Integer> mThemePrimaryColors;
+    private ArrayList<Integer> mThemeBackgroundColors;
+    private ArrayList<ImageButton> mButtons;
+    private ColorListener mColorListener;
+    private View.OnClickListener mListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.popup_color_picker);
 
-        buttons = new ArrayList<>();
-        themePrimaryColors = new ArrayList<>();
-        themeBackgroundColors = new ArrayList<>();
+        mButtons = new ArrayList<>();
+        mThemePrimaryColors = new ArrayList<>();
+        mThemeBackgroundColors = new ArrayList<>();
         //Initialize ImageButtons
-        one = findViewById(R.id.b1);
-        two = findViewById(R.id.b2);
-        three = findViewById(R.id.b3);
-        four = findViewById(R.id.b4);
-        five = findViewById(R.id.b5);
-        six = findViewById(R.id.b6);
-        seven = findViewById(R.id.b7);
-        eight = findViewById(R.id.b8);
-        nine = findViewById(R.id.b9);
-        ten = findViewById(R.id.b10);
-        //Add image buttons to button array
-        buttons.add(one);
-        buttons.add(two);
-        buttons.add(three);
-        buttons.add(four);
-        buttons.add(five);
-        buttons.add(six);
-        buttons.add(seven);
-        buttons.add(eight);
-        buttons.add(nine);
-        buttons.add(ten);
+        mOne = findViewById(R.id.b1);
+        mTwo = findViewById(R.id.b2);
+        mThree = findViewById(R.id.b3);
+        mFour = findViewById(R.id.b4);
+        mFive = findViewById(R.id.b5);
+        mSix = findViewById(R.id.b6);
+        mSeven = findViewById(R.id.b7);
+        mEight = findViewById(R.id.b8);
+        mNine = findViewById(R.id.b9);
+        mTen = findViewById(R.id.b10);
+        //Add image mButtons to button array
+        mButtons.add(mOne);
+        mButtons.add(mTwo);
+        mButtons.add(mThree);
+        mButtons.add(mFour);
+        mButtons.add(mFive);
+        mButtons.add(mSix);
+        mButtons.add(mSeven);
+        mButtons.add(mEight);
+        mButtons.add(mNine);
+        mButtons.add(mTen);
         setOnClickListener();
         loadThemeArrays();
         colorize();
@@ -78,12 +76,12 @@ public class ColorChooserDialog extends Dialog {
     }
 
     private void setOnClickListener(){
-        //Sets onClick listener
-        this.listener = new View.OnClickListener() {
+        //Sets onClick mListener
+        mListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (colorListener != null)
-                    colorListener.OnColorClick(v, (int) v.getTag());
+                if (mColorListener != null)
+                    mColorListener.OnColorClick(v, (int) v.getTag());
                 dismiss();
             }
         };
@@ -91,10 +89,10 @@ public class ColorChooserDialog extends Dialog {
 
     private void colorize() {
         //Sets button colors to match the themes they represent
-        for (int i = 0; i < buttons.size(); i++) {
+        for (int i = 0; i < mButtons.size(); i++) {
             int[] colors = new int[2];
-            colors[0] = themeBackgroundColors.get(i);
-            colors[1] = themePrimaryColors.get(i);
+            colors[0] = mThemeBackgroundColors.get(i);
+            colors[1] = mThemePrimaryColors.get(i);
 
             GradientDrawable d = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, colors);
             d.setGradientType(GradientDrawable.SWEEP_GRADIENT);
@@ -102,9 +100,9 @@ public class ColorChooserDialog extends Dialog {
             d.setBounds(58, 58, 58, 58);
             d.setStroke(2, Color.BLACK);
             if (Build.VERSION.SDK_INT > 15) {
-                buttons.get(i).setBackground(d);
+                mButtons.get(i).setBackground(d);
             } else {
-                buttons.get(i).setBackgroundDrawable(d);
+                mButtons.get(i).setBackgroundDrawable(d);
             }
         }
     }
@@ -112,44 +110,44 @@ public class ColorChooserDialog extends Dialog {
     //Loads theme colors into array
     private void loadThemeArrays() {
         //Purple white
-        themePrimaryColors.add(purple);
-        themeBackgroundColors.add(whiteBackground);
+        mThemePrimaryColors.add(purple);
+        mThemeBackgroundColors.add(whiteBackground);
 
         //Purple blue
-        themePrimaryColors.add(gold);
-        themeBackgroundColors.add(whiteBackground);
+        mThemePrimaryColors.add(gold);
+        mThemeBackgroundColors.add(whiteBackground);
 
         //Pink white
-        themePrimaryColors.add(pink);
-        themeBackgroundColors.add(whiteBackground);
+        mThemePrimaryColors.add(pink);
+        mThemeBackgroundColors.add(whiteBackground);
 
         //Pink blue
-        themePrimaryColors.add(black);
-        themeBackgroundColors.add(whiteBackground);
+        mThemePrimaryColors.add(black);
+        mThemeBackgroundColors.add(whiteBackground);
 
         //Orange white
-        themePrimaryColors.add(orange);
-        themeBackgroundColors.add(whiteBackground);
+        mThemePrimaryColors.add(orange);
+        mThemeBackgroundColors.add(whiteBackground);
 
         //Orange grey
-        themePrimaryColors.add(turquoise);
-        themeBackgroundColors.add(whiteBackground);
+        mThemePrimaryColors.add(turquoise);
+        mThemeBackgroundColors.add(whiteBackground);
 
         //Green white
-        themePrimaryColors.add(green);
-        themeBackgroundColors.add(whiteBackground);
+        mThemePrimaryColors.add(green);
+        mThemeBackgroundColors.add(whiteBackground);
 
         //Red white
-        themePrimaryColors.add(red);
-        themeBackgroundColors.add(whiteBackground);
+        mThemePrimaryColors.add(red);
+        mThemeBackgroundColors.add(whiteBackground);
 
         //Brown white
-        themePrimaryColors.add(brown);
-        themeBackgroundColors.add(whiteBackground);
+        mThemePrimaryColors.add(brown);
+        mThemeBackgroundColors.add(whiteBackground);
 
         //Blue white
-        themePrimaryColors.add(blue);
-        themeBackgroundColors.add(whiteBackground);
+        mThemePrimaryColors.add(blue);
+        mThemeBackgroundColors.add(whiteBackground);
 
     }
 
@@ -159,16 +157,16 @@ public class ColorChooserDialog extends Dialog {
     }
 
     private void setListeners() {
-        //Set listeners and tags for all buttons
-        for (int i = 0; i < buttons.size(); i++) {
-            buttons.get(i).setTag(i);
-            buttons.get(i).setOnClickListener(listener);
+        //Set listeners and tags for all mButtons
+        for (int i = 0; i < mButtons.size(); i++) {
+            mButtons.get(i).setTag(i);
+            mButtons.get(i).setOnClickListener(mListener);
         }
     }
 
     public void setColorListener(ColorListener listener) {
-        //Sets color listener
-        this.colorListener = listener;
+        //Sets color mListener
+        mColorListener = listener;
     }
 
     //Theme primary colors

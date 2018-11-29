@@ -3,7 +3,6 @@ package com.rba18.helpers;
 import android.content.Context;
 import android.os.Environment;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import com.rba18.R;
 import com.rba18.activities.MainActivity;
@@ -25,7 +24,7 @@ import java.util.Locale;
 public class AppFileManagementHelper {
 
     public static File copyPictureFileToApp(String photoToCopy, @Nullable String oldPhotoToDelete) {
-        File f = new File(Environment.getExternalStorageDirectory(), "Rentbud");
+        File f = new File(Environment.getExternalStorageDirectory(), "RentalBud");
         if (!f.exists()) {
             f.mkdirs();
         }
@@ -33,7 +32,7 @@ public class AppFileManagementHelper {
         if (!photos.exists()) {
             photos.mkdirs();
         }
-        File usersPhotos = new File(photos.getAbsolutePath() + "/", MainActivity.user.getName());
+        File usersPhotos = new File(photos.getAbsolutePath() + "/", MainActivity.sUser.getName());
         if (!usersPhotos.exists()) {
             usersPhotos.mkdirs();
         }
@@ -80,7 +79,7 @@ public class AppFileManagementHelper {
     public static File createImageFileFromCamera() {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
         String imageFileName = "IMG_" + timeStamp + "_";
-        File f = new File(Environment.getExternalStorageDirectory(), "Rentbud");
+        File f = new File(Environment.getExternalStorageDirectory(), "RentalBud");
         if (!f.exists()) {
             f.mkdirs();
         }
@@ -88,7 +87,7 @@ public class AppFileManagementHelper {
         if (!photos.exists()) {
             photos.mkdirs();
         }
-        File usersPhotos = new File(photos.getAbsolutePath() + "/", MainActivity.user.getName() + "/");
+        File usersPhotos = new File(photos.getAbsolutePath() + "/", MainActivity.sUser.getName() + "/");
         if (!usersPhotos.exists()) {
             usersPhotos.mkdirs();
         }
@@ -105,7 +104,7 @@ public class AppFileManagementHelper {
         try {
             File sd = Environment.getExternalStorageDirectory();
             if (sd.canWrite()) {
-                File f = new File(Environment.getExternalStorageDirectory(), "Rentbud");
+                File f = new File(Environment.getExternalStorageDirectory(), "RentalBud");
                 if (!f.exists()) {
                     f.mkdirs();
                 }
@@ -143,6 +142,7 @@ public class AppFileManagementHelper {
         try {
             md = MessageDigest.getInstance("SHA-512");
         } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
         }
         if (md != null) {
             byte[] digest = md.digest(stringToHash.getBytes());

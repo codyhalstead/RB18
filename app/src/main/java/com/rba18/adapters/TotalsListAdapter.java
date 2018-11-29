@@ -19,21 +19,20 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 
 public class TotalsListAdapter extends BaseAdapter {
-    private ArrayList<TypeTotal> typeTotals;
-    private Context context;
-    private SharedPreferences preferences;
-    private ColorStateList highlightColor;
-    private int moneyFormatCode;
+    private ArrayList<TypeTotal> mTypeTotals;
+    private Context mContext;
+    private ColorStateList mHighlightColor;
+    private int mMoneyFormatCode;
 
     public TotalsListAdapter(Context context, ArrayList<TypeTotal> typeTotals, ColorStateList highlightColor) {
-        this.preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        this.typeTotals = typeTotals;
-        this.context = context;
-        this.highlightColor = highlightColor;
-        this.moneyFormatCode = preferences.getInt("currency", DateAndCurrencyDisplayer.CURRENCY_US);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        mTypeTotals = typeTotals;
+        mContext = context;
+        mHighlightColor = highlightColor;
+        mMoneyFormatCode = preferences.getInt("currency", DateAndCurrencyDisplayer.CURRENCY_US);
     }
 
-    static class ViewHolder {
+    private static class ViewHolder {
         TextView typeLabelTV;
         TextView typeTotalAmountTV;
         TextView numberOfItemsTV;
@@ -42,15 +41,15 @@ public class TotalsListAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        if (typeTotals != null) {
-            return typeTotals.size();
+        if (mTypeTotals != null) {
+            return mTypeTotals.size();
         }
         return 0;
     }
 
     @Override
     public TypeTotal getItem(int i) {
-        return typeTotals.get(i);
+        return mTypeTotals.get(i);
     }
 
     @Override
@@ -64,7 +63,7 @@ public class TotalsListAdapter extends BaseAdapter {
         TotalsListAdapter.ViewHolder viewHolder;
         // Check if an existing view is being reused, otherwise inflate the view
         if (view == null) {
-            view = LayoutInflater.from(context).inflate(R.layout.row_total, viewGroup, false);
+            view = LayoutInflater.from(mContext).inflate(R.layout.row_total, viewGroup, false);
             viewHolder = new TotalsListAdapter.ViewHolder();
 
             viewHolder.typeLabelTV = view.findViewById(R.id.totalsRowTypeLabelTV);
@@ -80,11 +79,11 @@ public class TotalsListAdapter extends BaseAdapter {
             viewHolder.typeLabelTV.setText(typeTotal.getTypeLabel());
             BigDecimal displayVal = typeTotal.getTotalAmount().setScale(2, RoundingMode.HALF_EVEN);
             if(displayVal.compareTo(new BigDecimal(0)) < 0){
-                viewHolder.typeTotalAmountTV.setTextColor(context.getResources().getColor(R.color.red));
+                viewHolder.typeTotalAmountTV.setTextColor(mContext.getResources().getColor(R.color.red));
             } else {
-                viewHolder.typeTotalAmountTV.setTextColor(context.getResources().getColor(R.color.green_colorPrimaryDark));
+                viewHolder.typeTotalAmountTV.setTextColor(mContext.getResources().getColor(R.color.green_colorPrimaryDark));
             }
-            viewHolder.typeTotalAmountTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, typeTotal.getTotalAmount()));
+            viewHolder.typeTotalAmountTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(mMoneyFormatCode, typeTotal.getTotalAmount()));
             String numberOfItemsString = typeTotal.getNumberOfItems() + "";
             viewHolder.numberOfItemsTV.setText(numberOfItemsString);
             if(typeTotal.getNumberOfItems() == 1) {

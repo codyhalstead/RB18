@@ -27,21 +27,21 @@ import java.util.Locale;
  */
 
 public class ApartmentDialogListAdapter extends BaseAdapter implements Filterable {
-    private ArrayList<Apartment> apartmentArray;
-    private ArrayList<Apartment> filteredResults;
-    private Context context;
-    private String searchText;
-    private ColorStateList highlightColor;
+    private ArrayList<Apartment> mApartmentArray;
+    private ArrayList<Apartment> mFilteredResults;
+    private Context mContext;
+    private String mSearchText;
+    private ColorStateList mHighlightColor;
 
     public ApartmentDialogListAdapter(Context context, ArrayList<Apartment> apartmentArray, ColorStateList highlightColor) {
-        this.apartmentArray = apartmentArray;
-        this.filteredResults = apartmentArray;
-        this.context = context;
-        this.searchText = "";
-        this.highlightColor = highlightColor;
+        mApartmentArray = apartmentArray;
+        mFilteredResults = apartmentArray;
+        mContext = context;
+        mSearchText = "";
+        mHighlightColor = highlightColor;
     }
 
-    static class ViewHolder {
+    private static class ViewHolder {
         TextView street1TV;
         TextView street2TV;
         TextView cityStateZipTV;
@@ -50,15 +50,15 @@ public class ApartmentDialogListAdapter extends BaseAdapter implements Filterabl
 
     @Override
     public int getCount() {
-        if(filteredResults != null) {
-            return filteredResults.size();
+        if(mFilteredResults != null) {
+            return mFilteredResults.size();
         }
         return 0;
     }
 
     @Override
     public Apartment getItem(int i) {
-        return filteredResults.get(i);
+        return mFilteredResults.get(i);
     }
 
     @Override
@@ -73,7 +73,7 @@ public class ApartmentDialogListAdapter extends BaseAdapter implements Filterabl
         ViewHolder viewHolder;
         // Check if an existing view is being reused, otherwise inflate the view
         if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.row_dialog_apartment, parent, false);
+            convertView = LayoutInflater.from(mContext).inflate(R.layout.row_dialog_apartment, parent, false);
 
             viewHolder = new ViewHolder();
 
@@ -117,7 +117,7 @@ public class ApartmentDialogListAdapter extends BaseAdapter implements Filterabl
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
                 //Update filtered results and notify change
-                filteredResults = (ArrayList<Apartment>) results.values;
+                mFilteredResults = (ArrayList<Apartment>) results.values;
                 notifyDataSetChanged();
             }
 
@@ -125,11 +125,11 @@ public class ApartmentDialogListAdapter extends BaseAdapter implements Filterabl
             protected FilterResults performFiltering(CharSequence constraint) {
                 FilterResults results = new FilterResults();
                 ArrayList<Apartment> FilteredArrayNames = new ArrayList<>();
-                searchText = constraint.toString().toLowerCase();
+                mSearchText = constraint.toString().toLowerCase();
                 //Perform users search
                 constraint = constraint.toString().toLowerCase();
-                for (int i = 0; i < apartmentArray.size(); i++) {
-                    Apartment dataNames = apartmentArray.get(i);
+                for (int i = 0; i < mApartmentArray.size(); i++) {
+                    Apartment dataNames = mApartmentArray.get(i);
                     String street2 = "";
                     if(dataNames.getStreet2() != null){
                         street2 = dataNames.getStreet2();
@@ -153,13 +153,13 @@ public class ApartmentDialogListAdapter extends BaseAdapter implements Filterabl
     //Used to change color of any text matching search
     private void setTextHighlightSearch(TextView textView, String theTextToSet) {
         //If user has any text in the search bar
-        if (searchText != null && !searchText.isEmpty()) {
-            int startPos = theTextToSet.toLowerCase(Locale.US).indexOf(searchText.toLowerCase(Locale.US));
-            int endPos = startPos + searchText.length();
+        if (mSearchText != null && !mSearchText.isEmpty()) {
+            int startPos = theTextToSet.toLowerCase(Locale.US).indexOf(mSearchText.toLowerCase(Locale.US));
+            int endPos = startPos + mSearchText.length();
             if (startPos != -1) {
                 //If theTextToSet contains match, highlight match
                 Spannable spannable = new SpannableString(theTextToSet);
-                TextAppearanceSpan highlightSpan = new TextAppearanceSpan(null, Typeface.BOLD, -1, highlightColor, null);
+                TextAppearanceSpan highlightSpan = new TextAppearanceSpan(null, Typeface.BOLD, -1, mHighlightColor, null);
                 spannable.setSpan(highlightSpan, startPos, endPos, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 textView.setText(spannable);
             } else {
@@ -174,6 +174,6 @@ public class ApartmentDialogListAdapter extends BaseAdapter implements Filterabl
 
     //Retrieve filtered results
     public ArrayList<Apartment> getFilteredResults() {
-        return filteredResults;
+        return mFilteredResults;
     }
 }

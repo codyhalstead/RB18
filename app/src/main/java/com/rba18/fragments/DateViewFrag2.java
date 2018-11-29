@@ -36,22 +36,19 @@ import static android.app.Activity.RESULT_OK;
 
 public class DateViewFrag2 extends android.support.v4.app.Fragment implements AdapterView.OnItemClickListener, View.OnClickListener {
 
-
     public DateViewFrag2() {
         // Required empty public constructor
     }
 
-    TextView noLeasesTV;
-    LinearLayout totalBarLL;
-    FloatingActionButton fab;
-    LeaseListAdapter leaseListAdapter;
-    ColorStateList accentColor;
-    ListView listView;
-    private DatabaseHandler db;
-    private Lease selectedLease;
+    private TextView mNoLeasesTV;
+    private LeaseListAdapter mLeaseListAdapter;
+    private ColorStateList mAccentColor;
+    private ListView mListView;
+    private DatabaseHandler mDB;
+    private Lease mSelectedLease;
     private OnLeaseDataChangedListener mCallback;
-    private PopupMenu popupMenu;
-    private AlertDialog dialog;
+    private PopupMenu mPopupMenu;
+    private AlertDialog mDialog;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -62,9 +59,9 @@ public class DateViewFrag2 extends android.support.v4.app.Fragment implements Ad
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        this.noLeasesTV = view.findViewById(R.id.emptyListTV);
-        this.fab = view.findViewById(R.id.listFab);
-        this.fab.setOnClickListener(new View.OnClickListener() {
+        mNoLeasesTV = view.findViewById(R.id.emptyListTV);
+        FloatingActionButton fab = view.findViewById(R.id.listFab);
+        fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getActivity(), NewLeaseWizard.class);
@@ -73,13 +70,13 @@ public class DateViewFrag2 extends android.support.v4.app.Fragment implements Ad
                 startActivityForResult(intent, MainActivity.REQUEST_NEW_LEASE_FORM);
             }
         });
-        this.totalBarLL = view.findViewById(R.id.moneyListTotalBarLL);
+        LinearLayout totalBarLL = view.findViewById(R.id.moneyListTotalBarLL);
         totalBarLL.setVisibility(View.GONE);
-        this.listView = view.findViewById(R.id.mainMoneyListView);
-        this.db = new DatabaseHandler(getContext());
+        mListView = view.findViewById(R.id.mainMoneyListView);
+        mDB = new DatabaseHandler(getContext());
         TypedValue colorValue = new TypedValue();
         getActivity().getTheme().resolveAttribute(R.attr.colorAccent, colorValue, true);
-        this.accentColor = getActivity().getResources().getColorStateList(colorValue.resourceId);
+        mAccentColor = getActivity().getResources().getColorStateList(colorValue.resourceId);
         setUpListAdapter();
         setUpSearchBar();
     }
@@ -121,35 +118,35 @@ public class DateViewFrag2 extends android.support.v4.app.Fragment implements Ad
 
     private void setUpListAdapter() {
         if (ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getMoneyArray().getValue() != null) {
-            leaseListAdapter = new LeaseListAdapter(getActivity(), ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getLeaseArray().getValue(),
-                    accentColor, ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getDate().getValue());
-            listView.setAdapter(leaseListAdapter);
-            listView.setOnItemClickListener(this);
-            noLeasesTV.setText(R.string.no_leases_to_display_date);
-            listView.setEmptyView(noLeasesTV);
+            mLeaseListAdapter = new LeaseListAdapter(getActivity(), ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getLeaseArray().getValue(),
+                    mAccentColor, ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getDate().getValue());
+            mListView.setAdapter(mLeaseListAdapter);
+            mListView.setOnItemClickListener(this);
+            mNoLeasesTV.setText(R.string.no_leases_to_display_date);
+            mListView.setEmptyView(mNoLeasesTV);
         }
     }
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        popupMenu = new PopupMenu(getActivity(), view);
-        MenuInflater inflater = popupMenu.getMenuInflater();
+        mPopupMenu = new PopupMenu(getActivity(), view);
+        MenuInflater inflater = mPopupMenu.getMenuInflater();
         final int position = i;
-        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+        mPopupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 switch (item.getItemId()) {
 
                     case R.id.edit:
-                        //On listView row click, launch ApartmentViewActivity passing the rows data into it.
+                        //On mListView row click, launch ApartmentViewActivity passing the rows data into it.
                         Intent intent = new Intent(getActivity(), NewLeaseWizard.class);
-                        selectedLease = leaseListAdapter.getFilteredResults().get(position);
-                        intent.putExtra("leaseToEdit", selectedLease);
+                        mSelectedLease = mLeaseListAdapter.getFilteredResults().get(position);
+                        intent.putExtra("leaseToEdit", mSelectedLease);
                         startActivityForResult(intent, MainActivity.REQUEST_NEW_LEASE_FORM);
                         return true;
 
                     case R.id.remove:
-                        selectedLease = leaseListAdapter.getFilteredResults().get(position);
+                        mSelectedLease = mLeaseListAdapter.getFilteredResults().get(position);
                         showDeleteConfirmationAlertDialog();
                         return true;
 
@@ -158,8 +155,8 @@ public class DateViewFrag2 extends android.support.v4.app.Fragment implements Ad
                 }
             }
         });
-        inflater.inflate(R.menu.lease_click_menu, popupMenu.getMenu());
-        popupMenu.show();
+        inflater.inflate(R.menu.lease_click_menu, mPopupMenu.getMenu());
+        mPopupMenu.show();
     }
 
     public void showDeleteConfirmationAlertDialog() {
@@ -169,7 +166,7 @@ public class DateViewFrag2 extends android.support.v4.app.Fragment implements Ad
         builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                db.setLeaseInactive(selectedLease);
+                mDB.setLeaseInactive(mSelectedLease);
                 showDeleteAllRelatedMoneyAlertDialog();
             }
         });
@@ -180,9 +177,9 @@ public class DateViewFrag2 extends android.support.v4.app.Fragment implements Ad
 
             }
         });
-        // create and show the alert dialog
-        dialog = builder.create();
-        dialog.show();
+        // create and show the alert mDialog
+        mDialog = builder.create();
+        mDialog.show();
     }
 
     public void showDeleteAllRelatedMoneyAlertDialog() {
@@ -199,25 +196,25 @@ public class DateViewFrag2 extends android.support.v4.app.Fragment implements Ad
         builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                db.setAllExpensesRelatedToLeaseInactive(selectedLease.getId());
-                db.setAllIncomeRelatedToLeaseInactive(selectedLease.getId());
+                mDB.setAllExpensesRelatedToLeaseInactive(mSelectedLease.getId());
+                mDB.setAllIncomeRelatedToLeaseInactive(mSelectedLease.getId());
                 mCallback.onLeaseDataChanged();
                 mCallback.onLeasePaymentsChanged();
             }
         });
-        // create and show the alert dialog
-        dialog = builder.create();
-        dialog.show();
+        // create and show the alert mDialog
+        mDialog = builder.create();
+        mDialog.show();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        if(popupMenu != null){
-            popupMenu.dismiss();
+        if(mPopupMenu != null){
+            mPopupMenu.dismiss();
         }
-        if(dialog != null){
-            dialog.dismiss();
+        if(mDialog != null){
+            mDialog.dismiss();
         }
     }
 
@@ -245,7 +242,7 @@ public class DateViewFrag2 extends android.support.v4.app.Fragment implements Ad
     }
 
     public void updateData(){
-        leaseListAdapter.updateResults(ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getLeaseArray().getValue());
-        leaseListAdapter.notifyDataSetChanged();
+        mLeaseListAdapter.updateResults(ViewModelProviders.of(getActivity()).get(ApartmentTenantViewModel.class).getLeaseArray().getValue());
+        mLeaseListAdapter.notifyDataSetChanged();
     }
 }

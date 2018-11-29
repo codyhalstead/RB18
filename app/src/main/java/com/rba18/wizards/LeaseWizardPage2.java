@@ -22,13 +22,13 @@ public class LeaseWizardPage2 extends Page {
     public static final String LEASE_DEPOSIT_STRING_DATA_KEY = "lease_deposit";
     public static final String WAS_PRELOADED = "lease_page_2_was_preloaded";
 
-    private boolean isEdit;
-    private Context context;
+    private boolean mIsEdit;
+    private Context mContext;
 
     public LeaseWizardPage2(ModelCallbacks callbacks, String title, boolean isEdit, Context context) {
         super(callbacks, title);
-        this.isEdit = isEdit;
-        this.context = context;
+        mIsEdit = isEdit;
+        mContext = context;
         mData.putBoolean(WAS_PRELOADED, false);
     }
 
@@ -39,10 +39,10 @@ public class LeaseWizardPage2 extends Page {
 
     @Override
     public void getReviewItems(ArrayList<ReviewItem> dest) {
-        dest.add(new ReviewItem(context.getResources().getString(R.string.primary_tenant), mData.getString(LEASE_PRIMARY_TENANT_STRING_DATA_KEY), getKey(), -1));
-        dest.add(new ReviewItem(context.getResources().getString(R.string.other_tenants), mData.getString(LEASE_SECONDARY_TENANTS_STRING_DATA_KEY), getKey(), -1));
-        if(!isEdit) {
-            dest.add(new ReviewItem(context.getResources().getString(R.string.deposit), mData.getString(LEASE_DEPOSIT_FORMATTED_STRING_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(mContext.getResources().getString(R.string.primary_tenant), mData.getString(LEASE_PRIMARY_TENANT_STRING_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(mContext.getResources().getString(R.string.other_tenants), mData.getString(LEASE_SECONDARY_TENANTS_STRING_DATA_KEY), getKey(), -1));
+        if(!mIsEdit) {
+            dest.add(new ReviewItem(mContext.getResources().getString(R.string.deposit), mData.getString(LEASE_DEPOSIT_FORMATTED_STRING_DATA_KEY), getKey(), -1));
         }
     }
 

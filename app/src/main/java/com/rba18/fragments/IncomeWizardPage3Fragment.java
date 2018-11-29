@@ -29,21 +29,20 @@ import java.util.Locale;
 
 public class IncomeWizardPage3Fragment extends android.support.v4.app.Fragment {
     private static final String ARG_KEY = "key";
-
     private PageFragmentCallbacks mCallbacks;
     private String mKey;
     private IncomeWizardPage3 mPage;
-    private TextView linkedAptTV, linkedTenantTV, linkedLeaseTV;
-    private DatabaseHandler dbHandler;
-    private MainArrayDataMethods mainArrayDataMethods;
-    private Apartment apartment;
-    private ArrayList<Apartment> availableApartments;
-    private Tenant tenant;
-    private ArrayList<Tenant> availableTenants;
-    private Lease lease;
-    private ArrayList<Lease> availableLeases;
-    private boolean isInitializing;
-    private TenantApartmentOrLeaseChooserDialog tenantApartmentOrLeaseChooserDialog;
+    private TextView mLinkedAptTV, mLinkedTenantTV, mLinkedLeaseTV;
+    private DatabaseHandler mDBHandler;
+    private MainArrayDataMethods mMainArrayDataMethods;
+    private Apartment mApartment;
+    private ArrayList<Apartment> mAvailableApartments;
+    private Tenant mTenant;
+    private ArrayList<Tenant> mAvailableTenants;
+    private Lease mLease;
+    private ArrayList<Lease> mAvailableLeases;
+    private boolean mIsInitializing;
+    private TenantApartmentOrLeaseChooserDialog mTenantApartmentOrLeaseChooserDialog;
 
     public static IncomeWizardPage3Fragment create(String key) {
         Bundle args = new Bundle();
@@ -63,12 +62,12 @@ public class IncomeWizardPage3Fragment extends android.support.v4.app.Fragment {
         Bundle args = getArguments();
         mKey = args.getString(ARG_KEY);
         mPage = (IncomeWizardPage3) mCallbacks.onGetPage(mKey);
-        dbHandler = new DatabaseHandler(getContext());
-        mainArrayDataMethods = new MainArrayDataMethods();
-        availableApartments = new ArrayList<>();
-        availableTenants = new ArrayList<>();
-        availableLeases = new ArrayList<>();
-        isInitializing = true;
+        mDBHandler = new DatabaseHandler(getContext());
+        mMainArrayDataMethods = new MainArrayDataMethods();
+        mAvailableApartments = new ArrayList<>();
+        mAvailableTenants = new ArrayList<>();
+        mAvailableLeases = new ArrayList<>();
+        mIsInitializing = true;
         Bundle extras = mPage.getData();
         if (extras != null) {
             PaymentLogEntry incomeToEdit = extras.getParcelable("incomeToEdit");
@@ -78,9 +77,9 @@ public class IncomeWizardPage3Fragment extends android.support.v4.app.Fragment {
                 preloadData(extras);
             }
         } else {
-            apartment = null;
-            tenant = null;
-            lease = null;
+            mApartment = null;
+            mTenant = null;
+            mLease = null;
         }
     }
 
@@ -89,35 +88,35 @@ public class IncomeWizardPage3Fragment extends android.support.v4.app.Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_income_wizard_page_3, container, false);
         (rootView.findViewById(android.R.id.title)).setVisibility(View.GONE);
-        linkedAptTV = rootView.findViewById(R.id.incomeWizardAptLinkingTV);
+        mLinkedAptTV = rootView.findViewById(R.id.incomeWizardAptLinkingTV);
         if (mPage.getData().getParcelable(IncomeWizardPage3.INCOME_RELATED_APT_DATA_KEY) != null) {
-            linkedAptTV.setText(mPage.getData().getString(IncomeWizardPage3.INCOME_RELATED_APT_TEXT_DATA_KEY));
-            apartment = mPage.getData().getParcelable(IncomeWizardPage3.INCOME_RELATED_APT_DATA_KEY);
+            mLinkedAptTV.setText(mPage.getData().getString(IncomeWizardPage3.INCOME_RELATED_APT_TEXT_DATA_KEY));
+            mApartment = mPage.getData().getParcelable(IncomeWizardPage3.INCOME_RELATED_APT_DATA_KEY);
         }
-        linkedAptTV.setScroller(new Scroller(getContext()));
-        linkedAptTV.setMaxLines(5);
-        linkedAptTV.setVerticalScrollBarEnabled(true);
-        linkedAptTV.setMovementMethod(new ScrollingMovementMethod());
+        mLinkedAptTV.setScroller(new Scroller(getContext()));
+        mLinkedAptTV.setMaxLines(5);
+        mLinkedAptTV.setVerticalScrollBarEnabled(true);
+        mLinkedAptTV.setMovementMethod(new ScrollingMovementMethod());
 
-        linkedTenantTV = rootView.findViewById(R.id.incomeWizardTenantLinkingTV);
+        mLinkedTenantTV = rootView.findViewById(R.id.incomeWizardTenantLinkingTV);
         if (mPage.getData().getParcelable(IncomeWizardPage3.INCOME_RELATED_TENANT_DATA_KEY) != null) {
-            linkedTenantTV.setText(mPage.getData().getString(IncomeWizardPage3.INCOME_RELATED_TENANT_TEXT_DATA_KEY));
-            tenant = mPage.getData().getParcelable(IncomeWizardPage3.INCOME_RELATED_TENANT_DATA_KEY);
+            mLinkedTenantTV.setText(mPage.getData().getString(IncomeWizardPage3.INCOME_RELATED_TENANT_TEXT_DATA_KEY));
+            mTenant = mPage.getData().getParcelable(IncomeWizardPage3.INCOME_RELATED_TENANT_DATA_KEY);
         }
-        linkedTenantTV.setScroller(new Scroller(getContext()));
-        linkedTenantTV.setMaxLines(5);
-        linkedTenantTV.setVerticalScrollBarEnabled(true);
-        linkedTenantTV.setMovementMethod(new ScrollingMovementMethod());
+        mLinkedTenantTV.setScroller(new Scroller(getContext()));
+        mLinkedTenantTV.setMaxLines(5);
+        mLinkedTenantTV.setVerticalScrollBarEnabled(true);
+        mLinkedTenantTV.setMovementMethod(new ScrollingMovementMethod());
 
-        linkedLeaseTV = rootView.findViewById(R.id.incomeWizardLeaseLinkingTV);
+        mLinkedLeaseTV = rootView.findViewById(R.id.incomeWizardLeaseLinkingTV);
         if (mPage.getData().getParcelable(IncomeWizardPage3.INCOME_RELATED_LEASE_DATA_KEY) != null) {
-            linkedLeaseTV.setText(mPage.getData().getString(IncomeWizardPage3.INCOME_RELATED_LEASE_TEXT_DATA_KEY));
-            lease = mPage.getData().getParcelable(IncomeWizardPage3.INCOME_RELATED_LEASE_DATA_KEY);
+            mLinkedLeaseTV.setText(mPage.getData().getString(IncomeWizardPage3.INCOME_RELATED_LEASE_TEXT_DATA_KEY));
+            mLease = mPage.getData().getParcelable(IncomeWizardPage3.INCOME_RELATED_LEASE_DATA_KEY);
         }
-        linkedLeaseTV.setScroller(new Scroller(getContext()));
-        linkedLeaseTV.setMaxLines(5);
-        linkedLeaseTV.setVerticalScrollBarEnabled(true);
-        linkedLeaseTV.setMovementMethod(new ScrollingMovementMethod());
+        mLinkedLeaseTV.setScroller(new Scroller(getContext()));
+        mLinkedLeaseTV.setMaxLines(5);
+        mLinkedLeaseTV.setVerticalScrollBarEnabled(true);
+        mLinkedLeaseTV.setMovementMethod(new ScrollingMovementMethod());
         return rootView;
     }
 
@@ -142,165 +141,165 @@ public class IncomeWizardPage3Fragment extends android.support.v4.app.Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         int curAptID = 0;
-        if (apartment != null) {
-            curAptID = apartment.getId();
+        if (mApartment != null) {
+            curAptID = mApartment.getId();
         }
-        for (int i = 0; i < MainActivity.apartmentList.size(); i++) {
-            if (MainActivity.apartmentList.get(i).isActive() && MainActivity.apartmentList.get(i).getId() != curAptID) {
-                availableApartments.add(MainActivity.apartmentList.get(i));
+        for (int i = 0; i < MainActivity.sApartmentList.size(); i++) {
+            if (MainActivity.sApartmentList.get(i).isActive() && MainActivity.sApartmentList.get(i).getId() != curAptID) {
+                mAvailableApartments.add(MainActivity.sApartmentList.get(i));
             }
         }
 
         ArrayList<Integer> curTenantIDs = new ArrayList<>();
         if (mPage.getData().getParcelable(IncomeWizardPage3.INCOME_RELATED_TENANT_DATA_KEY) != null) {
-            tenant = mPage.getData().getParcelable(IncomeWizardPage3.INCOME_RELATED_TENANT_DATA_KEY);
-            curTenantIDs.add(tenant.getId());
+            mTenant = mPage.getData().getParcelable(IncomeWizardPage3.INCOME_RELATED_TENANT_DATA_KEY);
+            curTenantIDs.add(mTenant.getId());
         }
 
-        for (int i = 0; i < MainActivity.tenantList.size(); i++) {
-            if (MainActivity.tenantList.get(i).isActive()) {
+        for (int i = 0; i < MainActivity.sTenantList.size(); i++) {
+            if (MainActivity.sTenantList.get(i).isActive()) {
                 boolean isUsed = false;
                 for (int y = 0; y < curTenantIDs.size(); y++) {
-                    if (MainActivity.tenantList.get(i).getId() == curTenantIDs.get(y)) {
+                    if (MainActivity.sTenantList.get(i).getId() == curTenantIDs.get(y)) {
                         isUsed = true;
                         break;
                     }
                 }
                 if (!isUsed) {
-                    availableTenants.add(MainActivity.tenantList.get(i));
+                    mAvailableTenants.add(MainActivity.sTenantList.get(i));
                 }
                 //    }
             }
         }
         getAvailableLeases();
-        linkedAptTV.setOnClickListener(new View.OnClickListener() {
+        mLinkedAptTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                tenantApartmentOrLeaseChooserDialog = new TenantApartmentOrLeaseChooserDialog(getContext(), TenantApartmentOrLeaseChooserDialog.APARTMENT_TYPE, availableApartments);
-                tenantApartmentOrLeaseChooserDialog.show();
-                tenantApartmentOrLeaseChooserDialog.changeCancelBtnText(getContext().getResources().getString(R.string.clear));
-                tenantApartmentOrLeaseChooserDialog.setDialogResult(new TenantApartmentOrLeaseChooserDialog.OnTenantChooserDialogResult() {
+                mTenantApartmentOrLeaseChooserDialog = new TenantApartmentOrLeaseChooserDialog(getContext(), TenantApartmentOrLeaseChooserDialog.APARTMENT_TYPE, mAvailableApartments);
+                mTenantApartmentOrLeaseChooserDialog.show();
+                mTenantApartmentOrLeaseChooserDialog.changeCancelBtnText(getContext().getResources().getString(R.string.clear));
+                mTenantApartmentOrLeaseChooserDialog.setDialogResult(new TenantApartmentOrLeaseChooserDialog.OnTenantChooserDialogResult() {
                     @Override
                     public void finish(Tenant tenantResult, Apartment apartmentResult, Lease leaseResult) {
-                        if (apartment != null) {
-                            availableApartments.add(apartment);
+                        if (mApartment != null) {
+                            mAvailableApartments.add(mApartment);
                         }
                         if (apartmentResult != null) {
-                            availableApartments.remove(apartmentResult);
-                            apartment = apartmentResult;
-                            linkedAptTV.setText(getApartmentString());
-                            mPage.getData().putInt(IncomeWizardPage3.INCOME_RELATED_APT_ID_DATA_KEY, apartment.getId());
-                            mPage.getData().putString(IncomeWizardPage3.INCOME_RELATED_APT_TEXT_DATA_KEY, linkedAptTV.getText().toString());
-                            mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_APT_DATA_KEY, apartment);
+                            mAvailableApartments.remove(apartmentResult);
+                            mApartment = apartmentResult;
+                            mLinkedAptTV.setText(getApartmentString());
+                            mPage.getData().putInt(IncomeWizardPage3.INCOME_RELATED_APT_ID_DATA_KEY, mApartment.getId());
+                            mPage.getData().putString(IncomeWizardPage3.INCOME_RELATED_APT_TEXT_DATA_KEY, mLinkedAptTV.getText().toString());
+                            mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_APT_DATA_KEY, mApartment);
                         } else {
-                            apartment = null;
-                            linkedAptTV.setText("");
+                            mApartment = null;
+                            mLinkedAptTV.setText("");
                             mPage.getData().putInt(IncomeWizardPage3.INCOME_RELATED_APT_ID_DATA_KEY, 0);
-                            mPage.getData().putString(IncomeWizardPage3.INCOME_RELATED_APT_TEXT_DATA_KEY, linkedAptTV.getText().toString());
-                            mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_APT_DATA_KEY, apartment);
+                            mPage.getData().putString(IncomeWizardPage3.INCOME_RELATED_APT_TEXT_DATA_KEY, mLinkedAptTV.getText().toString());
+                            mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_APT_DATA_KEY, mApartment);
                         }
                         mPage.notifyDataChanged();
-                        if (!isInitializing) {
+                        if (!mIsInitializing) {
                             getAvailableLeases();
                             resetLeaseSelection();
-                            mainArrayDataMethods.sortApartmentArrayAlphabetically(availableApartments);
+                            mMainArrayDataMethods.sortApartmentArrayAlphabetically(mAvailableApartments);
                         }
                     }
                 });
             }
         });
-        linkedTenantTV.setOnClickListener(new View.OnClickListener() {
+        mLinkedTenantTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                tenantApartmentOrLeaseChooserDialog = new TenantApartmentOrLeaseChooserDialog(getContext(), TenantApartmentOrLeaseChooserDialog.TENANT_TYPE, availableTenants);
-                tenantApartmentOrLeaseChooserDialog.show();
-                tenantApartmentOrLeaseChooserDialog.changeCancelBtnText(getContext().getResources().getString(R.string.clear));
-                tenantApartmentOrLeaseChooserDialog.setDialogResult(new TenantApartmentOrLeaseChooserDialog.OnTenantChooserDialogResult() {
+                mTenantApartmentOrLeaseChooserDialog = new TenantApartmentOrLeaseChooserDialog(getContext(), TenantApartmentOrLeaseChooserDialog.TENANT_TYPE, mAvailableTenants);
+                mTenantApartmentOrLeaseChooserDialog.show();
+                mTenantApartmentOrLeaseChooserDialog.changeCancelBtnText(getContext().getResources().getString(R.string.clear));
+                mTenantApartmentOrLeaseChooserDialog.setDialogResult(new TenantApartmentOrLeaseChooserDialog.OnTenantChooserDialogResult() {
                     @Override
                     public void finish(Tenant tenantResult, Apartment apartmentResult, Lease leaseResult) {
-                        if (tenant != null) {
-                            availableTenants.add(tenant);
+                        if (mTenant != null) {
+                            mAvailableTenants.add(mTenant);
                         }
                         if (tenantResult != null) {
-                            availableTenants.remove(tenantResult);
-                            tenant = tenantResult;
-                            linkedTenantTV.setText(getTenantString());
-                            mPage.getData().putInt(IncomeWizardPage3.INCOME_RELATED_TENANT_ID_DATA_KEY, tenant.getId());
-                            mPage.getData().putString(IncomeWizardPage3.INCOME_RELATED_TENANT_TEXT_DATA_KEY, linkedTenantTV.getText().toString());
-                            mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_TENANT_DATA_KEY, tenant);
+                            mAvailableTenants.remove(tenantResult);
+                            mTenant = tenantResult;
+                            mLinkedTenantTV.setText(getTenantString());
+                            mPage.getData().putInt(IncomeWizardPage3.INCOME_RELATED_TENANT_ID_DATA_KEY, mTenant.getId());
+                            mPage.getData().putString(IncomeWizardPage3.INCOME_RELATED_TENANT_TEXT_DATA_KEY, mLinkedTenantTV.getText().toString());
+                            mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_TENANT_DATA_KEY, mTenant);
                         } else {
-                            tenant = null;
-                            linkedTenantTV.setText("");
+                            mTenant = null;
+                            mLinkedTenantTV.setText("");
                             mPage.getData().putInt(IncomeWizardPage3.INCOME_RELATED_TENANT_ID_DATA_KEY, 0);
                             mPage.getData().putString(IncomeWizardPage3.INCOME_RELATED_TENANT_TEXT_DATA_KEY, "");
                             mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_TENANT_DATA_KEY, null);
                         }
                         mPage.notifyDataChanged();
-                        if (!isInitializing) {
+                        if (!mIsInitializing) {
                             getAvailableLeases();
                             resetLeaseSelection();
-                            mainArrayDataMethods.sortTenantArrayAlphabetically(availableTenants);
+                            mMainArrayDataMethods.sortTenantArrayAlphabetically(mAvailableTenants);
                         }
                     }
                 });
             }
         });
-        linkedLeaseTV.setOnClickListener(new View.OnClickListener() {
+        mLinkedLeaseTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                tenantApartmentOrLeaseChooserDialog = new TenantApartmentOrLeaseChooserDialog(getContext(), TenantApartmentOrLeaseChooserDialog.LEASE_TYPE, availableLeases);
-                tenantApartmentOrLeaseChooserDialog.show();
-                tenantApartmentOrLeaseChooserDialog.changeCancelBtnText(getContext().getResources().getString(R.string.clear));
-                tenantApartmentOrLeaseChooserDialog.setDialogResult(new TenantApartmentOrLeaseChooserDialog.OnTenantChooserDialogResult() {
+                mTenantApartmentOrLeaseChooserDialog = new TenantApartmentOrLeaseChooserDialog(getContext(), TenantApartmentOrLeaseChooserDialog.LEASE_TYPE, mAvailableLeases);
+                mTenantApartmentOrLeaseChooserDialog.show();
+                mTenantApartmentOrLeaseChooserDialog.changeCancelBtnText(getContext().getResources().getString(R.string.clear));
+                mTenantApartmentOrLeaseChooserDialog.setDialogResult(new TenantApartmentOrLeaseChooserDialog.OnTenantChooserDialogResult() {
                     @Override
                     public void finish(Tenant tenantResult, Apartment apartmentResult, Lease leaseResult) {
                         if (leaseResult != null) {
-                            lease = leaseResult;
-                            if (apartment == null) {
-                                apartment = dbHandler.getApartmentByID(lease.getApartmentID(), MainActivity.user);
-                                linkedAptTV.setText(getApartmentString());
-                                mPage.getData().putInt(IncomeWizardPage3.INCOME_RELATED_APT_ID_DATA_KEY, apartment.getId());
-                                mPage.getData().putString(IncomeWizardPage3.INCOME_RELATED_APT_TEXT_DATA_KEY, linkedAptTV.getText().toString());
-                                mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_APT_DATA_KEY, apartment);
+                            mLease = leaseResult;
+                            if (mApartment == null) {
+                                mApartment = mDBHandler.getApartmentByID(mLease.getApartmentID(), MainActivity.sUser);
+                                mLinkedAptTV.setText(getApartmentString());
+                                mPage.getData().putInt(IncomeWizardPage3.INCOME_RELATED_APT_ID_DATA_KEY, mApartment.getId());
+                                mPage.getData().putString(IncomeWizardPage3.INCOME_RELATED_APT_TEXT_DATA_KEY, mLinkedAptTV.getText().toString());
+                                mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_APT_DATA_KEY, mApartment);
                             }
-                            if (tenant == null) {
-                                tenant = dbHandler.getTenantByID(lease.getPrimaryTenantID(), MainActivity.user);
-                                linkedTenantTV.setText(getTenantString());
-                                mPage.getData().putInt(IncomeWizardPage3.INCOME_RELATED_TENANT_ID_DATA_KEY, tenant.getId());
-                                mPage.getData().putString(IncomeWizardPage3.INCOME_RELATED_TENANT_TEXT_DATA_KEY, linkedTenantTV.getText().toString());
-                                mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_TENANT_DATA_KEY, tenant);
+                            if (mTenant == null) {
+                                mTenant = mDBHandler.getTenantByID(mLease.getPrimaryTenantID(), MainActivity.sUser);
+                                mLinkedTenantTV.setText(getTenantString());
+                                mPage.getData().putInt(IncomeWizardPage3.INCOME_RELATED_TENANT_ID_DATA_KEY, mTenant.getId());
+                                mPage.getData().putString(IncomeWizardPage3.INCOME_RELATED_TENANT_TEXT_DATA_KEY, mLinkedTenantTV.getText().toString());
+                                mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_TENANT_DATA_KEY, mTenant);
                             }
                             getAvailableLeases();
-                            linkedLeaseTV.setText(getLeaseString());
-                            mPage.getData().putInt(IncomeWizardPage3.INCOME_RELATED_LEASE_ID_DATA_KEY, lease.getId());
-                            mPage.getData().putString(IncomeWizardPage3.INCOME_RELATED_LEASE_TEXT_DATA_KEY, linkedLeaseTV.getText().toString());
-                            mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_LEASE_DATA_KEY, lease);
+                            mLinkedLeaseTV.setText(getLeaseString());
+                            mPage.getData().putInt(IncomeWizardPage3.INCOME_RELATED_LEASE_ID_DATA_KEY, mLease.getId());
+                            mPage.getData().putString(IncomeWizardPage3.INCOME_RELATED_LEASE_TEXT_DATA_KEY, mLinkedLeaseTV.getText().toString());
+                            mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_LEASE_DATA_KEY, mLease);
                         } else {
-                            lease = null;
-                            linkedLeaseTV.setText("");
+                            mLease = null;
+                            mLinkedLeaseTV.setText("");
                             mPage.getData().putInt(IncomeWizardPage3.INCOME_RELATED_LEASE_ID_DATA_KEY, 0);
                             mPage.getData().putString(IncomeWizardPage3.INCOME_RELATED_LEASE_TEXT_DATA_KEY, "");
                             mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_LEASE_DATA_KEY, null);
                             getAvailableLeases();
                         }
-                        mainArrayDataMethods.sortLeaseArrayByStartDateDesc(availableLeases);
+                        mMainArrayDataMethods.sortLeaseArrayByStartDateDesc(mAvailableLeases);
                         mPage.notifyDataChanged();
                     }
                 });
             }
         });
-        mainArrayDataMethods.sortTenantArrayAlphabetically(availableTenants);
-        mainArrayDataMethods.sortApartmentArrayAlphabetically(availableApartments);
-        mainArrayDataMethods.sortLeaseArrayByStartDateDesc(availableLeases);
-        isInitializing = false;
+        mMainArrayDataMethods.sortTenantArrayAlphabetically(mAvailableTenants);
+        mMainArrayDataMethods.sortApartmentArrayAlphabetically(mAvailableApartments);
+        mMainArrayDataMethods.sortLeaseArrayByStartDateDesc(mAvailableLeases);
+        mIsInitializing = false;
     }
 
     private String getApartmentString() {
-        if (apartment != null) {
-            StringBuilder builder = new StringBuilder(apartment.getStreet1());
-            if (apartment.getStreet2() != null) {
+        if (mApartment != null) {
+            StringBuilder builder = new StringBuilder(mApartment.getStreet1());
+            if (mApartment.getStreet2() != null) {
                 builder.append(" ");
-                builder.append(apartment.getStreet2());
+                builder.append(mApartment.getStreet2());
             }
             return builder.toString();
         } else {
@@ -309,10 +308,10 @@ public class IncomeWizardPage3Fragment extends android.support.v4.app.Fragment {
     }
 
     private String getTenantString() {
-        if (tenant != null) {
-            StringBuilder builder = new StringBuilder(tenant.getFirstName());
+        if (mTenant != null) {
+            StringBuilder builder = new StringBuilder(mTenant.getFirstName());
             builder.append(" ");
-            builder.append(tenant.getLastName());
+            builder.append(mTenant.getLastName());
             return builder.toString();
         } else {
             return "";
@@ -321,10 +320,10 @@ public class IncomeWizardPage3Fragment extends android.support.v4.app.Fragment {
 
     private String getLeaseString() {
         SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-        if (lease != null) {
-            StringBuilder builder = new StringBuilder(formatter.format(lease.getLeaseStart()));
+        if (mLease != null) {
+            StringBuilder builder = new StringBuilder(formatter.format(mLease.getLeaseStart()));
             builder.append(" - ");
-            builder.append(formatter.format(lease.getLeaseEnd()));
+            builder.append(formatter.format(mLease.getLeaseEnd()));
             return builder.toString();
         } else {
             return "";
@@ -334,8 +333,8 @@ public class IncomeWizardPage3Fragment extends android.support.v4.app.Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        if(tenantApartmentOrLeaseChooserDialog != null){
-            tenantApartmentOrLeaseChooserDialog.dismiss();
+        if(mTenantApartmentOrLeaseChooserDialog != null){
+            mTenantApartmentOrLeaseChooserDialog.dismiss();
         }
 
     }
@@ -346,7 +345,7 @@ public class IncomeWizardPage3Fragment extends android.support.v4.app.Fragment {
 
         // In a future update to the support library, this should override setUserVisibleHint
         // instead of setMenuVisibility.
-        if (linkedAptTV != null) {
+        if (mLinkedAptTV != null) {
             InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(
                     Context.INPUT_METHOD_SERVICE);
             if (!menuVisible) {
@@ -356,19 +355,19 @@ public class IncomeWizardPage3Fragment extends android.support.v4.app.Fragment {
     }
 
     private void getAvailableLeases() {
-        if (apartment != null && tenant != null) {
-            this.availableLeases = dbHandler.getUsersLeasesForTenantAndApartment(MainActivity.user, tenant.getId(), apartment.getId());
-        } else if (apartment != null) {
-            this.availableLeases = dbHandler.getUsersLeasesForApartment(MainActivity.user, apartment.getId());
-        } else if (tenant != null) {
-            this.availableLeases = dbHandler.getUsersLeasesForTenant(MainActivity.user, tenant.getId());
+        if (mApartment != null && mTenant != null) {
+            mAvailableLeases = mDBHandler.getUsersLeasesForTenantAndApartment(MainActivity.sUser, mTenant.getId(), mApartment.getId());
+        } else if (mApartment != null) {
+            mAvailableLeases = mDBHandler.getUsersLeasesForApartment(MainActivity.sUser, mApartment.getId());
+        } else if (mTenant != null) {
+            mAvailableLeases = mDBHandler.getUsersLeasesForTenant(MainActivity.sUser, mTenant.getId());
         } else {
-            this.availableLeases = new ArrayList<>();
+            mAvailableLeases = new ArrayList<>();
         }
-        if(lease != null) {
-            for(int i = 0; i < availableLeases.size(); i++){
-                if(availableLeases.get(i).getId() == lease.getId()){
-                    availableLeases.remove(availableLeases.get(i));
+        if(mLease != null) {
+            for(int i = 0; i < mAvailableLeases.size(); i++){
+                if(mAvailableLeases.get(i).getId() == mLease.getId()){
+                    mAvailableLeases.remove(mAvailableLeases.get(i));
                     break;
                 }
             }
@@ -376,10 +375,10 @@ public class IncomeWizardPage3Fragment extends android.support.v4.app.Fragment {
     }
 
     private void resetLeaseSelection() {
-        lease = null;
-        linkedLeaseTV.setText("");
+        mLease = null;
+        mLinkedLeaseTV.setText("");
         mPage.getData().putInt(IncomeWizardPage3.INCOME_RELATED_LEASE_ID_DATA_KEY, 0);
-        mPage.getData().putString(IncomeWizardPage3.INCOME_RELATED_LEASE_TEXT_DATA_KEY, linkedLeaseTV.getText().toString());
+        mPage.getData().putString(IncomeWizardPage3.INCOME_RELATED_LEASE_TEXT_DATA_KEY, mLinkedLeaseTV.getText().toString());
         mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_LEASE_DATA_KEY, null);
         mPage.notifyDataChanged();
     }
@@ -393,28 +392,28 @@ public class IncomeWizardPage3Fragment extends android.support.v4.app.Fragment {
     private void loadDataForEdit(PaymentLogEntry incomeToEdit) {
         if (!mPage.getData().getBoolean(IncomeWizardPage3.WAS_PRELOADED)) {
             if (incomeToEdit.getApartmentID() != 0) {
-                apartment = dbHandler.getApartmentByID(incomeToEdit.getApartmentID(), MainActivity.user);
-                if (apartment != null) {
-                    mPage.getData().putInt(IncomeWizardPage3.INCOME_RELATED_APT_ID_DATA_KEY, apartment.getId());
+                mApartment = mDBHandler.getApartmentByID(incomeToEdit.getApartmentID(), MainActivity.sUser);
+                if (mApartment != null) {
+                    mPage.getData().putInt(IncomeWizardPage3.INCOME_RELATED_APT_ID_DATA_KEY, mApartment.getId());
                     mPage.getData().putString(IncomeWizardPage3.INCOME_RELATED_APT_TEXT_DATA_KEY, getApartmentString());
-                    mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_APT_DATA_KEY, apartment);
+                    mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_APT_DATA_KEY, mApartment);
                 }
             }
             if (incomeToEdit.getTenantID() != 0) {
-                tenant = dbHandler.getTenantByID(incomeToEdit.getTenantID(), MainActivity.user);
-                if (tenant != null) {
-                    mPage.getData().putInt(IncomeWizardPage3.INCOME_RELATED_TENANT_ID_DATA_KEY, tenant.getId());
+                mTenant = mDBHandler.getTenantByID(incomeToEdit.getTenantID(), MainActivity.sUser);
+                if (mTenant != null) {
+                    mPage.getData().putInt(IncomeWizardPage3.INCOME_RELATED_TENANT_ID_DATA_KEY, mTenant.getId());
                     mPage.getData().putString(IncomeWizardPage3.INCOME_RELATED_TENANT_TEXT_DATA_KEY, getTenantString());
-                    mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_TENANT_DATA_KEY, tenant);
+                    mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_TENANT_DATA_KEY, mTenant);
                 }
 
             }
             if (incomeToEdit.getLeaseID() != 0) {
-                lease = dbHandler.getLeaseByID(MainActivity.user, incomeToEdit.getLeaseID());
-                if (lease != null) {
-                    mPage.getData().putInt(IncomeWizardPage3.INCOME_RELATED_LEASE_ID_DATA_KEY, lease.getId());
+                mLease = mDBHandler.getLeaseByID(MainActivity.sUser, incomeToEdit.getLeaseID());
+                if (mLease != null) {
+                    mPage.getData().putInt(IncomeWizardPage3.INCOME_RELATED_LEASE_ID_DATA_KEY, mLease.getId());
                     mPage.getData().putString(IncomeWizardPage3.INCOME_RELATED_LEASE_TEXT_DATA_KEY, getLeaseString());
-                    mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_LEASE_DATA_KEY, lease);
+                    mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_LEASE_DATA_KEY, mLease);
                 }
             }
             mPage.getData().putBoolean(IncomeWizardPage3.WAS_PRELOADED, true);
@@ -428,29 +427,29 @@ public class IncomeWizardPage3Fragment extends android.support.v4.app.Fragment {
         if (mPage.getData().getInt(IncomeWizardPage3.INCOME_RELATED_APT_ID_DATA_KEY, 0) != 0) {
             //If re-loaded with an id
             if (mPage.getData().getParcelable(IncomeWizardPage3.INCOME_RELATED_APT_DATA_KEY) != null) {
-                //and apartment is not null
-                apartment = mPage.getData().getParcelable(IncomeWizardPage3.INCOME_RELATED_APT_DATA_KEY);
+                //and mApartment is not null
+                mApartment = mPage.getData().getParcelable(IncomeWizardPage3.INCOME_RELATED_APT_DATA_KEY);
             } else {
-                //and apartment is for some reason null
-                apartment = dbHandler.getApartmentByID(mPage.getData().getInt(IncomeWizardPage3.INCOME_RELATED_APT_ID_DATA_KEY), MainActivity.user);
+                //and mApartment is for some reason null
+                mApartment = mDBHandler.getApartmentByID(mPage.getData().getInt(IncomeWizardPage3.INCOME_RELATED_APT_ID_DATA_KEY), MainActivity.sUser);
                 mPage.getData().putString(IncomeWizardPage3.INCOME_RELATED_APT_TEXT_DATA_KEY, getApartmentString());
-                mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_APT_DATA_KEY, apartment);
+                mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_APT_DATA_KEY, mApartment);
             }
         } else if (bundle.getParcelable("preloadedApartment") != null) {
-            //If loaded first time with preloaded apartment
-            apartment = bundle.getParcelable("preloadedApartment");
-            mPage.getData().putInt(IncomeWizardPage3.INCOME_RELATED_APT_ID_DATA_KEY, apartment.getId());
+            //If loaded first time with preloaded mApartment
+            mApartment = bundle.getParcelable("preloadedApartment");
+            mPage.getData().putInt(IncomeWizardPage3.INCOME_RELATED_APT_ID_DATA_KEY, mApartment.getId());
             mPage.getData().putString(IncomeWizardPage3.INCOME_RELATED_APT_TEXT_DATA_KEY, getApartmentString());
-            mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_APT_DATA_KEY, apartment);
+            mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_APT_DATA_KEY, mApartment);
         } else if (bundle.getInt("preloadedApartmentID") != 0) {
-            //If loaded first time with apartment id
-            apartment = dbHandler.getApartmentByID(bundle.getInt("preloadedApartmentID"), MainActivity.user);
-            mPage.getData().putInt(IncomeWizardPage3.INCOME_RELATED_APT_ID_DATA_KEY, apartment.getId());
+            //If loaded first time with mApartment id
+            mApartment = mDBHandler.getApartmentByID(bundle.getInt("preloadedApartmentID"), MainActivity.sUser);
+            mPage.getData().putInt(IncomeWizardPage3.INCOME_RELATED_APT_ID_DATA_KEY, mApartment.getId());
             mPage.getData().putString(IncomeWizardPage3.INCOME_RELATED_APT_TEXT_DATA_KEY, getApartmentString());
-            mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_APT_DATA_KEY, apartment);
+            mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_APT_DATA_KEY, mApartment);
         } else {
-            //If no apartment id
-            apartment = null;
+            //If no mApartment id
+            mApartment = null;
         }
     }
 
@@ -458,29 +457,29 @@ public class IncomeWizardPage3Fragment extends android.support.v4.app.Fragment {
         if (mPage.getData().getInt(IncomeWizardPage3.INCOME_RELATED_TENANT_ID_DATA_KEY, 0) != 0) {
             //If re-loaded with an id
             if (mPage.getData().getParcelable(IncomeWizardPage3.INCOME_RELATED_TENANT_DATA_KEY) != null) {
-                //and tenant is not null
-                tenant = mPage.getData().getParcelable(IncomeWizardPage3.INCOME_RELATED_TENANT_DATA_KEY);
+                //and mTenant is not null
+                mTenant = mPage.getData().getParcelable(IncomeWizardPage3.INCOME_RELATED_TENANT_DATA_KEY);
             } else {
-                //and tenant is for some reason null
-                tenant = dbHandler.getTenantByID(mPage.getData().getInt(IncomeWizardPage3.INCOME_RELATED_TENANT_ID_DATA_KEY), MainActivity.user);
+                //and mTenant is for some reason null
+                mTenant = mDBHandler.getTenantByID(mPage.getData().getInt(IncomeWizardPage3.INCOME_RELATED_TENANT_ID_DATA_KEY), MainActivity.sUser);
                 mPage.getData().putString(IncomeWizardPage3.INCOME_RELATED_TENANT_TEXT_DATA_KEY, getTenantString());
-                mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_TENANT_DATA_KEY, tenant);
+                mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_TENANT_DATA_KEY, mTenant);
             }
         } else if (bundle.getParcelable("preloadedTenant") != null) {
-            //If loaded first time with preloaded tenant
-            tenant = bundle.getParcelable("preloadedTenant");
-            mPage.getData().putInt(IncomeWizardPage3.INCOME_RELATED_TENANT_ID_DATA_KEY, tenant.getId());
+            //If loaded first time with preloaded mTenant
+            mTenant = bundle.getParcelable("preloadedTenant");
+            mPage.getData().putInt(IncomeWizardPage3.INCOME_RELATED_TENANT_ID_DATA_KEY, mTenant.getId());
             mPage.getData().putString(IncomeWizardPage3.INCOME_RELATED_TENANT_TEXT_DATA_KEY, getTenantString());
-            mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_TENANT_DATA_KEY, tenant);
+            mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_TENANT_DATA_KEY, mTenant);
         } else if (bundle.getInt("preloadedTenantID") != 0) {
-            //If loaded first time with tenant id
-            tenant = dbHandler.getTenantByID(bundle.getInt("preloadedTenantID"), MainActivity.user);
-            mPage.getData().putInt(IncomeWizardPage3.INCOME_RELATED_TENANT_ID_DATA_KEY, tenant.getId());
+            //If loaded first time with mTenant id
+            mTenant = mDBHandler.getTenantByID(bundle.getInt("preloadedTenantID"), MainActivity.sUser);
+            mPage.getData().putInt(IncomeWizardPage3.INCOME_RELATED_TENANT_ID_DATA_KEY, mTenant.getId());
             mPage.getData().putString(IncomeWizardPage3.INCOME_RELATED_TENANT_TEXT_DATA_KEY, getTenantString());
-            mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_TENANT_DATA_KEY, tenant);
+            mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_TENANT_DATA_KEY, mTenant);
         } else {
-            //If no tenant id
-            tenant = null;
+            //If no mTenant id
+            mTenant = null;
         }
     }
 
@@ -488,59 +487,59 @@ public class IncomeWizardPage3Fragment extends android.support.v4.app.Fragment {
         if (mPage.getData().getInt(IncomeWizardPage3.INCOME_RELATED_LEASE_ID_DATA_KEY, 0) != 0) {
             //If re-loaded with an id
             if (mPage.getData().getParcelable(IncomeWizardPage3.INCOME_RELATED_LEASE_DATA_KEY) != null) {
-                //and lease is not null
-                lease = mPage.getData().getParcelable(IncomeWizardPage3.INCOME_RELATED_LEASE_DATA_KEY);
+                //and mLease is not null
+                mLease = mPage.getData().getParcelable(IncomeWizardPage3.INCOME_RELATED_LEASE_DATA_KEY);
             } else {
-                //and lease is for some reason null
-                lease = dbHandler.getLeaseByID(MainActivity.user, mPage.getData().getInt(IncomeWizardPage3.INCOME_RELATED_LEASE_ID_DATA_KEY));
+                //and mLease is for some reason null
+                mLease = mDBHandler.getLeaseByID(MainActivity.sUser, mPage.getData().getInt(IncomeWizardPage3.INCOME_RELATED_LEASE_ID_DATA_KEY));
                 mPage.getData().putString(IncomeWizardPage3.INCOME_RELATED_LEASE_TEXT_DATA_KEY, getLeaseString());
-                mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_LEASE_DATA_KEY, lease);
+                mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_LEASE_DATA_KEY, mLease);
             }
         } else if (bundle.getParcelable("preloadedLease") != null) {
-            //If loaded first time with preloaded lease
-            lease = bundle.getParcelable("preloadedLease");
-            if (tenant == null) {
-                preLoadTenantForLease(lease);
+            //If loaded first time with preloaded mLease
+            mLease = bundle.getParcelable("preloadedLease");
+            if (mTenant == null) {
+                preLoadTenantForLease(mLease);
             }
-            if (apartment == null) {
-                preloadApartmentForLease(lease);
+            if (mApartment == null) {
+                preloadApartmentForLease(mLease);
             }
-            mPage.getData().putInt(IncomeWizardPage3.INCOME_RELATED_LEASE_ID_DATA_KEY, lease.getId());
+            mPage.getData().putInt(IncomeWizardPage3.INCOME_RELATED_LEASE_ID_DATA_KEY, mLease.getId());
             mPage.getData().putString(IncomeWizardPage3.INCOME_RELATED_LEASE_TEXT_DATA_KEY, getLeaseString());
-            mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_LEASE_DATA_KEY, lease);
+            mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_LEASE_DATA_KEY, mLease);
         } else if (bundle.getInt("preloadedLeaseID") != 0) {
-            //If loaded first time with lease id
-            lease = dbHandler.getLeaseByID(MainActivity.user, bundle.getInt("preloadedLeaseID"));
-            if (tenant == null) {
-                preLoadTenantForLease(lease);
+            //If loaded first time with mLease id
+            mLease = mDBHandler.getLeaseByID(MainActivity.sUser, bundle.getInt("preloadedLeaseID"));
+            if (mTenant == null) {
+                preLoadTenantForLease(mLease);
             }
-            if (apartment == null) {
-                preloadApartmentForLease(lease);
+            if (mApartment == null) {
+                preloadApartmentForLease(mLease);
             }
-            mPage.getData().putInt(IncomeWizardPage3.INCOME_RELATED_LEASE_ID_DATA_KEY, lease.getId());
+            mPage.getData().putInt(IncomeWizardPage3.INCOME_RELATED_LEASE_ID_DATA_KEY, mLease.getId());
             mPage.getData().putString(IncomeWizardPage3.INCOME_RELATED_LEASE_TEXT_DATA_KEY, getLeaseString());
-            mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_LEASE_DATA_KEY, lease);
+            mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_LEASE_DATA_KEY, mLease);
         } else {
-            //If no lease id
-            lease = null;
+            //If no mLease id
+            mLease = null;
         }
     }
 
     private void preLoadTenantForLease(Lease lease) {
         if (lease.getPrimaryTenantID() != 0) {
-            tenant = dbHandler.getTenantByID(lease.getPrimaryTenantID(), MainActivity.user);
-            mPage.getData().putInt(IncomeWizardPage3.INCOME_RELATED_TENANT_ID_DATA_KEY, tenant.getId());
+            mTenant = mDBHandler.getTenantByID(lease.getPrimaryTenantID(), MainActivity.sUser);
+            mPage.getData().putInt(IncomeWizardPage3.INCOME_RELATED_TENANT_ID_DATA_KEY, mTenant.getId());
             mPage.getData().putString(IncomeWizardPage3.INCOME_RELATED_TENANT_TEXT_DATA_KEY, getTenantString());
-            mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_TENANT_DATA_KEY, tenant);
+            mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_TENANT_DATA_KEY, mTenant);
         }
     }
 
     private void preloadApartmentForLease(Lease lease) {
         if (lease.getApartmentID() != 0) {
-            apartment = dbHandler.getApartmentByID(lease.getApartmentID(), MainActivity.user);
-            mPage.getData().putInt(IncomeWizardPage3.INCOME_RELATED_APT_ID_DATA_KEY, apartment.getId());
+            mApartment = mDBHandler.getApartmentByID(lease.getApartmentID(), MainActivity.sUser);
+            mPage.getData().putInt(IncomeWizardPage3.INCOME_RELATED_APT_ID_DATA_KEY, mApartment.getId());
             mPage.getData().putString(IncomeWizardPage3.INCOME_RELATED_APT_TEXT_DATA_KEY, getApartmentString());
-            mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_APT_DATA_KEY, apartment);
+            mPage.getData().putParcelable(IncomeWizardPage3.INCOME_RELATED_APT_DATA_KEY, mApartment);
         }
     }
 }

@@ -22,7 +22,7 @@ public class ApartmentWizardPage2Fragment extends android.support.v4.app.Fragmen
     private PageFragmentCallbacks mCallbacks;
     private String mKey;
     private ApartmentWizardPage2 mPage;
-    private EditText descriptionET, notesET;
+    private EditText mDescriptionET, mNotesET;
 
     public static ApartmentWizardPage2Fragment create(String key) {
         Bundle args = new Bundle();
@@ -58,13 +58,13 @@ public class ApartmentWizardPage2Fragment extends android.support.v4.app.Fragmen
         View rootView = inflater.inflate(R.layout.fragment_apartment_wizard_page_2, container, false);
         (rootView.findViewById(android.R.id.title)).setVisibility(View.GONE);
 
-        descriptionET = rootView.findViewById(R.id.apartmentWizardDescriptionET);
-        descriptionET.setText(mPage.getData().getString(ApartmentWizardPage2.APARTMENT_DESCRIPTION_DATA_KEY));
-        descriptionET.setSelection(descriptionET.getText().length());
+        mDescriptionET = rootView.findViewById(R.id.apartmentWizardDescriptionET);
+        mDescriptionET.setText(mPage.getData().getString(ApartmentWizardPage2.APARTMENT_DESCRIPTION_DATA_KEY));
+        mDescriptionET.setSelection(mDescriptionET.getText().length());
 
-        notesET = rootView.findViewById(R.id.apartmentWizardNotesET);
-        notesET.setText(mPage.getData().getString(ApartmentWizardPage2.APARTMENT_NOTES_DATA_KEY));
-        notesET.setSelection(notesET.getText().length());
+        mNotesET = rootView.findViewById(R.id.apartmentWizardNotesET);
+        mNotesET.setText(mPage.getData().getString(ApartmentWizardPage2.APARTMENT_NOTES_DATA_KEY));
+        mNotesET.setSelection(mNotesET.getText().length());
 
         return rootView;
     }
@@ -89,7 +89,7 @@ public class ApartmentWizardPage2Fragment extends android.support.v4.app.Fragmen
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        descriptionET.addTextChangedListener(new TextWatcher() {
+        mDescriptionET.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -106,7 +106,7 @@ public class ApartmentWizardPage2Fragment extends android.support.v4.app.Fragmen
                 mPage.notifyDataChanged();
             }
         });
-        notesET.addTextChangedListener(new TextWatcher() {
+        mNotesET.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -132,7 +132,7 @@ public class ApartmentWizardPage2Fragment extends android.support.v4.app.Fragmen
 
         // In a future update to the support library, this should override setUserVisibleHint
         // instead of setMenuVisibility.
-        if (notesET != null) {
+        if (mNotesET != null) {
             InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(
                     Context.INPUT_METHOD_SERVICE);
             if (!menuVisible) {

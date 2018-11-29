@@ -16,11 +16,11 @@ public class TenantWizardPage2 extends Page {
     public static final String TENANT_EMERGENCY_LAST_NAME_DATA_KEY = "tenant_emergency_last_name";
     public static final String TENANT_EMERGENCY_PHONE_DATA_KEY = "tenant_emergency_phone";
     public static final String WAS_PRELOADED = "tenant_page_2_was_preloaded";
-    private Context context;
+    private Context mContext;
 
     public TenantWizardPage2(ModelCallbacks callbacks, String title, Context context) {
         super(callbacks, title);
-        this.context = context;
+        mContext = context;
         mData.putBoolean(WAS_PRELOADED, false);
     }
 
@@ -31,9 +31,9 @@ public class TenantWizardPage2 extends Page {
 
     @Override
     public void getReviewItems(ArrayList<ReviewItem> dest) {
-        dest.add(new ReviewItem(context.getResources().getString(R.string.emer_contact_first_name), mData.getString(TENANT_EMERGENCY_FIRST_NAME_DATA_KEY), getKey(), -1));
-        dest.add(new ReviewItem(context.getResources().getString(R.string.emer_contact_last_name), mData.getString(TENANT_EMERGENCY_LAST_NAME_DATA_KEY), getKey(), -1));
-        dest.add(new ReviewItem(context.getResources().getString(R.string.emer_contact_phone), mData.getString(TENANT_EMERGENCY_PHONE_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(mContext.getResources().getString(R.string.emer_contact_first_name), mData.getString(TENANT_EMERGENCY_FIRST_NAME_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(mContext.getResources().getString(R.string.emer_contact_last_name), mData.getString(TENANT_EMERGENCY_LAST_NAME_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem(mContext.getResources().getString(R.string.emer_contact_phone), mData.getString(TENANT_EMERGENCY_PHONE_DATA_KEY), getKey(), -1));
     }
 
     @Override

@@ -16,7 +16,6 @@ import android.widget.Filterable;
 import android.widget.TextView;
 
 import com.rba18.R;
-import com.rba18.helpers.MainArrayDataMethods;
 import com.rba18.model.TypeTotal;
 
 import android.widget.Filter;
@@ -25,36 +24,34 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 public class TypeDialogListAdapter extends BaseAdapter implements Filterable {
-    private Context context;
-    private String searchText;
-    private ColorStateList highlightColor;
-    private MainArrayDataMethods dataMethods;
-    private ArrayList<TypeTotal> types, filteredResults;
+    private Context mContext;
+    private String mSearchText;
+    private ColorStateList mHighlightColor;
+    private ArrayList<TypeTotal> mTypes, mFilteredResults;
 
     public TypeDialogListAdapter(Context context, ArrayList<TypeTotal> types, ColorStateList highlightColor) {
-        this.types = types;
-        this.filteredResults = types;
-        this.context = context;
-        this.searchText = "";
-        this.highlightColor = highlightColor;
-        this.dataMethods = new MainArrayDataMethods();
+        mTypes = types;
+        mFilteredResults = types;
+        mContext = context;
+        mSearchText = "";
+        mHighlightColor = highlightColor;
     }
 
-    static class ViewHolder {
+    private static class ViewHolder {
         TextView typeLabelTV;
     }
 
     @Override
     public int getCount() {
-        if (filteredResults != null) {
-            return filteredResults.size();
+        if (mFilteredResults != null) {
+            return mFilteredResults.size();
         }
         return 0;
     }
 
     @Override
     public TypeTotal getItem(int i) {
-        return filteredResults.get(i);
+        return mFilteredResults.get(i);
     }
 
     @Override
@@ -69,7 +66,7 @@ public class TypeDialogListAdapter extends BaseAdapter implements Filterable {
         ViewHolder viewHolder;
         // Check if an existing view is being reused, otherwise inflate the view
         if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.row_dialog_type, parent, false);
+            convertView = LayoutInflater.from(mContext).inflate(R.layout.row_dialog_type, parent, false);
             viewHolder = new ViewHolder();
             viewHolder.typeLabelTV = convertView.findViewById(R.id.typeDialogRowTypeLabelTV);
             convertView.setTag(viewHolder);
@@ -90,7 +87,7 @@ public class TypeDialogListAdapter extends BaseAdapter implements Filterable {
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
                 //Update filtered results and notify change
-                filteredResults = (ArrayList<TypeTotal>) results.values;
+                mFilteredResults = (ArrayList<TypeTotal>) results.values;
                 notifyDataSetChanged();
             }
 
@@ -98,11 +95,11 @@ public class TypeDialogListAdapter extends BaseAdapter implements Filterable {
             protected FilterResults performFiltering(CharSequence constraint) {
                 FilterResults results = new FilterResults();
                 ArrayList<TypeTotal> FilteredArrayNames = new ArrayList<>();
-                searchText = constraint.toString().toLowerCase();
+                mSearchText = constraint.toString().toLowerCase();
                 //Perform users search
                 constraint = constraint.toString().toLowerCase();
-                for (int i = 0; i < types.size(); i++) {
-                    TypeTotal dataNames = types.get(i);
+                for (int i = 0; i < mTypes.size(); i++) {
+                    TypeTotal dataNames = mTypes.get(i);
                     //If users search matches any part of any apartment value, add to new filtered list
                     if (dataNames.getTypeLabel().toLowerCase().contains(constraint.toString())) {
                         FilteredArrayNames.add(dataNames);
@@ -118,13 +115,13 @@ public class TypeDialogListAdapter extends BaseAdapter implements Filterable {
     //Used to change color of any text matching search
     private void setTextHighlightSearch(TextView textView, String theTextToSet) {
         //If user has any text in the search bar
-        if (searchText != null && !searchText.isEmpty()) {
-            int startPos = theTextToSet.toLowerCase(Locale.US).indexOf(searchText.toLowerCase(Locale.US));
-            int endPos = startPos + searchText.length();
+        if (mSearchText != null && !mSearchText.isEmpty()) {
+            int startPos = theTextToSet.toLowerCase(Locale.US).indexOf(mSearchText.toLowerCase(Locale.US));
+            int endPos = startPos + mSearchText.length();
             if (startPos != -1) {
                 //If theTextToSet contains match, highlight match
                 Spannable spannable = new SpannableString(theTextToSet);
-                TextAppearanceSpan highlightSpan = new TextAppearanceSpan(null, Typeface.BOLD, -1, highlightColor, null);
+                TextAppearanceSpan highlightSpan = new TextAppearanceSpan(null, Typeface.BOLD, -1, mHighlightColor, null);
                 spannable.setSpan(highlightSpan, startPos, endPos, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 textView.setText(spannable);
             } else {
@@ -139,12 +136,12 @@ public class TypeDialogListAdapter extends BaseAdapter implements Filterable {
 
     //Retrieve filtered results
     public ArrayList<TypeTotal> getFilteredResults() {
-        return filteredResults;
+        return mFilteredResults;
     }
 
     public void updateResults(ArrayList<TypeTotal> results) {
-        types = results;
-        filteredResults = results;
+        mTypes = results;
+        mFilteredResults = results;
 
         //Triggers the list update
         notifyDataSetChanged();

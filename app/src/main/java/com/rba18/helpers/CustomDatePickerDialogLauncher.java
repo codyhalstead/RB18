@@ -14,24 +14,24 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class CustomDatePickerDialogLauncher {
-    private Date startDatePreset, endDatePreset, singleDatePreset, startDateLimit, endDateLimit;
-    private DatePickerDialog datePickerDialog;
-    private Context context;
-    private Boolean limitToTwoYears, yearOnly;
-    private DatePickerDialog.OnDateSetListener onStartDateSet, onEndDateSet, onSingleDateSet;
-    private DateSelectedListener DateSelectedListener;
+    private Date mStartDatePreset, mEndDatePreset, mSingleDatePreset, mStartDateLimit, mEndDateLimit;
+    private DatePickerDialog mDatePickerDialog;
+    private Context mContext;
+    private Boolean mLimitToTwoYears, mYearOnly;
+    private DatePickerDialog.OnDateSetListener mOnStartDateSet, mOnEndDateSet, mOnSingleDateSet;
+    private DateSelectedListener mDateSelectedListener;
 
     public CustomDatePickerDialogLauncher(Date startDatePreset, Date endDatePreset, final boolean limitToTwoYears, Context context) {
-        this.startDatePreset = startDatePreset;
-        this.endDatePreset = endDatePreset;
-        this.context = context;
-        this.limitToTwoYears = limitToTwoYears;
+        mStartDatePreset = startDatePreset;
+        mEndDatePreset = endDatePreset;
+        mContext = context;
+        mLimitToTwoYears = limitToTwoYears;
         Calendar cal = Calendar.getInstance();
         cal.set(1971, 0, 0);
-        this.startDateLimit = cal.getTime();
+        mStartDateLimit = cal.getTime();
         cal.set(2037, 11, 31);
-        this.endDateLimit = cal.getTime();
-        onStartDateSet = new DatePickerDialog.OnDateSetListener() {
+        this.mEndDateLimit = cal.getTime();
+        mOnStartDateSet = new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker datePicker, int year, int month, int day) {
                 //Once user selects date from date picker pop-up,
@@ -43,18 +43,18 @@ public class CustomDatePickerDialogLauncher {
                 cal.set(Calendar.MINUTE, 0);
                 cal.set(Calendar.SECOND, 0);
                 cal.set(Calendar.MILLISECOND, 0);
-                CustomDatePickerDialogLauncher.this.startDatePreset = cal.getTime();
+                CustomDatePickerDialogLauncher.this.mStartDatePreset = cal.getTime();
                 if (limitToTwoYears) {
                     limitDateRangesToTwoYearsFromStart(cal);
                 }
-                if (DateSelectedListener != null) {
-                    DateSelectedListener.onStartDateSelected(CustomDatePickerDialogLauncher.this.startDatePreset, CustomDatePickerDialogLauncher.this.endDatePreset);
+                if (mDateSelectedListener != null) {
+                    mDateSelectedListener.onStartDateSelected(CustomDatePickerDialogLauncher.this.mStartDatePreset, CustomDatePickerDialogLauncher.this.mEndDatePreset);
                 } else {
-                    datePickerDialog.dismiss();
+                    mDatePickerDialog.dismiss();
                 }
             }
         };
-        onEndDateSet = new DatePickerDialog.OnDateSetListener() {
+        mOnEndDateSet = new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker datePicker, int year, int month, int day) {
                 Calendar cal = Calendar.getInstance();
@@ -65,29 +65,29 @@ public class CustomDatePickerDialogLauncher {
                 cal.set(Calendar.MINUTE, 0);
                 cal.set(Calendar.SECOND, 0);
                 cal.set(Calendar.MILLISECOND, 0);
-                CustomDatePickerDialogLauncher.this.endDatePreset = cal.getTime();
+                CustomDatePickerDialogLauncher.this.mEndDatePreset = cal.getTime();
                 if (limitToTwoYears) {
                     limitDateRangesToTwoYearsFromEnd(cal);
                 }
-                if (DateSelectedListener != null) {
-                    DateSelectedListener.onEndDateSelected(CustomDatePickerDialogLauncher.this.startDatePreset, CustomDatePickerDialogLauncher.this.endDatePreset);
+                if (mDateSelectedListener != null) {
+                    mDateSelectedListener.onEndDateSelected(CustomDatePickerDialogLauncher.this.mStartDatePreset, CustomDatePickerDialogLauncher.this.mEndDatePreset);
                 } else {
-                    datePickerDialog.dismiss();
+                    mDatePickerDialog.dismiss();
                 }
             }
         };
     }
 
     public CustomDatePickerDialogLauncher(Date singleDatePreset, Boolean yearOnly, Context context) {
-        this.singleDatePreset = singleDatePreset;
-        this.context = context;
-        this.yearOnly = yearOnly;
+        mSingleDatePreset = singleDatePreset;
+        mContext = context;
+        mYearOnly = yearOnly;
         Calendar cal = Calendar.getInstance();
         cal.set(1971, 0, 0);
-        this.startDateLimit = cal.getTime();
+        mStartDateLimit = cal.getTime();
         cal.set(2037, 11, 31);
-        this.endDateLimit = cal.getTime();
-        onSingleDateSet = new DatePickerDialog.OnDateSetListener() {
+        mEndDateLimit = cal.getTime();
+        mOnSingleDateSet = new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker datePicker, int year, int month, int day) {
                 Calendar cal = Calendar.getInstance();
@@ -98,11 +98,11 @@ public class CustomDatePickerDialogLauncher {
                 cal.set(Calendar.MINUTE, 0);
                 cal.set(Calendar.SECOND, 0);
                 cal.set(Calendar.MILLISECOND, 0);
-                CustomDatePickerDialogLauncher.this.singleDatePreset = cal.getTime();
-                if (DateSelectedListener != null) {
-                    DateSelectedListener.onDateSelected(CustomDatePickerDialogLauncher.this.singleDatePreset);
+                CustomDatePickerDialogLauncher.this.mSingleDatePreset = cal.getTime();
+                if (mDateSelectedListener != null) {
+                    mDateSelectedListener.onDateSelected(CustomDatePickerDialogLauncher.this.mSingleDatePreset);
                 } else {
-                    datePickerDialog.dismiss();
+                    mDatePickerDialog.dismiss();
                 }
             }
         };
@@ -117,103 +117,103 @@ public class CustomDatePickerDialogLauncher {
     }
 
     public void setDateSelectedListener(DateSelectedListener listener) {
-        this.DateSelectedListener = listener;
+        mDateSelectedListener = listener;
     }
 
 
     public void launchStartDatePickerDialog() {
-        if (onStartDateSet != null) {
+        if (mOnStartDateSet != null) {
             Calendar cal = Calendar.getInstance();
-            if (startDatePreset != null) {
-                cal.setTime(startDatePreset);
+            if (mStartDatePreset != null) {
+                cal.setTime(mStartDatePreset);
             }
             int year = cal.get(Calendar.YEAR);
             int month = cal.get(Calendar.MONTH);
             int day = cal.get(Calendar.DAY_OF_MONTH);
-            datePickerDialog = new DatePickerDialog(context, android.R.style.Theme_Holo_Light_Dialog_MinWidth, onStartDateSet, year, month, day);
-            datePickerDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            datePickerDialog.getDatePicker().setMaxDate(endDateLimit.getTime());
-            datePickerDialog.getDatePicker().setMinDate(startDateLimit.getTime());
-            datePickerDialog.show();
+            mDatePickerDialog = new DatePickerDialog(mContext, android.R.style.Theme_Holo_Light_Dialog_MinWidth, mOnStartDateSet, year, month, day);
+            mDatePickerDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            mDatePickerDialog.getDatePicker().setMaxDate(mEndDateLimit.getTime());
+            mDatePickerDialog.getDatePicker().setMinDate(mStartDateLimit.getTime());
+            mDatePickerDialog.show();
         }
     }
 
     public void launchEndDatePickerDialog() {
-        if (onEndDateSet != null) {
+        if (mOnEndDateSet != null) {
             Calendar cal = Calendar.getInstance();
-            if (endDatePreset != null) {
-                cal.setTime(endDatePreset);
+            if (mEndDatePreset != null) {
+                cal.setTime(mEndDatePreset);
             }
             int year = cal.get(Calendar.YEAR);
             int month = cal.get(Calendar.MONTH);
             int day = cal.get(Calendar.DAY_OF_MONTH);
-            datePickerDialog = new DatePickerDialog(context, android.R.style.Theme_Holo_Light_Dialog_MinWidth, onEndDateSet, year, month, day);
-            datePickerDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            datePickerDialog.getDatePicker().setMaxDate(endDateLimit.getTime());
-            datePickerDialog.getDatePicker().setMinDate(startDateLimit.getTime());
-            datePickerDialog.show();
+            mDatePickerDialog = new DatePickerDialog(mContext, android.R.style.Theme_Holo_Light_Dialog_MinWidth, mOnEndDateSet, year, month, day);
+            mDatePickerDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            mDatePickerDialog.getDatePicker().setMaxDate(mEndDateLimit.getTime());
+            mDatePickerDialog.getDatePicker().setMinDate(mStartDateLimit.getTime());
+            mDatePickerDialog.show();
         }
     }
 
     public void launchSingleDatePickerDialog() {
-        if (onSingleDateSet != null) {
-            if (yearOnly) {
+        if (mOnSingleDateSet != null) {
+            if (mYearOnly) {
                 Calendar cal = Calendar.getInstance();
-                if (singleDatePreset != null) {
-                    cal.setTime(singleDatePreset);
+                if (mSingleDatePreset != null) {
+                    cal.setTime(mSingleDatePreset);
                 }
                 int mYear = cal.get(Calendar.YEAR);
                 int mMonth = cal.get(Calendar.MONTH);
                 int mDay = cal.get(Calendar.DAY_OF_MONTH);
-                datePickerDialog = new DatePickerDialog(context, android.R.style.Theme_Holo_Light_Dialog_MinWidth, onSingleDateSet, mYear, mMonth, mDay);
-                datePickerDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                datePickerDialog.getDatePicker().findViewById(context.getResources().getIdentifier("month","id","android")).setVisibility(View.GONE);
-                datePickerDialog.getDatePicker().findViewById(context.getResources().getIdentifier("day","id","android")).setVisibility(View.GONE);
-                datePickerDialog.show();
+                mDatePickerDialog = new DatePickerDialog(mContext, android.R.style.Theme_Holo_Light_Dialog_MinWidth, mOnSingleDateSet, mYear, mMonth, mDay);
+                mDatePickerDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                mDatePickerDialog.getDatePicker().findViewById(mContext.getResources().getIdentifier("month","id","android")).setVisibility(View.GONE);
+                mDatePickerDialog.getDatePicker().findViewById(mContext.getResources().getIdentifier("day","id","android")).setVisibility(View.GONE);
+                mDatePickerDialog.show();
             } else {
                 Calendar cal = Calendar.getInstance();
-                if (singleDatePreset != null) {
-                    cal.setTime(singleDatePreset);
+                if (mSingleDatePreset != null) {
+                    cal.setTime(mSingleDatePreset);
                 }
                 int year = cal.get(Calendar.YEAR);
                 int month = cal.get(Calendar.MONTH);
                 int day = cal.get(Calendar.DAY_OF_MONTH);
-                datePickerDialog = new DatePickerDialog(context, android.R.style.Theme_Holo_Light_Dialog_MinWidth, onSingleDateSet, year, month, day);
-                datePickerDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                datePickerDialog.getDatePicker().setMaxDate(endDateLimit.getTime());
-                datePickerDialog.getDatePicker().setMinDate(startDateLimit.getTime());
-                datePickerDialog.show();
+                mDatePickerDialog = new DatePickerDialog(mContext, android.R.style.Theme_Holo_Light_Dialog_MinWidth, mOnSingleDateSet, year, month, day);
+                mDatePickerDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                mDatePickerDialog.getDatePicker().setMaxDate(mEndDateLimit.getTime());
+                mDatePickerDialog.getDatePicker().setMinDate(mStartDateLimit.getTime());
+                mDatePickerDialog.show();
             }
         }
     }
 
     public void dismissDatePickerDialog() {
-        if (datePickerDialog != null) {
-            datePickerDialog.dismiss();
+        if (mDatePickerDialog != null) {
+            mDatePickerDialog.dismiss();
         }
     }
 
     private void limitDateRangesToTwoYearsFromStart(Calendar calendar) {
-        calendar.setTime(startDatePreset);
+        calendar.setTime(mStartDatePreset);
         calendar.add(Calendar.YEAR, 2);
         Date dateInTwoYears = calendar.getTime();
-        if (endDatePreset.after(dateInTwoYears)) {
-            endDatePreset = dateInTwoYears;
-            Toast.makeText(context, R.string.max_dates_range, Toast.LENGTH_SHORT).show();
+        if (mEndDatePreset.after(dateInTwoYears)) {
+            mEndDatePreset = dateInTwoYears;
+            Toast.makeText(mContext, R.string.max_dates_range, Toast.LENGTH_SHORT).show();
         }
     }
 
     private void limitDateRangesToTwoYearsFromEnd(Calendar calendar) {
-        calendar.setTime(endDatePreset);
+        calendar.setTime(mEndDatePreset);
         calendar.add(Calendar.YEAR, -2);
         Date dateTwoYearsAgo = calendar.getTime();
-        if (startDatePreset.before(dateTwoYearsAgo)) {
-            startDatePreset = dateTwoYearsAgo;
-            Toast.makeText(context, R.string.max_dates_range, Toast.LENGTH_SHORT).show();
+        if (mStartDatePreset.before(dateTwoYearsAgo)) {
+            mStartDatePreset = dateTwoYearsAgo;
+            Toast.makeText(mContext, R.string.max_dates_range, Toast.LENGTH_SHORT).show();
         }
     }
 
     public void setSingleDatePreset(Date date){
-        this.singleDatePreset = date;
+        mSingleDatePreset = date;
     }
 }

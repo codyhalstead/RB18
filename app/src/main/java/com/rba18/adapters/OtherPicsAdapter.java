@@ -18,7 +18,6 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.rba18.BuildConfig;
 import com.rba18.R;
-import com.rba18.sqlite.DatabaseHandler;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -28,17 +27,15 @@ import java.util.ArrayList;
  */
 
 public class OtherPicsAdapter extends RecyclerView.Adapter<OtherPicsAdapter.ViewHolder> {
-    private ArrayList<String> images;
-    Context context;
-    private DatabaseHandler databaseHandler;
-    private OnDataChangedListener onDataChangedLisener;
-    private boolean isPhotoClickEnabled;
+    private ArrayList<String> mImages;
+    private Context mContext;
+    private OnDataChangedListener mOnDataChangedListener;
+    private boolean mIsPhotoClickEnabled;
 
     public OtherPicsAdapter(ArrayList<String> images, Context context) {
-        this.images = images;
-        this.context = context;
-        this.databaseHandler = new DatabaseHandler(context);
-        this.isPhotoClickEnabled = true;
+        mImages = images;
+        mContext = context;
+        mIsPhotoClickEnabled = true;
     }
 
     public interface OnDataChangedListener {
@@ -46,7 +43,7 @@ public class OtherPicsAdapter extends RecyclerView.Adapter<OtherPicsAdapter.View
     }
 
     public void setOnDataChangedListener(OnDataChangedListener listener) {
-        this.onDataChangedLisener = listener;
+        mOnDataChangedListener = listener;
     }
 
     @Override
@@ -57,14 +54,14 @@ public class OtherPicsAdapter extends RecyclerView.Adapter<OtherPicsAdapter.View
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        final String image = images.get(position);
-        Glide.with(context).load(image).placeholder(R.drawable.no_picture)
+        final String image = mImages.get(position);
+        Glide.with(mContext).load(image).placeholder(R.drawable.no_picture)
                 .override(100, 100).centerCrop().into(holder.imageView);
 
         holder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (isPhotoClickEnabled) {
+                if (mIsPhotoClickEnabled) {
                     if (image != null) {
                         if (new File(image).exists()) {
                             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
@@ -72,17 +69,17 @@ public class OtherPicsAdapter extends RecyclerView.Adapter<OtherPicsAdapter.View
                                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                                 intent.setAction(Intent.ACTION_VIEW);
                                 intent.setDataAndType(Uri.fromFile(new File(image)), "image/*");
-                                context.startActivity(intent);
+                                mContext.startActivity(intent);
                             } else {
                                 Intent intent = new Intent();
                                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                                 intent.setAction(Intent.ACTION_VIEW);
-                                Uri photoUri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".helpers.fileprovider", new File(image));
+                                Uri photoUri = FileProvider.getUriForFile(mContext, BuildConfig.APPLICATION_ID + ".helpers.fileprovider", new File(image));
                                 intent.setData(photoUri);
-                                context.startActivity(intent);
+                                mContext.startActivity(intent);
                             }
                         } else {
-                            Toast.makeText(context, R.string.could_not_find_file, Toast.LENGTH_LONG).show();
+                            Toast.makeText(mContext, R.string.could_not_find_file, Toast.LENGTH_LONG).show();
                         }
                     }
                 }
@@ -91,8 +88,8 @@ public class OtherPicsAdapter extends RecyclerView.Adapter<OtherPicsAdapter.View
         holder.imageView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                if (onDataChangedLisener != null) {
-                    PopupMenu popup = new PopupMenu(context, view);
+                if (mOnDataChangedListener != null) {
+                    PopupMenu popup = new PopupMenu(mContext, view);
                     MenuInflater inflater = popup.getMenuInflater();
                     popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                         @Override
@@ -100,8 +97,8 @@ public class OtherPicsAdapter extends RecyclerView.Adapter<OtherPicsAdapter.View
                             switch (item.getItemId()) {
 
                                 case R.id.removePic:
-                                    onDataChangedLisener.onPicSelectedToBeRemoved(image);
-                                    images.remove(image);
+                                    mOnDataChangedListener.onPicSelectedToBeRemoved(image);
+                                    mImages.remove(image);
                                     OtherPicsAdapter.this.notifyDataSetChanged();
                                     return true;
 
@@ -120,7 +117,7 @@ public class OtherPicsAdapter extends RecyclerView.Adapter<OtherPicsAdapter.View
     }
 
     public void updateResults(ArrayList<String> results) {
-        images = results;
+        mImages = results;
 
         //Triggers the list update
         notifyDataSetChanged();
@@ -128,15 +125,15 @@ public class OtherPicsAdapter extends RecyclerView.Adapter<OtherPicsAdapter.View
 
     @Override
     public int getItemCount() {
-        return images.size();
+        return mImages.size();
     }
 
     public ArrayList<String> getImagePaths() {
-        return images;
+        return mImages;
     }
 
     public void setPhotoClick(boolean isEnabled) {
-        this.isPhotoClickEnabled = isEnabled;
+        mIsPhotoClickEnabled = isEnabled;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

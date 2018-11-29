@@ -1,9 +1,5 @@
 package com.rba18.adapters;
 
-/**
- * Created by Cody on 1/10/2018.
- */
-
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -22,14 +18,12 @@ import java.util.Map;
 
 import hirondelle.date4j.DateTime;
 
-import static android.support.constraint.Constraints.TAG;
-
 public class CustomCalendarAdapter extends CaldroidGridAdapter {
     //Key = date, value = amount
-    private HashMap<String, Integer> leaseStartDatesHM;
-    private HashMap<String, Integer> leaseEndDatesHM;
-    private HashMap<String, Integer> expenseDatesHM;
-    private HashMap<String, Integer> incomeDatesHM;
+    private HashMap<String, Integer> mLeaseStartDatesHM;
+    private HashMap<String, Integer> mLeaseEndDatesHM;
+    private HashMap<String, Integer> mExpenseDatesHM;
+    private HashMap<String, Integer> mIncomeDatesHM;
 
 
     public CustomCalendarAdapter(Context context, int month, int year,
@@ -40,10 +34,10 @@ public class CustomCalendarAdapter extends CaldroidGridAdapter {
                                  HashMap<String, Integer> expenseDatesAndAmounts,
                                  HashMap<String, Integer> incomeDatesAndAmounts) {
         super(context, month, year, caldroidData, extraData);
-        leaseStartDatesHM = leaseStartDatesAndAmounts;
-        leaseEndDatesHM = leaseEndDatesAndAmounts;
-        expenseDatesHM = expenseDatesAndAmounts;
-        incomeDatesHM = incomeDatesAndAmounts;
+        mLeaseStartDatesHM = leaseStartDatesAndAmounts;
+        mLeaseEndDatesHM = leaseEndDatesAndAmounts;
+        mExpenseDatesHM = expenseDatesAndAmounts;
+        mIncomeDatesHM = incomeDatesAndAmounts;
     }
 
     @Override
@@ -54,7 +48,7 @@ public class CustomCalendarAdapter extends CaldroidGridAdapter {
 
         // For reuse
         if (convertView == null) {
-            cellView = inflater.inflate(R.layout.custom_calendar_cell, null);
+            cellView = inflater.inflate(R.layout.custom_calendar_cell, parent, false);
         }
 
         int topPadding = cellView.getPaddingTop();
@@ -89,11 +83,11 @@ public class CustomCalendarAdapter extends CaldroidGridAdapter {
             spacer3.setVisibility(View.GONE);
             spacer4.setVisibility(View.GONE);
         }
-        int amount = 0;
-        if (leaseStartDatesHM != null) {
-            if (leaseStartDatesHM.containsKey(date.toString())) {
+        int amount;
+        if (mLeaseStartDatesHM != null) {
+            if (mLeaseStartDatesHM.containsKey(date.toString())) {
                 leaseBeginAmountTV.setVisibility(View.VISIBLE);
-                amount = leaseStartDatesHM.get(date.toString());
+                amount = mLeaseStartDatesHM.get(date.toString());
                 if (amount <= 99) {
                     String amountString = amount + "";
                     leaseBeginAmountTV.setText(amountString);
@@ -106,10 +100,10 @@ public class CustomCalendarAdapter extends CaldroidGridAdapter {
                 spacer1.setVisibility(View.INVISIBLE);
             }
         }
-        if (leaseEndDatesHM != null) {
-            if (leaseEndDatesHM.containsKey(date.toString())) {
+        if (mLeaseEndDatesHM != null) {
+            if (mLeaseEndDatesHM.containsKey(date.toString())) {
                 leaseEndAmountTV.setVisibility(View.VISIBLE);
-                amount = leaseEndDatesHM.get(date.toString());
+                amount = mLeaseEndDatesHM.get(date.toString());
                 if (amount <= 99) {
                     String amountString = amount + "";
                     leaseEndAmountTV.setText(amountString);
@@ -122,10 +116,10 @@ public class CustomCalendarAdapter extends CaldroidGridAdapter {
                 spacer2.setVisibility(View.INVISIBLE);
             }
         }
-        if (expenseDatesHM != null) {
-            if (expenseDatesHM.containsKey(date.toString())) {
+        if (mExpenseDatesHM != null) {
+            if (mExpenseDatesHM.containsKey(date.toString())) {
                 expenseAmountTV.setVisibility(View.VISIBLE);
-                amount = expenseDatesHM.get(date.toString());
+                amount = mExpenseDatesHM.get(date.toString());
                 if (amount <= 99) {
                     String amountString = amount + "";
                     expenseAmountTV.setText(amountString);
@@ -138,10 +132,10 @@ public class CustomCalendarAdapter extends CaldroidGridAdapter {
                 spacer3.setVisibility(View.INVISIBLE);
             }
         }
-        if (incomeDatesHM != null) {
-            if (incomeDatesHM.containsKey(date.toString())) {
+        if (mIncomeDatesHM != null) {
+            if (mIncomeDatesHM.containsKey(date.toString())) {
                 incomeAmountTV.setVisibility(View.VISIBLE);
-                amount =  incomeDatesHM.get(date.toString());
+                amount =  mIncomeDatesHM.get(date.toString());
                 if (amount <= 99) {
                     String amountString = amount + "";
                     incomeAmountTV.setText(amountString);
@@ -204,10 +198,10 @@ public class CustomCalendarAdapter extends CaldroidGridAdapter {
                                HashMap<String, Integer> leaseEndDatesAndAmounts,
                                HashMap<String, Integer> expenseDatesAndAmounts,
                                HashMap<String, Integer> incomeDatesAndAmounts) {
-        leaseStartDatesHM = leaseStartDatesAndAmounts;
-        leaseEndDatesHM = leaseEndDatesAndAmounts;
-        expenseDatesHM = expenseDatesAndAmounts;
-        incomeDatesHM = incomeDatesAndAmounts;
+        mLeaseStartDatesHM = leaseStartDatesAndAmounts;
+        mLeaseEndDatesHM = leaseEndDatesAndAmounts;
+        mExpenseDatesHM = expenseDatesAndAmounts;
+        mIncomeDatesHM = incomeDatesAndAmounts;
         this.notifyDataSetChanged();
     }
 

@@ -31,21 +31,20 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class TotalsFragment extends android.support.v4.app.Fragment implements AdapterView.OnItemClickListener, View.OnClickListener {
-    ArrayList<TypeTotal> typeTotals;
-    TextView noTotalsTV, isCompletedToggleFilterTV;
-    DatabaseHandler db;
-    Date filterDateStart, filterDateEnd;
-    Button dateRangeStartBtn, dateRangeEndBtn;
-    TotalsListAdapter totalsListAdapter;
-    ColorStateList accentColor;
-    ListView listView;
-    MainArrayDataMethods dataMethods;
-    TextView incomeTotalTV, expenseTotalTV;
+    private ArrayList<TypeTotal> mTypeTotals;
+    private TextView mNoTotalsTV, mIsCompletedToggleFilterTV, mIncomeTotalTV, mExpenseTotalTV;
+    private DatabaseHandler mDB;
+    private Date mFilterDateStart, mFilterDateEnd;
+    private Button mDateRangeStartBtn, mDateRangeEndBtn;
+    private TotalsListAdapter mTotalsListAdapter;
+    private ColorStateList mAccentColor;
+    private ListView mListView;
+    private MainArrayDataMethods mDataMethods;
     private OnDatesChangedListener mCallback;
-    private SharedPreferences preferences;
-    private CustomDatePickerDialogLauncher datePickerDialogLauncher;
-    private BigDecimal incomeTotals, expenseTotals;
-    private boolean completedOnly;
+    private SharedPreferences mPreferences;
+    private CustomDatePickerDialogLauncher mDatePickerDialogLauncher;
+    private BigDecimal mIncomeTotals, mExpenseTotals;
+    private boolean mCompletedOnly;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -57,93 +56,93 @@ public class TotalsFragment extends android.support.v4.app.Fragment implements A
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        noTotalsTV = view.findViewById(R.id.totalsEmptyListTV);
-        this.incomeTotalTV = view.findViewById(R.id.totalsListIncomeAmountTV);
-        this.expenseTotalTV = view.findViewById(R.id.totalsListExpenseAmountTV);
-        this.dateRangeStartBtn = view.findViewById(R.id.totalsDateRangeStartBtn);
-        this.dateRangeStartBtn.setOnClickListener(this);
-        this.dateRangeEndBtn = view.findViewById(R.id.totalsDateRangeEndBtn);
-        this.dateRangeEndBtn.setOnClickListener(this);
-        this.isCompletedToggleFilterTV = view.findViewById(R.id.totalsIsCompletedFilterTV);
-        this.isCompletedToggleFilterTV.setOnClickListener(this);
-        this.listView = view.findViewById(R.id.totalsListView);
-        db = new DatabaseHandler(getActivity());
-        dataMethods = new MainArrayDataMethods();
-        this.filterDateEnd = ViewModelProviders.of(getActivity()).get(MainViewModel.class).getEndDateRangeDate().getValue();
-        this.filterDateStart = ViewModelProviders.of(getActivity()).get(MainViewModel.class).getStartDateRangeDate().getValue();
-        this.preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        int dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
-        dateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateStart));
-        dateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateEnd));
+        mNoTotalsTV = view.findViewById(R.id.totalsEmptyListTV);
+        mIncomeTotalTV = view.findViewById(R.id.totalsListIncomeAmountTV);
+        mExpenseTotalTV = view.findViewById(R.id.totalsListExpenseAmountTV);
+        mDateRangeStartBtn = view.findViewById(R.id.totalsDateRangeStartBtn);
+        mDateRangeStartBtn.setOnClickListener(this);
+        mDateRangeEndBtn = view.findViewById(R.id.totalsDateRangeEndBtn);
+        mDateRangeEndBtn.setOnClickListener(this);
+        mIsCompletedToggleFilterTV = view.findViewById(R.id.totalsIsCompletedFilterTV);
+        mIsCompletedToggleFilterTV.setOnClickListener(this);
+        mListView = view.findViewById(R.id.totalsListView);
+        mDB = new DatabaseHandler(getActivity());
+        mDataMethods = new MainArrayDataMethods();
+        mFilterDateEnd = ViewModelProviders.of(getActivity()).get(MainViewModel.class).getEndDateRangeDate().getValue();
+        mFilterDateStart = ViewModelProviders.of(getActivity()).get(MainViewModel.class).getStartDateRangeDate().getValue();
+        mPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        int dateFormatCode = mPreferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
+        mDateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, mFilterDateStart));
+        mDateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, mFilterDateEnd));
         if (savedInstanceState != null) {
             if (savedInstanceState.getParcelableArrayList("filteredTotals") != null) {
-                this.typeTotals = savedInstanceState.getParcelableArrayList("filteredTotals");
+                mTypeTotals = savedInstanceState.getParcelableArrayList("filteredTotals");
             } else {
-                this.typeTotals = new ArrayList<>();
+                mTypeTotals = new ArrayList<>();
             }
-            completedOnly = savedInstanceState.getBoolean("completedOnly");
+            mCompletedOnly = savedInstanceState.getBoolean("mCompletedOnly");
         } else {
-            typeTotals = new ArrayList<>();
-            typeTotals.addAll(db.getTotalForExpenseTypesWithinDatesOnlyPaid(MainActivity.user, filterDateStart, filterDateEnd));
-            typeTotals.addAll(db.getTotalForIncomeTypesWithinDatesOnlyReceived(MainActivity.user, filterDateStart, filterDateEnd));
-            dataMethods.sortTypeTotalsArrayByTotalAmountDesc(typeTotals);
-            completedOnly = true;
+            mTypeTotals = new ArrayList<>();
+            mTypeTotals.addAll(mDB.getTotalForExpenseTypesWithinDatesOnlyPaid(MainActivity.sUser, mFilterDateStart, mFilterDateEnd));
+            mTypeTotals.addAll(mDB.getTotalForIncomeTypesWithinDatesOnlyReceived(MainActivity.sUser, mFilterDateStart, mFilterDateEnd));
+            mDataMethods.sortTypeTotalsArrayByTotalAmountDesc(mTypeTotals);
+            mCompletedOnly = true;
         }
-        if(completedOnly){
-            isCompletedToggleFilterTV.setText(R.string.paid_received_only);
+        if(mCompletedOnly){
+            mIsCompletedToggleFilterTV.setText(R.string.paid_received_only);
         } else {
-            isCompletedToggleFilterTV.setText(R.string.projected);
+            mIsCompletedToggleFilterTV.setText(R.string.projected);
         }
         TypedValue colorValue = new TypedValue();
         getActivity().getTheme().resolveAttribute(R.attr.colorAccent, colorValue, true);
-        this.accentColor = getActivity().getResources().getColorStateList(colorValue.resourceId);
+        mAccentColor = getActivity().getResources().getColorStateList(colorValue.resourceId);
         setUpListAdapter();
         figureIncomeAndExpenseTotals();
         displayIncomeAndExpenseTotals();
-        datePickerDialogLauncher = new CustomDatePickerDialogLauncher(filterDateStart, filterDateEnd, true, getContext());
-        datePickerDialogLauncher.setDateSelectedListener(new CustomDatePickerDialogLauncher.DateSelectedListener() {
+        mDatePickerDialogLauncher = new CustomDatePickerDialogLauncher(mFilterDateStart, mFilterDateEnd, true, getContext());
+        mDatePickerDialogLauncher.setDateSelectedListener(new CustomDatePickerDialogLauncher.DateSelectedListener() {
             @Override
             public void onStartDateSelected(Date startDate, Date endDate) {
-                filterDateStart = startDate;
-                filterDateEnd = endDate;
-                int dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
-                dateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateStart));
-                dateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateEnd));
-                typeTotals.clear();
-                if(completedOnly){
-                    typeTotals.addAll(db.getTotalForExpenseTypesWithinDatesOnlyPaid(MainActivity.user, filterDateStart, filterDateEnd));
-                    typeTotals.addAll(db.getTotalForIncomeTypesWithinDatesOnlyReceived(MainActivity.user, filterDateStart, filterDateEnd));
+                mFilterDateStart = startDate;
+                mFilterDateEnd = endDate;
+                int dateFormatCode = mPreferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
+                mDateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, mFilterDateStart));
+                mDateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, mFilterDateEnd));
+                mTypeTotals.clear();
+                if(mCompletedOnly){
+                    mTypeTotals.addAll(mDB.getTotalForExpenseTypesWithinDatesOnlyPaid(MainActivity.sUser, mFilterDateStart, mFilterDateEnd));
+                    mTypeTotals.addAll(mDB.getTotalForIncomeTypesWithinDatesOnlyReceived(MainActivity.sUser, mFilterDateStart, mFilterDateEnd));
                 } else {
-                    typeTotals.addAll(db.getTotalForExpenseTypesWithinDates(MainActivity.user, filterDateStart, filterDateEnd));
-                    typeTotals.addAll(db.getTotalForIncomeTypesWithinDates(MainActivity.user, filterDateStart, filterDateEnd));
+                    mTypeTotals.addAll(mDB.getTotalForExpenseTypesWithinDates(MainActivity.sUser, mFilterDateStart, mFilterDateEnd));
+                    mTypeTotals.addAll(mDB.getTotalForIncomeTypesWithinDates(MainActivity.sUser, mFilterDateStart, mFilterDateEnd));
                 }
-                dataMethods.sortTypeTotalsArrayByTotalAmountDesc(typeTotals);
+                mDataMethods.sortTypeTotalsArrayByTotalAmountDesc(mTypeTotals);
                 figureIncomeAndExpenseTotals();
                 displayIncomeAndExpenseTotals();
-                totalsListAdapter.notifyDataSetChanged();
-                mCallback.onTotalsListDatesChanged(filterDateStart, filterDateEnd, TotalsFragment.this);
+                mTotalsListAdapter.notifyDataSetChanged();
+                mCallback.onTotalsListDatesChanged(mFilterDateStart, mFilterDateEnd, TotalsFragment.this);
             }
 
             @Override
             public void onEndDateSelected(Date startDate, Date endDate) {
-                filterDateStart = startDate;
-                filterDateEnd = endDate;
-                int dateFormatCode = preferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
-                dateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateStart));
-                dateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, filterDateEnd));
-                typeTotals.clear();
-                if(completedOnly){
-                    typeTotals.addAll(db.getTotalForExpenseTypesWithinDatesOnlyPaid(MainActivity.user, filterDateStart, filterDateEnd));
-                    typeTotals.addAll(db.getTotalForIncomeTypesWithinDatesOnlyReceived(MainActivity.user, filterDateStart, filterDateEnd));
+                mFilterDateStart = startDate;
+                mFilterDateEnd = endDate;
+                int dateFormatCode = mPreferences.getInt("dateFormat", DateAndCurrencyDisplayer.DATE_MMDDYYYY);
+                mDateRangeStartBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, mFilterDateStart));
+                mDateRangeEndBtn.setText(DateAndCurrencyDisplayer.getDateToDisplay(dateFormatCode, mFilterDateEnd));
+                mTypeTotals.clear();
+                if(mCompletedOnly){
+                    mTypeTotals.addAll(mDB.getTotalForExpenseTypesWithinDatesOnlyPaid(MainActivity.sUser, mFilterDateStart, mFilterDateEnd));
+                    mTypeTotals.addAll(mDB.getTotalForIncomeTypesWithinDatesOnlyReceived(MainActivity.sUser, mFilterDateStart, mFilterDateEnd));
                 } else {
-                    typeTotals.addAll(db.getTotalForExpenseTypesWithinDates(MainActivity.user, filterDateStart, filterDateEnd));
-                    typeTotals.addAll(db.getTotalForIncomeTypesWithinDates(MainActivity.user, filterDateStart, filterDateEnd));
+                    mTypeTotals.addAll(mDB.getTotalForExpenseTypesWithinDates(MainActivity.sUser, mFilterDateStart, mFilterDateEnd));
+                    mTypeTotals.addAll(mDB.getTotalForIncomeTypesWithinDates(MainActivity.sUser, mFilterDateStart, mFilterDateEnd));
                 }
-                dataMethods.sortTypeTotalsArrayByTotalAmountDesc(typeTotals);
+                mDataMethods.sortTypeTotalsArrayByTotalAmountDesc(mTypeTotals);
                 figureIncomeAndExpenseTotals();
                 displayIncomeAndExpenseTotals();
-                totalsListAdapter.notifyDataSetChanged();
-                mCallback.onTotalsListDatesChanged(filterDateStart, filterDateEnd, TotalsFragment.this);
+                mTotalsListAdapter.notifyDataSetChanged();
+                mCallback.onTotalsListDatesChanged(mFilterDateStart, mFilterDateEnd, TotalsFragment.this);
             }
 
             @Override
@@ -155,11 +154,11 @@ public class TotalsFragment extends android.support.v4.app.Fragment implements A
     }
 
     private void setUpListAdapter() {
-        totalsListAdapter = new TotalsListAdapter(getActivity(), typeTotals, accentColor);
-        listView.setAdapter(totalsListAdapter);
-        listView.setOnItemClickListener(this);
-        noTotalsTV.setText(R.string.no_data_to_display);
-        this.listView.setEmptyView(noTotalsTV);
+        mTotalsListAdapter = new TotalsListAdapter(getActivity(), mTypeTotals, mAccentColor);
+        mListView.setAdapter(mTotalsListAdapter);
+        mListView.setOnItemClickListener(this);
+        mNoTotalsTV.setText(R.string.no_data_to_display);
+        mListView.setEmptyView(mNoTotalsTV);
     }
 
     @Override
@@ -168,15 +167,15 @@ public class TotalsFragment extends android.support.v4.app.Fragment implements A
     }
 
     private void figureIncomeAndExpenseTotals() {
-        incomeTotals = new BigDecimal(0);
-        expenseTotals = new BigDecimal(0);
-        if (typeTotals != null) {
-            if (!typeTotals.isEmpty()) {
-                for (int i = 0; i < typeTotals.size(); i++) {
-                    if (typeTotals.get(i).getTotalAmount().compareTo(new BigDecimal(0)) < 0) {
-                        expenseTotals = expenseTotals.add(typeTotals.get(i).getTotalAmount());
+        mIncomeTotals = new BigDecimal(0);
+        mExpenseTotals = new BigDecimal(0);
+        if (mTypeTotals != null) {
+            if (!mTypeTotals.isEmpty()) {
+                for (int i = 0; i < mTypeTotals.size(); i++) {
+                    if (mTypeTotals.get(i).getTotalAmount().compareTo(new BigDecimal(0)) < 0) {
+                        mExpenseTotals = mExpenseTotals.add(mTypeTotals.get(i).getTotalAmount());
                     } else {
-                        incomeTotals = incomeTotals.add(typeTotals.get(i).getTotalAmount());
+                        mIncomeTotals = mIncomeTotals.add(mTypeTotals.get(i).getTotalAmount());
                     }
                 }
             }
@@ -184,12 +183,12 @@ public class TotalsFragment extends android.support.v4.app.Fragment implements A
     }
 
     private void displayIncomeAndExpenseTotals() {
-        int moneyFormatCode = preferences.getInt("currency", DateAndCurrencyDisplayer.CURRENCY_US);
-        if (incomeTotals != null) {
-            incomeTotalTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, incomeTotals));
+        int moneyFormatCode = mPreferences.getInt("currency", DateAndCurrencyDisplayer.CURRENCY_US);
+        if (mIncomeTotals != null) {
+            mIncomeTotalTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, mIncomeTotals));
         }
-        if (expenseTotals != null) {
-            expenseTotalTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, expenseTotals));
+        if (mExpenseTotals != null) {
+            mExpenseTotalTV.setText(DateAndCurrencyDisplayer.getCurrencyToDisplay(moneyFormatCode, mExpenseTotals));
         }
     }
 
@@ -198,31 +197,31 @@ public class TotalsFragment extends android.support.v4.app.Fragment implements A
         switch (view.getId()) {
 
             case R.id.totalsDateRangeStartBtn:
-                datePickerDialogLauncher.launchStartDatePickerDialog();
+                mDatePickerDialogLauncher.launchStartDatePickerDialog();
                 break;
 
             case R.id.totalsDateRangeEndBtn:
-                datePickerDialogLauncher.launchEndDatePickerDialog();
+                mDatePickerDialogLauncher.launchEndDatePickerDialog();
                 break;
 
             case R.id.totalsIsCompletedFilterTV:
-                typeTotals.clear();
-                if(completedOnly){
-                    completedOnly = false;
-                    isCompletedToggleFilterTV.setText(R.string.projected);
-                    typeTotals.addAll(db.getTotalForExpenseTypesWithinDates(MainActivity.user, filterDateStart, filterDateEnd));
-                    typeTotals.addAll(db.getTotalForIncomeTypesWithinDates(MainActivity.user, filterDateStart, filterDateEnd));
+                mTypeTotals.clear();
+                if(mCompletedOnly){
+                    mCompletedOnly = false;
+                    mIsCompletedToggleFilterTV.setText(R.string.projected);
+                    mTypeTotals.addAll(mDB.getTotalForExpenseTypesWithinDates(MainActivity.sUser, mFilterDateStart, mFilterDateEnd));
+                    mTypeTotals.addAll(mDB.getTotalForIncomeTypesWithinDates(MainActivity.sUser, mFilterDateStart, mFilterDateEnd));
                 } else {
-                    completedOnly = true;
-                    isCompletedToggleFilterTV.setText(R.string.paid_received_only);
-                    typeTotals.addAll(db.getTotalForExpenseTypesWithinDatesOnlyPaid(MainActivity.user, filterDateStart, filterDateEnd));
-                    typeTotals.addAll(db.getTotalForIncomeTypesWithinDatesOnlyReceived(MainActivity.user, filterDateStart, filterDateEnd));
+                    mCompletedOnly = true;
+                    mIsCompletedToggleFilterTV.setText(R.string.paid_received_only);
+                    mTypeTotals.addAll(mDB.getTotalForExpenseTypesWithinDatesOnlyPaid(MainActivity.sUser, mFilterDateStart, mFilterDateEnd));
+                    mTypeTotals.addAll(mDB.getTotalForIncomeTypesWithinDatesOnlyReceived(MainActivity.sUser, mFilterDateStart, mFilterDateEnd));
                 }
-                dataMethods.sortTypeTotalsArrayByTotalAmountDesc(typeTotals);
+                mDataMethods.sortTypeTotalsArrayByTotalAmountDesc(mTypeTotals);
                 figureIncomeAndExpenseTotals();
                 displayIncomeAndExpenseTotals();
-                totalsListAdapter.notifyDataSetChanged();
-                mCallback.onTotalsListDatesChanged(filterDateStart, filterDateEnd, TotalsFragment.this);
+                mTotalsListAdapter.notifyDataSetChanged();
+                mCallback.onTotalsListDatesChanged(mFilterDateStart, mFilterDateEnd, TotalsFragment.this);
                 break;
 
             default:
@@ -257,15 +256,15 @@ public class TotalsFragment extends android.support.v4.app.Fragment implements A
     @Override
     public void onPause() {
         super.onPause();
-        datePickerDialogLauncher.dismissDatePickerDialog();
+        mDatePickerDialogLauncher.dismissDatePickerDialog();
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (typeTotals != null) {
-            outState.putParcelableArrayList("filteredTotals", typeTotals);
+        if (mTypeTotals != null) {
+            outState.putParcelableArrayList("filteredTotals", mTypeTotals);
         }
-        outState.putBoolean("completedOnly", completedOnly);
+        outState.putBoolean("mCompletedOnly", mCompletedOnly);
     }
 }

@@ -8,32 +8,31 @@ import android.os.Parcelable;
  */
 
 public class Tenant implements Parcelable {
-    private int id;
-    private String firstName;
-    private String lastName;
-    private String phone;
-    private String email;
-    private String emergencyFirstName;
-    private String emergencyLastName;
-    private String emergencyPhone;
-    private boolean hasLease;
-    private String notes;
-    private boolean isActive;
-
+    private int mID;
+    private String mFirstName;
+    private String mLastName;
+    private String mPhone;
+    private String mEmail;
+    private String mEmergencyFirstName;
+    private String mEmergencyLastName;
+    private String mEmergencyPhone;
+    private boolean mHasLease;
+    private String mNotes;
+    private boolean mIsActive;
 
     public Tenant(int id, String firstName, String lastName, String phone, String email, String emergencyFirstName,
                   String emergencyLastName, String emergencyPhone, boolean hasLease, String notes, boolean isActive) {
-        this.id = id;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.phone = phone;
-        this.email = email;
-        this.emergencyFirstName = emergencyFirstName;
-        this.emergencyLastName = emergencyLastName;
-        this.emergencyPhone = emergencyPhone;
-        this.hasLease = hasLease;
-        this.notes = notes;
-        this.isActive = isActive;
+        mID = id;
+        mFirstName = firstName;
+        mLastName = lastName;
+        mPhone = phone;
+        mEmail = email;
+        mEmergencyFirstName = emergencyFirstName;
+        mEmergencyLastName = emergencyLastName;
+        mEmergencyPhone = emergencyPhone;
+        mHasLease = hasLease;
+        mNotes = notes;
+        mIsActive = isActive;
     }
 
     @Override
@@ -43,31 +42,31 @@ public class Tenant implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeInt(this.id);
-        parcel.writeString(this.firstName);
-        parcel.writeString(this.lastName);
-        parcel.writeString(this.phone);
-        parcel.writeString(this.email);
-        parcel.writeString(this.emergencyFirstName);
-        parcel.writeString(this.emergencyLastName);
-        parcel.writeString(this.emergencyPhone);
-        parcel.writeByte((byte) (hasLease ? 1 : 0));
-        parcel.writeString(this.notes);
-        parcel.writeByte((byte) (isActive ? 1 : 0));
+        parcel.writeInt(mID);
+        parcel.writeString(mFirstName);
+        parcel.writeString(mLastName);
+        parcel.writeString(mPhone);
+        parcel.writeString(mEmail);
+        parcel.writeString(mEmergencyFirstName);
+        parcel.writeString(mEmergencyLastName);
+        parcel.writeString(mEmergencyPhone);
+        parcel.writeByte((byte) (mHasLease ? 1 : 0));
+        parcel.writeString(mNotes);
+        parcel.writeByte((byte) (mIsActive ? 1 : 0));
     }
 
     private Tenant(Parcel in) {
-        this.id = in.readInt();
-        this.firstName = in.readString();
-        this.lastName = in.readString();
-        this.phone = in.readString();
-        this.email = in.readString();
-        this.emergencyFirstName = in.readString();
-        this.emergencyLastName = in.readString();
-        this.emergencyPhone = in.readString();
-        this.hasLease = in.readByte() != 0;
-        this.notes = in.readString();
-        this.isActive = in.readByte() != 0;
+        mID = in.readInt();
+        mFirstName = in.readString();
+        mLastName = in.readString();
+        mPhone = in.readString();
+        mEmail = in.readString();
+        mEmergencyFirstName = in.readString();
+        mEmergencyLastName = in.readString();
+        mEmergencyPhone = in.readString();
+        mHasLease = in.readByte() != 0;
+        mNotes = in.readString();
+        mIsActive = in.readByte() != 0;
     }
 
 
@@ -88,130 +87,130 @@ public class Tenant implements Parcelable {
     };
 
     public String getFirstName() {
-        return firstName;
+        return mFirstName;
     }
 
     public void setFirstName(String firstName) {
-        this.firstName = firstName;
+        mFirstName = firstName;
     }
 
     public String getLastName() {
-        return lastName;
+        return mLastName;
     }
 
     public void setLastName(String lastName) {
-        this.lastName = lastName;
+        mLastName = lastName;
     }
 
     public String getPhone() {
-        if(phone != null){
-            return phone;
+        if(mPhone != null){
+            return mPhone;
         }
         return "";
     }
 
     public void setPhone(String phone) {
-        this.phone = phone;
+        mPhone = phone;
     }
 
     public int getId() {
-        return id;
+        return mID;
     }
 
     public void setId(int id) {
-        this.id = id;
+        mID = id;
     }
 
     public String getNotes() {
-        return notes;
+        return mNotes;
     }
 
     public void setNotes(String notes) {
-        this.notes = notes;
+        mNotes = notes;
     }
 
     public String getTenantEmail() {
-        if(email != null){
-            return email;
+        if(mEmail != null){
+            return mEmail;
         }
         return "";
     }
 
     public void setTenantEmail(String email) {
-        this.email = email;
+        mEmail = email;
     }
 
     public String getEmergencyFirstName() {
-        return emergencyFirstName;
+        return mEmergencyFirstName;
     }
 
     public void setEmergencyFirstName(String emergencyFirstName) {
-        this.emergencyFirstName = emergencyFirstName;
+        mEmergencyFirstName = emergencyFirstName;
     }
 
     public String getEmergencyLastName() {
-        return emergencyLastName;
+        return mEmergencyLastName;
     }
 
     public void setEmergencyLastName(String emergencyLastName) {
-        this.emergencyLastName = emergencyLastName;
+        mEmergencyLastName = emergencyLastName;
     }
 
     public String getEmergencyPhone() {
-        if(emergencyPhone != null){
-            return emergencyPhone;
+        if(mEmergencyPhone != null){
+            return mEmergencyPhone;
         }
         return "";
     }
 
     public void setEmergencyPhone(String emergencyPhone) {
-        this.emergencyPhone = emergencyPhone;
+        mEmergencyPhone = emergencyPhone;
     }
 
     public String getEmail() {
-        return email;
+        return mEmail;
     }
 
     public void setEmail(String email) {
-        this.email = email;
+        mEmail = email;
     }
 
     public Boolean getHasLease() {
-        return hasLease;
+        return mHasLease;
     }
 
     public void setHasLease(Boolean hasLease) {
-        this.hasLease = hasLease;
+        mHasLease = hasLease;
     }
 
     public boolean isActive() {
-        return isActive;
+        return mIsActive;
     }
 
     public void setActive(boolean active) {
-        isActive = active;
+        mIsActive = active;
     }
 
     public String getFirstAndLastNameString() {
         StringBuilder name = new StringBuilder("");
-        if(firstName != null) {
-            name.append(firstName);
+        if(mFirstName != null) {
+            name.append(mFirstName);
             name.append(" ");
         }
-        if(lastName != null) {
-            name.append(lastName);
+        if(mLastName != null) {
+            name.append(mLastName);
         }
         return name.toString();
     }
 
     public String getEmergencyFirstAndLastNameString() {
         StringBuilder name = new StringBuilder(" ");
-        if(emergencyFirstName != null) {
-            name.append(emergencyFirstName);
+        if(mEmergencyFirstName != null) {
+            name.append(mEmergencyFirstName);
             name.append(" ");
         }
-        if(emergencyLastName != null) {
-            name.append(emergencyLastName);
+        if(mEmergencyLastName != null) {
+            name.append(mEmergencyLastName);
         }
         return name.toString();
     }

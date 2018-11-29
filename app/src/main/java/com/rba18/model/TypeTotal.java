@@ -6,23 +6,23 @@ import android.os.Parcelable;
 import java.math.BigDecimal;
 
 public class TypeTotal implements Parcelable {
-    private int typeID;
-    private String typeLabel;
-    private BigDecimal totalAmount;
-    private int numberOfItems;
+    private int mTypeID;
+    private String mTypeLabel;
+    private BigDecimal mTotalAmount;
+    private int mNumberOfItems;
 
     public TypeTotal(int typeID, String typeLabel, BigDecimal totalAmount, int numberOfItems){
-        this.typeID = typeID;
-        this.typeLabel = typeLabel;
-        this.totalAmount = totalAmount;
-        this.numberOfItems = numberOfItems;
+        mTypeID = typeID;
+        mTypeLabel = typeLabel;
+        mTotalAmount = totalAmount;
+        mNumberOfItems = numberOfItems;
     }
 
     public TypeTotal(int typeID, String typeLabel){
-        this.typeID = typeID;
-        this.typeLabel = typeLabel;
-        this.totalAmount = new BigDecimal(0);
-        this.numberOfItems = 0;
+        mTypeID = typeID;
+        mTypeLabel = typeLabel;
+        mTotalAmount = new BigDecimal(0);
+        mNumberOfItems = 0;
     }
 
     @Override
@@ -32,19 +32,19 @@ public class TypeTotal implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeInt(this.typeID);
-        parcel.writeString(this.typeLabel);
-        String amountString = totalAmount.toPlainString();
+        parcel.writeInt(mTypeID);
+        parcel.writeString(mTypeLabel);
+        String amountString = mTotalAmount.toPlainString();
         parcel.writeString(amountString);
-        parcel.writeInt(numberOfItems);
+        parcel.writeInt(mNumberOfItems);
     }
 
     private TypeTotal(Parcel in) {
-        this.typeID = in.readInt();
-        this.typeLabel = in.readString();
+        mTypeID = in.readInt();
+        mTypeLabel = in.readString();
         String amountString = in.readString();
-        this.totalAmount = new BigDecimal(amountString);
-        this.numberOfItems = in.readInt();
+        mTotalAmount = new BigDecimal(amountString);
+        mNumberOfItems = in.readInt();
     }
 
 
@@ -65,34 +65,34 @@ public class TypeTotal implements Parcelable {
     };
 
     public int getTypeID() {
-        return typeID;
+        return mTypeID;
     }
 
     public void setTypeID(int typeID) {
-        this.typeID = typeID;
+        mTypeID = typeID;
     }
 
     public String getTypeLabel() {
-        return typeLabel;
+        return mTypeLabel;
     }
 
     public void setTypeLabel(String typeLabel) {
-        this.typeLabel = typeLabel;
+        mTypeLabel = typeLabel;
     }
 
     public BigDecimal getTotalAmount() {
-        return totalAmount;
+        return mTotalAmount;
     }
 
     public void setTotalAmount(BigDecimal totalAmount) {
-        this.totalAmount = totalAmount;
+        mTotalAmount = totalAmount;
     }
 
     public int getNumberOfItems() {
-        return numberOfItems;
+        return mNumberOfItems;
     }
 
     public void setNumberOfItems(int numberOfItems) {
-        this.numberOfItems = numberOfItems;
+        mNumberOfItems = numberOfItems;
     }
 }
